@@ -1,3 +1,5 @@
+
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
@@ -102,6 +104,8 @@ celerybeat.pid
 *.sage.py
 
 # Environments
+.env.local
+.env.dev
 .env
 .venv
 env/
