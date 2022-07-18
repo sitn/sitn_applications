@@ -31,10 +31,9 @@
                     <th scope="col" colspan="4">Année</th>
                 </tr>
                 <tr>
-                    <th>2019</th>
-                    <th>2020</th>
-                    <th>2021</th>
-                    <th>2022</th>
+                    {% for year in years %}
+                    <th>{{year}}</th>
+                    {% endfor %}                    
                 </tr>
             </thead>
             <tbody>

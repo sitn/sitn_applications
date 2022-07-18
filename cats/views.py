@@ -15,10 +15,17 @@ def index(request):
     user = request.META['HTTP_REMOTE_USER']
     user = user.split('\\')[1]
 
+    now = datetime.datetime.now()
+    current_year = now.year
+
+    years = []
+    for i in range(current_year-3, current_year+1):
+        years.append(i)
 
     template = loader.get_template('cats/index.html')
     context = {
-        'user': user
+        'user': user,
+        'years': years
     }
     return HttpResponse(template.render(context, request))
 
