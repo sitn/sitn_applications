@@ -35,9 +35,9 @@ function init() {
             const max = data.max;
             const min = data.min;
             
-            api.columns(":not(:first)").every(function () {
+            api.columns().every(function () {
                 let ratio, r, g, b;
-                api.cells().every(function () {
+                api.cells(':not(:first)').every(function () {
                     if (this.node().innerText !== '0' && this.node().innerText !== null) {
                         ratio = parseFloat(this.node().innerText) / (max-min);
                         r = Math.ceil(parseInt(color1.substring(0,2), 16) * ratio + parseInt(color2.substring(0,2), 16) * (1-ratio));
@@ -51,7 +51,6 @@ function init() {
         columnDefs: [{
             targets: [1, 2, 3, 4],
             render: function (data) {
-                console.log(data)
                 return data === 0 ? null : data;
             }
         }],
