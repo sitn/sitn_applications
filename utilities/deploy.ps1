@@ -18,20 +18,22 @@ foreach ($line in Get-Content $envFile) {
         Invoke-Expression $cmd
     }
 }
-Write-Output ("{0} - DOCKER_PORT IS {1}" -f $(Get-Date -Format g), $env:DOCKER_PORT)
-If (Test-Path 'env:DOCKER_HOST') { 
-    Write-Output ("{0} - DOCKER_HOST IS {1}" -f $(Get-Date -Format g), $env:DOCKER_HOST)
-} Else {
-    Write-Output ("{0} - DOCKER_HOST IS NOT SET -> LOCAL DEPLOYMENT" -f $(Get-Date -Format g))
-}
 
 $env:ENV_FILE = (".env.{0}" -f $destConfig)
 
-docker-compose build sitn_applications
+if ($destConfig -eq "prod") {
+    $env:DOCKER_HOST="ssh://root@nesitn3.ne.ch"
+} elseif ($destConfig -eq "prepub") {
+    $env:DOCKER_HOST="ssh://root@nesitn3.ne.ch"
+} elseif ($destConfig -eq "dev") {
+    $env:DOCKER_HOST="ssh://root@nesitnd3.ne.ch"
+}
 
+Write-Output ("{0} - DOCKER_PORT IS {1}" -f $(Get-Date -Format g), $env:DOCKER_PORT)
+
+docker-compose build
 docker-compose down
 docker-compose up -d
-
 
 foreach ($line in Get-Content $envFile) {
     $args_ = $line -split "="
@@ -40,5 +42,7 @@ foreach ($line in Get-Content $envFile) {
         Invoke-Expression $cmd
     }
 }
+
+$env:ENV_FILE = ""
 
 Write-Output ("{0} - END" -f $(Get-Date -Format g))
