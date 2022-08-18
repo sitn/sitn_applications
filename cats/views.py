@@ -37,13 +37,6 @@ def get_activity(request):
     user = user.split('\\')[1]
     user = user.lower()
 
-    cats = (CATSAllYears.objects.values('texte_imputation')
-        .filter(username__contains=user)
-        .annotate(year=Trunc('date', 'year'), hours=Sum('nombre_heure'))
-    )
-
-    cats = cats.all()
-
     now = datetime.datetime.now()
 
     current_year = now.year
@@ -51,6 +44,14 @@ def get_activity(request):
     years = {}
     for i in range(current_year-3, current_year+1):
         years[i] = 0
+    
+    cats = (CATSAllYears.objects.values('texte_imputation')
+        .filter(username__contains=user)
+        .filter(date__gte=str(current_year-3)+'-01-01')
+        .annotate(year=Trunc('date', 'year'), hours=Sum('nombre_heure'))
+    )
+
+    cats = cats.all()
 
     cats_list = list(cats)
 
