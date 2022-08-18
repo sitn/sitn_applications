@@ -35,7 +35,7 @@ function init() {
             const max = data.max;
             const min = data.min;
             
-            api.columns().every(function () {
+            api.columns(':not(:first)').every(function () {
                 let ratio, r, g, b;
                 api.cells(':not(:first)').every(function () {
                     if (this.node().innerText !== '0' && this.node().innerText !== null) {
