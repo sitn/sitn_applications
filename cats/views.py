@@ -14,6 +14,7 @@ def index(request):
 
     user = request.META['HTTP_REMOTE_USER']
     user = user.split('\\')[1]
+    user = user.lower()
 
     now = datetime.datetime.now()
     current_year = now.year
@@ -34,6 +35,7 @@ def get_activity(request):
     
     user = request.META['HTTP_REMOTE_USER']
     user = user.split('\\')[1]
+    user = user.lower()
 
     cats = (CATSAllYears.objects.values('texte_imputation')
         .filter(username__contains=user)
