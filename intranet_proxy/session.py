@@ -3,7 +3,7 @@ from django.conf import settings
 
 class GeoshopSession(object):
     """
-    Singleton session for storing credentials accros requests
+    Singleton session for storing credentials accross requests
     """
     def __new__(cls):
         if not hasattr(cls, 'instance'):
