@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'intranet_proxy.apps.IntranetProxyConfig',
 ]
 
 MIDDLEWARE = [
@@ -184,4 +185,11 @@ LOGGING = {
             'propagate': False,
         },
     },
+}
+
+INTRANET_PROXY = {
+    'geoshop_user': os.getenv('GEOSHOP_USER', ''),
+    'geoshop_password': os.getenv('GEOSHOP_PASSWORD', ''),
+    'geoshop_url': os.getenv('GEOSHOP_URL', 'https://sitn.ne.ch/geoshop2_api/'),
+    'test_url': 'metadata/at701_potentiel_sda'
 }

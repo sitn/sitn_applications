@@ -19,4 +19,5 @@ from django.urls import include, path
 urlpatterns = [
     path('cats/', include('cats.urls')),
     path('admin/', admin.site.urls),
+    path('intranet_proxy/', include('intranet_proxy.urls')),
 ]
