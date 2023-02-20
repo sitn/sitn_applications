@@ -11,6 +11,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunSQL('CREATE SCHEMA IF NOT EXISTS cockpit_sgrf;'),
         migrations.CreateModel(
             name='CATSAllYears',
             fields=[

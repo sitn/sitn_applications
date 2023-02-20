@@ -1,5 +1,5 @@
 """
-WSGI config for geoshop_backend project.
+WSGI config for sitn applications project.
 
 It exposes the WSGI callable as a module-level variable named ``application``.
 
