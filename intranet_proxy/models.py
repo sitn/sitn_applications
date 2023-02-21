@@ -1,7 +1,7 @@
 from django.db import models
 from django.core.validators import RegexValidator
 
-class Route(models.Model):
+class VcronRoute(models.Model):
     url = models.CharField(max_length=120, null=False, unique=True)
     vcron_guid = models.CharField(max_length=36, null=False, validators=[
         RegexValidator(
@@ -11,4 +11,7 @@ class Route(models.Model):
     ])
 
     class Meta:
-        db_table = 'sitn\".\"routes'
+        db_table = 'sitn\".\"vcron_route'
+
+    def __str__(self):
+        return self.url

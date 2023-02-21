@@ -3,7 +3,7 @@ from django.template import loader
 from django.shortcuts import get_object_or_404
 
 from intranet_proxy.session import GeoshopSession, VcronApi
-from intranet_proxy.models import Route
+from intranet_proxy.models import VcronRoute
 
 def get_metadata(request, path):
     geoshop_session = GeoshopSession()
@@ -15,7 +15,7 @@ def vcron_proxy_index(request):
     return HttpResponse(template.render({}, request))
 
 def vcron_proxy_run(request, task_name):
-    route = get_object_or_404(Route, url=task_name)
+    route = get_object_or_404(VcronRoute, url=task_name)
 
     stats = VcronApi.get_job_stats(route.vcron_guid)
 
