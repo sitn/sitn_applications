@@ -37,6 +37,7 @@ ALLOWED_HOSTS = os.environ["ALLOWED_HOST"].split(",")
 
 INSTALLED_APPS = [
     'cats.apps.CatsConfig',
+    'parcel_historisation.apps.ParcelHistorisationConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
