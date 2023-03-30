@@ -17,6 +17,8 @@ from django.contrib import admin
 from django.urls import include, path
 
 urlpatterns = [
+    path('cadastre/', include('cadastre.urls')),
     path('cats/', include('cats.urls')),
+    path('parcel_historisation/', include('parcel_historisation.urls')),
     path('admin/', admin.site.urls),
 ]

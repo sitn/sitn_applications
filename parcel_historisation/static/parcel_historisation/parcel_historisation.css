@@ -1,0 +1,30 @@
+#cadastre_selector, #step1, #step2 {
+  display: none;
+}
+
+.pull-right {
+  text-align: right;
+}
+
+.pull-left {
+  text-align: left;
+}
+
+#close-saisie {
+  cursor: pointer;
+}
+
+#overlay {
+  opacity: 0.65;
+  background: #000000;
+  color: #666666;
+  position: fixed;
+  height: 100%;
+  width: 100%;
+  z-index: 5000;
+  top: 0;
+  left: 0;
+  float: left;
+  text-align: center;
+  padding-top: 25%;
+}

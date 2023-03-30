@@ -6,52 +6,45 @@ class State(models.Model):
     class Meta:
         db_table = 'parcel_historisation\".\"state'
 
+class Designation(models.Model):
+    name = models.CharField(max_length=1000)
+    class Meta:
+        db_table = 'parcel_historisation\".\"designation'
 
 class Plan(models.Model):
     name = models.CharField(max_length=1000)
     link = models.CharField(max_length=1000)
     plan_number = models.BigIntegerField()
     index = models.IntegerField()
-    scale = models.IntegerField()
-    id_state = models.ForeignKey(State, on_delete=models.SET_NULL, verbose_name='id_state', null=True)
+    scale = models.IntegerField(null=True)
+    date_plan = models.DateField(null=True)
+    cadastre = models.IntegerField()
+    id_plan_old = models.BigIntegerField()
+    designation = models.ForeignKey(Designation, on_delete=models.SET_NULL, verbose_name='designation', null=True)
+    state = models.ForeignKey(State, on_delete=models.SET_NULL, verbose_name='state', null=True)
+
 
     class Meta:
         db_table = 'parcel_historisation\".\"plan'
-
-class Designation(models.Model):
-    name = models.CharField(max_length=1000)
-    id_state = models.ForeignKey(State, on_delete=models.SET_NULL, verbose_name='id_state', null=True)
-
-    class Meta:
-        db_table = 'parcel_historisation\".\"designation'
-
-class DesignationPlan(models.Model):
-    date_plan = models.DateField()
-    cadastre = models.IntegerField()
-    id_designation = models.ForeignKey(Designation, on_delete=models.SET_NULL, verbose_name='id_designation', blank=True, null=True)
-    id_plan = models.ForeignKey(Plan, on_delete=models.SET_NULL, verbose_name='id_plan', null=True)
-
-    class Meta:
-        db_table = 'parcel_historisation\".\"designation_plan'
 
 class Operation(models.Model):
     date = models.DateField()
     user = models.CharField(max_length=200, null=False)
     complement = models.CharField(max_length=5000)
-    id_designation_plan = models.ForeignKey(DesignationPlan, on_delete=models.SET_NULL, verbose_name='id_designation_plan', blank=True, null=True)
+    plan = models.ForeignKey(Plan, on_delete=models.SET_NULL, verbose_name='plan', blank=True, null=True)
 
     class Meta:
         db_table = 'parcel_historisation\".\"operation'
 
 class OtherOperation(models.Model):
     type = models.IntegerField()
-    id_operation = models.ForeignKey(Operation, on_delete=models.SET_NULL, verbose_name='id_operation', null=True)
+    operation = models.ForeignKey(Operation, on_delete=models.SET_NULL, verbose_name='operation', null=True)
 
     class Meta:
         db_table = 'parcel_historisation\".\"other_operation'
 
 class DivisonReunion(models.Model):
-    id_operation = models.ForeignKey(Operation, on_delete=models.SET_NULL, verbose_name='id_operation', null=True)
+    operation = models.ForeignKey(Operation, on_delete=models.SET_NULL, verbose_name='operation', null=True)
 
     class Meta:
         db_table = 'parcel_historisation\".\"division_operation'
