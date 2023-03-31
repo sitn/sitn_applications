@@ -1,6 +1,7 @@
 document.getElementById("nav-saisie-tab").onclick = () => {
   if (ph.activecadastre !== null) {
     document.getElementById("step1").style.display = "block";
+    document.getElementById("step2").style.display = "none";
   } else {
     document.getElementById("cadastre_selector").style.display = "block";
     document.getElementById("nav-listing-tab").classList.add("disabled");
@@ -22,11 +23,18 @@ document.getElementById("close-saisie").onclick = () => {
   const text = "Êtes-vous sûr de vouloir quitter la saisie?\nTous les éléments saisis seront perdus";
   if (confirm(text) == true) {
     document.getElementById("step1").style.display = "none";
-    //document.getElementById("control_section").classList.add("disabled");
     document.getElementById("cadastre_selector").style.display = "block";
     ph.activecadastre=null;
     document.getElementById("nav-listing-tab").classList.add("disabled");
     document.getElementById("nav-control-tab").classList.add("disabled");
+    // Reset form
+    document.getElementById("delayed_check").checked = false;
+    document.getElementById("div_check").checked = false;
+    document.getElementById("cad_check").checked = false;
+    document.getElementById("serv_check").checked = false;
+    document.getElementById("art35_check").checked = false;
+    document.getElementById("other_check").checked = false;
+    document.getElementById("complement").value = "";
   }
 }
 
@@ -43,10 +51,12 @@ document.getElementById("load-plan").onclick = () => {
 
 document.getElementById("nav-listing-tab").onclick = () => {
   document.getElementById("step1").style.display = "none";
+  document.getElementById("step2").style.display = "none";
 };
 
 document.getElementById("nav-control-tab").onclick = () => {
   document.getElementById("step1").style.display = "none";
+  document.getElementById("step2").style.display = "none";
 };
 /*
 document.getElementById("saisie-tab").onclick = () => {
@@ -68,7 +78,7 @@ ph.initApplication = function() {
 };
 
 // Gets the list of cadastre (application entry point)
-ph.load_cadastre = function() {
+ph.load_cadastre = () => {
   const select = document.getElementById("cadastre_list");
   let i, L = select.options.length - 1;
   for(i = L; i >= 0; i--) {
@@ -88,7 +98,7 @@ ph.load_cadastre = function() {
    //   document.getElementById("control_section").classList.add("disabled");
       document.getElementById("cadastre_selector").style.display = "block";
     }        
-});
+  });
 };
 
 // Choosing a cadastre sends user to step 1 display
@@ -145,7 +155,7 @@ document.getElementById("choose_cadastre").onclick = () => {
 
 // The download path is the direct access to documents (plans or designation)
 // They are fetched on the fly when needed
-ph.get_download_path = function(id, type) {;
+ph.get_download_path = (id, type) => {;
   const url = "get_download_path?" + new URLSearchParams({
     id: id,
     type: type
@@ -159,7 +169,7 @@ ph.get_download_path = function(id, type) {;
 
 // Using the download path (which is fetch using the upper function),
 // a document can be fetched.
-ph.get_document = function(download_path) {
+ph.get_document = (download_path) => {
   const download_file = download_path.split('/').at(-1);
   fetch('download/'+download_path)
   .then(res => res.blob())
@@ -190,6 +200,8 @@ document.getElementById("submit-form").onclick = () => {
     complement: document.getElementById("complement").value,
   };
 
+
+  // A delayed plan can only be delayed, nothing else can be done
   if (delayed_check === true) {
     let text = "Une désignation ou un plan retardé ne permet pas d'enregistrer d'autres informations";
     text += "\n\nSeul le retard est enregistré. De plus, il faudra procéder via l'interface de contrôle."
@@ -198,6 +210,7 @@ document.getElementById("submit-form").onclick = () => {
     }
   }
 
+  // submitting with the token because Django needs it when doing a POST request
   fetch('submit_saisie', {
     method: 'POST',
     headers: {
@@ -214,8 +227,8 @@ document.getElementById("submit-form").onclick = () => {
   });  
 };
 
-
-ph.resetSubmitForm = function(div) {
+// Data submission was sucessfull: resetting form and opening balance interface (if is is a division)
+ph.resetSubmitForm = (div) => {
   // Open div panel (if div)
   document.getElementById("step1").style.display = "none";
   if (div === true) {
