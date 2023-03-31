@@ -10,6 +10,9 @@ from parcel_historisation.models import Plan, Operation, OtherOperation, State, 
 
 
 def index(request):
+    """
+    Serving the base template.
+    """
 
     user = request.META['HTTP_REMOTE_USER']
     user = user.split('\\')[1]
@@ -22,6 +25,10 @@ def index(request):
     return HttpResponse(template.render(context, request))
 
 def get_docs_list(request):
+    """
+    Gets the list of documents which have to be analysed, thus having a state
+    equal to one. The list is generated regarding a specified cadastre
+    """
     
     numcad = request.GET["numcad"]
 
@@ -47,6 +54,11 @@ def get_docs_list(request):
     }, safe=False)
 
 def file_download(request, name):
+    """
+    Data download view
+
+    The whole path to the file has to be passed in the URL
+    """
 
     base_path = settings.NEARCH2_CONSULTATION
 
@@ -56,6 +68,10 @@ def file_download(request, name):
 
 
 def get_download_path(request):
+    """
+    For a plan (or a designation -> depends on the type parameter),
+    gets the whole download path (see file_download function)
+    """
 
     id_ = request.GET["id"]
     type_ = request.GET["type"]
@@ -72,6 +88,9 @@ def get_download_path(request):
     }, safe=False)
 
 def submit_saisie(request):
+    """
+    Process data submitted by user in the base form
+    """
     
     data = json.loads(request.body)
     has_div = False
