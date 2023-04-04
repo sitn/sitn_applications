@@ -60,6 +60,7 @@ MIDDLEWARE = [
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.RemoteUserBackend',
+    'django.contrib.auth.backends.ModelBackend',
 ]
 
 ROOT_URLCONF = 'sitn.urls'
@@ -191,5 +192,8 @@ INTRANET_PROXY = {
     'geoshop_user': os.getenv('GEOSHOP_USER', ''),
     'geoshop_password': os.getenv('GEOSHOP_PASSWORD', ''),
     'geoshop_url': os.getenv('GEOSHOP_URL', 'https://sitn.ne.ch/geoshop2_api/'),
-    'test_url': 'metadata/at701_potentiel_sda'
+    'test_url': 'metadata/at701_potentiel_sda',
+    'vcron_url': os.getenv('VCRON_URL'),
+    'vcron_user': os.getenv('VCRON_USER'),
+    'vcron_password': os.getenv('VCRON_PASSWORD'),
 }
