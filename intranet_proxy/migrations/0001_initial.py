@@ -12,7 +12,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
-        migrations.RunSQL('CREATE SCHEMA IF NOT EXISTS sitn;'),
+        migrations.RunSQL('CREATE SCHEMA IF NOT EXISTS sitn_applications;'),
         migrations.CreateModel(
             name='VcronRoute',
             fields=[
