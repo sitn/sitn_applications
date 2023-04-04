@@ -2,9 +2,9 @@
 
 ## Requirements
 
-* PostgreSQL > 10 + PostGIS
-* Python >= 3.6
-* GDAL >= 2.4 (see instructions below to install it in your dev venv)
+* PostgreSQL >= 11 + PostGIS
+* Python >= 3.10
+* GDAL (if running without docker)
 
 ## Getting started
 
@@ -15,6 +15,10 @@ cp .env.sample .env.dev
 ```
 
 and configure the different variables.
+
+### Database
+
+A database with a schema named according to your .env file is required.
 
 ## Running in development mode
 
