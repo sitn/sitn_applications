@@ -11,7 +11,7 @@ class VcronRoute(models.Model):
     ])
 
     class Meta:
-        db_table = 'sitn\".\"vcron_route'
+        db_table = 'sitn_applications\".\"vcron_route'
 
     def __str__(self):
         return self.url
