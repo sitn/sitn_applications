@@ -33,10 +33,14 @@ DEBUG = DEVELOPMENT_MODE
 
 ALLOWED_HOSTS = os.environ["ALLOWED_HOST"].split(",")
 
+CSRF_USE_SESSIONS = True
+
 # Application definition
 
 INSTALLED_APPS = [
+    'cadastre.apps.CadastreConfig',
     'cats.apps.CatsConfig',
+    'parcel_historisation.apps.ParcelHistorisationConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -146,6 +150,8 @@ STATICFILES_DIRS = [
 ]
 
 WHITENOISE_STATIC_PREFIX = "/assets/"
+
+NEARCH2_CONSULTATION = os.environ.get('NEARCH2_CONSULTATION')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
