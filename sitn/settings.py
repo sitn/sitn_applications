@@ -146,6 +146,13 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_DOMAIN = os.environ["CSRF_COOKIE_DOMAIN"]
+CSRF_TRUSTED_ORIGINS = []
+for host in ALLOWED_HOSTS:
+    CSRF_TRUSTED_ORIGINS.append(f'http://{host}')
+    CSRF_TRUSTED_ORIGINS.append(f'https://{host}')
+
 WHITENOISE_STATIC_PREFIX = "/assets/"
 
 # Default primary key field type
