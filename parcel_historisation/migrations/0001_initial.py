@@ -12,6 +12,10 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunSQL(
+            sql=[("CREATE SCHEMA IF NOT EXISTS parcel_historisation;")],
+            reverse_sql=[("DROP SCHEMA parcel_historisation CASCADE;")],
+        ),
         migrations.CreateModel(
             name='Designation',
             fields=[

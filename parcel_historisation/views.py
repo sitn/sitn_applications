@@ -14,6 +14,8 @@ def index(request):
     Serving the base template.
     """
 
+    # TODO: pas le rôle de la vue (permissions + middleware)
+    # https://docs.djangoproject.com/en/4.1/howto/auth-remote-user/
     user = request.META['HTTP_REMOTE_USER']
     user = user.split('\\')[1]
     user = user.lower()
@@ -30,6 +32,7 @@ def get_docs_list(request):
     equal to one. The list is generated regarding a specified cadastre
     """
     
+    # TODO: parameter validation (try int(numcad) except BadRequest)
     numcad = request.GET["numcad"]
 
     results = Plan.objects.filter(state__id=1).filter(cadastre=int(numcad)).order_by('-date_plan', 'link').all()
