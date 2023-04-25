@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'intranet_proxy.apps.IntranetProxyConfig',
 ]
 
 MIDDLEWARE = [
@@ -63,6 +64,7 @@ MIDDLEWARE = [
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.RemoteUserBackend',
+    'django.contrib.auth.backends.ModelBackend',
 ]
 
 ROOT_URLCONF = 'sitn.urls'
@@ -148,6 +150,13 @@ STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
 
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_DOMAIN = os.environ["CSRF_COOKIE_DOMAIN"]
+CSRF_TRUSTED_ORIGINS = []
+for host in ALLOWED_HOSTS:
+    CSRF_TRUSTED_ORIGINS.append(f'http://{host}')
+    CSRF_TRUSTED_ORIGINS.append(f'https://{host}')
+
 WHITENOISE_STATIC_PREFIX = "/assets/"
 
 NEARCH2_CONSULTATION = os.environ.get('NEARCH2_CONSULTATION')
@@ -190,4 +199,14 @@ LOGGING = {
             'propagate': False,
         },
     },
+}
+
+INTRANET_PROXY = {
+    'geoshop_user': os.getenv('GEOSHOP_USER', ''),
+    'geoshop_password': os.getenv('GEOSHOP_PASSWORD', ''),
+    'geoshop_url': os.getenv('GEOSHOP_URL', 'https://sitn.ne.ch/geoshop2_api/'),
+    'test_url': 'metadata/at701_potentiel_sda',
+    'vcron_url': os.getenv('VCRON_URL'),
+    'vcron_user': os.getenv('VCRON_USER'),
+    'vcron_password': os.getenv('VCRON_PASSWORD'),
 }
