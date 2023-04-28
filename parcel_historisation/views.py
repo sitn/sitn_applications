@@ -1,6 +1,6 @@
 from django.conf import settings
+from django.contrib.auth.decorators import permission_required
 from django.http import FileResponse, HttpResponse, JsonResponse
-from django.shortcuts import render
 from django.template import loader
 import json
 import pathlib
@@ -8,24 +8,19 @@ import datetime
 
 from parcel_historisation.models import Plan, Operation, OtherOperation, State, DivisonReunion
 
-
+@permission_required("parcel_historisation.view_designation", raise_exception=True)
 def index(request):
     """
     Serving the base template.
     """
-
-    # TODO: pas le rôle de la vue (permissions + middleware)
-    # https://docs.djangoproject.com/en/4.1/howto/auth-remote-user/
-    user = request.META['HTTP_REMOTE_USER']
-    user = user.split('\\')[1]
-    user = user.lower()
     
     template = loader.get_template('parcel_historisation/index.html')
-    context = {
-        'user': user,
-    }
+
+    context = {}
+
     return HttpResponse(template.render(context, request))
 
+@permission_required("parcel_historisation.view_designation", raise_exception=True)
 def get_docs_list(request):
     """
     Gets the list of documents which have to be analysed, thus having a state
@@ -56,6 +51,7 @@ def get_docs_list(request):
         'download': download
     }, safe=False)
 
+@permission_required("parcel_historisation.view_designation", raise_exception=True)
 def file_download(request, name):
     """
     Data download view
@@ -69,7 +65,7 @@ def file_download(request, name):
 
     return FileResponse(open(path, 'rb'))
 
-
+@permission_required("parcel_historisation.view_designation", raise_exception=True)
 def get_download_path(request):
     """
     For a plan (or a designation -> depends on the type parameter),
@@ -90,6 +86,7 @@ def get_download_path(request):
         'download_path': download_path
     }, safe=False)
 
+@permission_required("parcel_historisation.view_designation", raise_exception=True)
 def submit_saisie(request):
     """
     Process data submitted by user in the base form
@@ -151,4 +148,3 @@ def submit_saisie(request):
         'submitted': True,
         'has_div': has_div,
     })
-
