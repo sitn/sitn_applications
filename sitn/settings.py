@@ -33,10 +33,14 @@ DEBUG = DEVELOPMENT_MODE
 
 ALLOWED_HOSTS = os.environ["ALLOWED_HOST"].split(",")
 
+CSRF_USE_SESSIONS = True
+
 # Application definition
 
 INSTALLED_APPS = [
+    'cadastre.apps.CadastreConfig',
     'cats.apps.CatsConfig',
+    'parcel_historisation.apps.ParcelHistorisationConfig',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -53,14 +57,14 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     "whitenoise.middleware.WhiteNoiseMiddleware",
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.auth.middleware.RemoteUserMiddleware',
+    'sitn.middleware.RemoteSitnMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.RemoteUserBackend',
     'django.contrib.auth.backends.ModelBackend',
+    'django.contrib.auth.backends.RemoteUserBackend',
 ]
 
 ROOT_URLCONF = 'sitn.urls'
@@ -154,6 +158,8 @@ for host in ALLOWED_HOSTS:
     CSRF_TRUSTED_ORIGINS.append(f'https://{host}')
 
 WHITENOISE_STATIC_PREFIX = "/assets/"
+
+NEARCH2_CONSULTATION = os.environ.get('NEARCH2_CONSULTATION')
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
