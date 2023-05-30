@@ -2,11 +2,37 @@ from django.conf import settings
 from django.contrib.auth.decorators import permission_required
 from django.http import FileResponse, HttpResponse, JsonResponse
 from django.template import loader
+from rest_framework import viewsets, filters, generics
+
 import json
 import pathlib
 import datetime
 
 from parcel_historisation.models import Plan, Operation, OtherOperation, State, DivisonReunion
+from parcel_historisation.serializers import PlanSerializer
+
+
+class PlanViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    API endpoint that allows plans to be listed in read-only mode.
+    """
+
+    serializer_class = PlanSerializer
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['link']
+
+    ordering_fields = ['date_plan']
+    ordering = ['date_plan']
+
+    def get_queryset(self):
+        if self.request.query_params.get('numcad'):
+            numcad = int(self.request.query_params.get('numcad'))
+            queryset = Plan.objects.filter(cadastre = numcad).all()
+        else:
+            queryset = Plan.objects.all()
+
+        return queryset
+
 
 @permission_required("parcel_historisation.view_designation", raise_exception=True)
 def index(request):
