@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'intranet_proxy.apps.IntranetProxyConfig',
+    'rest_framework',
 ]
 
 MIDDLEWARE = [
@@ -209,4 +210,9 @@ INTRANET_PROXY = {
     'vcron_url': os.getenv('VCRON_URL'),
     'vcron_user': os.getenv('VCRON_USER'),
     'vcron_password': os.getenv('VCRON_PASSWORD'),
+}
+
+REST_FRAMEWORK = {
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'PAGE_SIZE': 20
 }
