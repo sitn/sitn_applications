@@ -314,9 +314,6 @@ ph.load_table = () => {
       server: {
         url: (prev, page) => {
           page += 1;
-          if (page === 0) {
-            return `${prev}`;
-          } 
           return `${prev}&page=${page}`;}
       }
     },

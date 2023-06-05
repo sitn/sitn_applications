@@ -212,6 +212,9 @@ INTRANET_PROXY = {
     'vcron_password': os.getenv('VCRON_PASSWORD'),
 }
 
+# Be aware that by changing the PAGE_SIZE parameter, you will have to
+# adjust the client page pagination parameter (limit) as well, like as in 
+# parcel_historisation\static\parcel_historisation\parcel_historisation.js
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20
