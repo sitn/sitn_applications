@@ -10,6 +10,10 @@ class Designation(models.Model):
     name = models.CharField(max_length=1000)
     class Meta:
         db_table = 'parcel_historisation\".\"designation'
+    @property
+    def filename(self):
+        return self.name.split('/')[-1]
+
 
 class Plan(models.Model):
     name = models.CharField(max_length=1000)
@@ -22,7 +26,6 @@ class Plan(models.Model):
     id_plan_old = models.BigIntegerField()
     designation = models.ForeignKey(Designation, on_delete=models.SET_NULL, verbose_name='designation', null=True)
     state = models.ForeignKey(State, on_delete=models.SET_NULL, verbose_name='state', null=True)
-
 
     class Meta:
         db_table = 'parcel_historisation\".\"plan'
