@@ -52,6 +52,7 @@ document.getElementById("load-plan").onclick = () => {
 document.getElementById("nav-listing-tab").onclick = () => {
   document.getElementById("step1").style.display = "none";
   document.getElementById("step2").style.display = "none";
+  ph.load_table();
 };
 
 document.getElementById("nav-control-tab").onclick = () => {
@@ -74,7 +75,6 @@ ph.initApplication = function() {
   // Token is needed for calling Django using POST
   ph.csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
   ph.load_cadastre();
-  console.log('paf')
 };
 
 // Gets the list of cadastre (application entry point)
@@ -248,7 +248,125 @@ ph.resetSubmitForm = (div) => {
 
 };
 
+// Global table showing all records for a given cadastre
+// Two action buttons enable to show details or to change the
+// plan/designation status.
+ph.load_table = () => {
+  document.getElementById("overlay").style.display = "block";
 
+  const url = "api/plans?" + new URLSearchParams({
+    numcad: ph.activecadastre,
+    format: 'json'
+  });
 
+  const grid = new gridjs.Grid({
+    columns: [
+      'N° plan',
+      {
+        name: 'Designation',
+        formatter: (cell) => cell ? cell.replace('.pdf', '') : null
+      },
+      'État',
+      'Date plan',
+      {
+        name: 'Actions',
+        sort: false,
+        formatter: (cell, row) => {
+          // Should be set to "done" value (currently not the good value -> developping)
+          if (row.cells[2].data === 'A faire') {
+            return new gridjs.h('button', {
+              className: 'btn btn-secondary',
+              onClick: () => ph.changeStatus(row.cells[4].data, 'free')
+            }, 'Libérer');
+          }
+        },
+      },
+      {
+        name: 'Détails',
+        sort: false,
+        formatter: (cell, row) => {
+          // Should be set to "done" value (currently not the good value -> developping)
+          if (row.cells[2].data === 'A faire') {
+            return new gridjs.h('button', {
+              className: 'btn btn-secondary',
+              onClick: () => ph.showBalance(row.cells[4].data)
+            }, 'Détails');
+          }
+        },
+      },
+    ],
+    server: {
+      url: url,
+      then: (data) => data.results.map(plan => 
+        [
+          plan.plan_number,
+          plan.designation,
+          plan.state,
+          plan.date_plan,
+          plan.id,
+          plan.id
+        ]
+      ),
+      total: data => data.count,
+    },
+    pagination: {
+      limit: 20,
+      server: {
+        url: (prev, page) => {
+          page += 1;
+          if (page === 0) {
+            return `${prev}`;
+          } 
+          return `${prev}&page=${page}`;}
+      }
+    },
+    sort: {
+      multiColumn: false,
+      server: {
+        url: (prev, columns) => {
+          if (!columns.length) return prev;
+          const column_names = [
+            'plan',
+            'designation',
+            'state',
+            'date_plan',
+          ];
+          const col = columns[0];
+          const dir = col.direction === 1 ? '' : '-';
+          let colName = column_names[col.index];       
+          return `${prev}&ordering=${dir}${colName}`;
+        }
+      }
+    },
+    search: {
+      server: {
+        url: (prev, keyword) => `${prev}?search=${keyword}`
+      }
+    },
+    language: {
+      'search': {
+        'placeholder': 'Rechercher...'
+      },
+      'pagination': {
+        'previous': 'Précédent',
+        'next': 'Suivant',
+        'showing': 'Affichage de l\'élément',
+        'to': 'à',
+        'of': 'sur',
+        'results': 'éléments'
+      }
+    }
+  });
+  grid.render(document.getElementById("plan-list-table"));
+  document.getElementById("overlay").style.display = "none";
+};
 
-// https://www.raymondcamden.com/2022/03/14/building-table-sorting-and-pagination-in-javascript
+ph.showBalance = (id) => {
+  // TODO
+  console.log(`Balance "${id}"`);
+};
+
+ph.changeStatus = (id, type) => {
+  //TODO
+  console.log(`Change status to "${type}" for "${id}"`);
+};

@@ -19,9 +19,9 @@ class PlanViewSet(viewsets.ReadOnlyModelViewSet):
 
     serializer_class = PlanSerializer
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ['link']
+    search_fields = ['plan', 'designation', 'state', 'date_plan']
 
-    ordering_fields = ['date_plan']
+    ordering_fields = ['plan', 'designation', 'state', 'date_plan']
     ordering = ['date_plan']
 
     def get_queryset(self):
