@@ -15,11 +15,16 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path, re_path
+from django.conf import settings
 
 urlpatterns = [
-    path('cadastre/', include('cadastre.urls')),
-    path('cats/', include('cats.urls')),
-    path('parcel_historisation/', include('parcel_historisation.urls')),
     path('admin/', admin.site.urls),
-    re_path(r'(?:vcron|intranet)_proxy/', include('intranet_proxy.urls')),
 ]
+
+if settings.IS_INTRANET:
+    urlpatterns.extend([
+        path('cadastre/', include('cadastre.urls')),
+        path('cats/', include('cats.urls')),
+        path('parcel_historisation/', include('parcel_historisation.urls')),
+        re_path(r'(?:vcron|intranet)_proxy/', include('intranet_proxy.urls')),
+    ])
