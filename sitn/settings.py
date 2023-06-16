@@ -37,19 +37,30 @@ CSRF_USE_SESSIONS = True
 
 # Application definition
 
-INSTALLED_APPS = [
+IS_INTRANET = bool(os.environ.get("IS_INTRANET", False))
+
+# Application definition
+
+# List of apps that must not be visible on internet
+INTRANET_ONLY_APPS = [
     'cadastre.apps.CadastreConfig',
     'cats.apps.CatsConfig',
     'parcel_historisation.apps.ParcelHistorisationConfig',
+    'intranet_proxy.apps.IntranetProxyConfig',
+]
+
+INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'intranet_proxy.apps.IntranetProxyConfig',
     'rest_framework',
 ]
+
+if IS_INTRANET:
+    INSTALLED_APPS = INTRANET_ONLY_APPS + INSTALLED_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

@@ -1,5 +1,8 @@
 # sitn_applications
 
+Apps and custom webservices from SITN. This app can run in two different contexts: internet or intranet.
+Depending on the context, some apps will not be installed when deploying.
+
 ## Requirements
 
 * PostgreSQL >= 11 + PostGIS
@@ -20,7 +23,7 @@ and configure the different variables.
 
 A database with a schema named according to your .env file is required.
 
-## Running in development mode
+## Running in development mode, without docker
 
 First, create a copy of the `.env.sample` file called `.env.dev`:
 
@@ -47,32 +50,28 @@ cd utilities
 
 ## Running locally on Docker
 
-First, create a copy of the `env.sample` file called `env.local`:
+First, create a copy of the `env.sample` file called `env.<context>.<instance>`:
 
 ```
-cp .env.sample .env.local
+cp .env.sample .env.intranet.local
 ```
 
-Then you should use the deployment script and use the `local` choice:
+Then you'll be able to deploy locally on docker:
 
 ```
- .\utilities\deploy.ps1
+python deploy intranet local
 ```
-
--> Then choose `local`
 
 ## Deploying on production
 
-First, create a copy of the `env.sample` file called `env.`:
+First, create a copy of the `env.sample` file called `env.<context>.<instance>`, example:
 
 ```
-cp .env.sample .env.
+cp .env.sample .env.intranet.prod
 ```
 
-Then you should use the deployment script and use the `prod` choice:
+Then you'll be able to deploy your instance with `python deploy <context> <instance>`
 
 ```
- .\utilities\deploy.ps1
+python deploy intranet prod
 ```
-
--> Then choose `prod`

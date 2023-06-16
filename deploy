@@ -1,0 +1,74 @@
+#!/usr/bin/env python3
+import argparse
+import subprocess
+import os
+from datetime import datetime
+import re
+import sys
+from pathlib import Path
+
+CONTEXTS = ["internet", "intranet", "dev"]
+ALLOWED_INSTANCES = ["prepub", "prod", "dev", "local"]
+
+
+def load_dotenv(env_file):
+    os.environ["ENV_FILE"] = str(env_file)
+    with open(f"./{env_file}", 'r') as f:
+        env_vars = f.read()
+    os.environ['DOCKER_HOST'] = re.search(r'^DOCKER_HOST="(.*)"', env_vars, re.MULTILINE).group(1) or ''
+    os.environ['DOCKER_PORT'] = re.search(r'^DOCKER_PORT=(\d+)', env_vars, re.MULTILINE).group(1)
+    os.environ['COMPOSE_PROJECT_NAME'] = re.search(r'^COMPOSE_PROJECT_NAME="(.*)"', env_vars, re.MULTILINE).group(1)
+
+def check_settings_file(dest_instance):
+    # Do not deploy to the internet with DEBUG set to True
+    settings_file = Path("./sitn/settings.py")
+    with open(settings_file, 'r') as f:
+        settings = f.read()
+    is_debug = bool(re.search(r"^\s*DEBUG\s*=\s*True\s*$", settings, re.MULTILINE))
+    if is_debug:
+        if dest_instance not in ["local", "dev"]:
+            sys.exit("Cannot deploy if DEBUG=True in settings.py")
+
+def main():
+    parser = argparse.ArgumentParser(description="Déploiement sitn applications")
+    parser.add_argument("env", nargs="*", help="The environment config")
+    args = parser.parse_args()
+    if len(args.env) != 2:
+        sys.exit(
+            "Vous devez utiliser ce script avec deux arguments. internet|intranet et prepub|prod|local|dev"
+        )
+
+    context = args.env[0]
+    instance = args.env[1]
+
+    if context not in CONTEXTS:
+        sys.exit("Le premier argument est faux.")
+
+    if instance not in ALLOWED_INSTANCES:
+        sys.exit("Le deuxième argument est faux.")
+
+    check_settings_file(instance)
+
+    env_file = Path(f".env.{context}.{instance}")
+    load_dotenv(env_file)
+
+    print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - DOCKER_HOST is: {os.environ['DOCKER_HOST']}")
+
+    cmd = ["docker-compose", "build"]
+    print(" ".join(cmd))
+    subprocess.check_call(cmd)
+
+    cmd = ["docker-compose", "down", "-v"]
+    print(" ".join(cmd))
+    subprocess.check_call(cmd)
+
+    cmd = ["docker-compose", "up", "-d"]
+    print(" ".join(cmd))
+    subprocess.check_call(cmd)
+    os.environ["DOCKER_HOST"] = ""
+    print("\a")
+
+    print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - END")
+
+if __name__ == "__main__":
+    main()
