@@ -28,3 +28,7 @@ if settings.IS_INTRANET:
         path('parcel_historisation/', include('parcel_historisation.urls')),
         re_path(r'(?:vcron|intranet)_proxy/', include('intranet_proxy.urls')),
     ])
+else:
+    urlpatterns.extend([
+        path('stationnement/', include('stationnement.urls'))
+    ])

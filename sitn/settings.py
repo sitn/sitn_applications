@@ -37,7 +37,7 @@ CSRF_USE_SESSIONS = True
 
 # Application definition
 
-IS_INTRANET = bool(os.environ.get("IS_INTRANET", False))
+IS_INTRANET = True if os.environ.get("IS_INTRANET") == "True" else False
 
 # Application definition
 
@@ -47,6 +47,10 @@ INTRANET_ONLY_APPS = [
     'cats.apps.CatsConfig',
     'parcel_historisation.apps.ParcelHistorisationConfig',
     'intranet_proxy.apps.IntranetProxyConfig',
+]
+
+INTERNET_ONLY_APPS = [
+    'stationnement.apps.StationnementConfig',
 ]
 
 INSTALLED_APPS = [
@@ -61,6 +65,8 @@ INSTALLED_APPS = [
 
 if IS_INTRANET:
     INSTALLED_APPS = INTRANET_ONLY_APPS + INSTALLED_APPS
+else:
+    INSTALLED_APPS = INTERNET_ONLY_APPS + INSTALLED_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -78,6 +84,10 @@ AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
     'django.contrib.auth.backends.RemoteUserBackend',
 ]
+
+SERIALIZATION_MODULES = {
+    "geojson": "django.contrib.gis.serializers.geojson", 
+ }
 
 ROOT_URLCONF = 'sitn.urls'
 
@@ -230,3 +240,5 @@ REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
     'PAGE_SIZE': 20
 }
+
+DEFAULT_SRID = 2056
