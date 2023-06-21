@@ -31,7 +31,7 @@ if 'DEVELOPMENT_MODE' in os.environ and os.environ['DEVELOPMENT_MODE'] == "True"
 
 DEBUG = DEVELOPMENT_MODE 
 
-ALLOWED_HOSTS = os.environ["ALLOWED_HOST"].split(",")
+ALLOWED_HOSTS = os.environ["ALLOWED_HOSTS"].split(",")
 
 CSRF_USE_SESSIONS = True
 
