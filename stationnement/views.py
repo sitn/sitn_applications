@@ -1,10 +1,13 @@
 import json
 
 from django.conf import settings
-from django.core.serializers import serialize
+from djgeojson.serializers import Serializer as GeoJSONSerializer
 from django.contrib.gis.geos import GEOSGeometry
-from django.contrib.gis.db.models.functions import Intersection
+from django.contrib.gis.db.models import GeometryField, Union
+from django.contrib.gis.db.models.functions import Intersection, Area
 from django.contrib.gis.gdal.error import GDALException
+from django.db.models import F, FloatField
+from django.db.models.functions import Cast
 from django.http import JsonResponse, HttpResponse, HttpResponseNotAllowed
 from django.views.decorators.csrf import csrf_exempt
 
@@ -17,6 +20,7 @@ def stationnement_intersection(request):
     on Mob20TypeLocalisation.
 
     Replies with a GeoJSON containing on or more Multipolygons inside the given clipper.
+    Multipolygons are grouped by type_localisation and the intersection area is calculated for each group.
     """
     if request.method == 'POST':
         try:
@@ -34,15 +38,19 @@ def stationnement_intersection(request):
             return JsonResponse({'status': 'error', 'message': 'Invalid Geometry'})
         
         if clipper.geom_type in ['Poylgon', 'MultiPolygon']:
-            intersected = Mob20TypeLocalisation.objects.filter(geom__intersects=clipper)
-            clipped_mob20 = intersected.annotate(intersected_geom=Intersection('geom', clipper))
+            # Group by type_localisation, Union polygons and get area of multipolygon
+            intersected = Mob20TypeLocalisation.objects.filter(geom__intersects=clipper).values("type_localisation")
+            clipped_mob20 = intersected.annotate(
+                geom=Union(Intersection('geom', clipper), output_field=GeometryField()),
+                intersection_area=Cast(Area(F('geom')), output_field=FloatField()),
+            )
 
-            response_data = serialize(
-                "geojson",
+            serializer = GeoJSONSerializer()
+            response_data = serializer.serialize(
                 clipped_mob20,
-                srid=2056,
-                geometry_field="geom",
-                fields=["type_localisation"]
+                srid=settings.DEFAULT_SRID,
+                properties=('type_localisation', 'intersection_area'),
+                with_modelname=False
             )
 
             return HttpResponse(
