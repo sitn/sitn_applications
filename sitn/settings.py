@@ -54,6 +54,7 @@ INTERNET_ONLY_APPS = [
 ]
 
 INSTALLED_APPS = [
+    "corsheaders",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -69,6 +70,7 @@ else:
     INSTALLED_APPS = INTERNET_ONLY_APPS + INSTALLED_APPS
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -171,6 +173,8 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'assets')
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
+
+CORS_ALLOWED_ORIGINS = os.environ["CORS_ALLOWED_ORIGINS"].split(",")
 
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_DOMAIN = os.environ["CSRF_COOKIE_DOMAIN"]
