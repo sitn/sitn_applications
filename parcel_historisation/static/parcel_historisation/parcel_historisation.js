@@ -66,6 +66,13 @@ document.getElementById("saisie-tab").onclick = () => {
   document.getElementById("saisie-tab-pane").style.display = "block";
 };
 */
+
+document.getElementById("load-infolica").onclick = () => {
+  const no_infolica = document.getElementById("no_infolica").value;
+  ph.getBalance(no_infolica);
+};
+
+
 ph = {
   activecadastre: null,
   cadastres: {},
@@ -234,6 +241,8 @@ ph.resetSubmitForm = (div) => {
   if (div === true) {
     document.getElementById("step2").style.display = "block";
     document.getElementById("overlay").style.display = "none";
+
+    ph.showBalance();
   } else {
     ph.load_cadastre();
   }
@@ -357,6 +366,48 @@ ph.load_table = () => {
   grid.render(document.getElementById("plan-list-table"));
   document.getElementById("overlay").style.display = "none";
 };
+
+
+ph.getBalance = (id) => {
+  fetch(ph.infolica_api_url + 'balance_from_affaire_id?' + new URLSearchParams({
+      division_id: id,
+      cadastre_id: ph.activecadastre
+    })
+  )
+  .then((response) => response.json())
+    .then((data) => {
+      if (!Object.keys(data).includes('balance')) {
+        document.getElementById("tableau_balance").innerHTML = '<p><em>(' + data.error.detail + ')</em></p>';
+        return;
+      }
+
+      let balance = data.balance;
+
+      if (balance === null) {
+        document.getElementById("tableau_balance").innerHTML = '<p>Aucune balance</p>';
+        return;
+      }
+
+      let tb_html = '<table style="border: solid 1pt black">'
+      for (let i=0; i<balance.length; i++) {
+        tb_html += '<tr>';
+        for (let j=0; j<balance[0].length; j++) {
+          tb_html += '<td style="text-align: center; padding: 5pt; border: solid 1pt black">' + balance[i][j] + '</td>';
+        }
+        tb_html += '</tr>';
+      }
+      tb_html += '</table>';
+
+      document.getElementById("tableau_balance").innerHTML = tb_html;
+
+    }).catch((err) => {
+      alert('Une erreur s\'est produite. Veuillez contacter l\'administrateur\n\n \
+      Détail de l\'erreur:\n' + String(err));
+    });
+  
+  return;
+};
+
 
 ph.showBalance = (id) => {
   // TODO
