@@ -235,6 +235,7 @@ INTRANET_PROXY = {
     'vcron_url': os.getenv('VCRON_URL'),
     'vcron_user': os.getenv('VCRON_USER'),
     'vcron_password': os.getenv('VCRON_PASSWORD'),
+    'infolica_api_url': os.getenv('INFOLICA_API_URL'),
 }
 
 # Be aware that by changing the PAGE_SIZE parameter, you will have to

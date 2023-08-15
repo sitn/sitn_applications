@@ -169,6 +169,7 @@
       <script>
         document.onreadystatechange = () => {
           if (document.readyState === "interactive") {
+            ph.infolica_api_url = "{{ infolica_api_url }}";
             ph.initApplication();
           }
         };

@@ -369,7 +369,7 @@ ph.load_table = () => {
 
 
 ph.getBalance = (id) => {
-  fetch('http://127.0.0.1:6543/infolica/api/balance_from_affaire_id?' + new URLSearchParams({
+  fetch(ph.infolica_api_url + 'balance_from_affaire_id?' + new URLSearchParams({
       division_id: id,
       cadastre_id: ph.activecadastre
     })
