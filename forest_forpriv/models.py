@@ -7,6 +7,7 @@ class Fo01Arrondissement(models.Model):
     geom = models.MultiPolygonField(srid=settings.DEFAULT_SRID)
 
     class Meta:
+        managed = False
         db_table = 'foret\".\"fo_arrondissements'
 
 class Fo02Cantonnement(models.Model):
