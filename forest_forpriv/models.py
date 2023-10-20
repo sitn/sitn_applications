@@ -17,6 +17,7 @@ class Fo02Cantonnement(models.Model):
     geom = models.MultiPolygonField(srid=settings.DEFAULT_SRID)
 
     class Meta:
+        managed = False
         db_table = 'foret\".\"fo_cantonnements'
 
 class Fo11UniteGestionForprivee(models.Model):
