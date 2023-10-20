@@ -48,7 +48,7 @@ cd utilities
 .\run_dev_server.ps1
 ```
 
-### Switching between the Internet & Intranet
+### Switching between the Internet & Intranet instances
 
 If developping on the Internet instance, then you should define a new environment variable
 in the `.env.dev.` file:
