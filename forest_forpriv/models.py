@@ -25,4 +25,5 @@ class Fo11UniteGestionForprivee(models.Model):
     geom = models.MultiPolygonField(srid=settings.DEFAULT_SRID)
 
     class Meta:
+        managed = False
         db_table = 'foret\".\"fo11_unite_gestion_forprivees'
