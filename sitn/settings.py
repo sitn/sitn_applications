@@ -51,6 +51,7 @@ INTRANET_ONLY_APPS = [
 
 INTERNET_ONLY_APPS = [
     'stationnement.apps.StationnementConfig',
+    'forest_forpriv.apps.ForestForprivConfig',
 ]
 
 INSTALLED_APPS = [
