@@ -48,6 +48,15 @@ cd utilities
 .\run_dev_server.ps1
 ```
 
+### Switching between the Internet & Intranet instances
+
+If developping on the Internet instance, then you should define a new environment variable
+in the `.env.dev.` file:
+
+```
+IS_INTRANET=False
+```
+
 ## Running locally on Docker
 
 First, create a copy of the `env.sample` file called `env.<context>.<instance>`:
