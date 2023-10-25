@@ -1,5 +1,8 @@
-from django.http import JsonResponse
+from django.conf import settings
+from django.contrib.postgres.search import TrigramSimilarity, SearchQuery
+from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from django.shortcuts import render
+from djgeojson.serializers import Serializer as GeoJSONSerializer
 from cadastre.models import Cadastre, ImmeublesAdressesSearch
 
 import re
@@ -20,8 +23,44 @@ def search_parcel(request):
     IGNORED_CHARS_RE = re.compile(r"[()&|!:<>\t]")
     IGNORED_STARTUP_CHARS_RE = re.compile(r"^[']*")
 
-    settings = request.registry.settings.get("fulltextsearch", {})
-#    fts_normaliser = Normalize(settings)  
+    if "query" not in request.GET:
+        return HttpResponseBadRequest("No query")
 
+    terms = request.GET["query"]
+    
+    terms_array = [
+        IGNORED_STARTUP_CHARS_RE.sub("", elem) for elem in IGNORED_CHARS_RE.sub(" ", terms).split(" ")
+    ]
 
-    return {}
+    terms_ts = "&".join(w + ":*" for w in terms_array if w != "")
+
+    query = ImmeublesAdressesSearch.objects.annotate(
+        similarity=TrigramSimilarity("label", terms)
+    ).filter(
+        _ts=SearchQuery(terms_ts, config="fr", search_type='raw')
+    ).order_by("-similarity")
+
+    objs = query.all()
+
+    serializer = GeoJSONSerializer()
+    response_data = serializer.serialize(
+        objs,
+        srid=settings.DEFAULT_SRID,
+        properties=(
+            'label',
+            'idmai',
+            'comnum',
+            'comnom',
+            'cadnum',
+            'cadnom',
+            'adresse'
+        ),
+        with_modelname=False
+    )
+
+    return HttpResponse(
+        response_data,
+        headers={
+            "Content-Type": "application/json",
+        },
+    )
