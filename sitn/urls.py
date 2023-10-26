@@ -31,5 +31,5 @@ if settings.IS_INTRANET:
 else:
     urlpatterns.extend([
         path('stationnement/', include('stationnement.urls')),
-        path('foret/', include('forest_forpriv.urls')),
+        path('forest_forpriv/', include('forest_forpriv.urls')),
     ])

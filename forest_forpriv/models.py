@@ -7,6 +7,7 @@ class Fo01Arrondissement(models.Model):
     geom = models.MultiPolygonField(srid=settings.DEFAULT_SRID)
 
     class Meta:
+        managed = False
         db_table = 'foret\".\"fo_arrondissements'
 
 class Fo02Cantonnement(models.Model):
@@ -16,6 +17,7 @@ class Fo02Cantonnement(models.Model):
     geom = models.MultiPolygonField(srid=settings.DEFAULT_SRID)
 
     class Meta:
+        managed = False
         db_table = 'foret\".\"fo_cantonnements'
 
 class Fo11UniteGestionForprivee(models.Model):
@@ -23,4 +25,5 @@ class Fo11UniteGestionForprivee(models.Model):
     geom = models.MultiPolygonField(srid=settings.DEFAULT_SRID)
 
     class Meta:
+        managed = False
         db_table = 'foret\".\"fo11_unite_gestion_forprivees'

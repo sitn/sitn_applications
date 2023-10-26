@@ -37,7 +37,7 @@ def stationnement_intersection(request):
         except GDALException:
             return JsonResponse({'status': 'error', 'message': 'Invalid Geometry'})
         
-        if clipper.geom_type in ['Poylgon', 'MultiPolygon']:
+        if clipper.geom_type in ['Polygon', 'MultiPolygon']:
             # Group by type_localisation, Union polygons and get area of multipolygon
             intersected = Mob20TypeLocalisation.objects.filter(geom__intersects=clipper).values("type_localisation")
             clipped_mob20 = intersected.annotate(
