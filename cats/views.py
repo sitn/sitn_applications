@@ -2,8 +2,8 @@ from dataclasses import asdict
 from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
-from django.db.models import Sum
-from django.db.models.functions import Trunc
+from django.db.models import Sum, CharField, Value
+from django.db.models.functions import Trunc, Concat
 import json
 from django.core.serializers.json import DjangoJSONEncoder
 from cats.models import CATSAllYears
@@ -45,10 +45,15 @@ def get_activity(request):
     for i in range(current_year-3, current_year+1):
         years[i] = 0
     
-    cats = (CATSAllYears.objects.values('texte_imputation')
+    cats = (CATSAllYears.objects.values('texte_imputation', 'imputation_multiple')
         .filter(username__contains=user)
         .filter(date__gte=str(current_year-3)+'-01-01')
-        .annotate(year=Trunc('date', 'year'), hours=Sum('nombre_heure'))
+        .annotate(
+            year=Trunc('date', 'year'),
+            hours=Sum('nombre_heure'),
+            label=Concat('texte_imputation', Value(' - '), 'imputation_multiple', output_field=CharField())
+            )
+        .order_by('texte_imputation', 'imputation_multiple')
     )
 
     cats = cats.all()
@@ -63,8 +68,12 @@ def get_activity(request):
             max = cat['hours']
         if cat['hours'] != 0 and cat['hours'] < min:
             min = cat['hours']
-        grouped.setdefault(cat['texte_imputation'], []).append(
-            {k: v for k, v in cat.items() if k != 'texte_imputation'})
+
+        if cat['label'][-3:] == ' - ':
+            cat['label'] = cat['label'][:-3]
+
+        grouped.setdefault(cat['label'], []).append(
+            {k: v for k, v in cat.items() if k != 'label'})
 
     result = []
     for group in grouped:
