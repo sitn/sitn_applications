@@ -1,7 +1,6 @@
 from django.conf import settings
 from django.contrib.postgres.search import TrigramSimilarity, SearchQuery
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
-from django.shortcuts import render
 from djgeojson.serializers import Serializer as GeoJSONSerializer
 from cadastre.models import Cadastre, ImmeublesAdressesSearch
 
