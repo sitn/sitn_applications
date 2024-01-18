@@ -19,11 +19,11 @@ from django.conf import settings
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('cadastre/', include('cadastre.urls')),
 ]
 
 if settings.IS_INTRANET:
     urlpatterns.extend([
-        path('cadastre/', include('cadastre.urls')),
         path('cats/', include('cats.urls')),
         path('parcel_historisation/', include('parcel_historisation.urls')),
         re_path(r'(?:vcron|intranet)_proxy/', include('intranet_proxy.urls')),

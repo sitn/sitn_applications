@@ -43,7 +43,6 @@ IS_INTRANET = True if os.environ.get("IS_INTRANET") == "True" else False
 
 # List of apps that must not be visible on internet
 INTRANET_ONLY_APPS = [
-    'cadastre.apps.CadastreConfig',
     'cats.apps.CatsConfig',
     'parcel_historisation.apps.ParcelHistorisationConfig',
     'intranet_proxy.apps.IntranetProxyConfig',
@@ -55,6 +54,7 @@ INTERNET_ONLY_APPS = [
 ]
 
 INSTALLED_APPS = [
+    'cadastre.apps.CadastreConfig',
     "corsheaders",
     'django.contrib.admin',
     'django.contrib.auth',
