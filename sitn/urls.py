@@ -30,6 +30,7 @@ if settings.IS_INTRANET:
     ])
 else:
     urlpatterns.extend([
+        path('doctors/', include('doctors.urls')),
         path('stationnement/', include('stationnement.urls')),
         path('forest_forpriv/', include('forest_forpriv.urls')),
     ])

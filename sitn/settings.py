@@ -55,6 +55,7 @@ INTERNET_ONLY_APPS = [
 
 INSTALLED_APPS = [
     'cadastre.apps.CadastreConfig',
+    'doctors.apps.DoctorsConfig',
     "corsheaders",
     'django.contrib.admin',
     'django.contrib.auth',
