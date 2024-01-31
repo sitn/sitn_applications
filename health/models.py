@@ -1,3 +1,5 @@
+import uuid
+
 from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
@@ -21,6 +23,10 @@ class AbstractDoctors(models.Model):
     spoken_languages = ArrayField(models.TextField())
     is_rsn_member = models.BooleanField(null=True),
     availability = models.TextField(choices=Avalability.choices, default=Avalability.UNKNOWN)
+    edit_guid = models.UUIDField(null=True)
+
+    def prepare_for_edit(self):
+        self.edit_guid = uuid.uuid4()
 
     class Meta:
         abstract = True
@@ -34,6 +40,16 @@ class St20AvailableDoctors(AbstractDoctors):
 
 
 class St21AvailableDoctorsWithGeom(AbstractDoctors):
+    PUBLIC_FIELDS = [
+        'id_person_address',
+        'availability_conditions',
+        'has_parking',
+        'has_disabled_access',
+        'has_lift',
+        'is_rsn_member',
+        'availability',
+        'geom',
+    ]
     geom = models.PointField(srid=settings.DEFAULT_SRID)
 
     class Meta:
@@ -41,11 +57,16 @@ class St21AvailableDoctorsWithGeom(AbstractDoctors):
 
     @classmethod
     def as_geojson(cls):
+        """
+        Custom database GeoJSON serializer rendering only PUBLIC_FIELDS
+        """
+
         sql_query = f"""
             SELECT json_build_object(
                 'type', 'FeatureCollection',
                 'features', json_agg(ST_AsGeoJSON(t.*)::json)
-            )::text FROM "{cls._meta.db_table}" as t
+            )::text FROM (
+                SELECT {', '.join(cls.PUBLIC_FIELDS)} FROM "{cls._meta.db_table}") t
         """
         with connection.cursor() as cursor:
             cursor.execute(sql_query)
