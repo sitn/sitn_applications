@@ -16,7 +16,7 @@ class AbstractDoctors(models.Model):
 
     id_person_address = models.TextField(primary_key=True)
     login_email = models.TextField(blank=True)
-    availability_conditions = models.TextField(blank=True)
+    availability_conditions = models.TextField(blank=True, null=True)
     has_parking = models.BooleanField(null=True),
     has_disabled_access = models.BooleanField(null=True),
     has_lift = models.BooleanField(null=True),
