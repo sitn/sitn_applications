@@ -33,7 +33,8 @@ class St20AvailableDoctorsViewSet(
     def get_serializer_class(self):
         return self.serializers.get(self.action, self.serializers["default"])
 
-    def list(self, request):
+    @action(detail=False, methods=["get"])
+    def as_geojson(self, request):
         return HttpResponse(
             St21AvailableDoctorsWithGeom.as_geojson(),
             headers={

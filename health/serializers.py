@@ -2,10 +2,12 @@ from rest_framework import serializers
 from health.models import St20AvailableDoctors
 
 
-class St20AvailableDoctorsSerializer(serializers.ModelSerializer):
+class St20AvailableDoctorsSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = St20AvailableDoctors
         fields = [
+            'url',
+            'id_person_address',
             'spoken_languages',
             'availability',
             'availability_conditions'
