@@ -2,8 +2,7 @@ import os
 from pathlib import Path
 from dotenv import load_dotenv
 
-dotenv_file = os.environ.get('ENV_FILE', '.env.dev')
-load_dotenv(dotenv_file)
+load_dotenv('.env')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -46,6 +45,7 @@ INTERNET_ONLY_APPS = [
 ]
 
 INSTALLED_APPS = [
+    'sitn',
     'cadastre.apps.CadastreConfig',
     'health.apps.HealthConfig',
     "corsheaders",

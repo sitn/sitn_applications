@@ -135,3 +135,5 @@ dmypy.json
 
 emails_sent/*
 !emails_sent/.gitkeep
+db/*
+!db/.gitkeep
