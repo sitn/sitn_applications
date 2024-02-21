@@ -2,7 +2,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.core.exceptions import BadRequest
 
-from rest_framework import viewsets, mixins
+from rest_framework import viewsets, mixins, generics
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
@@ -12,21 +12,18 @@ from health.models import St21AvailableDoctorsWithGeom, St20AvailableDoctors
 from health.serializers import (
     St20AvailableDoctorsSerializer,
     DoctorEmailSerializer,
-    DoctorUUIDSerializer,
 )
 
 
 class St20AvailableDoctorsViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
-    mixins.UpdateModelMixin,
     viewsets.GenericViewSet,
 ):
     queryset = St20AvailableDoctors.objects.all()
     permission_classes = [IsAuthenticatedOrReadOnly]
     serializers = {
         "default": St20AvailableDoctorsSerializer,
-        "update": DoctorUUIDSerializer,
         "request_change": DoctorEmailSerializer
     }
 
@@ -44,11 +41,11 @@ class St20AvailableDoctorsViewSet(
 
     @action(detail=True, methods=["post"])
     def request_change(self, request, pk):
-        serializer = DoctorEmailSerializer(data=request.data)
         queryset = self.get_queryset()
+        obj = get_object_or_404(queryset, pk=pk)
+        serializer = DoctorEmailSerializer(data=request.data)
         if serializer.is_valid():
-            obj = get_object_or_404(queryset, **serializer.initial_data)
-            if obj:
+            if obj.login_email == serializer.data.get('login_email'):
                 obj.prepare_for_edit()
                 send_email(
                     "Modification de vos informations",
@@ -57,20 +54,38 @@ class St20AvailableDoctorsViewSet(
                     template_data={"guid": obj.edit_guid},
                 )
                 obj.save()
+                return Response("Found")
+            send_email(
+                "Modification de vos informations",
+                to=serializer.data.get('login_email'),
+                template_name="email_not_found",
+                template_data={
+                    "company_name": "Service de la santé publique",
+                    "address_1": "Rue des Beaux-Arts 13",
+                    "address_2": "2000 Neuchâtel",
+                    "phone_number": "032 889 62 00",
+                    "email": "Service.SantePublique@ne.ch"
+                },
+            )
             return Response("Found")
-        raise BadRequest
+        raise BadRequest("Invalid data")
 
-    def update(self, request, pk=None):
+
+class St20DoctorsByTokenView(generics.RetrieveUpdateAPIView):
+    queryset = St20AvailableDoctors.objects.all()
+    serializer_class = St20AvailableDoctorsSerializer
+
+    def get(self, request, token):
         queryset = self.get_queryset()
-        obj = get_object_or_404(queryset, pk=pk)
-        serializer = DoctorUUIDSerializer(obj, data=request.data)
-        try:
-            edit_guid = serializer.initial_data.pop('edit_guid')
-        except KeyError:
-            raise BadRequest("No edit_guid provided")
+        item = get_object_or_404(queryset, edit_guid=token)
+        serializer = St20AvailableDoctorsSerializer(item, context={'request': request})
+        return Response(serializer.data)
+
+    def put(self, request, token):
+        queryset = self.get_queryset()
+        item = get_object_or_404(queryset, edit_guid=token)
+        serializer = St20AvailableDoctorsSerializer(item, data=request.data)
         if serializer.is_valid():
-            if edit_guid == str(obj.edit_guid):
-                serializer.save()
-                return Response("ok")
-            raise BadRequest("Invalid edit_guid")
+            serializer.save()
+            return Response("ok")
         raise BadRequest(serializer.errors)

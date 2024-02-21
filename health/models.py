@@ -24,6 +24,7 @@ class AbstractDoctors(models.Model):
     is_rsn_member = models.BooleanField(null=True),
     availability = models.TextField(choices=Avalability.choices, default=Avalability.UNKNOWN)
     edit_guid = models.UUIDField(null=True)
+    last_edit = models.DateTimeField(null=True)
 
     def prepare_for_edit(self):
         self.edit_guid = uuid.uuid4()

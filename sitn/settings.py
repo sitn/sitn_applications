@@ -41,6 +41,7 @@ INTERNET_ONLY_APPS = [
 ]
 
 INSTALLED_APPS = [
+    'sitn',
     'cadastre.apps.CadastreConfig',
     'health.apps.HealthConfig',
     "corsheaders",
@@ -180,7 +181,7 @@ DEFAULT_FROM_EMAIL = 'no-reply@ne.ch'
 
 if DEVELOPMENT_MODE:
     EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
-    EMAIL_FILE_PATH = "emails_sent"
+    EMAIL_FILE_PATH = BASE_DIR / "emails_sent"
 
 
 NEARCH2_CONSULTATION = os.environ.get('NEARCH2_CONSULTATION')
