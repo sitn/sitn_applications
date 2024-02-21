@@ -239,6 +239,10 @@ INTRANET_PROXY = {
     'infolica_api_url': os.getenv('INFOLICA_API_URL'),
 }
 
+HEALTH = {
+    'front_url': os.getenv('DOCTORS_URL', 'http://localhost:5173/edit/')
+}
+
 # Be aware that by changing the PAGE_SIZE parameter, you will have to
 # adjust the client page pagination parameter (limit) as well, like as in 
 # parcel_historisation\static\parcel_historisation\parcel_historisation.js

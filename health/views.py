@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.core.exceptions import BadRequest
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
@@ -48,9 +49,7 @@ class St20AvailableDoctorsViewSet(
         if serializer.is_valid():
             if obj.login_email == serializer.data.get('login_email'):
                 obj.prepare_for_edit()
-                url = request.build_absolute_uri(
-                    reverse("doctors_update", args=[obj.edit_guid])
-                )
+                url = f"{settings.HEALTH.get('front_url')}{obj.edit_guid}"
                 send_email(
                     "Modification de vos informations",
                     to=obj.login_email,
