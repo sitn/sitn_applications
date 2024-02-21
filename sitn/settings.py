@@ -182,6 +182,8 @@ DEFAULT_FROM_EMAIL = 'no-reply@ne.ch'
 if DEVELOPMENT_MODE:
     EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
     EMAIL_FILE_PATH = BASE_DIR / "emails_sent"
+else:
+    EMAIL_HOST = os.environ["EMAIL_HOST"]
 
 
 NEARCH2_CONSULTATION = os.environ.get('NEARCH2_CONSULTATION')

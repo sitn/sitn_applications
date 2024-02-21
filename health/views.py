@@ -1,6 +1,7 @@
+from django.core.exceptions import BadRequest
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.core.exceptions import BadRequest
+from django.urls import reverse
 
 from rest_framework import viewsets, mixins, generics
 from rest_framework.decorators import action
@@ -47,11 +48,14 @@ class St20AvailableDoctorsViewSet(
         if serializer.is_valid():
             if obj.login_email == serializer.data.get('login_email'):
                 obj.prepare_for_edit()
+                url = request.build_absolute_uri(
+                    reverse("doctors_update", args=[obj.edit_guid])
+                )
                 send_email(
                     "Modification de vos informations",
                     to=obj.login_email,
                     template_name="email_magic_link",
-                    template_data={"guid": obj.edit_guid},
+                    template_data={"url": url},
                 )
                 obj.save()
                 return Response("Found")
