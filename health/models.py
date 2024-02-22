@@ -43,12 +43,16 @@ class St20AvailableDoctors(AbstractDoctors):
 class St21AvailableDoctorsWithGeom(AbstractDoctors):
     PUBLIC_FIELDS = [
         'id_person_address',
+        'nom',
+        'prenoms',
+        'notel',
+        'availability',
         'availability_conditions',
         'has_parking',
         'has_disabled_access',
         'has_lift',
+        'spoken_languages',
         'is_rsn_member',
-        'availability',
         'geom',
     ]
     geom = models.PointField(srid=settings.DEFAULT_SRID)
