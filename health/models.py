@@ -38,6 +38,7 @@ class St20AvailableDoctors(AbstractDoctors):
 
     class Meta:
         db_table = 'sante\".\"st20_available_doctors'
+        managed=False
 
 
 class St21AvailableDoctorsWithGeom(AbstractDoctors):
@@ -59,6 +60,7 @@ class St21AvailableDoctorsWithGeom(AbstractDoctors):
 
     class Meta:
         db_table = 'sante\".\"st21_available_doctors_with_geom'
+        managed=False
 
     @classmethod
     def as_geojson(cls):
