@@ -132,3 +132,6 @@ dmypy.json
 .pyre/
 
 .vscode
+
+emails_sent/*
+!emails_sent/.gitkeep
