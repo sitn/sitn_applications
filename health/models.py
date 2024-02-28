@@ -24,6 +24,7 @@ class AbstractDoctors(models.Model):
     is_rsn_member = models.BooleanField(null=True),
     availability = models.TextField(choices=Avalability.choices, default=Avalability.UNKNOWN)
     edit_guid = models.UUIDField(null=True)
+    last_edit = models.DateTimeField(null=True)
 
     def prepare_for_edit(self):
         self.edit_guid = uuid.uuid4()
@@ -42,12 +43,16 @@ class St20AvailableDoctors(AbstractDoctors):
 class St21AvailableDoctorsWithGeom(AbstractDoctors):
     PUBLIC_FIELDS = [
         'id_person_address',
+        'nom',
+        'prenoms',
+        'notel',
+        'availability',
         'availability_conditions',
         'has_parking',
         'has_disabled_access',
         'has_lift',
+        'spoken_languages',
         'is_rsn_member',
-        'availability',
         'geom',
     ]
     geom = models.PointField(srid=settings.DEFAULT_SRID)

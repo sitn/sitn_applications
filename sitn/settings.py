@@ -185,7 +185,9 @@ DEFAULT_FROM_EMAIL = 'no-reply@ne.ch'
 
 if DEVELOPMENT_MODE:
     EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
-    EMAIL_FILE_PATH = "emails_sent"
+    EMAIL_FILE_PATH = BASE_DIR / "emails_sent"
+else:
+    EMAIL_HOST = os.environ["EMAIL_HOST"]
 
 
 NEARCH2_CONSULTATION = os.environ.get('NEARCH2_CONSULTATION')
@@ -239,6 +241,10 @@ INTRANET_PROXY = {
     'vcron_user': os.getenv('VCRON_USER'),
     'vcron_password': os.getenv('VCRON_PASSWORD'),
     'infolica_api_url': os.getenv('INFOLICA_API_URL'),
+}
+
+HEALTH = {
+    'front_url': os.getenv('DOCTORS_URL', 'http://localhost:5173/edit/')
 }
 
 # Be aware that by changing the PAGE_SIZE parameter, you will have to
