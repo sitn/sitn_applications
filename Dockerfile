@@ -1,4 +1,4 @@
-FROM osgeo/gdal:ubuntu-small-3.1.0
+FROM ghcr.io/osgeo/gdal:ubuntu-small-3.8.4
 
 RUN apt-get update --fix-missing
 RUN apt-get install gettext python3-pip libcairo2-dev build-essential python3-dev \

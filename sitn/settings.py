@@ -197,7 +197,7 @@ NEARCH2_CONSULTATION = os.environ.get('NEARCH2_CONSULTATION')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-if DEVELOPMENT_MODE:
+if DEVELOPMENT_MODE and os.environ.get('GDAL_PATH'):
     GDAL_PATH = os.environ["GDAL_PATH"]
     GDAL_LIBRARY_PATH = os.environ["GDAL_LIBRARY_PATH"]
     os.environ['GDAL_DATA'] = GDAL_PATH + "gdal-data"
