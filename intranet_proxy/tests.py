@@ -6,8 +6,12 @@ from django.conf import settings
 class GeoshopTest(SimpleTestCase):
 
     def setUp(self) -> None:
+        super().setUp()
         self.url = settings.INTRANET_PROXY.get('geoshop_url') + settings.INTRANET_PROXY.get('test_url')
-        return super().setUp()
+        # Skip if it's not installed
+        if __package__ not in settings.INSTALLED_APPS:
+            self.skipTest(f"Skipping {__package__}")
+
 
     def test_access_internal_metadata(self):
         """

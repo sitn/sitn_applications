@@ -34,19 +34,19 @@ IS_INTRANET = True if os.environ.get("IS_INTRANET") == "True" else False
 
 # List of apps that must not be visible on internet
 INTRANET_ONLY_APPS = [
-    'cats.apps.CatsConfig',
-    'parcel_historisation.apps.ParcelHistorisationConfig',
-    'intranet_proxy.apps.IntranetProxyConfig',
+    'cats',
+    'parcel_historisation.apps',
+    'intranet_proxy',
 ]
 
 INTERNET_ONLY_APPS = [
-    'stationnement.apps.StationnementConfig',
-    'forest_forpriv.apps.ForestForprivConfig',
+    'stationnement',
+    'forest_forpriv',
 ]
 
 INSTALLED_APPS = [
     'sitn',
-    'cadastre.apps.CadastreConfig',
+    'cadastre',
     'health.apps.HealthConfig',
     "corsheaders",
     'django.contrib.admin',
