@@ -76,7 +76,7 @@ IS_INTRANET=False
 
 ## Running locally on Docker
 
-First, create a copy of the `env.sample` file called `env.<context>.<instance>`:
+First, create a copy of the `env.sample` file called `env.<context>.local`:
 
 ```
 cp .env.sample .env.intranet.local
@@ -100,4 +100,19 @@ Then you'll be able to deploy your instance with `python deploy <context> <insta
 
 ```
 python deploy intranet prod
+```
+
+
+## Tests
+
+Running tests will require a for testing database.
+
+```sh
+python manage.py testdb
+```
+
+then you can run tests
+
+```sh
+python manage.py test --keepdb
 ```
