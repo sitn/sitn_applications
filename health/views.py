@@ -1,12 +1,15 @@
+from datetime import timedelta
+
 from django.conf import settings
 from django.core.exceptions import BadRequest
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
-from django.urls import reverse
+from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework import viewsets, mixins, generics
 from rest_framework.decorators import action
-from rest_framework.permissions import IsAuthenticatedOrReadOnly
 from rest_framework.response import Response
 
 from sitn.tools.emailer import send_email
@@ -16,14 +19,13 @@ from health.serializers import (
     DoctorEmailSerializer,
 )
 
-
+@method_decorator(csrf_exempt, name='dispatch')
 class St20AvailableDoctorsViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
     queryset = St20AvailableDoctors.objects.all()
-    permission_classes = [IsAuthenticatedOrReadOnly]
     serializers = {
         "default": St20AvailableDoctorsSerializer,
         "request_change": DoctorEmailSerializer
@@ -46,18 +48,22 @@ class St20AvailableDoctorsViewSet(
         queryset = self.get_queryset()
         obj = get_object_or_404(queryset, pk=pk)
         serializer = DoctorEmailSerializer(data=request.data)
-        if serializer.is_valid():
-            if obj.login_email == serializer.data.get('login_email'):
-                obj.prepare_for_edit()
-                url = f"{settings.HEALTH.get('front_url')}{obj.edit_guid}"
-                send_email(
-                    "Modification de vos informations",
-                    to=obj.login_email,
-                    template_name="email_magic_link",
-                    template_data={"url": url},
-                )
-                obj.save()
-                return Response("Found")
+
+        if not serializer.is_valid():
+            raise BadRequest("Invalid data")
+
+        # Do not allow multiple requests within 3 days
+        if obj.guid_requested_when:
+            now = timezone.now()
+            three_days_ago = now - timedelta(days=3)
+            if obj.guid_requested_when > three_days_ago:
+                return Response(status=429)
+
+        obj.guid_requested_when = timezone.now()
+
+        # If email not found, send email to explain
+        if obj.login_email != serializer.data.get('login_email'):
+            obj.save()
             send_email(
                 "Modification de vos informations",
                 to=serializer.data.get('login_email'),
@@ -70,8 +76,21 @@ class St20AvailableDoctorsViewSet(
                     "email": "Service.SantePublique@ne.ch"
                 },
             )
-            return Response("Found")
-        raise BadRequest("Invalid data")
+            return Response("ok")
+
+        # Generate GUID if previous controls pass
+        if obj.login_email == serializer.data.get('login_email'):
+            obj.prepare_for_edit()
+            url = f"{settings.HEALTH.get('front_url')}?guid={obj.edit_guid}"
+            send_email(
+                "Modification de vos informations",
+                to=obj.login_email,
+                template_name="email_magic_link",
+                template_data={"url": url},
+            )
+            obj.save()
+            return Response("ok")
+
 
 
 class St20DoctorsByTokenView(generics.RetrieveUpdateAPIView):
