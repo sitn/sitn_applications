@@ -22,10 +22,6 @@ if 'DEVELOPMENT_MODE' in os.environ and os.environ['DEVELOPMENT_MODE'] == "True"
 
 DEBUG = DEVELOPMENT_MODE 
 
-ALLOWED_HOSTS = os.environ["ALLOWED_HOSTS"].split(",")
-
-CSRF_USE_SESSIONS = True
-
 # Application definition
 
 IS_INTRANET = True if os.environ.get("IS_INTRANET") == "True" else False
@@ -156,6 +152,22 @@ USE_I18N = True
 
 USE_TZ = True
 
+# CORS, CSRF AND SSL
+
+ALLOWED_HOSTS = os.environ["ALLOWED_HOSTS"].split(",")
+
+CORS_ALLOWED_ORIGINS = os.environ["CORS_ALLOWED_ORIGINS"].split(",")
+
+CSRF_USE_SESSIONS = True
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_DOMAIN = os.environ["CSRF_COOKIE_DOMAIN"]
+CSRF_TRUSTED_ORIGINS = []
+for host in ALLOWED_HOSTS:
+    CSRF_TRUSTED_ORIGINS.append(f'http://{host}')
+    CSRF_TRUSTED_ORIGINS.append(f'https://{host}')
+
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
@@ -169,15 +181,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'assets')
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
-
-CORS_ALLOWED_ORIGINS = os.environ["CORS_ALLOWED_ORIGINS"].split(",")
-
-CSRF_COOKIE_SECURE = True
-CSRF_COOKIE_DOMAIN = os.environ["CSRF_COOKIE_DOMAIN"]
-CSRF_TRUSTED_ORIGINS = []
-for host in ALLOWED_HOSTS:
-    CSRF_TRUSTED_ORIGINS.append(f'http://{host}')
-    CSRF_TRUSTED_ORIGINS.append(f'https://{host}')
 
 WHITENOISE_STATIC_PREFIX = "/assets/"
 
