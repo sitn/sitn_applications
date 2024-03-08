@@ -44,7 +44,7 @@ def main():
 
     env_file = f".env.{context}.{instance}"
     os.environ['ENV_FILE'] = env_file
-    load_dotenv(Path(env_file))
+    load_dotenv(Path(env_file), override=True)
 
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - DOCKER_HOST is: {os.environ['DOCKER_HOST']}")
 
