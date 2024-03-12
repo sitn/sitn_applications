@@ -92,7 +92,6 @@ class St20AvailableDoctorsViewSet(
             return Response("ok")
 
 
-
 class St20DoctorsByTokenView(generics.RetrieveUpdateAPIView):
     queryset = St20AvailableDoctors.objects.all()
     serializer_class = St20AvailableDoctorsSerializer
