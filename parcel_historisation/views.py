@@ -2,7 +2,7 @@ from django.conf import settings
 from django.contrib.auth.decorators import permission_required
 from django.http import FileResponse, HttpResponse, JsonResponse
 from django.template import loader
-from rest_framework import viewsets, filters, generics
+from rest_framework import viewsets, filters
 
 import json
 import pathlib
@@ -39,10 +39,10 @@ def index(request):
     """
     Serving the base template.
     """
-    
+
     template = loader.get_template('parcel_historisation/index.html')
 
-    context = {}
+    context = {'infolica_api_url': settings.INTRANET_PROXY.get('infolica_api_url')}
 
     return HttpResponse(template.render(context, request))
 
@@ -52,7 +52,7 @@ def get_docs_list(request):
     Gets the list of documents which have to be analysed, thus having a state
     equal to one. The list is generated regarding a specified cadastre
     """
-    
+
     # TODO: parameter validation (try int(numcad) except BadRequest)
     numcad = request.GET["numcad"]
 
@@ -117,11 +117,11 @@ def submit_saisie(request):
     """
     Process data submitted by user in the base form
     """
-    
+
     data = json.loads(request.body)
     has_div = False
     plan = Plan.objects.get(pk=data['id'])
-    
+
     if data["delayed_check"] is True:
       state = State.objects.get(pk=3)
       plan.state = state
@@ -140,7 +140,7 @@ def submit_saisie(request):
     )
 
     op.save()
-    
+
     if data["div_check"] is True:
       div = DivisonReunion(operation=op)
       div.save()
@@ -153,11 +153,11 @@ def submit_saisie(request):
     if data["serv_check"] is True:
         other = OtherOperation(operation=op, type=2)
         other.save()
-  
+
     if data["art35_check"] is True:
         other = OtherOperation(operation=op, type=3)
         other.save()
-  
+
     if data["other_check"] is True:
         other = OtherOperation(operation=op, type=4)
         other.save()

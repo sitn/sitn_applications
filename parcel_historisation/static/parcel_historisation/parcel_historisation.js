@@ -73,6 +73,13 @@ document.getElementById("load-infolica").onclick = () => {
 };
 
 
+function handleEnterAsClick(e, elementId){
+  if(e.keyCode === 13){
+      e.preventDefault();
+      document.getElementById(elementId).click();
+  }
+}
+
 ph = {
   activecadastre: null,
   cadastres: {},
@@ -93,7 +100,7 @@ ph.load_cadastre = () => {
   }
   fetch("../cadastre/get")
   .then((response) => response.json())
-  .then((data) => {  
+  .then((data) => {
     for (let i = 0; i < data.length; i++){
       let item = data[i];
       let element = document.createElement("option");
@@ -104,7 +111,7 @@ ph.load_cadastre = () => {
       document.getElementById("overlay").style.display = "none";
    //   document.getElementById("control_section").classList.add("disabled");
       document.getElementById("cadastre_selector").style.display = "block";
-    }        
+    }
   });
 };
 
@@ -151,10 +158,10 @@ document.getElementById("choose_cadastre").onclick = () => {
       document.getElementById("nav-control-tab").classList.remove("disabled");
 
       const download_path = data['download'];
-      
+
     // The most recent document is automatically opened, might it be a plan or a designation
     // (currently commented because of development purposes)
-    /*  
+    /*
      ph.get_document(download_path)
     */
   });
@@ -231,7 +238,7 @@ document.getElementById("submit-form").onclick = () => {
   .then(res => res.json())
   .then(res => {
     ph.resetSubmitForm(res['has_div']);
-  });  
+  });
 };
 
 // Data submission was sucessfull: resetting form and opening balance interface (if is is a division)
@@ -306,7 +313,7 @@ ph.load_table = () => {
     ],
     server: {
       url: url,
-      then: (data) => data.results.map(plan => 
+      then: (data) => data.results.map(plan =>
         [
           plan.plan_number,
           plan.designation,
@@ -339,7 +346,7 @@ ph.load_table = () => {
           ];
           const col = columns[0];
           const dir = col.direction === 1 ? '' : '-';
-          let colName = column_names[col.index];       
+          let colName = column_names[col.index];
           return `${prev}&ordering=${dir}${colName}`;
         }
       }
@@ -392,7 +399,14 @@ ph.getBalance = (id) => {
       for (let i=0; i<balance.length; i++) {
         tb_html += '<tr>';
         for (let j=0; j<balance[0].length; j++) {
-          tb_html += '<td style="text-align: center; padding: 5pt; border: solid 1pt black">' + balance[i][j] + '</td>';
+          console.log(balance[i][j])
+          if (i>0 && j>0) {
+            tb_html += '<td style="text-align: center; padding: 5pt; border: solid 1pt black">' +
+              '<input type="checkbox" id="' + balance[i][j].id + '" ' + (balance[i][j].state? 'checked': '') + '></input>' +
+              '</td>';
+          } else {
+            tb_html += '<td style="text-align: center; padding: 5pt; border: solid 1pt black">' + (balance[i][j]? balance[i][j]: '') + '</td>';
+          }
         }
         tb_html += '</tr>';
       }
@@ -404,7 +418,7 @@ ph.getBalance = (id) => {
       alert('Une erreur s\'est produite. Veuillez contacter l\'administrateur\n\n \
       Détail de l\'erreur:\n' + String(err));
     });
-  
+
   return;
 };
 
