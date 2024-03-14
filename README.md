@@ -29,8 +29,9 @@ cp .env.sample .env
 
 Install the virual environment:
 
-```
+```sh
 python -m venv venv
+./venv/Scripts/activate
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
@@ -105,7 +106,7 @@ python deploy intranet prod
 
 ## Tests
 
-Running tests will require a for testing database.
+Running tests will require a database for testing.
 
 ```sh
 python manage.py testdb
