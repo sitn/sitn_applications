@@ -2,179 +2,236 @@
 <!doctype html>
 <html lang="fr">
 
-    <head>
-      <meta charset="utf-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1">
-      <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.ico' %}">
-      <link href="https://sitn.ne.ch/sitnstatic/sitn-bootstrap@v5.2.3/sitn-bootstrap.css" rel="stylesheet" crossorigin="anonymous">
-      <link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
-      <link href="{% static 'parcel_historisation/parcel_historisation.css' %}" rel="stylesheet">
-      <title>Historisation des biens-fonds</title>
-    </head>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.ico' %}">
+  <link href="https://sitn.ne.ch/sitnstatic/sitn-bootstrap@v5.2.3/sitn-bootstrap.css" rel="stylesheet" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/gridjs/dist/theme/mermaid.min.css" rel="stylesheet" />
+  <link href="{% static 'parcel_historisation/parcel_historisation.css' %}" rel="stylesheet">
+  <title>Historisation des biens-fonds</title>
+</head>
 
-    <body>
-      <div class="row header-row">
-        <div class="col-2">
-          <img
-              src="{% static 'images/logo_ne.png' %}"
-              alt="NE logo"
-              align="top"
-              class="img-fluid" />
-        </div>
-        <div class="col-10">
-          <div class="pull-left">
-            <h2>Historisation des biens-fonds</h2>
-          </div>
-        </div>
+<body>
+  <div class="row header-row">
+    <div class="col-2">
+      <img
+           src="{% static 'images/logo_ne.png' %}"
+           alt="NE logo"
+           align="top"
+           class="img-fluid" />
+    </div>
+    <div class="col-10">
+      <div class="pull-left">
+        <h2>Historisation des biens-fonds</h2>
       </div>
-      <nav>
-        <div class="nav nav-tabs" id="nav-tab" role="tablist">
-          <button class="nav-link active" id="nav-saisie-tab" data-bs-toggle="tab" data-bs-target="#nav-saisie" type="button" role="tab" aria-controls="nav-saisie" aria-selected="true">Saisie</button>
-          <button class="nav-link disabled" id="nav-listing-tab" data-bs-toggle="tab" data-bs-target="#nav-listing" type="button" role="tab" aria-controls="nav-listing" aria-selected="false">Liste des plans / désignations</button>
-          <button class="nav-link disabled" id="nav-control-tab" data-bs-toggle="tab" data-bs-target="#nav-control" type="button" role="tab" aria-controls="nav-control" aria-selected="false">Contrôle</button>
+    </div>
+  </div>
+  <nav>
+    <div class="nav nav-tabs" id="nav-tab" role="tablist">
+      <button class="nav-link active" id="nav-saisie-tab" data-bs-toggle="tab" data-bs-target="#nav-saisie" type="button" role="tab" aria-controls="nav-saisie" aria-selected="true">Saisie</button>
+      <button class="nav-link disabled" id="nav-listing-tab" data-bs-toggle="tab" data-bs-target="#nav-listing" type="button" role="tab" aria-controls="nav-listing" aria-selected="false">Liste des plans / désignations</button>
+      <button class="nav-link disabled" id="nav-control-tab" data-bs-toggle="tab" data-bs-target="#nav-control" type="button" role="tab" aria-controls="nav-control" aria-selected="false">Contrôle</button>
+    </div>
+  </nav>
+  <main class="container">
+    <div class="tab-content" id="nav-tabContent">
+      <div class="tab-pane fade show active" id="nav-saisie" role="tabpanel" aria-labelledby="nav-saisie-tab">
+        <div id="cadastre_selector">
+          <div class="row mt-3 g-0">
+            <label for="cadastre_list">Choix du cadastre :</label>
+            <select id="cadastre_list" class="form-select mt-1" aria-label="Default select example"></select>
+          </div>
+          <button id="choose_cadastre" type="button" class="btn btn-primary mt-3">OK</button>
         </div>
-      </nav>
-      <main class="container">
-        <div class="tab-content" id="nav-tabContent">
-          <div class="tab-pane fade show active" id="nav-saisie" role="tabpanel" aria-labelledby="nav-saisie-tab">
-            <div id="cadastre_selector">
-              <div class="row mt-3 g-0">
-                <label for="cadastre_list">Choix du cadastre :</label>
-                <select id="cadastre_list" class="form-select mt-1" aria-label="Default select example"></select>
-              </div>
-              <button id="choose_cadastre" type="button" class="btn btn-primary mt-3">OK</button>
+        <div id="step1">
+          <div class="row mt-3 g-0">
+            <div class="col">
+              <h3>Saisie</h3>
             </div>
-            <div id="step1">
-              <div class="row mt-3 g-0">
-                <div class="col"><h3>Saisie</h3></div>
-                <div class="col pull-right"><a id="close-saisie" class="link-dark">X</a></div>
-              </div>
-              <div class="row mt-3 g-0"><p>Cadastre: <span class="cadastre_text"></span></p></div>
-              <div class="row mt-3 g-0">
-                <div class="col">
-                  <label for="desgn_list">Liste des désignations :</label>
-                  <select id="desgn_list" class="form-select mt-1" aria-label="Default select example"></select>
-                </div>
-                <div class="col d-flex align-items-end" style="padding-left: 20px;">
-                  <button id="load-desgn" type="button" class="btn btn-primary">Télécharger</button>
-                </div>
-              </div>
-              <div class="row mt-3 g-0">
-                <div class="col">
-                  <label for="plan_list">Liste des plans :</label>
-                  <select id="plan_list" class="form-select mt-1" aria-label="Default select example"></select>
-                </div>
-                <div class="col d-flex align-items-end" style="padding-left: 20px;">
-                  <button id="load-plan" type="button" class="btn btn-primary">Télécharger</button>
-                </div>
-              </div>
-              <div class="row mt-3 g-0">
-                <p>Type d'affaire :</p>
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" value="" id="div_check">
-                  <label class="form-check-label" for="div_check">
-                    Division / réunion
-                  </label>
-                </div>
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" value="" id="cad_check">
-                  <label class="form-check-label" for="cad_check">
-                    Cadastration, nature, etc.
-                  </label>
-                </div>
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" value="" id="serv_check">
-                  <label class="form-check-label" for="serv_check">
-                    Servitude
-                  </label>
-                </div>
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" value="" id="art35_check">
-                  <label class="form-check-label" for="art35_check">
-                    art. 35
-                  </label>
-                </div>
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" value="" id="other_check">
-                  <label class="form-check-label" for="other_check">
-                    Autre
-                  </label>
-                </div>
-                <div class="form-check">
-                  <input class="form-check-input" type="checkbox" value="" id="delayed_check">
-                  <label class="form-check-label" for="delayed_check">
-                    Retardé
-                  </label>
-                </div>
-                <div class="form-check">
-                  <label for="complement" class="form-label">Complément :</label>
-                  <textarea class="form-control" id="complement" rows="3"></textarea>
-                </div>
-              </div>
-              <button id="submit-form" type="button" class="btn btn-primary mt-3">OK</button>
+            <div class="col pull-right"><a id="close-saisie" class="link-dark">X</a></div>
+          </div>
+          <div class="row mt-3 g-0">
+            <p>Cadastre: <span class="cadastre_text"></span></p>
+          </div>
+          <div class="row mt-3 g-0">
+            <div class="col">
+              <label for="desgn_list">Liste des désignations :</label>
+              <select id="desgn_list" class="form-select mt-1" aria-label="Default select example"></select>
             </div>
-            <div id="step2">
-              <div class="row mt-3 g-0">
-                <div class="col"><h3>Saisie de la balance</h3></div>
-                <div class="col pull-right"><a id="close-saisie" class="link-dark">X</a></div>
+            <div class="col d-flex align-items-end" style="padding-left: 20px;">
+              <button id="load-desgn" type="button" class="btn btn-primary">Télécharger</button>
+            </div>
+          </div>
+          <div class="row mt-3 g-0">
+            <div class="col">
+              <label for="plan_list">Liste des plans :</label>
+              <select id="plan_list" class="form-select mt-1" aria-label="Default select example"></select>
+            </div>
+            <div class="col d-flex align-items-end" style="padding-left: 20px;">
+              <button id="load-plan" type="button" class="btn btn-primary">Télécharger</button>
+            </div>
+          </div>
+          <div class="row mt-3 g-0">
+            <p>Type d'affaire :</p>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="" id="div_check">
+              <label class="form-check-label" for="div_check">
+                Division / réunion
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="" id="cad_check">
+              <label class="form-check-label" for="cad_check">
+                Cadastration, nature, etc.
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="" id="serv_check">
+              <label class="form-check-label" for="serv_check">
+                Servitude
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="" id="art35_check">
+              <label class="form-check-label" for="art35_check">
+                art. 35
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="" id="other_check">
+              <label class="form-check-label" for="other_check">
+                Autre
+              </label>
+            </div>
+            <div class="form-check">
+              <input class="form-check-input" type="checkbox" value="" id="delayed_check">
+              <label class="form-check-label" for="delayed_check">
+                Retardé
+              </label>
+            </div>
+            <div class="form-check">
+              <label for="complement" class="form-label">Complément :</label>
+              <textarea class="form-control" id="complement" rows="3"></textarea>
+            </div>
+          </div>
+          <button id="submit-form" type="button" class="btn btn-primary mt-3">OK</button>
+        </div>
+        <div id="step2">
+          <div class="row mt-3 g-0">
+            <div class="col">
+              <h3>Saisie de la balance</h3>
+            </div>
+            <div class="col pull-right"><a id="close-saisie" class="link-dark">X</a></div>
+          </div>
+          <div class="row mt-3 g-0">
+            <p>Cadastre: <span class="cadastre_text"></span></p>
+          </div>
+          <div class="row mt-3 g-0">
+            <div class="col">
+              <div class="input-group mb-3">
+                <div class="input-group-prepend">
+                  <span class="input-group-text" id="basic-addon1">N° Infolica : </span>
+                </div>
+                <input id="no_infolica" type="text" class="form-control" aria-label="no_infolica" aria-describedby="basic-addon1" placeholder="1234 ou B1234 ou B_1234_0" onkeypress="handleEnterAsClick(event, 'load-infolica')">
               </div>
-              <div class="row mt-3 g-0"><p>Cadastre: <span class="cadastre_text"></span></p></div>
-              <div class="row mt-3 g-0">
-                <div class="col">
-                  <div class="input-group mb-3">
-                    <div class="input-group-prepend">
-                      <span class="input-group-text" id="basic-addon1">N° Infolica : </span>
-                    </div>
-                    <input id="no_infolica" type="text" class="form-control" aria-label="no_infolica" aria-describedby="basic-addon1" placeholder="1234 ou B1234 ou B_1234_0" onkeypress="handleEnterAsClick(event, 'load-infolica')">
+            </div>
+            <div class="col" style="padding-left: 20px;">
+              <button id="load-infolica" type="button" class="btn btn-primary">OK</button>
+            </div>
+          </div>
+          <!-- HTML FOR BALANCE GOES HERE -->
+          <!-- <div class="row mt-5 g-0"> -->
+          <div id="balance-add-bf-section" style="display: none; margin-top: 60px;">
+            <div class="row mt-0 g-0" style="margin-bottom: 0px;">
+              <h5>Ajouter des biens-fonds</h5>
+              <div class="col">
+                <div class="input-group mb-5">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">Anciens biens-fonds: </span>
                   </div>
-                </div>
-                <div class="col" style="padding-left: 20px;">
-                  <button id="load-infolica" type="button" class="btn btn-primary">OK</button>
+                  <input id="balance-old-bf" type="number" min="1" step="1" class="form-control" aria-label="old_bf" aria-describedby="basic-addon1" placeholder=""></input>
+                  <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">Série: </span>
+                  </div>
+                  <input id="balance-old-bf-serie" type="number" min="1" step="1" value="1" class="form-control" aria-label="new_bf_serie" aria-describedby="basic-addon1" placeholder=""></input>
                 </div>
               </div>
-              <!-- HTML FOR BALANCE GOES HERE -->
-              <div id="tableau_balance"></div>
-              <button id="submit-balance" type="button" class="btn btn-primary mt-3">OK</button>
+              <div class="col" style="padding-left: 20px;">
+                <button id="balance-add-old-bf" type="button" class="btn btn-primary">OK</button>
+              </div>
+            </div>
+
+            <!-- <div class="row mt-5 g-0"> -->
+            <div class="row mt-0 g-0">
+              <div class="col">
+                <div class="input-group mb-5">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">Nouveaux biens-fonds: </span>
+                  </div>
+                  <input id="balance-new-bf" type="number" min="1" step="1" class="form-control" aria-label="new_bf" aria-describedby="basic-addon1" placeholder=""></input>
+                  <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">Série: </span>
+                  </div>
+                  <input id="balance-new-bf-serie" type="number" min="1" step="1" value="1" class="form-control" aria-label="new_bf_serie" aria-describedby="basic-addon1" placeholder=""></input>
+                </div>
+              </div>
+              <div class="col" style="padding-left: 20px;">
+                <button id="balance-add-new-bf" type="button" class="btn btn-primary">OK</button>
+              </div>
             </div>
           </div>
-          <div class="tab-pane fade" id="nav-listing" role="tabpanel" aria-labelledby="nav-listing-tab">
-            <div class="row mt-3 g-0">
-              <div class="col"><h3>Liste des plans et désignations</h3></div>
-            </div>
-            <div class="row mt-3 g-0"><p>Cadastre: <span class="cadastre_text"></span></p></div>
-            <div class="row mt-3 g-0">
-              <div id="plan-list-table" class="table table-striped" style="width:100%"></div>
-            </div>
-          </div>
-          <div class="tab-pane fade" id="nav-control" role="tabpanel" aria-labelledby="nav-control-tab">
-            <div class="row mt-3 g-0">
-              <div class="col"><h3>Contrôle par cadastre</h3></div>
-            </div>
-            <div class="row mt-3 g-0"><p>Cadastre: <span class="cadastre_text"></span></p></div>
-            <div class="row mt-3 g-0">
-            </div>
-          </div>
-        </div>
-      </main>
-      <div id="overlay">
-        <div id="spinner" class="text-center">
-          <div class="spinner-border" role="status">
-            <span class="visually-hidden">Chargement...</span>
-          </div>
+
+          <div id="tableau_balance"></div>
+          <button id="submit-balance" type="button" class="btn btn-primary mt-3">OK</button>
         </div>
       </div>
-      <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
-      <script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
-      <script type="text/javascript" charset="utf8" src="{% static 'parcel_historisation/parcel_historisation.js' %}"></script>
-      {% csrf_token %}
-      <script>
-        document.onreadystatechange = () => {
-          if (document.readyState === "interactive") {
-            ph.infolica_api_url = "{{ infolica_api_url }}";
-            ph.initApplication();
-          }
-        };
-      </script>
-    </body>
+      <div class="tab-pane fade" id="nav-listing" role="tabpanel" aria-labelledby="nav-listing-tab">
+        <div class="row mt-3 g-0">
+          <div class="col">
+            <h3>Liste des plans et désignations</h3>
+          </div>
+        </div>
+        <div class="row mt-3 g-0">
+          <p>Cadastre: <span class="cadastre_text"></span></p>
+        </div>
+        <div class="row mt-3 g-0">
+          <div id="plan-list-table" class="table table-striped" style="width:100%"></div>
+        </div>
+      </div>
+      <div class="tab-pane fade" id="nav-control" role="tabpanel" aria-labelledby="nav-control-tab">
+        <div class="row mt-3 g-0">
+          <div class="col">
+            <h3>Contrôle par cadastre</h3>
+          </div>
+        </div>
+        <div class="row mt-3 g-0">
+          <p>Cadastre: <span class="cadastre_text"></span></p>
+        </div>
+        <div class="row mt-3 g-0">
+        </div>
+      </div>
+    </div>
+  </main>
+  <div id="overlay">
+    <div id="spinner" class="text-center">
+      <div class="spinner-border" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js" integrity="sha384-w76AqPfDkMBDXo30jS1Sgez6pr3x5MlQ1ZAGC+nuZB+EYdgRZgiwxhTBTkF7CXvN" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gridjs/dist/gridjs.umd.js"></script>
+  <script type="text/javascript" charset="utf8" src="{% static 'parcel_historisation/parcel_historisation.js' %}"></script>
+  {% csrf_token %}
+  <script>
+    document.onreadystatechange = () => {
+      if (document.readyState === "interactive") {
+        ph.infolica_api_url = "{{ infolica_api_url }}";
+        ph.initApplication();
+      }
+    };
+  </script>
+</body>
 
 </html>

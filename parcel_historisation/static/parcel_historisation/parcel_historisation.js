@@ -24,7 +24,7 @@ document.getElementById("close-saisie").onclick = () => {
   if (confirm(text) == true) {
     document.getElementById("step1").style.display = "none";
     document.getElementById("cadastre_selector").style.display = "block";
-    ph.activecadastre=null;
+    ph.activecadastre = null;
     document.getElementById("nav-listing-tab").classList.add("disabled");
     document.getElementById("nav-control-tab").classList.add("disabled");
     // Reset form
@@ -72,12 +72,135 @@ document.getElementById("load-infolica").onclick = () => {
   ph.getBalance(no_infolica);
 };
 
+document.getElementById("balance-add-old-bf").onclick = () => {
+  let balance_old_bf = document.getElementById("balance-old-bf").value;
+  const balance_old_bf_serie = Number(document.getElementById("balance-old-bf-serie").value);
 
-function handleEnterAsClick(e, elementId){
-  if(e.keyCode === 13){
-      e.preventDefault();
-      document.getElementById(elementId).click();
+  if (!balance_old_bf && typeof balance_old_bf !== 'number') {
+    return;
   }
+  balance_old_bf = Number(balance_old_bf);
+
+  let tableau_balance = document.getElementById('tableau_balance').firstChild;
+  const nb_cols = tableau_balance.rows[0].cells.length;
+
+  let cadastre_id = 14;
+
+  for (let j = 0; j < balance_old_bf_serie; j++) {
+
+    let row = tableau_balance.insertRow(-1)
+    let cell = row.insertCell(0)
+
+    cell.outerHTML = '<td style="text-align: center; padding: 5pt; border: solid 1pt black">' + cadastre_id + '_' + balance_old_bf + '</td>';
+
+    for (let i = 1; i < nb_cols; i++) {
+      cell = row.insertCell(i)
+      cell.outerHTML = '<td style="text-align: center; padding: 5pt; border: solid 1pt black"><input type="checkbox" id="' + cadastre_id + '_' + balance_old_bf + '-' + tableau_balance.rows[0].cells[i].innerHTML + '"></input></td>';
+    }
+
+    balance_old_bf += 1;
+
+  }
+
+  document.getElementById("balance-old-bf").value = '';
+  document.getElementById("balance-old-bf-serie").value = 1;
+};
+
+document.getElementById("balance-add-new-bf").onclick = () => {
+  let balance_new_bf = document.getElementById("balance-new-bf").value;
+  const balance_new_bf_serie = Number(document.getElementById("balance-new-bf-serie").value);
+
+  if (!balance_new_bf && typeof balance_new_bf !== 'number') {
+    return;
+  }
+
+  balance_new_bf = Number(balance_new_bf);
+
+  let tableau_balance = document.getElementById('tableau_balance').firstChild;
+  const nb_rows = tableau_balance.rows.length;
+
+  let cadastre_id = 14;
+
+  for (let j = 0; j < balance_new_bf_serie; j++) {
+
+    let cell = tableau_balance.rows[0].insertCell(-1)
+
+    cell.outerHTML = '<td style="text-align: center; padding: 5pt; border: solid 1pt black">' + cadastre_id + '_' + balance_new_bf + '</td>';
+
+    for (let i = 1; i < nb_rows; i++) {
+      cell = tableau_balance.rows[i].insertCell(-1)
+      cell.outerHTML = '<td style="text-align: center; padding: 5pt; border: solid 1pt black"><input type="checkbox" id="' + tableau_balance.rows[i].cells[0].innerHTML + '-' + cadastre_id + '_' + balance_new_bf + '"></input></td>';
+    }
+
+    balance_new_bf += 1;
+  }
+
+  document.getElementById("balance-new-bf").value = '';
+  document.getElementById("balance-new-bf-serie").value = 1;
+};
+
+// submit-balance
+document.getElementById("submit-balance").onclick = () => {
+  // get relations
+  const relations = getBalanceRelations();
+  if (relations.length === 0) {
+    return;
+  }
+
+  // post relations
+  postBalanceRelation(relations);
+
+  // hide balance sections
+  // document.getElementById("balance-add-bf-section").style.display = 'none';
+  // document.getElementById("tableau_balance").innerHTML = '';
+
+}
+
+function handleEnterAsClick(e, elementId) {
+  if (e.keyCode === 13) {
+    e.preventDefault();
+    document.getElementById(elementId).click();
+  }
+}
+
+function getBalanceRelations() {
+  let relations = new Array();
+
+  const tableau_balance = document.getElementById('tableau_balance').firstChild;
+
+  const nb_rows = tableau_balance.rows.length
+  const nb_cols = tableau_balance.rows[0].cells.length
+
+  // get all old_bf
+  let old_bf = new Array()
+  for (let i = 1; i < nb_rows; i++) {
+    old_bf.push(tableau_balance.rows[i].cells[0].innerHTML);
+  }
+
+  // get all new_bf
+  let new_bf = new Array()
+  for (let i = 1; i < nb_cols; i++) {
+    new_bf.push(tableau_balance.rows[0].cells[i].innerHTML);
+  }
+
+  async function postBalanceRelation(relations) {
+    console.log(`postBalanceRelation | still to do`)
+    console.log(`post(...)`)
+    console.log(`relations`, relations)
+  }
+
+  // get all relations
+  let id_rel = '';
+  for (obf of old_bf) {
+    for (nbf of new_bf) {
+      id_rel = [obf, nbf].join("-");
+      if (document.getElementById(id_rel).checked === true) {
+        relations.push(id_rel);
+      }
+    }
+  }
+
+  return relations;
 }
 
 ph = {
@@ -85,7 +208,7 @@ ph = {
   cadastres: {},
 };
 
-ph.initApplication = function() {
+ph.initApplication = function () {
   // Token is needed for calling Django using POST
   ph.csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
   ph.load_cadastre();
@@ -95,24 +218,24 @@ ph.initApplication = function() {
 ph.load_cadastre = () => {
   const select = document.getElementById("cadastre_list");
   let i, L = select.options.length - 1;
-  for(i = L; i >= 0; i--) {
+  for (i = L; i >= 0; i--) {
     select.remove(i);
   }
   fetch("../cadastre/get")
-  .then((response) => response.json())
-  .then((data) => {
-    for (let i = 0; i < data.length; i++){
-      let item = data[i];
-      let element = document.createElement("option");
-      ph.cadastres[item["numcad"]] = item["cadnom"];
-      element.innerText = item["cadnom"];
-      element.value = item["numcad"];
-      select.append(element);
-      document.getElementById("overlay").style.display = "none";
-   //   document.getElementById("control_section").classList.add("disabled");
-      document.getElementById("cadastre_selector").style.display = "block";
-    }
-  });
+    .then((response) => response.json())
+    .then((data) => {
+      for (let i = 0; i < data.length; i++) {
+        let item = data[i];
+        let element = document.createElement("option");
+        ph.cadastres[item["numcad"]] = item["cadnom"];
+        element.innerText = item["cadnom"];
+        element.value = item["numcad"];
+        select.append(element);
+        document.getElementById("overlay").style.display = "none";
+        //   document.getElementById("control_section").classList.add("disabled");
+        document.getElementById("cadastre_selector").style.display = "block";
+      }
+    });
 };
 
 // Choosing a cadastre sends user to step 1 display
@@ -131,7 +254,7 @@ document.getElementById("choose_cadastre").onclick = () => {
       const plan_list = document.getElementById("plan_list");
       const desgn_list = document.getElementById("desgn_list");
       const list = data['list'];
-      for (let i = 0; i < list.length; i++){
+      for (let i = 0; i < list.length; i++) {
         item = list[i];
         element = document.createElement("option");
         element.innerText = item["link"];
@@ -159,17 +282,17 @@ document.getElementById("choose_cadastre").onclick = () => {
 
       const download_path = data['download'];
 
-    // The most recent document is automatically opened, might it be a plan or a designation
-    // (currently commented because of development purposes)
-    /*
-     ph.get_document(download_path)
-    */
-  });
+      // The most recent document is automatically opened, might it be a plan or a designation
+      // (currently commented because of development purposes)
+      /*
+       ph.get_document(download_path)
+      */
+    });
 };
 
 // The download path is the direct access to documents (plans or designation)
 // They are fetched on the fly when needed
-ph.get_download_path = (id, type) => {;
+ph.get_download_path = (id, type) => {
   const url = "get_download_path?" + new URLSearchParams({
     id: id,
     type: type
@@ -178,22 +301,22 @@ ph.get_download_path = (id, type) => {;
     .then((response) => response.json())
     .then((data) => {
       ph.get_document(data["download_path"]);
-  });
+    });
 };
 
 // Using the download path (which is fetch using the upper function),
 // a document can be fetched.
 ph.get_document = (download_path) => {
   const download_file = download_path.split('/').at(-1);
-  fetch('download/'+download_path)
-  .then(res => res.blob())
-  .then(data => {
-    let a = document.createElement("a");
-    a.href = window.URL.createObjectURL(data);
-    a.download = download_file;
-    a.click();
-    window.URL.revokeObjectURL('download/'+download_path);
-  });
+  fetch('download/' + download_path)
+    .then(res => res.blob())
+    .then(data => {
+      let a = document.createElement("a");
+      a.href = window.URL.createObjectURL(data);
+      a.download = download_file;
+      a.click();
+      window.URL.revokeObjectURL('download/' + download_path);
+    });
 };
 
 // Submitting data from the step 1 form.
@@ -231,14 +354,14 @@ document.getElementById("submit-form").onclick = () => {
       'Accept': 'application/json, text/plain,  */*',
       'Content-Type': 'application/json'
     },
-    headers: {'X-CSRFToken': ph.csrftoken},
+    headers: { 'X-CSRFToken': ph.csrftoken },
     mode: 'same-origin',
     body: JSON.stringify(params),
   })
-  .then(res => res.json())
-  .then(res => {
-    ph.resetSubmitForm(res['has_div']);
-  });
+    .then(res => res.json())
+    .then(res => {
+      ph.resetSubmitForm(res['has_div']);
+    });
 };
 
 // Data submission was sucessfull: resetting form and opening balance interface (if is is a division)
@@ -330,7 +453,8 @@ ph.load_table = () => {
       server: {
         url: (prev, page) => {
           page += 1;
-          return `${prev}&page=${page}`;}
+          return `${prev}&page=${page}`;
+        }
       }
     },
     sort: {
@@ -377,11 +501,11 @@ ph.load_table = () => {
 
 ph.getBalance = (id) => {
   fetch(ph.infolica_api_url + 'balance_from_affaire_id?' + new URLSearchParams({
-      division_id: id,
-      cadastre_id: ph.activecadastre
-    })
+    division_id: id,
+    cadastre_id: ph.activecadastre
+  })
   )
-  .then((response) => response.json())
+    .then((response) => response.json())
     .then((data) => {
       if (!Object.keys(data).includes('balance')) {
         document.getElementById("tableau_balance").innerHTML = '<p><em>(' + data.error.detail + ')</em></p>';
@@ -396,16 +520,15 @@ ph.getBalance = (id) => {
       }
 
       let tb_html = '<table style="border: solid 1pt black">'
-      for (let i=0; i<balance.length; i++) {
+      for (let i = 0; i < balance.length; i++) {
         tb_html += '<tr>';
-        for (let j=0; j<balance[0].length; j++) {
-          console.log(balance[i][j])
-          if (i>0 && j>0) {
+        for (let j = 0; j < balance[0].length; j++) {
+          if (i > 0 && j > 0) {
             tb_html += '<td style="text-align: center; padding: 5pt; border: solid 1pt black">' +
-              '<input type="checkbox" id="' + balance[i][j].id + '" ' + (balance[i][j].state? 'checked': '') + '></input>' +
+              '<input type="checkbox" id="' + balance[i][j].id + '" ' + (balance[i][j].state ? 'checked' : '') + '></input>' +
               '</td>';
           } else {
-            tb_html += '<td style="text-align: center; padding: 5pt; border: solid 1pt black">' + (balance[i][j]? balance[i][j]: '') + '</td>';
+            tb_html += '<td style="text-align: center; padding: 5pt; border: solid 1pt black">' + (balance[i][j] ? balance[i][j] : '') + '</td>';
           }
         }
         tb_html += '</tr>';
@@ -413,6 +536,7 @@ ph.getBalance = (id) => {
       tb_html += '</table>';
 
       document.getElementById("tableau_balance").innerHTML = tb_html;
+      document.getElementById("balance-add-bf-section").style.display = "block";
 
     }).catch((err) => {
       alert('Une erreur s\'est produite. Veuillez contacter l\'administrateur\n\n \
