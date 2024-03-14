@@ -1,5 +1,9 @@
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv('.env')
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -18,10 +22,6 @@ if 'DEVELOPMENT_MODE' in os.environ and os.environ['DEVELOPMENT_MODE'] == "True"
 
 DEBUG = DEVELOPMENT_MODE 
 
-ALLOWED_HOSTS = os.environ["ALLOWED_HOSTS"].split(",")
-
-CSRF_USE_SESSIONS = True
-
 # Application definition
 
 IS_INTRANET = True if os.environ.get("IS_INTRANET") == "True" else False
@@ -30,19 +30,19 @@ IS_INTRANET = True if os.environ.get("IS_INTRANET") == "True" else False
 
 # List of apps that must not be visible on internet
 INTRANET_ONLY_APPS = [
-    'cats.apps.CatsConfig',
-    'parcel_historisation.apps.ParcelHistorisationConfig',
-    'intranet_proxy.apps.IntranetProxyConfig',
+    'cats',
+    'parcel_historisation.apps',
+    'intranet_proxy',
 ]
 
 INTERNET_ONLY_APPS = [
-    'stationnement.apps.StationnementConfig',
-    'forest_forpriv.apps.ForestForprivConfig',
+    'stationnement',
+    'forest_forpriv',
 ]
 
 INSTALLED_APPS = [
     'sitn',
-    'cadastre.apps.CadastreConfig',
+    'cadastre',
     'health.apps.HealthConfig',
     "corsheaders",
     'django.contrib.admin',
@@ -152,6 +152,22 @@ USE_I18N = True
 
 USE_TZ = True
 
+# CORS, CSRF AND SSL
+
+ALLOWED_HOSTS = os.environ["ALLOWED_HOSTS"].split(",")
+
+CORS_ALLOWED_ORIGINS = os.environ["CORS_ALLOWED_ORIGINS"].split(",")
+
+CSRF_USE_SESSIONS = True
+CSRF_COOKIE_SECURE = True
+CSRF_COOKIE_DOMAIN = os.environ["CSRF_COOKIE_DOMAIN"]
+CSRF_TRUSTED_ORIGINS = []
+for host in ALLOWED_HOSTS:
+    CSRF_TRUSTED_ORIGINS.append(f'http://{host}')
+    CSRF_TRUSTED_ORIGINS.append(f'https://{host}')
+
+USE_X_FORWARDED_HOST = True
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/4.0/howto/static-files/
@@ -165,14 +181,6 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'assets')
 STATICFILES_DIRS = [
     BASE_DIR / "static",
 ]
-
-CORS_ALLOWED_ORIGINS = os.environ["CORS_ALLOWED_ORIGINS"].split(",")
-
-CSRF_COOKIE_DOMAIN = os.environ["CSRF_COOKIE_DOMAIN"]
-CSRF_TRUSTED_ORIGINS = []
-for host in ALLOWED_HOSTS:
-    CSRF_TRUSTED_ORIGINS.append(f'http://{host}')
-    CSRF_TRUSTED_ORIGINS.append(f'https://{host}')
 
 WHITENOISE_STATIC_PREFIX = "/assets/"
 
@@ -192,7 +200,7 @@ NEARCH2_CONSULTATION = os.environ.get('NEARCH2_CONSULTATION')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-if DEVELOPMENT_MODE:
+if DEVELOPMENT_MODE and os.environ.get('GDAL_PATH'):
     GDAL_PATH = os.environ["GDAL_PATH"]
     GDAL_LIBRARY_PATH = os.environ["GDAL_LIBRARY_PATH"]
     os.environ['GDAL_DATA'] = GDAL_PATH + "gdal-data"
