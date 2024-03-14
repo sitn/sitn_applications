@@ -36,7 +36,8 @@ class Command(BaseCommand):
             cmd = [
                 f"{self.pg_binaries_path}pg_dump.exe",
                 "--schema-only",
-                "--no-acl",
+                "--no-privileges",
+                "--no-owner",
                 "-n", schema,
                 "--format=C",
                 f"--file=db/{schema}.backup"
@@ -52,7 +53,8 @@ class Command(BaseCommand):
             cmd = [
                 f"{self.pg_binaries_path}pg_dump.exe",
                 "-t", f"{schema}.({table_list})",
-                "--no-acl",
+                "--no-privileges",
+                "--no-owner",
                 "--format=C",
                 f"--file=db/{schema}.backup"
             ]
