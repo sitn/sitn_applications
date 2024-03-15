@@ -43,12 +43,25 @@ class St20AvailableDoctors(AbstractDoctors):
         self.edit_guid = uuid.uuid4()
 
     @property
+    def has_been_requested_recently(self):
+        now = timezone.now()
+        ten_minutes_ago = now - timedelta(minutes=10)
+        if self.guid_requested_when == None:
+            return False
+        if self.guid_requested_when < ten_minutes_ago:
+            logger.info('10 minutes cooldown')
+            return False
+        return True
+
+    @property
     def is_edit_guid_valid(self):
         if not bool(self.edit_guid):
             logger.info('Edit guid is empty or null')
             return False
         now = timezone.now()
         three_days_ago = now - timedelta(days=3)
+        if self.guid_requested_when == None:
+            return False
         if self.guid_requested_when < three_days_ago:
             logger.info('Edit guid is older than three days ago')
             return False

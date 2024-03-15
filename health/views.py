@@ -4,7 +4,7 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
-from rest_framework import viewsets, mixins, generics
+from rest_framework import viewsets, mixins
 from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 
@@ -49,13 +49,12 @@ class St20AvailableDoctorsViewSet(
         if not serializer.is_valid():
             raise BadRequest("Invalid data")
 
-        # Do not allow multiple requests within 3 days
-        if not obj.is_edit_guid_valid:
+        # Do not allow multiple requests within a short duration
+        if obj.has_been_requested_recently:
             return Response(status=429)
 
-        obj.guid_requested_when = timezone.now()
-
         # If email not found, send email to explain
+        obj.guid_requested_when = timezone.now()
         if obj.login_email != serializer.data.get('login_email'):
             obj.save()
             send_email(
