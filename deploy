@@ -6,18 +6,11 @@ from datetime import datetime
 import re
 import sys
 from pathlib import Path
+from dotenv import load_dotenv
 
 CONTEXTS = ["internet", "intranet", "dev"]
 ALLOWED_INSTANCES = ["prepub", "prod", "dev", "local"]
 
-
-def load_dotenv(env_file):
-    os.environ["ENV_FILE"] = str(env_file)
-    with open(f"./{env_file}", 'r') as f:
-        env_vars = f.read()
-    os.environ['DOCKER_HOST'] = re.search(r'^DOCKER_HOST="(.*)"', env_vars, re.MULTILINE).group(1) or ''
-    os.environ['DOCKER_PORT'] = re.search(r'^DOCKER_PORT=(\d+)', env_vars, re.MULTILINE).group(1)
-    os.environ['COMPOSE_PROJECT_NAME'] = re.search(r'^COMPOSE_PROJECT_NAME="(.*)"', env_vars, re.MULTILINE).group(1)
 
 def check_settings_file(dest_instance):
     # Do not deploy to the internet with DEBUG set to True
@@ -49,8 +42,9 @@ def main():
 
     check_settings_file(instance)
 
-    env_file = Path(f".env.{context}.{instance}")
-    load_dotenv(env_file)
+    env_file = f".env.{context}.{instance}"
+    os.environ['ENV_FILE'] = env_file
+    load_dotenv(Path(env_file), override=True)
 
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - DOCKER_HOST is: {os.environ['DOCKER_HOST']}")
 

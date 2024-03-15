@@ -34,11 +34,28 @@ class AbstractDoctors(models.Model):
         abstract = True
 
 
+class St19Cabinets(models.Model):
+    """Geom for cabinets"""
+
+    class Meta:
+        db_table = 'sante\".\"st19_cabinets'
+        managed=False
+
+
+class St18Independants(models.Model):
+    """Geom for independants"""
+
+    class Meta:
+        db_table = 'sante\".\"st18_independants'
+        managed=False
+
+
 class St20AvailableDoctors(AbstractDoctors):
     """Doctor availability infos, without geom"""
 
     class Meta:
         db_table = 'sante\".\"st20_available_doctors'
+        managed=False
 
 
 class St21AvailableDoctorsWithGeom(AbstractDoctors):
@@ -60,6 +77,7 @@ class St21AvailableDoctorsWithGeom(AbstractDoctors):
 
     class Meta:
         db_table = 'sante\".\"st21_available_doctors_with_geom'
+        managed=False
 
     @classmethod
     def as_geojson(cls):

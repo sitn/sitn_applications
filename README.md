@@ -14,38 +14,56 @@ Depending on the context, some apps will not be installed when deploying.
 Fork and clone this repository. Make a copy of the `.env.sample` file and adapt it to your environment settings:
 
 ```
-cp .env.sample .env.dev
+cp .env.sample .env
 ```
 
 and configure the different variables.
-
-### Database
-
-A database with a schema named according to your .env file is required.
 
 ## Running in development mode, without docker
 
 First, create a copy of the `.env.sample` file called `.env.dev`:
 
 ```
-cp .env.sample .env.dev
+cp .env.sample .env
 ```
 
 Install the virual environment:
 
-```
+```sh
 python -m venv venv
-.\utilities\activate_python_env.ps1
+./venv/Scripts/activate
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 ```
 
-In order for the application to load the environment variables, you should start the dev server using
-the dedicated Powershell script:
+Activate your venv:
 
 ```
-cd utilities
-.\run_dev_server.ps1
+venv/Scripts/activate
+```
+
+Create a local database:
+
+```shell
+python manage.py createdb
+```
+
+Run migrations
+
+```shell
+python manage.py migrate
+```
+
+Dump some fresh data from prod database
+
+```shell
+python manage.py getdata
+```
+
+You're now ready to go:
+
+```shell
+python manage.py runserver
 ```
 
 ### Switching between the Internet & Intranet instances
@@ -59,7 +77,7 @@ IS_INTRANET=False
 
 ## Running locally on Docker
 
-First, create a copy of the `env.sample` file called `env.<context>.<instance>`:
+First, create a copy of the `env.sample` file called `env.<context>.local`:
 
 ```
 cp .env.sample .env.intranet.local
@@ -83,4 +101,19 @@ Then you'll be able to deploy your instance with `python deploy <context> <insta
 
 ```
 python deploy intranet prod
+```
+
+
+## Tests
+
+Running tests will require a database for testing.
+
+```sh
+python manage.py testdb
+```
+
+then you can run tests
+
+```sh
+python manage.py test --keepdb
 ```
