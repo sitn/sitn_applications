@@ -1,6 +1,6 @@
 from django.utils import timezone
 from rest_framework import serializers
-from health.models import St20AvailableDoctors
+from health.models import St20AvailableDoctors, St21AvailableDoctorsWithGeom
 
 
 class St20AvailableDoctorsSerializer(serializers.HyperlinkedModelSerializer):
@@ -9,6 +9,8 @@ class St20AvailableDoctorsSerializer(serializers.HyperlinkedModelSerializer):
         fields = [
             'url',
             'id_person_address',
+            'nom',
+            'prenoms',
             'spoken_languages',
             'availability',
             'availability_conditions'
@@ -27,3 +29,13 @@ class St20AvailableDoctorsSerializer(serializers.HyperlinkedModelSerializer):
 
 class DoctorEmailSerializer(serializers.Serializer):
     login_email = serializers.EmailField()
+
+
+class St21AvailableDoctorsWithGeomSerializer(serializers.ModelSerializer):
+    has_parking = serializers.BooleanField()
+    has_disabled_access = serializers.BooleanField()
+    has_lift = serializers.BooleanField()
+    is_rsn_member = serializers.BooleanField()
+    class Meta:
+        model = St21AvailableDoctorsWithGeom
+        fields = St21AvailableDoctorsWithGeom.PUBLIC_FIELDS

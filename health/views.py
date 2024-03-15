@@ -1,5 +1,3 @@
-from datetime import timedelta
-
 from django.conf import settings
 from django.core.exceptions import BadRequest
 from django.http import HttpResponse
@@ -7,7 +5,7 @@ from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
 from rest_framework import viewsets, mixins, generics
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework.response import Response
 
 from sitn.tools.emailer import send_email
@@ -15,6 +13,7 @@ from health.models import St21AvailableDoctorsWithGeom, St20AvailableDoctors
 from health.serializers import (
     St20AvailableDoctorsSerializer,
     DoctorEmailSerializer,
+    St21AvailableDoctorsWithGeomSerializer
 )
 
 class St20AvailableDoctorsViewSet(
@@ -51,11 +50,8 @@ class St20AvailableDoctorsViewSet(
             raise BadRequest("Invalid data")
 
         # Do not allow multiple requests within 3 days
-        if obj.guid_requested_when:
-            now = timezone.now()
-            three_days_ago = now - timedelta(days=3)
-            if obj.guid_requested_when > three_days_ago:
-                return Response(status=429)
+        if not obj.is_edit_guid_valid:
+            return Response(status=429)
 
         obj.guid_requested_when = timezone.now()
 
@@ -90,21 +86,26 @@ class St20AvailableDoctorsViewSet(
             return Response("ok")
 
 
-class St20DoctorsByTokenView(generics.RetrieveUpdateAPIView):
+@api_view(['GET'])
+def get_doctor_by_token(request, token):
     queryset = St20AvailableDoctors.objects.all()
-    serializer_class = St20AvailableDoctorsSerializer
+    editable_doctor = get_object_or_404(queryset, edit_guid=token)
+    if not editable_doctor.is_edit_guid_valid:
+        return Response(status=410)
+    queryset = St21AvailableDoctorsWithGeom.objects.all()
+    doctor_infos = get_object_or_404(queryset, pk=editable_doctor.pk)
+    serializer = St21AvailableDoctorsWithGeomSerializer(doctor_infos, context={'request': request})
+    return Response(serializer.data)
 
-    def get(self, request, token):
-        queryset = self.get_queryset()
-        item = get_object_or_404(queryset, edit_guid=token)
-        serializer = St20AvailableDoctorsSerializer(item, context={'request': request})
-        return Response(serializer.data)
-
-    def put(self, request, token):
-        queryset = self.get_queryset()
-        item = get_object_or_404(queryset, edit_guid=token)
-        serializer = St20AvailableDoctorsSerializer(item, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response("ok")
-        raise BadRequest(serializer.errors)
+# TODO: Move this to an api view class
+@api_view(['PUT'])
+def put_doctor_by_token(request, token):
+    queryset = St20AvailableDoctors.objects.all()
+    item = get_object_or_404(queryset, edit_guid=token)
+    if not item.is_edit_guid_valid:
+        return Response(status=410)
+    serializer = St20AvailableDoctorsSerializer(item, data=request.data)
+    if serializer.is_valid():
+        serializer.save()
+        return Response("ok")
+    raise BadRequest(serializer.errors)

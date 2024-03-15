@@ -1,9 +1,14 @@
+from datetime import timedelta
 import uuid
+import logging
 
 from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.db import connection
+from django.utils import timezone
+
+logger = logging.getLogger(__name__)
 
 
 class AbstractDoctors(models.Model):
@@ -15,7 +20,6 @@ class AbstractDoctors(models.Model):
         AVAILABLE_WITH_CONDITIONS = "Available with conditions"
 
     id_person_address = models.TextField(primary_key=True)
-    login_email = models.TextField(blank=True)
     availability_conditions = models.TextField(blank=True, null=True)
     has_parking = models.BooleanField(null=True),
     has_disabled_access = models.BooleanField(null=True),
@@ -23,6 +27,14 @@ class AbstractDoctors(models.Model):
     spoken_languages = ArrayField(models.TextField())
     is_rsn_member = models.BooleanField(null=True),
     availability = models.TextField(choices=Avalability.choices, default=Avalability.UNKNOWN)
+
+    class Meta:
+        abstract = True
+
+
+class St20AvailableDoctors(AbstractDoctors):
+    """Doctor availability infos, without geom"""
+    login_email = models.TextField(blank=True)
     edit_guid = models.UUIDField(null=True)
     guid_requested_when = models.DateTimeField(null=True)
     last_edit = models.DateTimeField(null=True)
@@ -30,28 +42,17 @@ class AbstractDoctors(models.Model):
     def prepare_for_edit(self):
         self.edit_guid = uuid.uuid4()
 
-    class Meta:
-        abstract = True
-
-
-class St19Cabinets(models.Model):
-    """Geom for cabinets"""
-
-    class Meta:
-        db_table = 'sante\".\"st19_cabinets'
-        managed=False
-
-
-class St18Independants(models.Model):
-    """Geom for independants"""
-
-    class Meta:
-        db_table = 'sante\".\"st18_independants'
-        managed=False
-
-
-class St20AvailableDoctors(AbstractDoctors):
-    """Doctor availability infos, without geom"""
+    @property
+    def is_edit_guid_valid(self):
+        if not bool(self.edit_guid):
+            logger.info('Edit guid is empty or null')
+            return False
+        now = timezone.now()
+        three_days_ago = now - timedelta(days=3)
+        if self.guid_requested_when < three_days_ago:
+            logger.info('Edit guid is older than three days ago')
+            return False
+        return True
 
     class Meta:
         db_table = 'sante\".\"st20_available_doctors'
@@ -59,6 +60,15 @@ class St20AvailableDoctors(AbstractDoctors):
 
 
 class St21AvailableDoctorsWithGeom(AbstractDoctors):
+    nom = models.TextField()
+    prenoms = models.TextField()
+    profession = models.TextField()
+    specialites = models.TextField()
+    notel = models.TextField(null=True)
+    address = models.TextField()
+    nopostal = models.TextField()
+    localite = models.TextField()
+
     PUBLIC_FIELDS = [
         'id_person_address',
         'nom',
