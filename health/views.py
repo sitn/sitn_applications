@@ -25,6 +25,7 @@ class St20AvailableDoctorsViewSet(
     mixins.RetrieveModelMixin,
     viewsets.GenericViewSet,
 ):
+    authentication_classes = []
     queryset = St20AvailableDoctors.objects.all()
     serializers = {
         "default": St20AvailableDoctorsSerializer,
