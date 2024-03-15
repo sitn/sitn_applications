@@ -5,8 +5,6 @@ from django.core.exceptions import BadRequest
 from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
 
 from rest_framework import viewsets, mixins, generics
 from rest_framework.decorators import action
@@ -19,7 +17,6 @@ from health.serializers import (
     DoctorEmailSerializer,
 )
 
-@method_decorator(csrf_exempt, name='dispatch')
 class St20AvailableDoctorsViewSet(
     mixins.ListModelMixin,
     mixins.RetrieveModelMixin,
