@@ -59,7 +59,7 @@ class St20AvailableDoctorsViewSet(
         if obj.login_email != serializer.data.get('login_email'):
             obj.save()
             send_email(
-                "Modification de vos informations",
+                "Modification de vos informations cartographie SITN",
                 to=serializer.data.get('login_email'),
                 template_name="email_not_found",
                 template_data={
@@ -77,7 +77,7 @@ class St20AvailableDoctorsViewSet(
             obj.prepare_for_edit()
             url = f"{settings.HEALTH.get('front_url')}?guid={obj.edit_guid}"
             send_email(
-                "Modification de vos informations",
+                "Modification de vos informations cartographie SITN",
                 to=obj.login_email,
                 template_name="email_magic_link",
                 template_data={"url": url},
