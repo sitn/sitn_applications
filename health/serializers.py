@@ -9,11 +9,13 @@ class St20AvailableDoctorsSerializer(serializers.HyperlinkedModelSerializer):
         fields = [
             'url',
             'id_person_address',
-            'nom',
-            'prenoms',
+            'availability_conditions',
+            'has_parking',
+            'has_disabled_access',
+            'has_lift',
             'spoken_languages',
-            'availability',
-            'availability_conditions'
+            'is_rsn_member',
+            'availability'
         ]
         read_only_fields = [
             'url',
@@ -22,6 +24,7 @@ class St20AvailableDoctorsSerializer(serializers.HyperlinkedModelSerializer):
 
     def update(self, instance, validated_data):
         instance.edit_guid = None
+        instance.guid_requested_when = None
         instance.last_edit = timezone.now()
         instance = super().update(instance, validated_data)
         return instance

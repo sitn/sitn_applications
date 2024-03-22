@@ -21,11 +21,11 @@ class AbstractDoctors(models.Model):
 
     id_person_address = models.TextField(primary_key=True)
     availability_conditions = models.TextField(blank=True, null=True)
-    has_parking = models.BooleanField(null=True),
-    has_disabled_access = models.BooleanField(null=True),
-    has_lift = models.BooleanField(null=True),
+    has_parking = models.BooleanField(null=True)
+    has_disabled_access = models.BooleanField(null=True)
+    has_lift = models.BooleanField(null=True)
     spoken_languages = ArrayField(models.TextField())
-    is_rsn_member = models.BooleanField(null=True),
+    is_rsn_member = models.BooleanField(null=True)
     availability = models.TextField(choices=Avalability.choices, default=Avalability.UNKNOWN)
 
     class Meta:
