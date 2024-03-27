@@ -4,6 +4,7 @@ from health.models import St20AvailableDoctors, St21AvailableDoctorsWithGeom
 
 
 class St20AvailableDoctorsSerializer(serializers.HyperlinkedModelSerializer):
+    id_person_address = serializers.SerializerMethodField()
     class Meta:
         model = St20AvailableDoctors
         fields = [
@@ -21,6 +22,9 @@ class St20AvailableDoctorsSerializer(serializers.HyperlinkedModelSerializer):
             'url',
             'id_person_address',
         ]
+
+    def get_id_person_address(self, obj):
+        return obj.pk
 
     def update(self, instance, validated_data):
         instance.edit_guid = None

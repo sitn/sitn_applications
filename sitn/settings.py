@@ -43,7 +43,7 @@ INTERNET_ONLY_APPS = [
 INSTALLED_APPS = [
     'sitn',
     'cadastre',
-    'health.apps.HealthConfig',
+    'health',
     "corsheaders",
     'django.contrib.admin',
     'django.contrib.auth',
@@ -67,10 +67,12 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'sitn.middleware.RemoteSitnMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if IS_INTRANET:
+    MIDDLEWARE.append('sitn.middleware.RemoteSitnMiddleware')
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
