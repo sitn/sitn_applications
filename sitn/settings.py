@@ -43,7 +43,7 @@ INTERNET_ONLY_APPS = [
 INSTALLED_APPS = [
     'sitn',
     'cadastre',
-    'health.apps.HealthConfig',
+    'health',
     "corsheaders",
     'django.contrib.admin',
     'django.contrib.auth',
@@ -67,10 +67,12 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'sitn.middleware.RemoteSitnMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
+
+if IS_INTRANET:
+    MIDDLEWARE.append('sitn.middleware.RemoteSitnMiddleware')
 
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
@@ -162,9 +164,8 @@ CSRF_USE_SESSIONS = True
 CSRF_COOKIE_SECURE = True
 CSRF_COOKIE_DOMAIN = os.environ["CSRF_COOKIE_DOMAIN"]
 CSRF_TRUSTED_ORIGINS = []
-for host in ALLOWED_HOSTS:
-    CSRF_TRUSTED_ORIGINS.append(f'http://{host}')
-    CSRF_TRUSTED_ORIGINS.append(f'https://{host}')
+for host in CORS_ALLOWED_ORIGINS:
+    CSRF_TRUSTED_ORIGINS.append(host)
 
 USE_X_FORWARDED_HOST = True
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')

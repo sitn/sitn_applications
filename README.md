@@ -117,3 +117,17 @@ then you can run tests
 ```sh
 python manage.py test --keepdb
 ```
+
+## Translations
+
+Prepare translation files
+
+```sh
+django-admin makemessages -l fr
+```
+
+then compile them
+
+```sh
+python manage.py compilemessages --locale=fr
+```
