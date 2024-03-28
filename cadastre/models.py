@@ -47,4 +47,4 @@ class ImmeublesAdressesSearch(models.Model):
 
     class Meta:
         managed = False
-        db_table = 'searchtables\".\"search_immeubles_adresses_new'
+        db_table = 'searchtables\".\"search_immeubles_adresses'
