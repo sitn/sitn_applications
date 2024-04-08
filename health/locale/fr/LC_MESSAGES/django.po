@@ -1,0 +1,82 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2024-03-27 12:01+0100\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+
+#: .\health\apps.py:8
+msgid "HealthApp"
+msgstr "Santé"
+
+#: .\health\models.py:18
+msgid "Unknown"
+msgstr "Inconnu"
+
+#: .\health\models.py:19
+#| msgid "availability"
+msgid "Available"
+msgstr "Accepte de nouveaux patients"
+
+#: .\health\models.py:20
+#| msgid "availability"
+msgid "Not available"
+msgstr "Ne prend plus de nouveaux patients"
+
+#: .\health\models.py:21
+#| msgid "availability_conditions"
+msgid "Available with conditions"
+msgstr "Accepte de nouveaux patients sous conditions"
+
+#: .\health\models.py:23
+msgid "availability"
+msgstr "Disponibilité"
+
+#: .\health\models.py:24
+msgid "availability_conditions"
+msgstr "Conditions"
+
+#: .\health\models.py:25
+msgid "has_parking"
+msgstr "Parking disponible?"
+
+#: .\health\models.py:26
+msgid "has_disabled_access"
+msgstr "Accessible PMR?"
+
+#: .\health\models.py:27
+msgid "has_lift"
+msgstr "Ascenseur"
+
+#: .\health\models.py:28
+msgid "spoken_languages"
+msgstr "Langues parlées"
+
+#: .\health\models.py:29
+msgid "is_rsn_member"
+msgstr "Membre RSN?"
+
+#: .\health\models.py:36
+msgid "id_person_address"
+msgstr "Identifiant"
+
+#: .\health\models.py:104
+msgid "doctor_nemedreg"
+msgstr "Liaison NeMedReg"
+
+#: .\health\models.py:143
+msgid "St20AvailableDoctors"
+msgstr "Fiche SITN Médecin"
