@@ -1,6 +1,6 @@
 from django.utils import timezone
 from rest_framework import serializers
-from health.models import St20AvailableDoctors, St21AvailableDoctorsWithGeom
+from health.models import St20AvailableDoctors, St21AvailableDoctorsWithGeom, St22DoctorChangeSuggestion
 
 
 class St20AvailableDoctorsSerializer(serializers.HyperlinkedModelSerializer):
@@ -46,3 +46,11 @@ class St21AvailableDoctorsWithGeomSerializer(serializers.ModelSerializer):
     class Meta:
         model = St21AvailableDoctorsWithGeom
         fields = St21AvailableDoctorsWithGeom.PUBLIC_FIELDS
+
+
+class St22DoctorChangeSuggestionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = St22DoctorChangeSuggestion
+        fields = [
+            'doctor', 'availability', 'comments'
+        ]
