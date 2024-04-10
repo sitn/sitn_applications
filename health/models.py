@@ -155,6 +155,24 @@ class St20AvailableDoctors(AbstractDoctors):
         managed=False
 
 
+class St18Independants(models.Model):
+    """
+    Needed for the data in the view
+    """
+    class Meta:
+        db_table = 'sante\".\"st18_independants'
+        managed=False
+
+
+class St19Cabinets(models.Model):
+    """
+    Needed for the data in the view
+    """
+    class Meta:
+        db_table = 'sante\".\"st19_cabinets'
+        managed=False
+
+
 class St22DoctorChangeSuggestion(models.Model):
     """
     A change suggestion made by an anonymous user
