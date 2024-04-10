@@ -66,6 +66,7 @@ class St21AvailableDoctorsWithGeom(AbstractDoctors):
 
     class Meta:
         db_table = 'sante\".\"st21_available_doctors_with_geom'
+        verbose_name = _("St21AvailableDoctorsWithGeom")
         managed=False
 
     @classmethod
@@ -151,4 +152,46 @@ class St20AvailableDoctors(AbstractDoctors):
     class Meta:
         db_table = 'sante\".\"st20_available_doctors'
         verbose_name = _("St20AvailableDoctors")
+        managed=False
+
+
+class St18Independants(models.Model):
+    """
+    Needed for the data in the view
+    """
+    class Meta:
+        db_table = 'sante\".\"st18_independants'
+        managed=False
+
+
+class St19Cabinets(models.Model):
+    """
+    Needed for the data in the view
+    """
+    class Meta:
+        db_table = 'sante\".\"st19_cabinets'
+        managed=False
+
+
+class St22DoctorChangeSuggestion(models.Model):
+    """
+    A change suggestion made by an anonymous user
+    """
+    doctor = models.ForeignKey(
+        St21AvailableDoctorsWithGeom,
+        db_column="id_person_address",
+        on_delete=models.CASCADE,
+        verbose_name=_("doctor_nemedreg")
+    )
+    availability = models.TextField(
+        _("availability"),
+        choices=AbstractDoctors.Avalability.choices,
+        default=AbstractDoctors.Avalability.UNKNOWN)
+    comments = models.TextField(_("comments"), blank=True)
+    requested_when = models.DateTimeField(_("requested_when"), default=timezone.now)
+    is_done = models.BooleanField(_("is_done"), default=False)
+
+    class Meta:
+        db_table = 'sante\".\"st22_doctor_change_suggestion'
+        verbose_name = _("St22DoctorChangeSuggestion")
         managed=False

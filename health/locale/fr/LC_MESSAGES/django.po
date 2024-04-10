@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-03-27 12:01+0100\n"
+"POT-Creation-Date: 2024-04-09 16:14+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -27,21 +27,18 @@ msgid "Unknown"
 msgstr "Inconnu"
 
 #: .\health\models.py:19
-#| msgid "availability"
 msgid "Available"
 msgstr "Accepte de nouveaux patients"
 
 #: .\health\models.py:20
-#| msgid "availability"
 msgid "Not available"
 msgstr "Ne prend plus de nouveaux patients"
 
 #: .\health\models.py:21
-#| msgid "availability_conditions"
 msgid "Available with conditions"
 msgstr "Accepte de nouveaux patients sous conditions"
 
-#: .\health\models.py:23
+#: .\health\models.py:23 .\health\models.py:169
 msgid "availability"
 msgstr "Disponibilité"
 
@@ -73,10 +70,30 @@ msgstr "Membre RSN?"
 msgid "id_person_address"
 msgstr "Identifiant"
 
-#: .\health\models.py:104
+#: .\health\models.py:69
+msgid "St21AvailableDoctorsWithGeom"
+msgstr "Données NeMedReg"
+
+#: .\health\models.py:105 .\health\models.py:166
 msgid "doctor_nemedreg"
 msgstr "Liaison NeMedReg"
 
-#: .\health\models.py:143
+#: .\health\models.py:154
 msgid "St20AvailableDoctors"
 msgstr "Fiche SITN Médecin"
+
+#: .\health\models.py:172
+msgid "comments"
+msgstr "Remarques"
+
+#: .\health\models.py:173
+msgid "requested_when"
+msgstr "Demandé le:"
+
+#: .\health\models.py:174
+msgid "is_done"
+msgstr "Traité ?"
+
+#: .\health\models.py:178
+msgid "St22DoctorChangeSuggestion"
+msgstr "Suggestion de modification"

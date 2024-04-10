@@ -4,17 +4,18 @@ from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
-from rest_framework import viewsets, mixins, status
+from rest_framework import viewsets, mixins, status, permissions, generics
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from sitn.tools.emailer import send_email
-from health.models import St21AvailableDoctorsWithGeom, St20AvailableDoctors
+from health.models import St21AvailableDoctorsWithGeom, St20AvailableDoctors, St22DoctorChangeSuggestion
 from health.serializers import (
     St20AvailableDoctorsSerializer,
     DoctorEmailSerializer,
-    St21AvailableDoctorsWithGeomSerializer
+    St21AvailableDoctorsWithGeomSerializer,
+    St22DoctorChangeSuggestionSerializer
 )
 
 class St20AvailableDoctorsViewSet(
@@ -105,8 +106,30 @@ class DoctorsByTokenView(APIView):
         if not item.is_edit_guid_valid:
             return Response(status=status.HTTP_410_GONE)
         serializer = St20AvailableDoctorsSerializer(item, data=request.data)
-        print(serializer.initial_data)
         if serializer.is_valid():
             serializer.save()
             return Response(status=status.HTTP_202_ACCEPTED)
         raise BadRequest(serializer.errors)
+
+
+class St22DoctorChangeSuggestionView(generics.CreateAPIView):
+    """
+    Anonymous user suggestion
+    """
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+    allowed_methods = ['POST', 'OPTIONS', 'HEAD']
+
+    def get_serializer(self, *args, **kwargs):
+        return St22DoctorChangeSuggestionSerializer(*args, **kwargs)
+    
+    def post(self, request):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        doctor = serializer.validated_data.get('doctor')
+        # No more than 3 suggestions per doctor
+        existing_suggestions = St22DoctorChangeSuggestion.objects.filter(is_done=False, doctor=doctor).count()
+        if existing_suggestions > 2:
+            return Response(status=status.HTTP_429_TOO_MANY_REQUESTS)
+        serializer.save()
+        return Response(status=status.HTTP_201_CREATED)

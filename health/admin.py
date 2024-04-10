@@ -1,5 +1,5 @@
 from django.contrib import admin
-from health.models import St20AvailableDoctors, St21AvailableDoctorsWithGeom
+from health.models import St20AvailableDoctors, St21AvailableDoctorsWithGeom, St22DoctorChangeSuggestion
 
 
 class St20AvailableDoctorsAdmin(admin.ModelAdmin):
@@ -15,6 +15,7 @@ class St20AvailableDoctorsAdmin(admin.ModelAdmin):
     ]
     raw_id_fields = ['doctor']
     exclude = []
+    ordering = ['-pk']
 
     def nom(self, instance):
         return instance.doctor.nom
@@ -48,5 +49,18 @@ class St21AvailableDoctorsWithGeomAdmin(admin.ModelAdmin):
         'localite',
     ]
 
+
+class St22DoctorChangeSuggestionAdmin(admin.ModelAdmin):
+    model = St22DoctorChangeSuggestion
+    list_filter = ['is_done']
+    list_display = [
+        'pk',
+        'doctor',
+        'requested_when',
+        'is_done',
+    ]
+    ordering = ['is_done']
+
+admin.site.register(St22DoctorChangeSuggestion, St22DoctorChangeSuggestionAdmin)
 admin.site.register(St20AvailableDoctors, St20AvailableDoctorsAdmin)
 admin.site.register(St21AvailableDoctorsWithGeom, St21AvailableDoctorsWithGeomAdmin)
