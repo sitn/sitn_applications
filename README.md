@@ -8,6 +8,7 @@ Depending on the context, some apps will not be installed when deploying.
 * PostgreSQL >= 11 + PostGIS
 * Python >= 3.10
 * GDAL (if running without docker)
+* GNU gettext https://www.gnu.org/software/gettext/
 
 ## Getting started
 
@@ -63,6 +64,8 @@ python manage.py getdata
 You're now ready to go:
 
 ```shell
+python manage.py collectstatic
+python manage.py compilemessages --locale=fr
 python manage.py runserver
 ```
 
