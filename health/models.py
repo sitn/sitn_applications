@@ -27,6 +27,7 @@ class AbstractDoctors(models.Model):
     has_lift = models.BooleanField(_("has_lift"), null=True)
     spoken_languages = ArrayField(models.TextField(), verbose_name=_("spoken_languages"))
     is_rsn_member = models.BooleanField(_("is_rsn_member"), null=True)
+    public_phone = models.CharField(_("public_phone"), blank=True, null=True, max_length=30)
 
     class Meta:
         abstract = True
@@ -38,7 +39,6 @@ class St21AvailableDoctorsWithGeom(AbstractDoctors):
     prenoms = models.TextField()
     profession = models.TextField()
     specialites = models.TextField()
-    notel = models.TextField(null=True)
     address = models.TextField()
     nopostal = models.TextField()
     localite = models.TextField()
@@ -49,7 +49,7 @@ class St21AvailableDoctorsWithGeom(AbstractDoctors):
         'prenoms',
         'profession',
         'specialites',
-        'notel',
+        'public_phone',
         'address',
         'nopostal',
         'localite',

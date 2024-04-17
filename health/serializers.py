@@ -11,6 +11,7 @@ class St20AvailableDoctorsSerializer(serializers.HyperlinkedModelSerializer):
             'url',
             'id_person_address',
             'availability_conditions',
+            'public_phone',
             'has_parking',
             'has_disabled_access',
             'has_lift',
