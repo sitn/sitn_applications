@@ -80,6 +80,46 @@ class HealthApiTest(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'It is no longer accessible')
 
+    def test_doctor_put_changes_email_phone(self):
+        """
+        Doctor submits his new email and hides phone
+        """
+        doctor = St20AvailableDoctors.objects.first()
+        doctor.prepare_for_edit()
+        doctor.guid_requested_when = timezone.now()
+        doctor.availability = "Unknown"
+        doctor.login_email = "wrong_email@example.com"
+        doctor.save()
+
+        url = f'/health/doctors/edit/{doctor.edit_guid}/'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        new_email = "test@example.com"
+
+        new_data = {
+            "email1": new_email,
+            "email2": new_email,
+            "spoken_languages": [
+                "Français"
+            ],
+            "has_parking": True,
+            "has_disabled_access": False,
+            "has_lift": True,
+            "public_phone": "",
+            "is_rsn_member": False
+        }
+        response = self.client.put(url, new_data)
+        self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
+        doctor = St20AvailableDoctors.objects.get(pk=doctor.pk)
+        self.assertEqual(doctor.login_email, new_email, "Email has been updated")
+        self.assertEqual(doctor.public_phone, "", "Phone is empty")
+        self.assertIsNone(doctor.edit_guid, 'edit_guid should have been deleted by the update')
+        self.assertIsNone(doctor.guid_requested_when)
+        self.assertAlmostEqual(timezone.now(), doctor.last_edit, delta=timezone.timedelta(minutes=1))
+        
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_404_NOT_FOUND, 'It is no longer accessible')
+
     def test_suggest_doctor_changes(self):
         """
         An anonymous user is able to suggest changes to the app
