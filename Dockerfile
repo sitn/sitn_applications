@@ -25,6 +25,8 @@ COPY . ./
 ARG ENV_FILE
 RUN mv ${ENV_FILE} .env
 
+# Run migrations to create model permissions here
 RUN export $(egrep -v '^#' .env | xargs) && \
     python manage.py collectstatic --noinput && \
-    python manage.py compilemessages --locale=fr
+    python manage.py compilemessages --locale=fr && \
+    python manage.py migrate health

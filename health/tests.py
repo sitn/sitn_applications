@@ -61,6 +61,7 @@ class HealthApiTest(APITestCase):
             "has_parking": True,
             "has_disabled_access": False,
             "has_lift": True,
+            "public_phone": "+41 32 321 00 00",
             "is_rsn_member": False
         }
         response = self.client.put(url, new_data)

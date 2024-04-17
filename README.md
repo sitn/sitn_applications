@@ -22,7 +22,7 @@ and configure the different variables.
 
 ## Running in development mode, without docker
 
-First, create a copy of the `.env.sample` file called `.env.dev`:
+First, create a copy of the `.env.sample` file called `.env`:
 
 ```
 cp .env.sample .env
