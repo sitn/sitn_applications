@@ -68,7 +68,7 @@ class St20AvailableDoctorsViewSet(
                     "address_1": "Rue des Beaux-Arts 13",
                     "address_2": "2000 Neuchâtel",
                     "phone_number": "032 889 62 00",
-                    "email": "Service.SantePublique@ne.ch"
+                    "email": "scsp.opam@ne.ch"
                 },
             )
             return Response("ok")
