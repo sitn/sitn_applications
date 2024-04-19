@@ -529,8 +529,7 @@ ph.getBalance = (id) => {
         for (let j = 0; j < balance[0].length; j++) {
           if (i > 0 && j > 0) {
             tb_html += '<td style="text-align: center; padding: 5pt; border: solid 1pt black">' +
-              '<input type="checkbox" id="' + balance[i][j].id + '" ' + (balance[i][j].state ? 'checked' : '') + '></input>' +
-              '</td>';
+              '<input type="checkbox" id="' + balance[i][j].id + '" ' + (balance[i][j].toLowerCase() === 'x' ? 'checked' : '') + '></input>' + '</td>';
           } else {
             tb_html += '<td style="text-align: center; padding: 5pt; border: solid 1pt black">' + (balance[i][j] ? balance[i][j] + ((i!==0 ^ j!==0) ? ` <a href="javascript:balance_removeBF('${balance[i][j]}')" title="supprimer le bien-fonds">[-]</a>`: '') : '') + '</td>';
           }
