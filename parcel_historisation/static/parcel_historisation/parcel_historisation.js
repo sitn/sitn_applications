@@ -82,20 +82,22 @@ document.getElementById("balance-add-old-bf").onclick = () => {
   balance_old_bf = Number(balance_old_bf);
 
   let tableau_balance = document.getElementById('tableau_balance').firstChild;
+  let nb_rows;
   const nb_cols = tableau_balance.rows[0].cells.length;
 
   let cadastre_id = 14;
 
   for (let j = 0; j < balance_old_bf_serie; j++) {
+    nb_rows = tableau_balance.rows.length;
 
     let row = tableau_balance.insertRow(-1)
     let cell = row.insertCell(0)
 
-    cell.outerHTML = '<td style="text-align: center; padding: 5pt; border: solid 1pt black">' + cadastre_id + '_' + balance_old_bf + '</td>';
+    cell.outerHTML = '<td style="text-align: center; padding: 5pt; border: solid 1pt black">' + cadastre_id + '_' + balance_old_bf + ` <a href="javascript:balance_removeBF('${cadastre_id}_${balance_old_bf}')" title="supprimer le bien-fonds">[-]</a></td>`;
 
     for (let i = 1; i < nb_cols; i++) {
       cell = row.insertCell(i)
-      cell.outerHTML = '<td style="text-align: center; padding: 5pt; border: solid 1pt black"><input type="checkbox" id="' + cadastre_id + '_' + balance_old_bf + '-' + tableau_balance.rows[0].cells[i].innerHTML + '"></input></td>';
+      cell.outerHTML = '<td style="text-align: center; padding: 5pt; border: solid 1pt black"><input type="checkbox" id="' + cadastre_id + '_' + balance_old_bf + '-' + tableau_balance.rows[0].cells[i].innerHTML.split(' ')[0] + '"></input></td>';
     }
 
     balance_old_bf += 1;
@@ -118,18 +120,20 @@ document.getElementById("balance-add-new-bf").onclick = () => {
 
   let tableau_balance = document.getElementById('tableau_balance').firstChild;
   const nb_rows = tableau_balance.rows.length;
+  let nb_cols;
 
   let cadastre_id = 14;
 
   for (let j = 0; j < balance_new_bf_serie; j++) {
+    nb_cols = tableau_balance.rows[0].cells.length;
 
     let cell = tableau_balance.rows[0].insertCell(-1)
 
-    cell.outerHTML = '<td style="text-align: center; padding: 5pt; border: solid 1pt black">' + cadastre_id + '_' + balance_new_bf + '</td>';
+    cell.outerHTML = '<td style="text-align: center; padding: 5pt; border: solid 1pt black">' + cadastre_id + '_' + balance_new_bf + ` <a href="javascript:balance_removeBF('${cadastre_id}_${balance_new_bf}')" title="supprimer le bien-fonds">[-]</a></td>`;
 
     for (let i = 1; i < nb_rows; i++) {
       cell = tableau_balance.rows[i].insertCell(-1)
-      cell.outerHTML = '<td style="text-align: center; padding: 5pt; border: solid 1pt black"><input type="checkbox" id="' + tableau_balance.rows[i].cells[0].innerHTML + '-' + cadastre_id + '_' + balance_new_bf + '"></input></td>';
+      cell.outerHTML = '<td style="text-align: center; padding: 5pt; border: solid 1pt black"><input type="checkbox" id="' + tableau_balance.rows[i].cells[0].innerHTML.split(' ')[0] + '-' + cadastre_id + '_' + balance_new_bf + '"></input></td>';
     }
 
     balance_new_bf += 1;
@@ -528,7 +532,7 @@ ph.getBalance = (id) => {
               '<input type="checkbox" id="' + balance[i][j].id + '" ' + (balance[i][j].state ? 'checked' : '') + '></input>' +
               '</td>';
           } else {
-            tb_html += '<td style="text-align: center; padding: 5pt; border: solid 1pt black">' + (balance[i][j] ? balance[i][j] : '') + '</td>';
+            tb_html += '<td style="text-align: center; padding: 5pt; border: solid 1pt black">' + (balance[i][j] ? balance[i][j] + ((i!==0 ^ j!==0) ? ` <a href="javascript:balance_removeBF('${balance[i][j]}')" title="supprimer le bien-fonds">[-]</a>`: '') : '') + '</td>';
           }
         }
         tb_html += '</tr>';
@@ -545,6 +549,39 @@ ph.getBalance = (id) => {
 
   return;
 };
+
+balance_removeBF = (bf) => {
+
+  let table = document.getElementById("tableau_balance").children[0];
+  let row_idx=0;
+  let col_idx=0;
+
+  for (let row of table.rows) {
+    if (row_idx === 0) {
+      for (let col of row.cells) {
+        if (col.innerText.split(' ')[0] === (bf)) {
+
+          // remove column
+          for (let j = 0; j < table.rows.length; j++) {
+            table.rows[j].deleteCell(col_idx);
+          }
+
+          return;
+        }
+        col_idx += 1;
+      }
+    } else {
+      if (row.cells[0].innerText.split(' ')[0] === (bf)) {
+
+        // remove row
+        document.getElementById("tableau_balance").children[0].deleteRow(row_idx);
+
+        return;
+      }
+    }
+    row_idx += 1;
+  }
+}
 
 
 ph.showBalance = (id) => {
