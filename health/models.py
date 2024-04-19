@@ -27,6 +27,7 @@ class AbstractDoctors(models.Model):
     has_lift = models.BooleanField(_("has_lift"), null=True)
     spoken_languages = ArrayField(models.TextField(), verbose_name=_("spoken_languages"))
     is_rsn_member = models.BooleanField(_("is_rsn_member"), null=True)
+    public_phone = models.CharField(_("public_phone"), blank=True, null=True, max_length=30)
 
     class Meta:
         abstract = True
@@ -38,7 +39,6 @@ class St21AvailableDoctorsWithGeom(AbstractDoctors):
     prenoms = models.TextField()
     profession = models.TextField()
     specialites = models.TextField()
-    notel = models.TextField(null=True)
     address = models.TextField()
     nopostal = models.TextField()
     localite = models.TextField()
@@ -49,7 +49,7 @@ class St21AvailableDoctorsWithGeom(AbstractDoctors):
         'prenoms',
         'profession',
         'specialites',
-        'notel',
+        'public_phone',
         'address',
         'nopostal',
         'localite',
@@ -66,6 +66,7 @@ class St21AvailableDoctorsWithGeom(AbstractDoctors):
 
     class Meta:
         db_table = 'sante\".\"st21_available_doctors_with_geom'
+        verbose_name = _("St21AvailableDoctorsWithGeom")
         managed=False
 
     @classmethod
@@ -151,4 +152,46 @@ class St20AvailableDoctors(AbstractDoctors):
     class Meta:
         db_table = 'sante\".\"st20_available_doctors'
         verbose_name = _("St20AvailableDoctors")
+        managed=False
+
+
+class St18Independants(models.Model):
+    """
+    Needed for the data in the view
+    """
+    class Meta:
+        db_table = 'sante\".\"st18_independants'
+        managed=False
+
+
+class St19Cabinets(models.Model):
+    """
+    Needed for the data in the view
+    """
+    class Meta:
+        db_table = 'sante\".\"st19_cabinets'
+        managed=False
+
+
+class St22DoctorChangeSuggestion(models.Model):
+    """
+    A change suggestion made by an anonymous user
+    """
+    doctor = models.ForeignKey(
+        St21AvailableDoctorsWithGeom,
+        db_column="id_person_address",
+        on_delete=models.CASCADE,
+        verbose_name=_("doctor_nemedreg")
+    )
+    availability = models.TextField(
+        _("availability"),
+        choices=AbstractDoctors.Avalability.choices,
+        default=AbstractDoctors.Avalability.UNKNOWN)
+    comments = models.TextField(_("comments"), blank=True)
+    requested_when = models.DateTimeField(_("requested_when"), default=timezone.now)
+    is_done = models.BooleanField(_("is_done"), default=False)
+
+    class Meta:
+        db_table = 'sante\".\"st22_doctor_change_suggestion'
+        verbose_name = _("St22DoctorChangeSuggestion")
         managed=False

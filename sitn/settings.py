@@ -31,7 +31,7 @@ IS_INTRANET = True if os.environ.get("IS_INTRANET") == "True" else False
 # List of apps that must not be visible on internet
 INTRANET_ONLY_APPS = [
     'cats',
-    'parcel_historisation.apps',
+    'parcel_historisation',
     'intranet_proxy',
 ]
 
