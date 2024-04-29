@@ -5,6 +5,7 @@ import logging
 from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ValidationError
 from django.db import connection
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -137,17 +138,25 @@ class St20AvailableDoctors(AbstractDoctors):
             logger.info('Edit guid is older than three days ago')
             return False
         return True
-    
-    # TODO: Find a way when there's no nemedreg
-    #def __str__(self):
-    #    if self.doctor:
-    #        return "%s %s (%s)" % (
-    #            self.doctor.nom,
-    #            self.doctor.prenoms,
-    #            self.pk
-    #        )
-    #    return self.pk
 
+    def clean(self):
+        # If availability is Available with conditions, make sure there are conditions
+        if self.availability == AbstractDoctors.Avalability.AVAILABLE_WITH_CONDITIONS:
+            if self.availability_conditions is None or len(self.availability_conditions) < 1:
+                raise ValidationError(
+                    {"availability_conditions": _("Availability conditions must be provided")}
+                )
+        # Sets availability conditions to blank if availability is not Available with conditions
+        else:
+            self.availability_conditions = ""
+
+
+    def __str__(self):
+        return "%s %s (%s)" % (
+            self.doctor.nom,
+            self.doctor.prenoms,
+            self.doctor.id_person_address
+        )
 
     class Meta:
         db_table = 'sante\".\"st20_available_doctors'
