@@ -132,13 +132,6 @@ class St20AvailableDoctors(AbstractDoctors):
         if not bool(self.edit_guid):
             logger.info('Edit guid is empty or null')
             return False
-        now = timezone.now()
-        three_days_ago = now - timedelta(days=3)
-        if self.guid_requested_when == None:
-            return False
-        if self.guid_requested_when < three_days_ago:
-            logger.info('Edit guid is older than three days ago')
-            return False
         return True
 
     def clean(self):
