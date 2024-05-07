@@ -5,6 +5,7 @@ from health.models import St20AvailableDoctors, St21AvailableDoctorsWithGeom, St
 class St20AvailableDoctorsAdmin(admin.ModelAdmin):
     model = St20AvailableDoctors
     search_fields = ['doctor__id_person_address', 'doctor__nom', 'doctor__prenoms']
+    readonly_fields = ['login_email']
     list_display = [
         'pk',
         'nom',

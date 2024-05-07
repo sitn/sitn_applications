@@ -5,15 +5,11 @@ from health.models import St20AvailableDoctors, St21AvailableDoctorsWithGeom, St
 
 class St20AvailableDoctorsSerializer(serializers.HyperlinkedModelSerializer):
     id_person_address = serializers.SerializerMethodField()
-    email1 = serializers.EmailField(write_only=True, required=False)
-    email2 = serializers.EmailField(write_only=True, required=False)
     class Meta:
         model = St20AvailableDoctors
         fields = [
             'url',
             'id_person_address',
-            'email1',
-            'email2',
             'availability_conditions',
             'public_phone',
             'public_first_name',
@@ -31,18 +27,8 @@ class St20AvailableDoctorsSerializer(serializers.HyperlinkedModelSerializer):
 
     def get_id_person_address(self, obj):
         return obj.pk
-    
-    def validate(self, data):
-        validated_data = super().validate(data)
-        if 'email1' in validated_data.keys():
-            if validated_data['email1'] != data['email2']:
-                raise serializers.ValidationError("The two email fields didn't match.")
-        return validated_data
 
     def update(self, instance, validated_data):
-        if 'email1' in validated_data.keys():
-            validated_data.pop('email2')
-            instance.login_email = validated_data.pop('email1')
         instance.edit_guid = None
         instance.guid_requested_when = None
         instance.last_edit = timezone.now()

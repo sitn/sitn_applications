@@ -95,11 +95,8 @@ class HealthApiTest(APITestCase):
         url = f'/health/doctors/edit/{doctor.edit_guid}/'
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        new_email = "test@example.com"
 
         new_data = {
-            "email1": new_email,
-            "email2": new_email,
             "spoken_languages": [
                 "Français"
             ],
@@ -112,7 +109,6 @@ class HealthApiTest(APITestCase):
         response = self.client.put(url, new_data)
         self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
         doctor = St20AvailableDoctors.objects.get(pk=doctor.pk)
-        self.assertEqual(doctor.login_email, new_email, "Email has been updated")
         self.assertEqual(doctor.public_phone, "", "Phone is empty")
         self.assertIsNone(doctor.edit_guid, 'edit_guid should have been deleted by the update')
         self.assertIsNone(doctor.guid_requested_when)
