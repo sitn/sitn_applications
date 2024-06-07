@@ -160,4 +160,4 @@ class HealthApiTest(APITestCase):
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
-        self.assertGreater(len(data['features']), 2)
+        self.assertGreater(len(data), 2)

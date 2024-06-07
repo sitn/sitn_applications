@@ -213,3 +213,6 @@ class St23HealthSite(models.Model):
         db_table = 'sante\".\"st23_health_site'
         verbose_name = _("St23HealthSite")
         managed=False
+    
+    def __str__(self):
+        return self.site_name
