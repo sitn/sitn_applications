@@ -201,7 +201,7 @@ class St22DoctorChangeSuggestion(models.Model):
         managed=False
 
 
-class St23HealthSites(models.Model):
+class St23HealthSite(models.Model):
     """
     A named group of doctors based on their address. For instance, a hospital
     """
@@ -210,6 +210,6 @@ class St23HealthSites(models.Model):
     address = models.CharField(_("address"), max_length=255)
 
     class Meta:
-        db_table = 'sante\".\"st23_health_sites'
-        verbose_name = _("St23HealthSites")
+        db_table = 'sante\".\"st23_health_site'
+        verbose_name = _("St23HealthSite")
         managed=False

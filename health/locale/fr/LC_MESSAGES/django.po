@@ -123,5 +123,5 @@ msgid "address"
 msgstr "Adresse"
 
 #: .\health\models.py:214
-msgid "St23HealthSites"
+msgid "St23HealthSite"
 msgstr "Site"

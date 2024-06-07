@@ -3,7 +3,7 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from health.models import St20AvailableDoctors, St22DoctorChangeSuggestion
+from health.models import St20AvailableDoctors, St22DoctorChangeSuggestion, St23HealthSite
 
 class HealthApiTest(APITestCase):
     def setUp(self) -> None:
@@ -150,3 +150,14 @@ class HealthApiTest(APITestCase):
             status.HTTP_429_TOO_MANY_REQUESTS,
             'Do not let too many suggestions on same doctor'
         )
+
+    def test_sites(self):
+        """
+        Tests that list of sites are working
+        """
+
+        url = '/health/sites/'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertGreater(len(data['features']), 2)

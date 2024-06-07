@@ -11,7 +11,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='St23HealthSites',
+            name='St23HealthSite',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('site_name', models.CharField(max_length=120, verbose_name='site_name')),
@@ -19,8 +19,8 @@ class Migration(migrations.Migration):
                 ('address', models.CharField(max_length=255, verbose_name='address')),
             ],
             options={
-                'verbose_name': 'St23HealthSites',
-                'db_table': 'sante"."st23_health_sites',
+                'verbose_name': 'St23HealthSite',
+                'db_table': 'sante"."st23_health_site',
                 'managed': False,
             },
         ),
