@@ -61,6 +61,12 @@ Dump some fresh data from prod database
 python manage.py getdata
 ```
 
+You might want to create an admin user:
+
+```shell
+python manage.py createsuperuser
+```
+
 You're now ready to go:
 
 ```shell

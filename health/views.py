@@ -10,12 +10,18 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from sitn.tools.emailer import send_email
-from health.models import St21AvailableDoctorsWithGeom, St20AvailableDoctors, St22DoctorChangeSuggestion
+from health.models import (
+    St21AvailableDoctorsWithGeom,
+    St20AvailableDoctors,
+    St22DoctorChangeSuggestion,
+    St23HealthSite
+)
 from health.serializers import (
     St20AvailableDoctorsSerializer,
     DoctorEmailSerializer,
     St21AvailableDoctorsWithGeomSerializer,
-    St22DoctorChangeSuggestionSerializer
+    St22DoctorChangeSuggestionSerializer,
+    St23HealthSiteSerializer
 )
 
 class St20AvailableDoctorsViewSet(
@@ -133,3 +139,9 @@ class St22DoctorChangeSuggestionView(generics.CreateAPIView):
             return Response(status=status.HTTP_429_TOO_MANY_REQUESTS)
         serializer.save()
         return Response(status=status.HTTP_201_CREATED)
+
+
+class St23HealthSiteViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = St23HealthSite.objects.all()
+    serializer_class = St23HealthSiteSerializer
+    paginator = None
