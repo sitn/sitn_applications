@@ -20,6 +20,7 @@ from django.conf import settings
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('cadastre/', include('cadastre.urls')),
+    path('ecap/', include('ecap.urls')),
 ]
 
 if settings.IS_INTRANET:
