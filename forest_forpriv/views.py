@@ -77,4 +77,4 @@ def forpriv_intersection(request):
 
 
 class HelpView(TemplateView):
-    template_name = "help.html"
+    template_name = "help_forest_forpriv.html"
