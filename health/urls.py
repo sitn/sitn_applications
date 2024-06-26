@@ -4,6 +4,7 @@ from . import router
 
 router = router.DoctorRouter()
 router.register(r'doctors', views.St20AvailableDoctorsViewSet)
+router.register(r'sites', views.St23HealthSiteViewSet)
 router.register_additional_route_to_root('doctors/edit', 'doctors-by-token-detail')
 router.register_additional_route_to_root('doctors/suggest', 'doctors-suggest')
 

@@ -199,3 +199,20 @@ class St22DoctorChangeSuggestion(models.Model):
         db_table = 'sante\".\"st22_doctor_change_suggestion'
         verbose_name = _("St22DoctorChangeSuggestion")
         managed=False
+
+
+class St23HealthSite(models.Model):
+    """
+    A named group of doctors based on their address. For instance, a hospital
+    """
+    site_name = models.CharField(_("site_name"), max_length=120)
+    public_link = models.URLField(_("public_link"), blank=True, max_length=255)
+    address = models.CharField(_("address"), max_length=255)
+
+    class Meta:
+        db_table = 'sante\".\"st23_health_site'
+        verbose_name = _("St23HealthSite")
+        managed=False
+    
+    def __str__(self):
+        return self.site_name
