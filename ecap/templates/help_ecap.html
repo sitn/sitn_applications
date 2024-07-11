@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="fr-CH">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Service ecap</title>
+  <link rel="stylesheet" href="https://sitn.ne.ch/sitnstatic/sitn-bootstrap@v5.2.3/sitn-bootstrap.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/default.min.css">
+  <style>
+    code {
+      background-color: rgba(200, 200, 200);
+      color: black;
+      border-radius: 0.2em;
+      padding: 0 0.3em;
+      font-family: 'Consolas', monospace;
+    }
+
+    .w-15 {
+      width: 15%;
+    }
+
+    .w-40 {
+      width: 40%;
+    }
+
+    table td.middle {
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<div class="container">
+  <header class="header">
+    <img alt="Logo neuchâtel" src="https://sitn.ne.ch/static/0/images/banner_right.png">
+  </header>
+
+  <h1>Description du service "/ecap"</h1>
+  <section id="search">
+    <h3>/search <span class="badge rounded-pill text-bg-success">GET</span></h3>
+
+    <p>
+      Service de recherche retournant la géométrie et l'idmai d'un bien-fonds. La recherche peut être faite sur le numéro de bien-fonds ou sur son EGRID. On peut accessoirement inclure le nom du cadastre pour affiner la recherche.
+    </p>
+    <h6>Paramètres acceptés:</h6>
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th class="w-15">Nom</th>
+          <th>Description</th>
+          <th class="w-40">Exemple</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>query</code></td>
+          <td>terme de recherche, insensible à la casse et aux diacritiques.</td>
+          <td>
+            <a target="_blank" href="{{ request.path }}search?query=159">/ecap/search?query=159</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4>Contenu de la réponse</h4>
+    <p>La réponse sera un GeoJSON.</p>
+    <p>
+      L'<code>idmai</code> est disponible dans les <code>properties</code> de chaque <code>feature</code>.
+    </p>
+  </section>
+</div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/json.min.js"></script>
+<script>hljs.highlightAll();</script>
+</body>
+
+</html>

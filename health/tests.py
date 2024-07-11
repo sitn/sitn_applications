@@ -3,7 +3,7 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from health.models import St20AvailableDoctors, St22DoctorChangeSuggestion
+from health.models import St20AvailableDoctors, St22DoctorChangeSuggestion, St23HealthSite
 
 class HealthApiTest(APITestCase):
     def setUp(self) -> None:
@@ -62,6 +62,7 @@ class HealthApiTest(APITestCase):
             "has_disabled_access": False,
             "has_lift": True,
             "public_phone": "+41 32 321 00 00",
+            "public_first_name": "Heldér Iñaki",
             "is_rsn_member": False
         }
         response = self.client.put(url, new_data)
@@ -94,11 +95,8 @@ class HealthApiTest(APITestCase):
         url = f'/health/doctors/edit/{doctor.edit_guid}/'
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
-        new_email = "test@example.com"
 
         new_data = {
-            "email1": new_email,
-            "email2": new_email,
             "spoken_languages": [
                 "Français"
             ],
@@ -111,7 +109,6 @@ class HealthApiTest(APITestCase):
         response = self.client.put(url, new_data)
         self.assertEqual(response.status_code, status.HTTP_202_ACCEPTED)
         doctor = St20AvailableDoctors.objects.get(pk=doctor.pk)
-        self.assertEqual(doctor.login_email, new_email, "Email has been updated")
         self.assertEqual(doctor.public_phone, "", "Phone is empty")
         self.assertIsNone(doctor.edit_guid, 'edit_guid should have been deleted by the update')
         self.assertIsNone(doctor.guid_requested_when)
@@ -153,3 +150,14 @@ class HealthApiTest(APITestCase):
             status.HTTP_429_TOO_MANY_REQUESTS,
             'Do not let too many suggestions on same doctor'
         )
+
+    def test_sites(self):
+        """
+        Tests that list of sites are working
+        """
+
+        url = '/health/sites/'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertGreater(len(data), 2)

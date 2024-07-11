@@ -43,6 +43,7 @@ INTERNET_ONLY_APPS = [
 INSTALLED_APPS = [
     'sitn',
     'cadastre',
+    'ecap',
     'health',
     "corsheaders",
     'django.contrib.admin',

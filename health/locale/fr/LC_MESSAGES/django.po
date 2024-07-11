@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2024-04-17 07:57+0200\n"
+"POT-Creation-Date: 2024-06-07 11:41+0200\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -22,82 +22,106 @@ msgstr ""
 msgid "HealthApp"
 msgstr "Santé"
 
-#: .\health\models.py:18
+#: .\health\models.py:19
 msgid "Unknown"
 msgstr "Inconnu"
 
-#: .\health\models.py:19
+#: .\health\models.py:20
 msgid "Available"
 msgstr "Accepte de nouveaux patients"
 
-#: .\health\models.py:20
+#: .\health\models.py:21
 msgid "Not available"
 msgstr "Ne prend plus de nouveaux patients"
 
-#: .\health\models.py:21
+#: .\health\models.py:22
 msgid "Available with conditions"
 msgstr "Accepte de nouveaux patients sous conditions"
 
-#: .\health\models.py:23 .\health\models.py:187
+#: .\health\models.py:24 .\health\models.py:191
 msgid "availability"
 msgstr "Disponibilité"
 
-#: .\health\models.py:24
+#: .\health\models.py:25
 msgid "availability_conditions"
 msgstr "Conditions"
 
-#: .\health\models.py:25
+#: .\health\models.py:26
 msgid "has_parking"
 msgstr "Parking disponible?"
 
-#: .\health\models.py:26
+#: .\health\models.py:27
 msgid "has_disabled_access"
 msgstr "Accessible PMR?"
 
-#: .\health\models.py:27
+#: .\health\models.py:28
 msgid "has_lift"
 msgstr "Ascenseur"
 
-#: .\health\models.py:28
+#: .\health\models.py:29
 msgid "spoken_languages"
 msgstr "Langues parlées"
 
-#: .\health\models.py:29
+#: .\health\models.py:30
 msgid "is_rsn_member"
 msgstr "Membre RSN?"
 
-#: .\health\models.py:30
+#: .\health\models.py:31
 msgid "public_phone"
 msgstr "Tél. public"
 
-#: .\health\models.py:37
+#: .\health\models.py:32
+msgid "public_first_name"
+msgstr "Prénom affiché"
+
+#: .\health\models.py:39
 msgid "id_person_address"
 msgstr "Identifiant"
 
-#: .\health\models.py:69
+#: .\health\models.py:72
 msgid "St21AvailableDoctorsWithGeom"
 msgstr "Données NeMedReg"
 
-#: .\health\models.py:105 .\health\models.py:184
+#: .\health\models.py:108 .\health\models.py:188
 msgid "doctor_nemedreg"
 msgstr "Liaison NeMedReg"
 
-#: .\health\models.py:154
+#: .\health\models.py:142
+msgid "Availability conditions must be provided"
+msgstr "Les conditions doivent être renseignées pour cette disponibilité."
+
+#: .\health\models.py:158
 msgid "St20AvailableDoctors"
 msgstr "Fiche SITN Médecin"
 
-#: .\health\models.py:190
+#: .\health\models.py:194
 msgid "comments"
 msgstr "Remarques"
 
-#: .\health\models.py:191
+#: .\health\models.py:195
 msgid "requested_when"
 msgstr "Demandé le:"
 
-#: .\health\models.py:192
+#: .\health\models.py:196
 msgid "is_done"
 msgstr "Traité ?"
 
-#: .\health\models.py:196
+#: .\health\models.py:200
 msgid "St22DoctorChangeSuggestion"
 msgstr "Suggestion de modification"
+
+#: .\health\models.py:208
+msgid "site_name"
+msgstr "Nom du site"
+
+#: .\health\models.py:209
+msgid "public_link"
+msgstr "Lien"
+
+#: .\health\models.py:210
+msgid "address"
+msgstr "Adresse"
+
+#: .\health\models.py:214
+msgid "St23HealthSite"
+msgstr "Site"

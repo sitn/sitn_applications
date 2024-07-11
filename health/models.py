@@ -5,6 +5,7 @@ import logging
 from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
+from django.core.exceptions import ValidationError
 from django.db import connection
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
@@ -28,6 +29,7 @@ class AbstractDoctors(models.Model):
     spoken_languages = ArrayField(models.TextField(), verbose_name=_("spoken_languages"))
     is_rsn_member = models.BooleanField(_("is_rsn_member"), null=True)
     public_phone = models.CharField(_("public_phone"), blank=True, null=True, max_length=30)
+    public_first_name = models.CharField(_("public_first_name"), blank=True, null=True, max_length=30)
 
     class Meta:
         abstract = True
@@ -50,6 +52,7 @@ class St21AvailableDoctorsWithGeom(AbstractDoctors):
         'profession',
         'specialites',
         'public_phone',
+        'public_first_name',
         'address',
         'nopostal',
         'localite',
@@ -129,25 +132,26 @@ class St20AvailableDoctors(AbstractDoctors):
         if not bool(self.edit_guid):
             logger.info('Edit guid is empty or null')
             return False
-        now = timezone.now()
-        three_days_ago = now - timedelta(days=3)
-        if self.guid_requested_when == None:
-            return False
-        if self.guid_requested_when < three_days_ago:
-            logger.info('Edit guid is older than three days ago')
-            return False
         return True
-    
-    # TODO: Find a way when there's no nemedreg
-    #def __str__(self):
-    #    if self.doctor:
-    #        return "%s %s (%s)" % (
-    #            self.doctor.nom,
-    #            self.doctor.prenoms,
-    #            self.pk
-    #        )
-    #    return self.pk
 
+    def clean(self):
+        # If availability is Available with conditions, make sure there are conditions
+        if self.availability == AbstractDoctors.Avalability.AVAILABLE_WITH_CONDITIONS:
+            if self.availability_conditions is None or len(self.availability_conditions) < 1:
+                raise ValidationError(
+                    {"availability_conditions": _("Availability conditions must be provided")}
+                )
+        # Sets availability conditions to blank if availability is not Available with conditions
+        else:
+            self.availability_conditions = ""
+
+
+    def __str__(self):
+        return "%s %s (%s)" % (
+            self.doctor.nom,
+            self.doctor.prenoms,
+            self.doctor.id_person_address
+        )
 
     class Meta:
         db_table = 'sante\".\"st20_available_doctors'
@@ -195,3 +199,20 @@ class St22DoctorChangeSuggestion(models.Model):
         db_table = 'sante\".\"st22_doctor_change_suggestion'
         verbose_name = _("St22DoctorChangeSuggestion")
         managed=False
+
+
+class St23HealthSite(models.Model):
+    """
+    A named group of doctors based on their address. For instance, a hospital
+    """
+    site_name = models.CharField(_("site_name"), max_length=120)
+    public_link = models.URLField(_("public_link"), blank=True, max_length=255)
+    address = models.CharField(_("address"), max_length=255)
+
+    class Meta:
+        db_table = 'sante\".\"st23_health_site'
+        verbose_name = _("St23HealthSite")
+        managed=False
+    
+    def __str__(self):
+        return self.site_name

@@ -61,6 +61,12 @@ Dump some fresh data from prod database
 python manage.py getdata
 ```
 
+You might want to create an admin user:
+
+```shell
+python manage.py createsuperuser
+```
+
 You're now ready to go:
 
 ```shell
@@ -134,3 +140,16 @@ then compile them
 ```sh
 python manage.py compilemessages --locale=fr
 ```
+
+## Starting a new app
+
+```python
+python manage.py startapp myapp
+```
+
+Then:
+
+1. Put something in `urls.py` in your app folder
+2. Import your urls in `sitn/urls.py`
+3. Install the app in `settings.py`
+4. 

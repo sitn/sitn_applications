@@ -1,10 +1,16 @@
 from django.contrib import admin
-from health.models import St20AvailableDoctors, St21AvailableDoctorsWithGeom, St22DoctorChangeSuggestion
+from health.models import (
+    St20AvailableDoctors,
+    St21AvailableDoctorsWithGeom,
+    St22DoctorChangeSuggestion,
+    St23HealthSite
+)
 
 
 class St20AvailableDoctorsAdmin(admin.ModelAdmin):
     model = St20AvailableDoctors
     search_fields = ['doctor__id_person_address', 'doctor__nom', 'doctor__prenoms']
+    readonly_fields = ['login_email', 'doctor']
     list_display = [
         'pk',
         'nom',
@@ -61,6 +67,15 @@ class St22DoctorChangeSuggestionAdmin(admin.ModelAdmin):
     ]
     ordering = ['is_done']
 
+
+class St23HealthSiteAdmin(admin.ModelAdmin):
+    model = St23HealthSite
+    list_display = [
+        'site_name',
+        'address',
+    ]
+    ordering = ['site_name']
+
 admin.site.register(St22DoctorChangeSuggestion, St22DoctorChangeSuggestionAdmin)
 admin.site.register(St20AvailableDoctors, St20AvailableDoctorsAdmin)
-admin.site.register(St21AvailableDoctorsWithGeom, St21AvailableDoctorsWithGeomAdmin)
+admin.site.register(St23HealthSite, St23HealthSiteAdmin)

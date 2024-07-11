@@ -48,6 +48,7 @@ class Command(BaseCommand):
         sql = f"""CREATE schema {schema_name};
             CREATE EXTENSION unaccent;
             CREATE EXTENSION postgis;
+            CREATE EXTENSION pg_trgm;
             CREATE EXTENSION \\"uuid-ossp\\";
             CREATE EXTENSION hstore;
             """
