@@ -140,48 +140,96 @@
               <button id="load-infolica" type="button" class="btn btn-primary">OK</button>
             </div>
           </div>
-          <!-- HTML FOR BALANCE GOES HERE -->
-          <!-- <div class="row mt-5 g-0"> -->
-          <div id="balance-add-bf-section" style="display: none; margin-top: 60px;">
-            <div class="row mt-0 g-0" style="margin-bottom: 0px;">
-              <h5>Ajouter des biens-fonds</h5>
+
+          <!-- HANDLE BALANCE HERE -->
+
+          <div id="balance-add-bf-section" style="display: none; margin-top: 60px; border: 1px solid; border-radius: 5px;" class="row mt-5 mb-5 g-2 p-3">
+            <h5>Ajouter des biens-fonds</h5>
+
+            <div class="row mt-3 mb-3 g-0">
+              <div class="col-6">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <span class="input-group-text" id="basic-addon1">Cadastre: </span>
+                  </div>
+                  <div class="input-group-prepend" style="padding-left: 15px;">
+                    <select id="cadastre-list-balance" class="form-select" aria-label="Default select example"></select>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Manually add old/new parcels -->
+            <div class="row mt-3 mb-3 g-0" style="margin-bottom: 0px;">
               <div class="col">
-                <div class="input-group mb-5">
+                <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text" id="basic-addon1">Anciens biens-fonds: </span>
                   </div>
                   <input id="balance-old-bf" type="number" min="1" step="1" class="form-control" aria-label="old_bf" aria-describedby="basic-addon1" placeholder=""></input>
+                </div>
+              </div>
+
+              <div class="col">
+                <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text" id="basic-addon1">Série: </span>
                   </div>
-                  <input id="balance-old-bf-serie" type="number" min="1" step="1" value="1" class="form-control" aria-label="new_bf_serie" aria-describedby="basic-addon1" placeholder=""></input>
+                  <input id="balance-old-bf-serie" type="number" min="1" step="1" value="1" class="form-control" aria-label="old_bf_serie" aria-describedby="basic-addon1" placeholder=""></input>
                 </div>
               </div>
-              <div class="col" style="padding-left: 20px;">
+
+              <div class="col">
                 <button id="balance-add-old-bf" type="button" class="btn btn-primary">OK</button>
               </div>
             </div>
 
-            <!-- <div class="row mt-5 g-0"> -->
-            <div class="row mt-0 g-0">
+            <div class="row mt-3 mb-3 g-0" style="margin-bottom: 0px;">
               <div class="col">
-                <div class="input-group mb-5">
+                <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text" id="basic-addon1">Nouveaux biens-fonds: </span>
                   </div>
                   <input id="balance-new-bf" type="number" min="1" step="1" class="form-control" aria-label="new_bf" aria-describedby="basic-addon1" placeholder=""></input>
+                </div>
+              </div>
+
+              <div class="col">
+                <div class="input-group">
                   <div class="input-group-prepend">
                     <span class="input-group-text" id="basic-addon1">Série: </span>
                   </div>
                   <input id="balance-new-bf-serie" type="number" min="1" step="1" value="1" class="form-control" aria-label="new_bf_serie" aria-describedby="basic-addon1" placeholder=""></input>
                 </div>
               </div>
-              <div class="col" style="padding-left: 20px;">
+
+              <div class="col">
                 <button id="balance-add-new-bf" type="button" class="btn btn-primary">OK</button>
               </div>
             </div>
+
+            <!-- Load balance from file -->
+            <div class="row mt-4 g-0">
+              <div class="col">
+                <div class="input-group">
+                  <div class="input-group-prepend">
+                    <label for="input-balance-from-file">À partir d'un fichier ?</label>
+                    <input
+                           type="file"
+                           id="input-balance-from-file"
+                           accept=".xls,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+                  </div>
+
+                  <div class="col" style="padding-left: 20px;">
+                    <button id="submit-balance-file" class="btn btn-primary">Charger</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
           </div>
 
+          <!-- Balance table -->
           <div id="tableau_balance"></div>
           <button id="submit-balance" type="button" class="btn btn-primary mt-3">OK</button>
         </div>

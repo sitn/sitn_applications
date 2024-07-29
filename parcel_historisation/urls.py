@@ -13,5 +13,7 @@ urlpatterns = [
     path('get_download_path', views.get_download_path, name='get_download_path'),
     path('download/<path:name>', views.file_download),
     path('submit_saisie', views.submit_saisie),
+    path('submit_balance', views.submit_balance),
+    path('balance_file_upload', views.balance_file_upload),
 
 ]

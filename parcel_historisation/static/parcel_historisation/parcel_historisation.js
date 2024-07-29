@@ -70,11 +70,13 @@ document.getElementById("saisie-tab").onclick = () => {
 document.getElementById("load-infolica").onclick = () => {
   const no_infolica = document.getElementById("no_infolica").value;
   ph.getBalance(no_infolica);
+  ph.setCadastreListeBalance();
 };
 
 document.getElementById("balance-add-old-bf").onclick = () => {
   let balance_old_bf = document.getElementById("balance-old-bf").value;
   const balance_old_bf_serie = Number(document.getElementById("balance-old-bf-serie").value);
+  const selected_cadastre = document.getElementById("cadastre-list-balance").value;
 
   if (!balance_old_bf && typeof balance_old_bf !== 'number') {
     return;
@@ -82,26 +84,38 @@ document.getElementById("balance-add-old-bf").onclick = () => {
   balance_old_bf = Number(balance_old_bf);
 
   let tableau_balance = document.getElementById('tableau_balance').firstChild;
-  let nb_rows;
+  const nb_rows = tableau_balance.rows.length;
   const nb_cols = tableau_balance.rows[0].cells.length;
 
-  let cadastre_id = 14;
-
+  // check if old bf already is in balance
+  let old_bf_user_tmp;
+  let old_bf_table_tmp;
   for (let j = 0; j < balance_old_bf_serie; j++) {
-    nb_rows = tableau_balance.rows.length;
+    old_bf_user_tmp = selected_cadastre + "_" + (balance_old_bf + j);
+    for (let i = 1; i < nb_rows; i++) {
+      old_bf_table_tmp = tableau_balance.rows[i].cells[0].innerHTML.split(' ')[0];
 
+      // console.log(`${old_bf_user_tmp} =?= ${old_bf_table_tmp} --> ${old_bf_user_tmp === old_bf_table_tmp}`);
+      if (old_bf_user_tmp === old_bf_table_tmp) {
+        alert(`Le bien-fonds ${old_bf_user_tmp} existe déjà dans la balance (ligne ${i + 1}).\n\nLa balance n'est pas mise à jour.`);
+        return;
+      }
+    }
+  }
+
+  // Add old parcels
+  for (let j = 0; j < balance_old_bf_serie; j++) {
     let row = tableau_balance.insertRow(-1)
     let cell = row.insertCell(0)
 
-    cell.outerHTML = '<td style="text-align: center; padding: 5pt; border: solid 1pt black">' + cadastre_id + '_' + balance_old_bf + ` <a href="javascript:balance_removeBF('${cadastre_id}_${balance_old_bf}')" title="supprimer le bien-fonds">[-]</a></td>`;
+    cell.outerHTML = '<td style="text-align: center; padding: 5pt; border: solid 1pt black">' + selected_cadastre + '_' + balance_old_bf + ` <a href="javascript:balance_removeBF('${selected_cadastre}_${balance_old_bf}')" title="supprimer le bien-fonds">[-]</a></td>`;
 
     for (let i = 1; i < nb_cols; i++) {
       cell = row.insertCell(i)
-      cell.outerHTML = '<td style="text-align: center; padding: 5pt; border: solid 1pt black"><input type="checkbox" id="' + cadastre_id + '_' + balance_old_bf + '-' + tableau_balance.rows[0].cells[i].innerHTML.split(' ')[0] + '"></input></td>';
+      cell.outerHTML = '<td style="text-align: center; padding: 5pt; border: solid 1pt black"><input type="checkbox" id="' + selected_cadastre + '_' + balance_old_bf + '-' + tableau_balance.rows[0].cells[i].innerHTML.split(' ')[0] + '"></input></td>';
     }
 
     balance_old_bf += 1;
-
   }
 
   document.getElementById("balance-old-bf").value = '';
@@ -111,6 +125,7 @@ document.getElementById("balance-add-old-bf").onclick = () => {
 document.getElementById("balance-add-new-bf").onclick = () => {
   let balance_new_bf = document.getElementById("balance-new-bf").value;
   const balance_new_bf_serie = Number(document.getElementById("balance-new-bf-serie").value);
+  const selected_cadastre = document.getElementById("cadastre-list-balance").value;
 
   if (!balance_new_bf && typeof balance_new_bf !== 'number') {
     return;
@@ -120,20 +135,33 @@ document.getElementById("balance-add-new-bf").onclick = () => {
 
   let tableau_balance = document.getElementById('tableau_balance').firstChild;
   const nb_rows = tableau_balance.rows.length;
-  let nb_cols;
+  const nb_cols = tableau_balance.rows[0].cells.length;
 
-  let cadastre_id = 14;
-
+  // check if new bf already is in balance
+  let new_bf_user_tmp;
+  let new_bf_table_tmp;
   for (let j = 0; j < balance_new_bf_serie; j++) {
-    nb_cols = tableau_balance.rows[0].cells.length;
+    new_bf_user_tmp = selected_cadastre + "_" + (balance_new_bf + j);
+    for (let i = 1; i < nb_cols; i++) {
+      new_bf_table_tmp = tableau_balance.rows[0].cells[i].innerHTML.split(' ')[0];
 
-    let cell = tableau_balance.rows[0].insertCell(-1)
+      // console.log(`${new_bf_user_tmp} =?= ${new_bf_table_tmp} --> ${new_bf_user_tmp === new_bf_table_tmp}`);
+      if (new_bf_user_tmp === new_bf_table_tmp) {
+        alert(`Le bien-fonds ${new_bf_user_tmp} existe déjà dans la balance (colonne ${i + 1}).\n\nLa balance n'est pas mise à jour.`);
+        return;
+      }
+    }
+  }
 
-    cell.outerHTML = '<td style="text-align: center; padding: 5pt; border: solid 1pt black">' + cadastre_id + '_' + balance_new_bf + ` <a href="javascript:balance_removeBF('${cadastre_id}_${balance_new_bf}')" title="supprimer le bien-fonds">[-]</a></td>`;
+  // Add new parcels
+  for (let j = 0; j < balance_new_bf_serie; j++) {
+    let cell = tableau_balance.rows[0].insertCell(-1);
+
+    cell.outerHTML = '<td style="text-align: center; padding: 5pt; border: solid 1pt black">' + selected_cadastre + '_' + balance_new_bf + ` <a href="javascript:balance_removeBF('${selected_cadastre}_${balance_new_bf}')" title="supprimer le bien-fonds">[-]</a></td>`;
 
     for (let i = 1; i < nb_rows; i++) {
-      cell = tableau_balance.rows[i].insertCell(-1)
-      cell.outerHTML = '<td style="text-align: center; padding: 5pt; border: solid 1pt black"><input type="checkbox" id="' + tableau_balance.rows[i].cells[0].innerHTML.split(' ')[0] + '-' + cadastre_id + '_' + balance_new_bf + '"></input></td>';
+      cell = tableau_balance.rows[i].insertCell(-1);
+      cell.outerHTML = '<td style="text-align: center; padding: 5pt; border: solid 1pt black"><input type="checkbox" id="' + tableau_balance.rows[i].cells[0].innerHTML.split(' ')[0] + '-' + selected_cadastre + '_' + balance_new_bf + '"></input></td>';
     }
 
     balance_new_bf += 1;
@@ -146,10 +174,13 @@ document.getElementById("balance-add-new-bf").onclick = () => {
 // submit-balance
 document.getElementById("submit-balance").onclick = () => {
   // get relations
-  const relations = getBalanceRelations();
-  if (relations.length === 0) {
-    return;
-  }
+  // const relations = getBalanceRelations();
+  // if (relations.length === 0) {
+  //   return;
+  // }
+
+  const tableau_balance = document.getElementById("tableau_balance").firstChild;
+
 
   // post relations
   postBalanceRelation(relations);
@@ -158,6 +189,12 @@ document.getElementById("submit-balance").onclick = () => {
   // document.getElementById("balance-add-bf-section").style.display = 'none';
   // document.getElementById("tableau_balance").innerHTML = '';
 
+}
+
+
+document.getElementById("submit-balance-file").onclick = () => {
+  // console.log('submit-balance-file | clicked')
+  ph.postBalanceFile();
 }
 
 function handleEnterAsClick(e, elementId) {
@@ -172,20 +209,27 @@ function getBalanceRelations() {
 
   const tableau_balance = document.getElementById('tableau_balance').firstChild;
 
-  const nb_rows = tableau_balance.rows.length
-  const nb_cols = tableau_balance.rows[0].cells.length
-
-  // get all old_bf
-  let old_bf = new Array()
-  for (let i = 1; i < nb_rows; i++) {
-    old_bf.push(tableau_balance.rows[i].cells[0].innerHTML);
+  for (let row of tableau_balance) {
+    // euh...
   }
 
-  // get all new_bf
-  let new_bf = new Array()
-  for (let i = 1; i < nb_cols; i++) {
-    new_bf.push(tableau_balance.rows[0].cells[i].innerHTML);
-  }
+
+
+
+  // const nb_rows = tableau_balance.rows.length
+  // const nb_cols = tableau_balance.rows[0].cells.length
+
+  // // get all old_bf
+  // let old_bf = new Array()
+  // for (let i = 1; i < nb_rows; i++) {
+  //   old_bf.push(tableau_balance.rows[i].cells[0].innerHTML);
+  // }
+
+  // // get all new_bf
+  // let new_bf = new Array()
+  // for (let i = 1; i < nb_cols; i++) {
+  //   new_bf.push(tableau_balance.rows[0].cells[i].innerHTML);
+  // }
 
   async function postBalanceRelation(relations) {
     console.log(`postBalanceRelation | still to do`)
@@ -215,12 +259,12 @@ ph = {
 ph.initApplication = function () {
   // Token is needed for calling Django using POST
   ph.csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-  ph.load_cadastre();
+  ph.load_cadastre("cadastre_list");
 };
 
 // Gets the list of cadastre (application entry point)
-ph.load_cadastre = () => {
-  const select = document.getElementById("cadastre_list");
+ph.load_cadastre = (html_element_id) => {
+  const select = document.getElementById(html_element_id);
   let i, L = select.options.length - 1;
   for (i = L; i >= 0; i--) {
     select.remove(i);
@@ -502,7 +546,26 @@ ph.load_table = () => {
   document.getElementById("overlay").style.display = "none";
 };
 
+// Build HMTL for balance
+ph.buildHTMLTable = (balance) => {
+  let tb_html = '<table style="border: solid 1pt black">'
+  for (let i = 0; i < balance.length; i++) {
+    tb_html += '<tr>';
+    for (let j = 0; j < balance[0].length; j++) {
+      if (i > 0 && j > 0) {
+        tb_html += '<td style="text-align: center; padding: 5pt; border: solid 1pt black">' +
+          '<input type="checkbox" id="' + balance[i][j].id + '" ' + (balance[i][j].toLowerCase() === 'x' ? 'checked' : '') + '></input>' + '</td>';
+      } else {
+        tb_html += '<td style="text-align: center; padding: 5pt; border: solid 1pt black;">' + (balance[i][j] ? balance[i][j] + ((i !== 0 ^ j !== 0) ? ` <a href="javascript:balance_removeBF('${balance[i][j]}')" title="supprimer le bien-fonds">[-]</a>` : '') : '') + '</td>';
+      }
+    }
+    tb_html += '</tr>';
+  }
+  tb_html += '</table>';
+  return tb_html;
+}
 
+// Get balance from infolica
 ph.getBalance = (id) => {
   fetch(ph.infolica_api_url + 'balance_from_affaire_id?' + new URLSearchParams({
     division_id: id,
@@ -523,20 +586,7 @@ ph.getBalance = (id) => {
         return;
       }
 
-      let tb_html = '<table style="border: solid 1pt black">'
-      for (let i = 0; i < balance.length; i++) {
-        tb_html += '<tr>';
-        for (let j = 0; j < balance[0].length; j++) {
-          if (i > 0 && j > 0) {
-            tb_html += '<td style="text-align: center; padding: 5pt; border: solid 1pt black">' +
-              '<input type="checkbox" id="' + balance[i][j].id + '" ' + (balance[i][j].toLowerCase() === 'x' ? 'checked' : '') + '></input>' + '</td>';
-          } else {
-            tb_html += '<td style="text-align: center; padding: 5pt; border: solid 1pt black">' + (balance[i][j] ? balance[i][j] + ((i!==0 ^ j!==0) ? ` <a href="javascript:balance_removeBF('${balance[i][j]}')" title="supprimer le bien-fonds">[-]</a>`: '') : '') + '</td>';
-          }
-        }
-        tb_html += '</tr>';
-      }
-      tb_html += '</table>';
+      let tb_html = ph.buildHTMLTable(balance);
 
       document.getElementById("tableau_balance").innerHTML = tb_html;
       document.getElementById("balance-add-bf-section").style.display = "block";
@@ -552,8 +602,8 @@ ph.getBalance = (id) => {
 balance_removeBF = (bf) => {
 
   let table = document.getElementById("tableau_balance").children[0];
-  let row_idx=0;
-  let col_idx=0;
+  let row_idx = 0;
+  let col_idx = 0;
 
   for (let row of table.rows) {
     if (row_idx === 0) {
@@ -585,10 +635,60 @@ balance_removeBF = (bf) => {
 
 ph.showBalance = (id) => {
   // TODO
-  console.log(`Balance "${id}"`);
+  console.log(`Balance "${id}" | still to do`);
 };
 
 ph.changeStatus = (id, type) => {
   //TODO
-  console.log(`Change status to "${type}" for "${id}"`);
+  console.log(`Change status to "${type}" for "${id}" | still to do`);
+};
+
+ph.postBalanceFile = () => {
+  // console.log("ph.postBalanceFile()")
+
+  // let file = document.getElementById("input-balance-from-file").files[0];
+  let formData = new FormData();
+  formData.append('file', document.getElementById("input-balance-from-file").files[0]);
+  formData.append('cadnum', document.getElementById("cadastre-list-balance").value);
+
+  // submitting balance file to backend
+  fetch('balance_file_upload', {
+    method: 'POST',
+    headers: {
+      'Accept': 'application/json, text/plain,  */*',
+      'Content-Type': 'application/json'
+    },
+    headers: { 'X-CSRFToken': ph.csrftoken },
+    mode: 'same-origin',
+    body: formData,
+  })
+    .then(res => res.json())
+    .then(res => {
+      // empty file input
+      console.log("postBalanceFile | empy file input")
+      document.getElementById("input-balance-from-file").value = null;
+      document.getElementById("cadastre-list-balance").value = null;
+      document.getElementById("cadastre-list-balance").disabled = true;
+      document.getElementById("submit-balance-file").disabled = true;
+      console.log('res.balance', res.balance)
+
+      let tb_html = ph.buildHTMLTable(res.balance);
+
+      document.getElementById("tableau_balance").innerHTML = tb_html;
+      document.getElementById("balance-add-bf-section").style.display = "block";
+
+    })
+    .catch(err => alert("ERREUR !\nLe fichier n'a pas été enregistré.\n\n", err));
+}
+
+ph.setCadastreListeBalance = () => {
+  let select = document.getElementById("cadastre-list-balance");
+  for (const [key, value] of Object.entries(ph.cadastres)) {
+    let element = document.createElement("option");
+    element.innerText = value;
+    element.value = key;
+    select.append(element);
+  }
+
+  document.getElementById("cadastre-list-balance").value = ph.activecadastre;
 };
