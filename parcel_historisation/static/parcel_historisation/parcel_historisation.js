@@ -157,7 +157,7 @@ document.getElementById("balance-add-new-bf").onclick = () => {
   for (let j = 0; j < balance_new_bf_serie; j++) {
     let cell = tableau_balance.rows[0].insertCell(-1);
 
-    cell.outerHTML = '<td style="text-align: center; padding: 5pt; border: solid 1pt black">' + selected_cadastre + '_' + balance_new_bf + ` <a href="javascript:balance_removeBF('${selected_cadastre}_${balance_new_bf}')" title="supprimer le bien-fonds">[-]</a></td>`;
+    cell.outerHTML = '<td style="text-align: center; padding: 5pt; border: solid 1pt black; vertical-align: bottom;"><span style="writing-mode: tb-rl; transform: rotate(-180deg);" title="' + selected_cadastre + '_' + balance_new_bf + '">' + selected_cadastre + '_' + balance_new_bf + '</span>' + ` <a href="javascript:balance_removeBF('${selected_cadastre }_${balance_new_bf}')" title="supprimer le bien-fonds">[-]</a></td>`;
 
     for (let i = 1; i < nb_rows; i++) {
       cell = tableau_balance.rows[i].insertCell(-1);
@@ -555,6 +555,8 @@ ph.buildHTMLTable = (balance) => {
       if (i > 0 && j > 0) {
         tb_html += '<td style="text-align: center; padding: 5pt; border: solid 1pt black">' +
           '<input type="checkbox" id="' + balance[i][j].id + '" ' + (balance[i][j].toLowerCase() === 'x' ? 'checked' : '') + '></input>' + '</td>';
+      } else if (i === 0) {
+          tb_html += '<td style="text-align: center; padding: 5pt; border: solid 1pt black; vertical-align: bottom;"><span style="writing-mode: tb-rl; transform: rotate(-180deg);" title="' + balance[i][j] + '">' + (balance[i][j] ? balance[i][j] : '') + '</span>' + ((i !== 0 ^ j !== 0) ? ` <a href="javascript:balance_removeBF('${balance[i][j]}')" title="supprimer le bien-fonds">[-]</a>` : '') + '</td>';
       } else {
         tb_html += '<td style="text-align: center; padding: 5pt; border: solid 1pt black;">' + (balance[i][j] ? balance[i][j] + ((i !== 0 ^ j !== 0) ? ` <a href="javascript:balance_removeBF('${balance[i][j]}')" title="supprimer le bien-fonds">[-]</a>` : '') : '') + '</td>';
       }
@@ -667,9 +669,7 @@ ph.postBalanceFile = () => {
       // empty file input
       console.log("postBalanceFile | empy file input")
       document.getElementById("input-balance-from-file").value = null;
-      document.getElementById("cadastre-list-balance").value = null;
-      document.getElementById("cadastre-list-balance").disabled = true;
-      document.getElementById("submit-balance-file").disabled = true;
+      document.getElementById("cadastre-list-balance").value = ph.activecadastre;
       console.log('res.balance', res.balance)
 
       let tb_html = ph.buildHTMLTable(res.balance);
