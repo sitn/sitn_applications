@@ -203,20 +203,43 @@ def submit_balance(request):
     print(f"submit_balance | still need to be done")
 
     data = json.loads(request.body)
+    # print(">>data: ", data)
 
-    tb = data["tableau_balance"]
-    division = data["division"]
+    for relation in data["relations"]:
+        if "dp" in relation.lower():
+            print(relation)
+            continue
+        elif "rp" in relation.lower():
+            print(relation)
+            continue
+            # balance = Balance()
+            # balance.source_rp = models.BooleanField(null=True)
+            # balance.destination_rp = models.BooleanField(null=True)
+            # balance.division = models.ForeignKey(Operation, on_delete=models.SET_NULL, verbose_name='division', null=True)
+        else:
+            print(relation)
+            continue
+            # balance = Balance()
+            # balance.source = models.CharField(max_length=200)
+            # balance.destination = models.CharField(max_length=200)
+            # balance.source_origin = models.BooleanField(null=True)
+            # balance.current_destination = models.BooleanField(null=True)
+            # balance.division = models.ForeignKey(Operation, on_delete=models.SET_NULL, verbose_name='division', null=True)
+            # balance.destination_ddp = models.BooleanField(default=False)
 
-    new_bf = tb[0][1:]
-    old_bf = None
+    # tb = data["tableau_balance"]
+    # division = data["division"]
 
-    for old_ in tb[1:]:
-        old_bf = old_[0]
-        for i, relation in enumerate(old_[1:]):
-            if relation is True:
-                print(f"source={old_bf}, destination={new_bf[i]}, division={division}")
-                # balance = Balance(source=old_bf, destination=new_bf[i])
-                # balance.save()
+    # new_bf = tb[0][1:]
+    # old_bf = None
+
+    # for old_ in tb[1:]:
+    #     old_bf = old_[0]
+    #     for i, relation in enumerate(old_[1:]):
+    #         if relation is True:
+    #             print(f"source={old_bf}, destination={new_bf[i]}, division={division}")
+    # balance = Balance(source=old_bf, destination=new_bf[i])
+    # balance.save()
 
     # for rel in data['relations']:
     #     balance = Balance(source=, destination=)
@@ -227,6 +250,7 @@ def submit_balance(request):
     #         "submitted": True,
     #     }
     # )
+    return JsonResponse({})
 
 
 @permission_required("parcel_historisation.view_designation", raise_exception=True)
@@ -236,13 +260,8 @@ def balance_file_upload(request):
     """
     Upload balance file
     """
-
-    print("request", vars(request))
-    print("=========================================================")
     cadnum = request.POST.get("cadnum")
-    print("cadnum", cadnum)
     file = request.FILES.get("file")
-    print("file", file.name)
 
     filepath = pathlib.Path("C:\\Users\\rufenerm\\Desktop\\test\\" + f"{file.name}_{uuid.uuid4()}.xlsx")
 
@@ -268,8 +287,6 @@ def balance_file_upload(request):
         new_bf.append("dp")
     else:
         new_bf.sort()
-
-    print("new_bf:", new_bf)
 
     # get old parcels
     old_bf = []
