@@ -70,7 +70,7 @@ class Command(BaseCommand):
             create_schema_cmd = [
                 f'{self.pg_binaries_path}psql.exe',
                 "-d", os.environ["PGDATABASE"],
-                '-c',
+                "-c",
                 f"\"DROP SCHEMA IF EXISTS {schema} CASCADE; CREATE SCHEMA {schema};\""
             ]
             print(create_schema_cmd)
@@ -80,6 +80,7 @@ class Command(BaseCommand):
                 f'"{self.pg_binaries_path}pg_restore.exe"',
                 "--dbname",
                 os.environ['PGDATABASE'],
+                "--no-owner",
                 "--clean",
                 "--if-exists",
                 "--format=C",
@@ -96,6 +97,7 @@ class Command(BaseCommand):
                 f'"{self.pg_binaries_path}pg_restore.exe"',
                 "--dbname",
                 os.environ['PGDATABASE'],
+                "--no-owner",
                 "--clean",
                 "--if-exists",
                 "--format=C",

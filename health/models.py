@@ -41,6 +41,7 @@ class St21AvailableDoctorsWithGeom(AbstractDoctors):
     prenoms = models.TextField()
     profession = models.TextField()
     specialites = models.TextField()
+    compl_formation = models.TextField()
     address = models.TextField()
     nopostal = models.TextField()
     localite = models.TextField()
@@ -51,6 +52,7 @@ class St21AvailableDoctorsWithGeom(AbstractDoctors):
         'prenoms',
         'profession',
         'specialites',
+        'compl_formation',
         'public_phone',
         'public_first_name',
         'address',
@@ -156,15 +158,6 @@ class St20AvailableDoctors(AbstractDoctors):
     class Meta:
         db_table = 'sante\".\"st20_available_doctors'
         verbose_name = _("St20AvailableDoctors")
-        managed=False
-
-
-class St18Independants(models.Model):
-    """
-    Needed for the data in the view
-    """
-    class Meta:
-        db_table = 'sante\".\"st18_independants'
         managed=False
 
 
