@@ -159,15 +159,6 @@ class St20AvailableDoctors(AbstractDoctors):
         managed=False
 
 
-class St18Independants(models.Model):
-    """
-    Needed for the data in the view
-    """
-    class Meta:
-        db_table = 'sante\".\"st18_independants'
-        managed=False
-
-
 class St19Cabinets(models.Model):
     """
     Needed for the data in the view

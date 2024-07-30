@@ -12,16 +12,6 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='St18Independants',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-            ],
-            options={
-                'db_table': 'sante"."st18_independants',
-                'managed': False,
-            },
-        ),
-        migrations.CreateModel(
             name='St19Cabinets',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
