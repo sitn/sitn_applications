@@ -29,6 +29,7 @@ class Migration(migrations.Migration):
                 ('prenoms', models.TextField()),
                 ('profession', models.TextField()),
                 ('specialites', models.TextField()),
+                ('compl_formation', models.TextField()),
                 ('notel', models.TextField(null=True)),
                 ('address', models.TextField()),
                 ('nopostal', models.TextField()),

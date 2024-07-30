@@ -23,6 +23,11 @@ class St20AvailableDoctorsAdmin(admin.ModelAdmin):
     exclude = []
     ordering = ['-pk']
 
+    def get_queryset(self, *args, **kwargs):
+        return super().get_queryset(*args, **kwargs).filter(
+            doctor__nom__isnull=False
+        )
+
     def nom(self, instance):
         return instance.doctor.nom
 

@@ -28,19 +28,13 @@ First, create a copy of the `.env.sample` file called `.env`:
 cp .env.sample .env
 ```
 
-Install the virual environment:
+Install and activate the virual environment:
 
 ```sh
 python -m venv venv
 ./venv/Scripts/activate
 python -m pip install --upgrade pip
 pip install -r requirements.txt
-```
-
-Activate your venv:
-
-```
-venv/Scripts/activate
 ```
 
 Create a local database:
