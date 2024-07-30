@@ -40,7 +40,11 @@ class Command(BaseCommand):
                 f'ALTER DATABASE "{db_name}" RENAME TO "test_{db_name}"'
             ]
         print(" ".join(cmd))
-        subprocess.check_call(cmd)
+        try:
+            subprocess.check_call(cmd)
+        except subprocess.CalledProcessError:
+            print("Rename of database failed, you're probably connected to it with pgAdmin")
+            exit("Please make sure all connections are closed before trying again!")
 
         # dump the test_ DB
         dump_success = True
