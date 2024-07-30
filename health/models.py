@@ -41,6 +41,7 @@ class St21AvailableDoctorsWithGeom(AbstractDoctors):
     prenoms = models.TextField()
     profession = models.TextField()
     specialites = models.TextField()
+    compl_formation = models.TextField()
     address = models.TextField()
     nopostal = models.TextField()
     localite = models.TextField()
@@ -51,6 +52,7 @@ class St21AvailableDoctorsWithGeom(AbstractDoctors):
         'prenoms',
         'profession',
         'specialites',
+        'compl_formation',
         'public_phone',
         'public_first_name',
         'address',
