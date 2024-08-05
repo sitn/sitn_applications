@@ -172,6 +172,7 @@ def submit_saisie(request):
         {
             "submitted": True,
             "has_div": has_div,
+            "operation_id": op.id,
         }
     )
 
@@ -200,57 +201,52 @@ def submit_balance(request):
     """
     save balance
     """
-    print(f"submit_balance | still need to be done")
 
     data = json.loads(request.body)
-    # print(">>data: ", data)
 
+    # save balance
     for relation in data["relations"]:
-        if "dp" in relation.lower():
-            print(relation)
+        print(relation)
+        balance = Balance()
+        rel = relation.split("-")
+
+        for i, parcel in enumerate(rel):
+
+            if "dp" in parcel.lower():
+                print(f"{parcel} is dp - not saved")
+                rel[i] = "DP"
+                # balance.source_rp = models.BooleanField(null=True)
+                # balance.destination_rp = models.BooleanField(null=True)
+                # balance.source_origin = models.BooleanField(null=True)
+                # balance.current_destination = models.BooleanField(null=True)
+                continue
+
+            elif "rp" in parcel.lower():
+                print(f"{parcel} is rp - not saved")
+                rel[i] = "RP"
+                # balance.source_rp = models.BooleanField(null=True)
+                # balance.destination_rp = models.BooleanField(null=True)
+                # balance.source_origin = models.BooleanField(null=True)
+                # balance.current_destination = models.BooleanField(null=True)
+                continue
+
+        # check that parcel relation does not already exist
+        checkRel = Balance.objects.filter(source=rel[0], destination=rel[1], division_id=data["division_id"]).first()
+        if checkRel is not None:
+            print(f"Relation {relation} already exists in DB")
             continue
-        elif "rp" in relation.lower():
-            print(relation)
-            continue
-            # balance = Balance()
-            # balance.source_rp = models.BooleanField(null=True)
-            # balance.destination_rp = models.BooleanField(null=True)
-            # balance.division = models.ForeignKey(Operation, on_delete=models.SET_NULL, verbose_name='division', null=True)
-        else:
-            print(relation)
-            continue
-            # balance = Balance()
-            # balance.source = models.CharField(max_length=200)
-            # balance.destination = models.CharField(max_length=200)
-            # balance.source_origin = models.BooleanField(null=True)
-            # balance.current_destination = models.BooleanField(null=True)
-            # balance.division = models.ForeignKey(Operation, on_delete=models.SET_NULL, verbose_name='division', null=True)
-            # balance.destination_ddp = models.BooleanField(default=False)
 
-    # tb = data["tableau_balance"]
-    # division = data["division"]
+        balance.source = rel[0]
+        balance.destination = rel[1]
+        balance.division_id = data["division_id"]
 
-    # new_bf = tb[0][1:]
-    # old_bf = None
+        balance.save()
 
-    # for old_ in tb[1:]:
-    #     old_bf = old_[0]
-    #     for i, relation in enumerate(old_[1:]):
-    #         if relation is True:
-    #             print(f"source={old_bf}, destination={new_bf[i]}, division={division}")
-    # balance = Balance(source=old_bf, destination=new_bf[i])
-    # balance.save()
-
-    # for rel in data['relations']:
-    #     balance = Balance(source=, destination=)
-    #     balance.save()
-
-    # return JsonResponse(
-    #     {
-    #         "submitted": True,
-    #     }
-    # )
-    return JsonResponse({})
+    return JsonResponse(
+        {
+            "submitted": True,
+        }
+    )
 
 
 @permission_required("parcel_historisation.view_designation", raise_exception=True)

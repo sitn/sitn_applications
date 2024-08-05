@@ -83,7 +83,7 @@ document.getElementById("balance-add-old-bf").onclick = () => {
   }
   balance_old_bf = Number(balance_old_bf);
 
-  let tableau_balance = document.getElementById('tableau_balance').firstChild;
+  const tableau_balance = document.getElementById('tableau_balance').firstChild;
   const nb_rows = tableau_balance.rows.length;
   const nb_cols = tableau_balance.rows[0].cells.length;
 
@@ -133,7 +133,7 @@ document.getElementById("balance-add-new-bf").onclick = () => {
 
   balance_new_bf = Number(balance_new_bf);
 
-  let tableau_balance = document.getElementById('tableau_balance').firstChild;
+  const tableau_balance = document.getElementById('tableau_balance').firstChild;
   const nb_rows = tableau_balance.rows.length;
   const nb_cols = tableau_balance.rows[0].cells.length;
 
@@ -216,10 +216,11 @@ function getBalanceRelations() {
 
 
 async function postBalanceRelations(relations) {
-  let no_infolica = document.getElementById("no_infolica").value;
+  // let no_infolica = document.getElementById("no_infolica").value;
 
   let params = {
-    division_id: no_infolica,
+    // division_id: no_infolica,
+    division_id: ph.activeoperation_id,
     cadastre_id: ph.activecadastre,
     relations: relations,
   }
@@ -247,6 +248,7 @@ async function postBalanceRelations(relations) {
 ph = {
   activecadastre: null,
   cadastres: {},
+  activeoperation_id: null,
 };
 
 ph.initApplication = function () {
@@ -402,6 +404,7 @@ document.getElementById("submit-form").onclick = () => {
     .then(res => res.json())
     .then(res => {
       ph.resetSubmitForm(res['has_div']);
+      ph.activeoperation_id = res['operation_id'];
     });
 };
 
