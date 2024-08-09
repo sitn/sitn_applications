@@ -3,7 +3,7 @@ from django.contrib.postgres.fields import ArrayField
 
 class State(models.Model):
     name = models.CharField(max_length=1000)
-  
+
     class Meta:
         db_table = 'parcel_historisation\".\"state'
 
@@ -37,6 +37,7 @@ class Operation(models.Model):
     complement = models.CharField(max_length=5000, null=True)
     old_system = models.BooleanField(default=False)
     plan = models.ForeignKey(Plan, on_delete=models.SET_NULL, verbose_name='plan', blank=True, null=True)
+    infolica_no = models.CharField(max_length=20, null=True, blank=True)
 
     class Meta:
         db_table = 'parcel_historisation\".\"operation'
@@ -64,6 +65,7 @@ class Balance(models.Model):
     current_destination = models.BooleanField(null=True)
     division = models.ForeignKey(Operation, on_delete=models.SET_NULL, verbose_name='division', null=True)
     destination_ddp = models.BooleanField(default=False)
+    is_ddp = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'parcel_historisation\".\"balance'

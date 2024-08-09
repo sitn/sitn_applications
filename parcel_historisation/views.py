@@ -205,42 +205,44 @@ def submit_balance(request):
     data = json.loads(request.body)
 
     # save balance
-    for relation in data["relations"]:
-        print(relation)
-        balance = Balance()
-        rel = relation.split("-")
+    if data["balance"] is not None:
+        for relation in data["balance"]:
+            balance = Balance()
+            rel = relation.split("-")
 
-        for i, parcel in enumerate(rel):
+            # control if dp is in old/new parcel of relation
+            for i, parcel in enumerate(rel):
+                if "dp" in parcel.lower():
+                    rel[i] = "DP"
 
-            if "dp" in parcel.lower():
-                print(f"{parcel} is dp - not saved")
-                rel[i] = "DP"
-                # balance.source_rp = models.BooleanField(null=True)
-                # balance.destination_rp = models.BooleanField(null=True)
-                # balance.source_origin = models.BooleanField(null=True)
-                # balance.current_destination = models.BooleanField(null=True)
+            # check that parcel relation does not already exist
+            checkRel = Balance.objects.filter(source=rel[0], destination=rel[1], division_id=data["division_id"]).first()
+            if checkRel is not None:
                 continue
 
-            elif "rp" in parcel.lower():
-                print(f"{parcel} is rp - not saved")
-                rel[i] = "RP"
-                # balance.source_rp = models.BooleanField(null=True)
-                # balance.destination_rp = models.BooleanField(null=True)
-                # balance.source_origin = models.BooleanField(null=True)
-                # balance.current_destination = models.BooleanField(null=True)
+            balance.source = rel[0]
+            balance.destination = rel[1]
+            balance.division_id = data["division_id"]
+
+            balance.save()
+
+    # save ddp relations
+    if data["ddp"] is not None:
+        for relation in data["ddp"]:
+            balance = Balance()
+            rel = relation.split("-")
+
+            # check that parcel relation does not already exist
+            checkRel = Balance.objects.filter(source=rel[0], destination=rel[1], division_id=data["division_id"]).first()
+            if checkRel is not None:
                 continue
 
-        # check that parcel relation does not already exist
-        checkRel = Balance.objects.filter(source=rel[0], destination=rel[1], division_id=data["division_id"]).first()
-        if checkRel is not None:
-            print(f"Relation {relation} already exists in DB")
-            continue
+            balance.source = rel[0]
+            balance.destination = rel[1]
+            balance.is_ddp = True
+            balance.division_id = data["division_id"]
 
-        balance.source = rel[0]
-        balance.destination = rel[1]
-        balance.division_id = data["division_id"]
-
-        balance.save()
+            balance.save()
 
     return JsonResponse(
         {

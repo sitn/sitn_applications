@@ -140,17 +140,17 @@
               <button id="load-infolica" type="button" class="btn btn-primary">OK</button>
             </div>
           </div>
+          <div id="load-infolica-status"></div>
 
           <!-- HANDLE BALANCE HERE -->
-
-          <div id="balance-add-bf-section" style="display: none; margin-top: 60px; border: 1px solid; border-radius: 5px;" class="row mt-5 mb-5 g-2 p-3">
+          <div id="balance-add-bf-section" style="border: 1px solid; border-radius: 5px;" class="row mt-5 mb-2 g-2 p-3">
             <h5>Ajouter des biens-fonds</h5>
 
             <div class="row mt-3 mb-3 g-0">
               <div class="col-6">
                 <div class="input-group">
                   <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1">Cadastre: </span>
+                    <span class="input-group-text" id="basic-addon1">Cadastre : </span>
                   </div>
                   <div class="input-group-prepend" style="padding-left: 15px;">
                     <select id="cadastre-list-balance" class="form-select" aria-label="Default select example"></select>
@@ -159,78 +159,133 @@
               </div>
             </div>
 
-            <!-- Manually add old/new parcels -->
-            <div class="row mt-3 mb-3 g-0" style="margin-bottom: 0px;">
-              <div class="col">
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1">Anciens biens-fonds: </span>
+            <div class="accordion" id="accordionExample">
+              <div class="accordion-item">
+                <h2 class="accordion-header" style="background-color: lightskyblue;" id="headingBalance">
+                  <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseBalance" aria-expanded="true" aria-controls="collapseBalance">
+                    <strong>Balance</strong>
+                  </button>
+                </h2>
+                <div id="collapseBalance" class="accordion-collapse collapse" aria-labelledby="headingBalance" data-bs-parent="#accordionExample">
+                  <div class="accordion-body">
+
+                    <div class="row mt-3 mb-3 g-0" style="margin-bottom: 0px;">
+                      <div class="col">
+                        <div class="input-group">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1">Anciens biens-fonds : </span>
+                          </div>
+                          <input id="balance-old-bf" type="number" min="1" step="1" class="form-control" aria-label="old_bf" aria-describedby="basic-addon1" placeholder=""></input>
+                        </div>
+                      </div>
+
+                      <div class="col">
+                        <div class="input-group">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1">Série : </span>
+                          </div>
+                          <input id="balance-old-bf-serie" type="number" min="1" step="1" value="1" class="form-control" aria-label="old_bf_serie" aria-describedby="basic-addon1" placeholder=""></input>
+                        </div>
+                      </div>
+
+                      <div class="col">
+                        <button id="balance-add-old-bf" type="button" style="margin-right: 2em;" class="btn btn-primary">OK</button>
+                        /
+                        <button id="balance-add-old-dp" type="button" style="margin-left: 2em;" class="btn btn-primary">dp</button>
+                      </div>
+                    </div>
+
+                    <div class="row mt-3 mb-3 g-0" style="margin-bottom: 0px;">
+                      <div class="col">
+                        <div class="input-group">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1">Nouveaux biens-fonds : </span>
+                          </div>
+                          <input id="balance-new-bf" type="number" min="1" step="1" class="form-control" aria-label="new_bf" aria-describedby="basic-addon1" placeholder=""></input>
+                        </div>
+                      </div>
+
+                      <div class="col">
+                        <div class="input-group">
+                          <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1">Série : </span>
+                          </div>
+                          <input id="balance-new-bf-serie" type="number" min="1" step="1" value="1" class="form-control" aria-label="new_bf_serie" aria-describedby="basic-addon1" placeholder=""></input>
+                        </div>
+                      </div>
+
+                      <div class="col">
+                        <button id="balance-add-new-bf" type="button" style="margin-right: 2em;" class="btn btn-primary">OK</button>
+                        /
+                        <button id="balance-add-new-dp" type="button" style="margin-left: 2em;" class="btn btn-primary">dp</button>
+                      </div>
+                    </div>
+
+                    <hr>
+
+                    <div class="row mt-4 g-0">
+                      <div class="col">
+                        <div class="input-group">
+                          <div class="input-group-prepend">
+                            <label for="input-balance-from-file">À partir d'un fichier ?</label>
+                            <input
+                                   type="file"
+                                   id="input-balance-from-file"
+                                   accept=".xls,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+                          </div>
+
+                          <div class="col" style="padding-left: 20px;">
+                            <button id="submit-balance-file" class="btn btn-primary">Charger</button>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                  <input id="balance-old-bf" type="number" min="1" step="1" class="form-control" aria-label="old_bf" aria-describedby="basic-addon1" placeholder=""></input>
                 </div>
               </div>
-
-              <div class="col">
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1">Série: </span>
+              <div class="accordion-item">
+                <h2 class="accordion-header" id="headingDDP">
+                  <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDDP" aria-expanded="true" aria-controls="collapseDDP">
+                    <strong>Droit distinct et permanent</strong>
+                  </button>
+                </h2>
+                <div id="collapseDDP" class="accordion-collapse collapse" aria-labelledby="headingDDP" data-bs-parent="#accordionExample">
+                  <div class="accordion-body">
+                    <div class="row">
+                      <div class="col">
+                        <div class="input-group mb-3">
+                          <!-- DDP number -->
+                          <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1">DDP : </span>
+                          </div>
+                          <input id="ddp-number" type="number" min="0" step="1" class="form-control" placeholder="Numéro de DDP">
+                          <!-- Base parcel -->
+                          <div class="input-group-prepend">
+                            <span class="input-group-text" id="basic-addon1">Bf de base : </span>
+                          </div>
+                          <input id="ddp-base-number" type="number" min="0" step="1" class="form-control" placeholder="Bien-fonds de base">
+                        </div>
+                      </div>
+                      <div class="col pl-2">
+                        <button id="create-ddp" class="btn btn-primary">Ajouter</button>
+                      </div>
+                    </div>
                   </div>
-                  <input id="balance-old-bf-serie" type="number" min="1" step="1" value="1" class="form-control" aria-label="old_bf_serie" aria-describedby="basic-addon1" placeholder=""></input>
                 </div>
-              </div>
-
-              <div class="col">
-                <button id="balance-add-old-bf" type="button" class="btn btn-primary">OK</button>
               </div>
             </div>
-
-            <div class="row mt-3 mb-3 g-0" style="margin-bottom: 0px;">
-              <div class="col">
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1">Nouveaux biens-fonds: </span>
-                  </div>
-                  <input id="balance-new-bf" type="number" min="1" step="1" class="form-control" aria-label="new_bf" aria-describedby="basic-addon1" placeholder=""></input>
-                </div>
-              </div>
-
-              <div class="col">
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <span class="input-group-text" id="basic-addon1">Série: </span>
-                  </div>
-                  <input id="balance-new-bf-serie" type="number" min="1" step="1" value="1" class="form-control" aria-label="new_bf_serie" aria-describedby="basic-addon1" placeholder=""></input>
-                </div>
-              </div>
-
-              <div class="col">
-                <button id="balance-add-new-bf" type="button" class="btn btn-primary">OK</button>
-              </div>
-            </div>
-
-            <!-- Load balance from file -->
-            <div class="row mt-4 g-0">
-              <div class="col">
-                <div class="input-group">
-                  <div class="input-group-prepend">
-                    <label for="input-balance-from-file">À partir d'un fichier ?</label>
-                    <input
-                           type="file"
-                           id="input-balance-from-file"
-                           accept=".xls,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
-                  </div>
-
-                  <div class="col" style="padding-left: 20px;">
-                    <button id="submit-balance-file" class="btn btn-primary">Charger</button>
-                  </div>
-                </div>
-              </div>
-            </div>
-
           </div>
 
           <!-- Balance table -->
-          <div id="tableau_balance"></div>
+          <div id="ddp-section-container" class="mt-4" hidden>
+            <h3>DDP à créer</h3>
+            <div id="ddp-section"></div>
+          </div>
+          <!-- Balance table -->
+          <div id="tableau-balance-container" class="mt-4" hidden>
+            <h3>Balance</h3>
+            <div id="tableau-balance"></div>
+          </div>
           <button id="submit-balance" type="button" class="btn btn-primary mt-3">OK</button>
         </div>
       </div>
