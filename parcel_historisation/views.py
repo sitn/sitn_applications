@@ -6,12 +6,11 @@ from rest_framework import viewsets, filters
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser
 from openpyxl import load_workbook
+from io import BytesIO
 
 import json
 import pathlib
 import datetime
-import os
-import uuid
 
 from parcel_historisation.models import Plan, Operation, OtherOperation, State, DivisonReunion, Balance
 from parcel_historisation.serializers import PlanSerializer, BalanceSerializer
@@ -261,15 +260,7 @@ def balance_file_upload(request):
     cadnum = request.POST.get("cadnum")
     file = request.FILES.get("file")
 
-    filepath = pathlib.Path("C:\\Users\\rufenerm\\Desktop\\test\\" + f"{file.name}_{uuid.uuid4()}.xlsx")
-
-    # save temporary_file
-    with open(filepath, "wb+") as f:
-        for chunk in file.chunks():
-            f.write(chunk)
-
-    # do stuff
-    wb = load_workbook(filepath)
+    wb = load_workbook(filename=BytesIO(file.read()))
     ws = wb.active
 
     # get old parcels
@@ -330,8 +321,5 @@ def balance_file_upload(request):
             src_idx = old_bf.index(rel[0]) + 1
             dst_idx = new_bf.index(rel[1]) + 1
             balance[src_idx][dst_idx] = "X"
-
-    # remove temporary_file
-    os.remove(filepath)
 
     return JsonResponse({"balance": balance})
