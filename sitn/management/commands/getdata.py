@@ -30,9 +30,9 @@ class Command(BaseCommand):
         temp_env["PGPASSWORD"] = os.environ["DEV_REMOTE_PGPASSWORD"]
         return temp_env
 
-    def dump_schemas(self, unmanaged_tables):
+    def dump_schemas(self, schemas):
         print(f'🔽 Dumping from {os.environ["DEV_REMOTE_PGHOST"]}...')
-        for schema in unmanaged_tables:
+        for schema in schemas:
             cmd = [
                 f"{self.pg_binaries_path}pg_dump.exe",
                 "--schema-only",
@@ -92,14 +92,15 @@ class Command(BaseCommand):
     def restore_tables(self, unmanaged_tables):
         print(f'🔼 Restoring to {os.environ["PGHOST"]}...')
         for schema in unmanaged_tables:
-
+            exists = "--if-exists --clean"
+            if schema in self.dependent_schemas:
+                exists = "--data-only"
             pg_restore_cmd = [
                 f'"{self.pg_binaries_path}pg_restore.exe"',
                 "--dbname",
                 os.environ['PGDATABASE'],
                 "--no-owner",
-                "--clean",
-                "--if-exists",
+                exists,
                 "--format=C",
                 f"db/{schema}.backup"
             ]

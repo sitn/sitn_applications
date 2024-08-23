@@ -2,6 +2,7 @@ from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.postgres.search import SearchVectorField
 
+
 class Cadastre(models.Model):
     idobj = models.UUIDField(primary_key=True)
     numcad = models.BigIntegerField()
@@ -14,6 +15,7 @@ class Cadastre(models.Model):
         managed = False
         db_table = 'general\".\"la02_cadastres'
 
+
 class Commune(models.Model):
     idobj = models.CharField(max_length=40, primary_key=True)
     comnom = models.CharField(max_length=100)
@@ -24,6 +26,7 @@ class Commune(models.Model):
     class Meta:
         managed = False
         db_table = 'general\".\"la3_limites_communales'
+
 
 class ImmeublesAdressesSearch(models.Model):
     noobj = models.IntegerField(primary_key=True)
@@ -38,7 +41,7 @@ class ImmeublesAdressesSearch(models.Model):
     adresse = models.CharField(max_length=500)
     nom_localite = models.CharField(max_length=250)
     label = models.CharField(max_length=250)
-    geom = models.PolygonField(srid=settings.DEFAULT_SRID)
+    geom = models.MultiPolygonField(srid=settings.DEFAULT_SRID)
     _ts = SearchVectorField()
 
     @property
@@ -48,3 +51,16 @@ class ImmeublesAdressesSearch(models.Model):
     class Meta:
         managed = False
         db_table = 'searchtables\".\"search_immeubles_adresses'
+
+
+class Mo9Immeubles(models.Model):
+    idobj = models.CharField(max_length=40, primary_key=True)
+    nummai = models.CharField(max_length=7)
+    numcad = models.IntegerField(db_column="numcom")
+    idmai = models.CharField(max_length=50, db_column="id")
+    egrid = models.CharField(max_length=14)
+    geom = models.MultiPolygonField(srid=settings.DEFAULT_SRID)
+
+    class Meta:
+        managed = False
+        db_table = 'mensuration\".\"mo9_immeubles'

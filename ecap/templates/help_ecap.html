@@ -35,6 +35,58 @@
   </header>
 
   <h1>Description du service "/ecap"</h1>
+  <section id="estate">
+    <h3>/estate <span class="badge rounded-pill text-bg-success">GET</span></h3>
+
+    <p>
+      Service d'intersection spatiale retournant un bien-fonds à partir d'une paire
+      de coordonnées. Accessoirement, une distance tampon peut être donnée et ce sera alors
+      le résultat de l'instersection de la zone tampon qui sera retourné.
+    </p>
+    <h6>Paramètres acceptés:</h6>
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th class="w-15">Nom</th>
+          <th>Description</th>
+          <th class="w-40">Exemple</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>east</code>, <code>north</code></td>
+          <td>Obligatoire, coordonnée Est et Nord en EPSG:2056</td>
+          <td>
+            <a target="_blank" href="{{ request.path }}estate?east=2562165&amp;north=1205258">/ecap/estate?east=2562165&amp;north=1205258</a>
+          </td>
+        </tr>
+        <tr>
+          <td><code>buffer</code></td>
+          <td>Facultatif, rayon en mètres du tampon à appliquer au coordonnées.</td>
+          <td>
+            <a target="_blank" href="{{ request.path }}estate?east=2562165&amp;north=1205258&amp;buffer=6">/ecap/estate?east=2562165&amp;north=1205258&amp;buffer=6</a>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4>Contenu de la réponse</h4>
+    <p>La réponse sera un GeoJSON avec les propriétés suivantes:</p>
+    <ul>
+      <li>
+        <code>nummai</code>: Numéro de biens-fonds, unique au sein d'un cadastre
+      </li>
+      <li>
+        <code>numcad</code>: Numéro de cadastre
+      </li>
+      <li>
+        <code>idmai</code>: Identifiant de biens-fonds, unique sur le canton
+      </li>
+      <li>
+        <code>egrid</code>: Identifiant fédéral de biens-fonds
+      </li>
+    </ul>
+  </section>
   <section id="search">
     <h3>/search <span class="badge rounded-pill text-bg-success">GET</span></h3>
 
