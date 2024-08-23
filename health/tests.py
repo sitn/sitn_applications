@@ -3,7 +3,7 @@ from django.utils import timezone
 from rest_framework import status
 from rest_framework.test import APITestCase
 
-from health.models import St20AvailableDoctors, St22DoctorChangeSuggestion, St23HealthSite
+from health.models import St20AvailableDoctors, St22DoctorChangeSuggestion
 
 class HealthApiTest(APITestCase):
     def setUp(self) -> None:

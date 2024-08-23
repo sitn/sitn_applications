@@ -13,6 +13,11 @@ def is_valid_number(value):
         return False
 
 def get_estate(request):
+    """
+    Retrieves estates found at east and north params.
+    If provided, a buffer is applied to the coordinates before intersecting
+    Maximum 200 estates can be queried per query.
+    """
     if "east" not in request.GET or "north" not in request.GET:
         return HttpResponseBadRequest("east and north coordinates should be provided")
     
@@ -30,7 +35,7 @@ def get_estate(request):
             return HttpResponseBadRequest("Invalid parameters: buffer must be a valid number.")
         intersector = intersector.buffer(float(buffer))
 
-    intersected_estate = Mo9Immeubles.objects.filter(geom__intersects=intersector)
+    intersected_estate = Mo9Immeubles.objects.filter(geom__intersects=intersector)[:200]
 
     serializer = GeoJSONSerializer()
     response_data = serializer.serialize(
