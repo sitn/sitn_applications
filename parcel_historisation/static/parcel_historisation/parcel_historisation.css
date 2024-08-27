@@ -10,7 +10,7 @@
   text-align: left;
 }
 
-#close-saisie {
+#close-saisie, #close-saisie-2 {
   cursor: pointer;
 }
 

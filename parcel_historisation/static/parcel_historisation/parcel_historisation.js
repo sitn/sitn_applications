@@ -20,22 +20,11 @@ document.getElementById("desgn_list").onchange = () => {
 }
 
 document.getElementById("close-saisie").onclick = () => {
-  const text = "Êtes-vous sûr de vouloir quitter la saisie?\nTous les éléments saisis seront perdus";
-  if (confirm(text) == true) {
-    document.getElementById("step1").style.display = "none";
-    document.getElementById("cadastre_selector").style.display = "block";
-    ph.activecadastre = null;
-    document.getElementById("nav-listing-tab").classList.add("disabled");
-    document.getElementById("nav-control-tab").classList.add("disabled");
-    // Reset form
-    document.getElementById("delayed_check").checked = false;
-    document.getElementById("div_check").checked = false;
-    document.getElementById("cad_check").checked = false;
-    document.getElementById("serv_check").checked = false;
-    document.getElementById("art35_check").checked = false;
-    document.getElementById("other_check").checked = false;
-    document.getElementById("complement").value = "";
-  }
+  ph.initialize_form();
+}
+
+document.getElementById("close-saisie-2").onclick = () => {
+  ph.initialize_form();
 }
 
 document.getElementById("load-desgn").onclick = () => {
@@ -251,13 +240,13 @@ document.getElementById("balance-add-new-dp").onclick = () => {
   }
 };
 
-// submit-balance
-document.getElementById("submit-balance").onclick = () => {
+// submit-relations
+document.getElementById("submit-relations").onclick = async () => {
   const relations = getBalanceRelations();
   const ddp = getDDPRelations();
 
   // post relations
-  postBalanceRelations(relations, ddp);
+  await postBalanceRelations(relations, ddp);
 }
 
 
@@ -287,21 +276,75 @@ document.getElementById("create-ddp").onclick = () => {
     return;
   }
 
-  const ddp_span_id = `${[ph.activecadastre, ddp_number].join("_")}-${[ph.activecadastre, ddp_base_number].join("_")}`;
-  let ddp_section = document.getElementById("ddp-section");
+  const ddp = [ph.activecadastre, ddp_number].join("_");
+  const base = [ph.activecadastre, ddp_base_number].join("_");
+  ph.createNewHTMLddp(ddp, base);
+}
 
-  for (const elem of ddp_section.children) {
-    if (ddp_span_id === elem.id) {
-      alert(`Le DDP a déjà été saisi dans la liste.\n\n${[ph.activecadastre, ddp_number].join("_")}/${[ph.activecadastre, ddp_base_number].join("_")}`)
-      return;
-    }
+
+
+document.getElementById("load-operation").onclick = () => {
+  const operation_id = document.getElementById("operation-id-continue").value;
+  if (!operation_id) {
+    alert("Veuillez entrer le numéro de l'opération afin de poursuivre le processus.");
+    return;
   }
 
-  ddp_section.innerHTML += `<span id="${ddp_span_id}" class="badge rounded-pill bg-primary m-1"><span style="font-size: 1.5em">
-                              ${[ph.activecadastre, ddp_number].join("_")}</span>/${[ph.activecadastre, ddp_base_number].join("_")}
-                              <button id="close" onclick="this.parentElement.remove()" class="rounded-circle" style="border: 0px; margin-left: 5px;">X</button>
-                            </span>`;
+  fetch(`api/operations/${operation_id}`)
+    .then((response) => response.json())
+    .then((data) => {
+
+      if (String(data.cadastre_id) !== ph.activecadastre) {
+        let operation_cadastre = ph.cadastres[data.cadastre_id];
+        alert(`Le cadastre de l'opération (${operation_cadastre}) est différent de celui sélectionné.\n\nL'opération n'est pas chargée. Réessayez avec une autre opération ou sélectionnez le bon cadastre.`);
+        return;
+      }
+
+      // update plan list
+      plan_list = document.getElementById("plan_list")
+      desgn_list = document.getElementById("desgn_list")
+
+      element = document.createElement("option");
+      element.selected = true;
+      element.innerText = data["plan_link"];
+      element.value = data["plan_id"];
+      plan_list.prepend(element);
+
+      // update designation list
+      element = document.createElement("option");
+      element.selected = true;
+      element.value = data["plan_id"];
+      if (data["designation_id"] !== null) {
+        element.innerText = data["plan_link"];
+      } else {
+        element.innerText = "-";
+      }
+      desgn_list.prepend(element);
+
+      // update form operation-type + comment
+      document.getElementById("div_check").checked = data.operation_types.div_check;
+      document.getElementById("cad_check").checked = data.operation_types.cad_check;
+      document.getElementById("serv_check").checked = data.operation_types.serv_check;
+      document.getElementById("art35_check").checked = data.operation_types.art35_check;
+      document.getElementById("other_check").checked = data.operation_types.other_check;
+      document.getElementById("delayed_check").checked = data.plan_retarde;
+      document.getElementById("complement").value = data.complement;
+
+
+      ph.activeoperation_id = document.getElementById("operation-id-continue").value;
+
+    }).catch((err) => {
+      alert('Une erreur s\'est produite. Veuillez contacter l\'administrateur\n\n \
+    Détail de l\'erreur:\n' + String(err));
+    });
 }
+
+
+document.getElementById("operation-id-continue").addEventListener("keypress", e => {
+  if (e.key === 'Enter') {
+      document.getElementById("load-operation").click();
+  }
+});
 
 
 // Fonction pour vérifier et mettre à jour la visibilité de la div container
@@ -392,7 +435,7 @@ async function postBalanceRelations(balance, ddp) {
     ddp: ddp,
   }
 
-  fetch('submit_balance', {
+  return fetch('submit_balance', {
     method: 'POST',
     headers: {
       'X-CSRFToken': ph.csrftoken
@@ -404,6 +447,9 @@ async function postBalanceRelations(balance, ddp) {
       // hide balance and DDP sections
       document.getElementById("tableau-balance").innerHTML = '';
       document.getElementById("ddp-section").innerHTML = '';
+
+      ph.reset_step1();
+      document.getElementById("choose_cadastre").click();
 
     }).catch((err) => {
       alert('Une erreur s\'est produite. Veuillez contacter l\'administrateur\n\n \
@@ -448,6 +494,13 @@ ph.load_cadastre = (html_element_id) => {
     });
 };
 
+function removeOptions(selectElement) {
+  var i, L = selectElement.options.length - 1;
+  for (i = L; i >= 0; i--) {
+    selectElement.remove(i);
+  }
+}
+
 // Choosing a cadastre sends user to step 1 display
 document.getElementById("choose_cadastre").onclick = () => {
 
@@ -457,12 +510,15 @@ document.getElementById("choose_cadastre").onclick = () => {
   const url = "get_docs_list?" + new URLSearchParams({
     numcad: selected_value
   });
+
   fetch(url)
     .then((response) => response.json())
     .then((data) => {
       let item; let element;
       const plan_list = document.getElementById("plan_list");
       const desgn_list = document.getElementById("desgn_list");
+      removeOptions(plan_list);
+      removeOptions(desgn_list);
       const list = data['list'];
       for (let i = 0; i < list.length; i++) {
         item = list[i];
@@ -546,6 +602,7 @@ document.getElementById("submit-form").onclick = () => {
     other_check: document.getElementById("other_check").checked,
     delayed_check: delayed_check,
     complement: document.getElementById("complement").value,
+    operation_id: ph.activeoperation_id,
   };
 
 
@@ -571,24 +628,31 @@ document.getElementById("submit-form").onclick = () => {
   })
     .then(res => res.json())
     .then(res => {
-      ph.resetSubmitForm(res['has_div']);
       ph.activeoperation_id = res['operation_id'];
+      ph.resetSubmitForm(res['has_div']);
     });
 };
 
-// Data submission was sucessfull: resetting form and opening balance interface (if is is a division)
+// Data submission was sucessfull: resetting form and opening balance interface (if it is a division)
 ph.resetSubmitForm = (div) => {
   // Open div panel (if div)
   document.getElementById("step1").style.display = "none";
   if (div === true) {
     document.getElementById("step2").style.display = "block";
     document.getElementById("overlay").style.display = "none";
+    document.getElementById("operation_id_title").innerText = ph.activeoperation_id;
+    document.getElementById("operation_id_title_section").hidden = false;
 
-    ph.showBalance();
+    ph.loadBalance();
+
+    // ph.showBalance();
   } else {
     ph.load_cadastre();
+    document.getElementById("operation_id_title_section").hidden = true;
   }
   // reset saisie form
+  document.getElementById("input-continuation-checkbox").checked = false;
+  document.getElementById("operation-id-continue").value = "";
   document.getElementById("delayed_check").checked = false;
   document.getElementById("div_check").checked = false;
   document.getElementById("cad_check").checked = false;
@@ -734,6 +798,23 @@ ph.buildHTMLTable = (balance) => {
   return tb_html;
 }
 
+ph.createNewHTMLddp = (ddp, base) => {
+  const ddp_span_id = `${ddp}-${base}`;
+  let ddp_section = document.getElementById("ddp-section");
+
+  for (const elem of ddp_section.children) {
+    if (ddp_span_id === elem.id) {
+      alert(`Le DDP a déjà été saisi dans la liste.\n\n${[ph.activecadastre, ddp_number].join("_")}/${[ph.activecadastre, ddp_base_number].join("_")}`)
+      return;
+    }
+  }
+
+  ddp_section.innerHTML += `<span id="${ddp_span_id}" class="badge rounded-pill bg-primary m-1"><span style="font-size: 1.5em">
+                              ${ddp}</span>/${base}
+                              <button id="close" onclick="this.parentElement.remove()" class="rounded-circle" style="border: 0px; margin-left: 5px;">X</button>
+                            </span>`
+}
+
 // Get balance from infolica
 ph.getBalance = (id) => {
   document.getElementById("load-infolica-status").innerHTML = "";
@@ -857,3 +938,70 @@ ph.setCadastreListeBalance = () => {
 
   document.getElementById("cadastre-list-balance").value = ph.activecadastre;
 };
+
+ph.initialize_form = () => {
+  const text = "Êtes-vous sûr de vouloir quitter la saisie?\nTous les éléments saisis dans ce formulaire seront perdus";
+  if (confirm(text) == true) {
+    document.getElementById("step1").style.display = "none";
+    document.getElementById("cadastre_selector").style.display = "block";
+    ph.activecadastre = null;
+    document.getElementById("nav-listing-tab").classList.add("disabled");
+    document.getElementById("nav-control-tab").classList.add("disabled");
+    // Reset form
+    document.getElementById("delayed_check").checked = false;
+    document.getElementById("div_check").checked = false;
+    document.getElementById("cad_check").checked = false;
+    document.getElementById("serv_check").checked = false;
+    document.getElementById("art35_check").checked = false;
+    document.getElementById("other_check").checked = false;
+    document.getElementById("complement").value = "";
+    // Reset form div
+    document.getElementById("operation_id_title_section").hidden = true;
+    document.getElementById("operation_id_title").innerText = "";
+    document.getElementById("step2").style.display = "none";
+    document.getElementById("input-continuation-checkbox").checked = false;
+    document.getElementById("operation-continue-section").hidden = true;
+    document.getElementById("operation-id-continue").value = "";
+  }
+}
+
+
+ph.reset_step1 = () => {
+  document.getElementById("step1").style.display = "block";
+  // Reset form
+  document.getElementById("delayed_check").checked = false;
+  document.getElementById("div_check").checked = false;
+  document.getElementById("cad_check").checked = false;
+  document.getElementById("serv_check").checked = false;
+  document.getElementById("art35_check").checked = false;
+  document.getElementById("other_check").checked = false;
+  document.getElementById("complement").value = "";
+  // Reset form div
+  document.getElementById("operation_id_title_section").hidden = true;
+  document.getElementById("operation_id_title").innerText = "";
+  document.getElementById("step2").style.display = "none";
+  document.getElementById("input-continuation-checkbox").checked = false;
+  document.getElementById("operation-continue-section").hidden = true;
+  document.getElementById("operation-id-continue").value = "";
+  return;
+}
+
+
+ph.loadBalance = () => {
+  fetch(`api/balance/${ph.activeoperation_id}`)
+    .then((response) => response.json())
+    .then((data) => {
+      let tb_html = ph.buildHTMLTable(data.balance);
+      document.getElementById("tableau-balance").innerHTML = tb_html;
+
+      let bf;
+      for (const elem of data.ddp) {
+        bf = elem.split("-");
+        ph.createNewHTMLddp(bf[1], bf[0]);
+      }
+    })
+    .catch((err) => {
+      alert("Une erreur est survenue dans le chargement de la balance.\nVeuillez contacter l'administrateur.\n\n" + String(err))
+
+    })
+}

@@ -5,6 +5,7 @@ from django.template import loader
 from rest_framework import viewsets, filters
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser
+from rest_framework.response import Response
 from openpyxl import load_workbook
 from io import BytesIO
 
@@ -13,7 +14,7 @@ import pathlib
 import datetime
 
 from parcel_historisation.models import Plan, Operation, OtherOperation, State, DivisonReunion, Balance
-from parcel_historisation.serializers import PlanSerializer, BalanceSerializer
+from parcel_historisation.serializers import PlanSerializer, OperationSerializer, BalanceSerializer
 
 
 class PlanViewSet(viewsets.ReadOnlyModelViewSet):
@@ -136,28 +137,63 @@ def submit_saisie(request):
     now = datetime.datetime.now()
     op = Operation(date=now, user=request.META["HTTP_REMOTE_USER"], complement=data["complement"], plan=plan)
 
+    operation_id = data["operation_id"] if "operation_id" in data else None
+    if operation_id is not None:
+        op.id = operation_id
     op.save()
 
     if data["div_check"] is True:
         div = DivisonReunion(operation=op)
-        div.save()
+        if not DivisonReunion.objects.filter(operation=div.operation).exists():
+            div.save()
         has_div = True
+    else:
+        div = DivisonReunion.objects.filter(operation=op).all()
+        bal = Balance.objects.filter(division=div).all()
+
+        # remove balance if exists
+        for tmp in bal:
+            tmp.delete()
+
+        # remove division
+        for tmp in div:
+            tmp.delete()
 
     if data["cad_check"] is True:
         other = OtherOperation(operation=op, type=1)
-        other.save()
+        if not OtherOperation.objects.filter(operation=other.operation, type=other.type).exists():
+            other.save()
+    else:
+        op_type = OtherOperation.objects.filter(operation=op).all()
+        for tmp in op_type:
+            tmp.delete()
 
     if data["serv_check"] is True:
         other = OtherOperation(operation=op, type=2)
-        other.save()
+        if not OtherOperation.objects.filter(operation=other.operation, type=other.type).exists():
+            other.save()
+    else:
+        op_type = OtherOperation.objects.filter(operation=op).all()
+        for tmp in op_type:
+            tmp.delete()
 
     if data["art35_check"] is True:
         other = OtherOperation(operation=op, type=3)
-        other.save()
+        if not OtherOperation.objects.filter(operation=other.operation, type=other.type).exists():
+            other.save()
+    else:
+        op_type = OtherOperation.objects.filter(operation=op).all()
+        for tmp in op_type:
+            tmp.delete()
 
     if data["other_check"] is True:
         other = OtherOperation(operation=op, type=4)
-        other.save()
+        if not OtherOperation.objects.filter(operation=other.operation, type=other.type).exists():
+            other.save()
+    else:
+        op_type = OtherOperation.objects.filter(operation=op).all()
+        for tmp in op_type:
+            tmp.delete()
 
     if data["cad_check"] is True:
         state = State.objects.get(pk=4)
@@ -176,6 +212,49 @@ def submit_saisie(request):
     )
 
 
+def _build_balance(relations):
+    source_bf = []
+    destination_bf = []
+    relations_ = []
+
+    for rel in relations:
+        if rel["destination"]:
+            source_bf.append(rel["source"]) if not rel["source"] in source_bf else None
+            destination_bf.append(rel["destination"]) if not rel["destination"] in destination_bf else None
+            relations_.append([rel["source"], rel["destination"]])
+
+    # rename "0_1" into "DP" and rename "0_2" into "RP"
+    source_bf = ["DP" if x == "0_1" else x for x in source_bf]
+    destination_bf = ["DP" if x == "0_1" else x for x in destination_bf]
+    relations_ = [["DP" if y == "0_1" else y for y in x] for x in relations_]
+    source_bf = ["RP" if x == "0_2" else x for x in source_bf]
+    destination_bf = ["RP" if x == "0_2" else x for x in destination_bf]
+    relations_ = [["RP" if y == "0_2" else y for y in x] for x in relations_]
+
+    source_bf.sort()
+    destination_bf.sort()
+
+    balance = None
+
+    if len(source_bf) > 0 and len(destination_bf) > 0:
+        # initialize balance 2d list
+        balance = [[" " for j in range(len(destination_bf) + 1)] for i in range(len(source_bf) + 1)]
+
+        # 1rst line and row for headers
+        for i in range(len(source_bf)):
+            balance[i + 1][0] = source_bf[i]
+
+        for j in range(len(destination_bf)):
+            balance[0][j + 1] = destination_bf[j]
+
+        for rel in relations_:
+            src_idx = source_bf.index(rel[0]) + 1
+            dst_idx = destination_bf.index(rel[1]) + 1
+            balance[src_idx][dst_idx] = "X"
+
+    return balance
+
+
 class BalanceViewSet(viewsets.ViewSet):
     """
     API endpoint to handle balances.
@@ -184,15 +263,30 @@ class BalanceViewSet(viewsets.ViewSet):
     serializer_class = BalanceSerializer
     queryset = Balance.objects.all()
 
-    # def retrieve(self, request, division_pk=None):
-    #     queryset = Balance.objects.filter(division__pk=division_pk)
-    #     balance = get_object_or_404(queryset, pk=pk)
-    #     serializer = UserSerializer(user)
-    #     return Response(serializer.data)
+    def retrieve(self, request, pk):
+        instances = Balance.objects.filter(division=pk)
+        relations = {}
+        relations["balance"] = []
+        relations["ddp"] = []
+        for rel in instances:
+            if rel.is_ddp is True:
+                relations["ddp"].append("-".join([rel.source, rel.destination]))
+            else:
+                relations["balance"].append({"source": rel.source, "destination": rel.destination})
 
-    #     return queryset
+        # Sort results
+        relations["balance"] = _build_balance(relations["balance"])
+        relations["ddp"] = sorted(
+            relations["ddp"],
+            key=lambda item: (
+                int(item.split("-")[1].split("_")[0]),
+                int(item.split("-")[1].split("_")[1]),
+                int(item.split("_")[0]),
+                int(item.split("_")[1].split("-")[0]),
+            ),
+        )
 
-    # def
+        return Response(relations)
 
 
 @permission_required("parcel_historisation.view_designation", raise_exception=True)
@@ -202,6 +296,11 @@ def submit_balance(request):
     """
 
     data = json.loads(request.body)
+
+    # remove existing relations and (re-)create them
+    data2remove = Balance.objects.filter(division_id=data["division_id"]).all()
+    for _ in data2remove:
+        _.delete()
 
     # save balance
     if data["balance"] is not None:
@@ -214,11 +313,6 @@ def submit_balance(request):
                 if "dp" in parcel.lower():
                     rel[i] = "DP"
 
-            # check that parcel relation does not already exist
-            checkRel = Balance.objects.filter(source=rel[0], destination=rel[1], division_id=data["division_id"]).first()
-            if checkRel is not None:
-                continue
-
             balance.source = rel[0]
             balance.destination = rel[1]
             balance.division_id = data["division_id"]
@@ -230,11 +324,6 @@ def submit_balance(request):
         for relation in data["ddp"]:
             balance = Balance()
             rel = relation.split("-")
-
-            # check that parcel relation does not already exist
-            checkRel = Balance.objects.filter(source=rel[0], destination=rel[1], division_id=data["division_id"]).first()
-            if checkRel is not None:
-                continue
 
             balance.source = rel[0]
             balance.destination = rel[1]
@@ -297,8 +386,6 @@ def balance_file_upload(request):
             if ws.cell(row_id + 2, col_id + 3).value is not None:
                 relations.append([ws.cell(row_id + 2, 2).value, ws.cell(1, col_id + 3).value])
 
-    # print('relations:', relations)
-
     balance = None
     if len(old_bf) > 0 and len(new_bf) > 0:
         # initialize balance 2d list
@@ -323,3 +410,25 @@ def balance_file_upload(request):
             balance[src_idx][dst_idx] = "X"
 
     return JsonResponse({"balance": balance})
+
+
+@permission_required("parcel_historisation.view_designation", raise_exception=True)
+def load_operation(request):
+    """
+    Load operation
+    """
+    operation_id = request.GET.get("operation")
+
+    # check if operation_id already exists in database
+    op = Operation.objects.get(id=operation_id)
+
+    return JsonResponse({"operation": op}, safe=False)
+
+
+class OperationViewSet(viewsets.ModelViewSet):
+    """
+    API endpoint that exposes operation in order to continue the edition mode
+    """
+
+    queryset = Operation.objects.all()
+    serializer_class = OperationSerializer

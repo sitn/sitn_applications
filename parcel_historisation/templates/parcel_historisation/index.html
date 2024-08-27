@@ -54,6 +54,33 @@
           <div class="row mt-3 g-0">
             <p>Cadastre: <span class="cadastre_text"></span></p>
           </div>
+
+          <div class="row mt-3 g-0">
+            <div class="col-2 ">
+              <input class="form-check-input" type="checkbox" name="input-continuation" id="input-continuation-checkbox" onchange="document.getElementById('operation-continue-section').hidden=!this.checked">
+              <label class="form-check-label" id="input-continuation-label" for="input-continuation-checkbox">
+                Poursuivre une saisie
+              </label>
+            </div>
+
+            <div class="col-5" id="operation-continue-section" hidden>
+              <div class="row mt-0 g-0">
+                <div class="col">
+                  <div class="input-group">
+                    <div class="input-group-prepend">
+                      <span class="input-group-text" id="basic-addon1">Opération : </span>
+                    </div>
+                    <input id="operation-id-continue" type="number" min="1" step="1" class="form-control" aria-describedby="basic-addon1" placeholder=""></input>
+                  </div>
+                </div>
+                <div class="col d-flex align-items-end" style="padding-left: 20px;">
+                  <button id="load-operation" type="button" class="btn btn-primary">Charger</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
           <div class="row mt-3 g-0">
             <div class="col">
               <label for="desgn_list">Liste des désignations :</label>
@@ -117,13 +144,16 @@
           </div>
           <button id="submit-form" type="button" class="btn btn-primary mt-3">OK</button>
         </div>
+
+        <!-- division -->
         <div id="step2">
           <div class="row mt-3 g-0">
             <div class="col">
               <h3>Saisie de la balance</h3>
             </div>
-            <div class="col pull-right"><a id="close-saisie" class="link-dark">X</a></div>
+            <div class="col pull-right"><a id="close-saisie-2" class="link-dark">X</a></div>
           </div>
+          <h3 id="operation_id_title_section" class="mt-5 mb-5">Opération: <span style="font-weight: bold;" id="operation_id_title"></span></h3>
           <div class="row mt-3 g-0">
             <p>Cadastre: <span class="cadastre_text"></span></p>
           </div>
@@ -228,8 +258,7 @@
                         <div class="input-group">
                           <div class="input-group-prepend">
                             <label for="input-balance-from-file">À partir d'un fichier ?</label>
-                            <input
-                                   type="file"
+                            <input type="file"
                                    id="input-balance-from-file"
                                    accept=".xls,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
                           </div>
@@ -278,7 +307,7 @@
 
           <!-- Balance table -->
           <div id="ddp-section-container" class="mt-4" hidden>
-            <h3>DDP à créer</h3>
+            <h3>Droits distincts et permanents (DDP)</h3>
             <div id="ddp-section"></div>
           </div>
           <!-- Balance table -->
@@ -286,7 +315,7 @@
             <h3>Balance</h3>
             <div id="tableau-balance"></div>
           </div>
-          <button id="submit-balance" type="button" class="btn btn-primary mt-3">OK</button>
+          <button id="submit-relations" type="button" class="btn btn-primary mt-3">Enregistrer</button>
         </div>
       </div>
       <div class="tab-pane fade" id="nav-listing" role="tabpanel" aria-labelledby="nav-listing-tab">

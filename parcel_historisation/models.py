@@ -44,7 +44,7 @@ class Operation(models.Model):
 
 class OtherOperation(models.Model):
     type = models.IntegerField()
-    operation = models.ForeignKey(Operation, on_delete=models.SET_NULL, verbose_name='operation', null=True)
+    operation = models.ForeignKey(Operation, on_delete=models.SET_NULL, verbose_name='operation', related_name="operations", null=True)
     bfs_list = ArrayField(models.CharField(max_length=200, null=True), null=True)
 
     class Meta:
