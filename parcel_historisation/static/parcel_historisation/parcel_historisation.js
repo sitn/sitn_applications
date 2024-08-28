@@ -643,7 +643,9 @@ ph.resetSubmitForm = (div) => {
     document.getElementById("operation_id_title").innerText = ph.activeoperation_id;
     document.getElementById("operation_id_title_section").hidden = false;
 
-    ph.loadBalance();
+    if (document.getElementById("input-continuation-checkbox").checked === true) {
+      ph.loadBalance();
+    }
 
     // ph.showBalance();
   } else {
