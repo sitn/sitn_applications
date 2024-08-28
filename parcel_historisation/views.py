@@ -269,7 +269,7 @@ class BalanceViewSet(viewsets.ViewSet):
         relations["balance"] = []
         relations["ddp"] = []
         for rel in instances:
-            if rel.is_ddp is True:
+            if rel.destination_ddp is True:
                 relations["ddp"].append("-".join([rel.source, rel.destination]))
             else:
                 relations["balance"].append({"source": rel.source, "destination": rel.destination})
@@ -327,7 +327,7 @@ def submit_balance(request):
 
             balance.source = rel[0]
             balance.destination = rel[1]
-            balance.is_ddp = True
+            balance.destination_ddp = True
             balance.division_id = data["division_id"]
 
             balance.save()

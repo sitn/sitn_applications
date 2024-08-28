@@ -6,18 +6,13 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('parcel_historisation', '0004_alter_balance_current_destination_and_more'),
+        ("parcel_historisation", "0004_alter_balance_current_destination_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='balance',
-            name='is_ddp',
-            field=models.BooleanField(default=False),
-        ),
-        migrations.AddField(
-            model_name='operation',
-            name='infolica_no',
+            model_name="operation",
+            name="infolica_no",
             field=models.CharField(blank=True, max_length=20, null=True),
         ),
     ]
