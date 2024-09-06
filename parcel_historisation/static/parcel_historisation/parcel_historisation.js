@@ -471,7 +471,7 @@ ph.initApplication = function () {
 };
 
 // Gets the list of cadastre (application entry point)
-ph.load_cadastre = (html_element_id) => {
+ph.load_cadastre = async (html_element_id) => {
   const select = document.getElementById(html_element_id);
   let i, L = select.options.length - 1;
   for (i = L; i >= 0; i--) {
@@ -492,6 +492,7 @@ ph.load_cadastre = (html_element_id) => {
         document.getElementById("cadastre_selector").style.display = "block";
       }
     });
+    return;
 };
 
 function removeOptions(selectElement) {
@@ -634,7 +635,7 @@ document.getElementById("submit-form").onclick = () => {
 };
 
 // Data submission was sucessfull: resetting form and opening balance interface (if it is a division)
-ph.resetSubmitForm = (div) => {
+ph.resetSubmitForm = async (div) => {
   // Open div panel (if div)
   document.getElementById("step1").style.display = "none";
   if (div === true) {
@@ -649,20 +650,10 @@ ph.resetSubmitForm = (div) => {
 
     // ph.showBalance();
   } else {
-    ph.load_cadastre();
     document.getElementById("operation_id_title_section").hidden = true;
+    document.getElementById("choose_cadastre").click();
   }
-  // reset saisie form
-  document.getElementById("input-continuation-checkbox").checked = false;
-  document.getElementById("operation-id-continue").value = "";
-  document.getElementById("delayed_check").checked = false;
-  document.getElementById("div_check").checked = false;
-  document.getElementById("cad_check").checked = false;
-  document.getElementById("serv_check").checked = false;
-  document.getElementById("art35_check").checked = false;
-  document.getElementById("other_check").checked = false;
-  document.getElementById("complement").value = "";
-
+  ph.reset_step1();
 };
 
 // Global table showing all records for a given cadastre
@@ -947,6 +938,7 @@ ph.initialize_form = () => {
     document.getElementById("step1").style.display = "none";
     document.getElementById("cadastre_selector").style.display = "block";
     ph.activecadastre = null;
+    ph.activeoperation_id = null;
     document.getElementById("nav-listing-tab").classList.add("disabled");
     document.getElementById("nav-control-tab").classList.add("disabled");
     // Reset form
@@ -970,6 +962,7 @@ ph.initialize_form = () => {
 
 ph.reset_step1 = () => {
   document.getElementById("step1").style.display = "block";
+  ph.activeoperation_id = null;
   // Reset form
   document.getElementById("delayed_check").checked = false;
   document.getElementById("div_check").checked = false;

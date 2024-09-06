@@ -149,15 +149,16 @@ def submit_saisie(request):
         has_div = True
     else:
         div = DivisonReunion.objects.filter(operation=op).all()
-        bal = Balance.objects.filter(division=div).all()
+        if len(div) > 0:
+            bal = Balance.objects.filter(division=div).all()
 
-        # remove balance if exists
-        for tmp in bal:
-            tmp.delete()
+            # remove balance if exists
+            for tmp in bal:
+                tmp.delete()
 
-        # remove division
-        for tmp in div:
-            tmp.delete()
+            # remove division
+            for tmp in div:
+                tmp.delete()
 
     if data["cad_check"] is True:
         other = OtherOperation(operation=op, type=1)
