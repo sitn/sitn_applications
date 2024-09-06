@@ -245,8 +245,11 @@ document.getElementById("submit-relations").onclick = async () => {
   const relations = getBalanceRelations();
   const ddp = getDDPRelations();
 
-  // post relations
-  await postBalanceRelations(relations, ddp);
+  const check = ph.check_relations();
+  if (check === true) {
+    // post relations
+    await postBalanceRelations(relations, ddp);
+  }
 }
 
 
@@ -652,8 +655,8 @@ ph.resetSubmitForm = async (div) => {
   } else {
     document.getElementById("operation_id_title_section").hidden = true;
     document.getElementById("choose_cadastre").click();
+    ph.reset_step1();
   }
-  ph.reset_step1();
 };
 
 // Global table showing all records for a given cadastre
@@ -999,4 +1002,58 @@ ph.loadBalance = () => {
       alert("Une erreur est survenue dans le chargement de la balance.\nVeuillez contacter l'administrateur.\n\n" + String(err))
 
     })
+}
+
+ph.check_relations = () => {
+  const balance = document.getElementById("balance").firstChild;
+
+  let error;
+  let errors = [];
+  let sum_row;
+  let sum_col;
+  for (let row_id = 1; row_id < balance.rows.length; row_id++) {
+    for (let col_id = 1; col_id < balance.rows[row_id].cells.length; col_id++) {
+      sum_row = 0
+      sum_col = 0
+      // commencer les choses sérieuses: compter le nombre de "true" par ligne et par colonne
+      for (let tmp_row_id = 1; tmp_row_id < balance.rows.length; tmp_row_id++) {
+        // figer la colonne et parcourir les lignes
+        if (balance.rows[tmp_row_id].cells[col_id].firstChild.checked === true) {
+          sum_row++;
+        }
+      }
+      for (let tmp_col_id = 1; tmp_col_id < balance.rows[row_id].cells.length; tmp_col_id++) {
+        // figer la ligne et parcourir les colonnes
+        if (balance.rows[row_id].cells[tmp_col_id].firstChild.checked === true) {
+          sum_col++;
+        }
+      }
+      // errors
+      if (sum_row===0) {
+        // Un nouveau bien-fonds n'a pas de relation
+        error = `Le bien-fonds ${balance.rows[0].cells[col_id].innerText.split(' ')[0]} n'a aucune relation.`;
+        if (!errors.includes(error)) {
+          errors.push(error)
+        }
+      }
+      if (sum_col===0) {
+        // Un ancien bien-fonds n'a pas de relation
+        error = `Le bien-fonds ${balance.rows[row_id].cells[0].innerText.split(' ')[0]} n'a aucune relation.`;
+        if (!errors.includes(error)) {
+          errors.push(error)
+        }
+      }
+      if (sum_row===1 && sum_col===1 && balance.rows[row_id].cells[col_id].firstChild.checked === true) {
+        // Un ancien bien-fonds est uniquement balancé dans un nouveau bien-fonds (pas divisé, pas réuni)
+        error = `Le bien-fonds ${balance.rows[row_id].cells[0].innerText.split(' ')[0]} n'est pas divisé/réuni.`;
+        if (!errors.includes(error)) {
+          errors.push(error)
+        }
+      }
+    }
+  }
+
+  result = confirm(`Erreurs dans la balance:\n\n${errors.join('\n')}\n\nContinuer l'enregistrement de la balance ?`);
+
+  return result
 }
