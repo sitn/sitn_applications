@@ -10,7 +10,7 @@
   text-align: left;
 }
 
-#close-saisie {
+#close-saisie, #close-saisie-2 {
   cursor: pointer;
 }
 
@@ -27,4 +27,16 @@
   float: left;
   text-align: center;
   padding-top: 25%;
+}
+
+#balance tr:nth-child(even) {
+  background-color: rgb(220, 220, 220);
+}
+
+#balance td:nth-child(even) {
+  background-color: rgb(240, 240, 240);
+}
+
+#balance tr:nth-child(even) td:nth-child(even) {
+  background-color: rgb(220, 220, 220);
 }

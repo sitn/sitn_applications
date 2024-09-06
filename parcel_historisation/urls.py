@@ -4,6 +4,8 @@ from parcel_historisation import views
 
 router = routers.DefaultRouter()
 router.register(r'plans', views.PlanViewSet, basename='plans-list')
+router.register(r'operations', views.OperationViewSet, basename='operations')
+router.register(r'balance', views.BalanceViewSet, basename='balance')
 
 urlpatterns = [
     path('api/', include(router.urls)),
@@ -13,5 +15,8 @@ urlpatterns = [
     path('get_download_path', views.get_download_path, name='get_download_path'),
     path('download/<path:name>', views.file_download),
     path('submit_saisie', views.submit_saisie),
+    path('submit_balance', views.submit_balance),
+    path('balance_file_upload', views.balance_file_upload),
+    path('load_operation', views.load_operation),
 
 ]
