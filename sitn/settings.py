@@ -159,7 +159,14 @@ USE_TZ = True
 
 ALLOWED_HOSTS = os.environ["ALLOWED_HOSTS"].split(",")
 
-CORS_ALLOWED_ORIGINS = os.environ["CORS_ALLOWED_ORIGINS"].split(",")
+CORS_DEV_ORIGINS = [
+    "http://localhost:4200",
+    "http://localhost:4300",
+    "https://localhost:4200",
+    "https://localhost:4300",
+    "http://localhost:5173"
+]
+CORS_ALLOWED_ORIGINS = CORS_DEV_ORIGINS + os.environ["CORS_ALLOWED_ORIGINS"].split(",")
 
 CSRF_USE_SESSIONS = True
 CSRF_COOKIE_SECURE = True
