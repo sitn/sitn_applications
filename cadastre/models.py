@@ -57,6 +57,7 @@ class Mo9Immeubles(models.Model):
     idobj = models.CharField(max_length=40, primary_key=True)
     nummai = models.CharField(max_length=7)
     numcad = models.IntegerField(db_column="numcom")
+    cadastre = models.CharField(max_length=50)
     idmai = models.CharField(max_length=50, db_column="id")
     egrid = models.CharField(max_length=14)
     geom = models.MultiPolygonField(srid=settings.DEFAULT_SRID)
