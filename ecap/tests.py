@@ -1,10 +1,5 @@
-from django.utils import timezone
-
 from rest_framework import status
 from rest_framework.test import APITestCase
-
-from cadastre.models import Mo9Immeubles
-
 
 class EcapApiTest(APITestCase):
     def setUp(self) -> None:
@@ -29,6 +24,8 @@ class EcapApiTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
         self.assertGreater(len(data['features']), 1)
+        first_estate = data['features'][0]
+        self.assertIn('cadastre', first_estate['properties'], 'Cadastre is given in answer')
 
     def test_estate_limit(self):
         """
