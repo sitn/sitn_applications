@@ -1,0 +1,19 @@
+services:
+  ppe_numerique:
+    networks:
+      - default
+    restart: unless-stopped
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    environment:
+      - TZ=Europe/Zurich
+      - PGHOST=localhost
+      - PGDB=ppe_numerique
+      - PGSCHEMA=ppe
+      - PGUSER=ppe_admin
+      - PGPASSWORD=BigBr0ther
+      - PGPORT=5432
