@@ -1,0 +1,29 @@
+{% load static %}
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.ico' %}">
+    <link href="https://sitn.ne.ch/sitnstatic/sitn-bootstrap@v5.2.3/sitn-bootstrap.css" rel="stylesheet" crossorigin="anonymous">
+
+    <title>Application de gestion des PPE</title>
+
+    <link rel="stylesheet" href="{% static 'ppe/style.css' %}">
+</head>
+<body>
+    
+<h3>Liste des dossiers PPE en cours</h3>
+{% if latest_dossiers_list %}
+    <ul>
+    {% for dossierppe in latest_dossiers_list %}
+        <li><a href="{% url 'ppe:detail' dossierppe.id_dossier %}"> {{ dossierppe.egrid }}</a></li>
+    {% endfor %}
+    </ul>
+{% else %}
+    <p>No dossiers are available.</p>
+{% endif %}
+
+</body>
+</html>

@@ -31,6 +31,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "ppe.apps.PpeConfig",
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -75,14 +76,14 @@ WSGI_APPLICATION = 'ppe_numerique.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'ENGINE': 'django.db.backends.postgresql',
         'NAME': os.environ["PGDB"],
         'USER': os.environ["PGUSER"],
         'HOST': os.environ["PGHOST"],
         'PORT': os.environ["PGPORT"],
         'PASSWORD': os.environ["PGPASSWORD"],
         'OPTIONS': {
-            'options': '-c search_path=' + os.environ["PGSCHEMA"] + ',public'
+            'options': '-c search_path='+os.environ["PGSCHEMA"]+',public'
         },
     }
 }
@@ -128,3 +129,5 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+GDAL_LIBRARY_PATH = 'C:/Applications/OSGeo4W/bin/gdal309.dll'
