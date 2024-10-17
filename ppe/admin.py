@@ -1,7 +1,10 @@
 from django.contrib import admin
 
-from .models import DossierPPE, Contact, Role
+from .models import DossierPPE, Document, AdresseFacturation, ContactPrincipal, Notaire, Signataire
 
+admin.site.register(AdresseFacturation)
+admin.site.register(ContactPrincipal)
+admin.site.register(Document)
 admin.site.register(DossierPPE)
-admin.site.register(Contact)
-admin.site.register(Role)
+admin.site.register(Notaire)
+admin.site.register(Signataire)

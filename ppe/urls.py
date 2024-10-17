@@ -6,5 +6,6 @@ from . import views
 app_name = "ppe"
 urlpatterns = [
     path("", views.index, name="index"),
-    path("<id_dossier>/", views.detail, name="detail"),
+    path("<id>/", views.detail, name="detail"),
+    #path("<id_unique>/contacts/", views.contacts, name="contacts"),
 ]

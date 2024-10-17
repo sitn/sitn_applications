@@ -18,7 +18,7 @@
 {% if latest_dossiers_list %}
     <ul>
     {% for dossierppe in latest_dossiers_list %}
-        <li><a href="{% url 'ppe:detail' dossierppe.id_dossier %}"> {{ dossierppe.egrid }}</a></li>
+        <li><a href="{% url 'ppe:detail' dossierppe.id %}">Dossier PPE no. {{ dossierppe.id }}, du {{ dossierppe.date_creation }}</a></li>
     {% endfor %}
     </ul>
 {% else %}
