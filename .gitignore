@@ -1,0 +1,22 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+.env
+.env.local
+.env.prepub
+.env.prod
+.env.dev
+.venv
+
+# Templated files
+/development.ini
+/production.ini
+
+# Django stuff:
+*.log
+assets
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
