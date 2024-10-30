@@ -883,11 +883,14 @@ balance_removeBF = (bf, bf_status) => {
 }
 
 ph.showBalance = (id) => {
-  console.log(id)
   // close modal
+  ph.operationDetail.hide();
   // change panel
-  // open balance
-
+  const triggerEl = document.querySelector('#nav-saisie-tab');
+  bootstrap.Tab.getInstance(triggerEl).show();
+  ph.activeoperation_id = id;
+  // simulate click on OK button to open balance
+  document.getElementById("submit-form").click();
 }
 
 ph.showDetail = (id) => {
@@ -903,7 +906,7 @@ ph.showDetail = (id) => {
     const art = (operations.art35_check === true) ? "icon-check" : "icon-cross";
     const autre = (operations.other_check === true) ? "icon-check" : "icon-cross";
     const ret = (data.plan_retarde === true) ? "icon-check" : "icon-cross";
-    const compl = (data.complement === "") ? "-" : data.complement;
+    const compl = (data.complement === null) ? "-" : data.complement;
     let compl_div = "";
     if (operations.div_check === true) {
       compl_div = `<button class="btn btn-secondary" onClick="ph.showBalance(${data.id});">Lien vers la balance</button>`;
