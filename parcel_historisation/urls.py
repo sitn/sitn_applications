@@ -18,5 +18,6 @@ urlpatterns = [
     path('submit_balance', views.submit_balance),
     path('balance_file_upload', views.balance_file_upload),
     path('load_operation', views.load_operation),
+    path('liberate', views.liberate),
 
 ]

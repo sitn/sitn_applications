@@ -1,3 +1,4 @@
+
 document.getElementById("nav-saisie-tab").onclick = () => {
   if (ph.activecadastre !== null) {
     document.getElementById("step1").style.display = "block";
@@ -284,8 +285,6 @@ document.getElementById("create-ddp").onclick = () => {
   ph.createNewHTMLddp(ddp, base);
 }
 
-
-
 document.getElementById("load-operation").onclick = () => {
   const operation_id = document.getElementById("operation-id-continue").value;
   if (!operation_id) {
@@ -465,6 +464,8 @@ ph = {
   activecadastre: null,
   cadastres: {},
   activeoperation_id: null,
+  operationDetail: new bootstrap.Modal(document.getElementById('operationDetail')),
+
 };
 
 ph.initApplication = function () {
@@ -651,7 +652,7 @@ ph.resetSubmitForm = async (div) => {
       ph.loadBalance();
     }
 
-    // ph.showBalance();
+    // ph.showDetail();
   } else {
     document.getElementById("operation_id_title_section").hidden = true;
     document.getElementById("choose_cadastre").click();
@@ -670,7 +671,7 @@ ph.load_table = () => {
     format: 'json'
   });
 
-  const grid = new gridjs.Grid({
+  ph.list_grid = new gridjs.Grid({
     columns: [
       'N° plan',
       {
@@ -684,7 +685,7 @@ ph.load_table = () => {
         sort: false,
         formatter: (cell, row) => {
           // Should be set to "done" value (currently not the good value -> developping)
-          if (row.cells[2].data === 'A faire') {
+          if (row.cells[2].data !== 'A faire') {
             return new gridjs.h('button', {
               className: 'btn btn-secondary',
               onClick: () => ph.changeStatus(row.cells[4].data, 'free')
@@ -697,10 +698,11 @@ ph.load_table = () => {
         sort: false,
         formatter: (cell, row) => {
           // Should be set to "done" value (currently not the good value -> developping)
-          if (row.cells[2].data === 'A faire') {
+          if (row.cells[2].data !== 'A faire') {
+            console.log(row)
             return new gridjs.h('button', {
               className: 'btn btn-secondary',
-              onClick: () => ph.showBalance(row.cells[4].data)
+              onClick: () => ph.showDetail(row.cells[5].data)
             }, 'Détails');
           }
         },
@@ -715,7 +717,7 @@ ph.load_table = () => {
           plan.state,
           plan.date_plan,
           plan.id,
-          plan.id
+          plan.operation_id
         ]
       ),
       total: data => data.count,
@@ -766,7 +768,7 @@ ph.load_table = () => {
       }
     }
   });
-  grid.render(document.getElementById("plan-list-table"));
+  ph.list_grid.render(document.getElementById("plan-list-table"));
   document.getElementById("overlay").style.display = "none";
 };
 
@@ -880,15 +882,64 @@ balance_removeBF = (bf, bf_status) => {
   }
 }
 
-
 ph.showBalance = (id) => {
-  // TODO
-  console.log(`Balance "${id}" | still to do`);
+  console.log(id)
+  // close modal
+  // change panel
+  // open balance
+
+}
+
+ph.showDetail = (id) => {
+
+  fetch(`api/operations/${id}`)
+  .then(res => res.json())
+  .then((data) => {
+
+    const operations = data.operation_types;
+    const div = (operations.div_check === true) ? "icon-check" : "icon-cross";
+    const cad = (operations.cad_check === true) ? "icon-check" : "icon-cross";
+    const serv = (operations.serv_check === true) ? "icon-check" : "icon-cross";
+    const art = (operations.art35_check === true) ? "icon-check" : "icon-cross";
+    const autre = (operations.other_check === true) ? "icon-check" : "icon-cross";
+    const ret = (data.plan_retarde === true) ? "icon-check" : "icon-cross";
+    const compl = (data.complement === "") ? "-" : data.complement;
+    let compl_div = "";
+    if (operations.div_check === true) {
+      compl_div = `<button class="btn btn-secondary" onClick="ph.showBalance(${data.id});">Lien vers la balance</button>`;
+    }
+    // create details
+    const tmpl = `
+      <table class="op_detail_table">
+        <tr><td>Fichier plan</td><td>${data.plan_name}</td></tr>
+        <tr><td>Fichier désignation</td><td>${data.designation_name}</td></tr>
+        <tr><td>Division / réunion</td><td><svg><use href="#${div}"/></svg><span style="float:right;">${compl_div}</span></td></tr>
+        <tr><td>Cadastration, nature, etc.</td><td><svg><use href="#${cad}"/></svg></td></tr>
+        <tr><td>Servitude</td><td><svg><use href="#${serv}"/></svg></td></tr>
+        <tr><td>art. 35</td><td><svg><use href="#${art}"/></svg></td></tr>
+        <tr><td>Autre</td><td><svg><use href="#${autre}"/></svg></td></tr>
+        <tr><td>Retardé</td><td><svg><use href="#${ret}"/></svg></td></tr>
+        <tr><td>Complément</td><td>${compl}</td></tr>
+      </table>
+    `;
+
+    document.getElementById("operationDetailTitle").innerHTML = `Opération ${data.id}`;
+    document.getElementById("operationDetailBody").innerHTML = tmpl;
+    // open modal
+    ph.operationDetail.show();
+  })
+ .catch(err => alert("ERREUR !\nLa récupération de l'opération a échoué.\n\n", err));
 };
 
 ph.changeStatus = (id, type) => {
-  //TODO
-  console.log(`Change status to "${type}" for "${id}" | still to do`);
+  fetch('liberate?' + new URLSearchParams({
+    id: id,
+    type: type
+  }))
+  .then(res => res.json())
+  .then((data) => {
+    ph.list_grid.forceRender();})
+  .catch(err => alert("ERREUR !\nLe fichier n'a pas été enregistré.\n\n", err));
 };
 
 ph.postBalanceFile = () => {

@@ -40,3 +40,12 @@
 #balance tr:nth-child(even) td:nth-child(even) {
   background-color: rgb(220, 220, 220);
 }
+
+svg {
+  width: 18px;
+  height: 18px;
+}
+
+.op_detail_table td {
+  padding: 10px;
+}

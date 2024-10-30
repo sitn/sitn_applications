@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.decorators import permission_required
+from django.forms.models import model_to_dict
 from django.http import FileResponse, HttpResponse, JsonResponse
 from django.template import loader
 from rest_framework import viewsets, filters
@@ -423,7 +424,7 @@ def load_operation(request):
     # check if operation_id already exists in database
     op = Operation.objects.get(id=operation_id)
 
-    return JsonResponse({"operation": op}, safe=False)
+    return JsonResponse(model_to_dict(op), safe=False)
 
 
 class OperationViewSet(viewsets.ModelViewSet):
@@ -433,3 +434,18 @@ class OperationViewSet(viewsets.ModelViewSet):
 
     queryset = Operation.objects.all()
     serializer_class = OperationSerializer
+
+
+@permission_required("parcel_historisation.view_designation", raise_exception=True)
+def liberate(request):
+    """
+    Liberate an operation (give again access to it)
+    """
+    id_ = request.GET.get("id")
+
+    # check if operation_id already exists in database
+    plan = Plan.objects.get(id=id_)
+    plan.state = State(id=1)
+    plan.save()
+
+    return JsonResponse({"operation": 'saved'}, safe=False)
