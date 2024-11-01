@@ -149,17 +149,18 @@ def submit_saisie(request):
             div.save()
         has_div = True
     else:
-        div = DivisonReunion.objects.filter(operation=op).all()
-        if len(div) > 0:
-            bal = Balance.objects.filter(division=div).all()
+        divs = DivisonReunion.objects.filter(operation=op).all()
+        if len(divs) > 0:
+            for div in divs:
+                bal = Balance.objects.filter(division=div.id).all()  ## !! Cannot use QuerySet for "DivisonReunion": Use a QuerySet for "Operation"
 
-            # remove balance if exists
-            for tmp in bal:
-                tmp.delete()
+                # remove balance if exists
+                for tmp in bal:
+                    tmp.delete()
 
-            # remove division
-            for tmp in div:
-                tmp.delete()
+                # remove division
+                for tmp in div:
+                    tmp.delete()
 
     if data["cad_check"] is True:
         other = OtherOperation(operation=op, type=1)
@@ -448,4 +449,4 @@ def liberate(request):
     plan.state = State(id=1)
     plan.save()
 
-    return JsonResponse({"operation": 'saved'}, safe=False)
+    return JsonResponse({"operation": "saved"}, safe=False)
