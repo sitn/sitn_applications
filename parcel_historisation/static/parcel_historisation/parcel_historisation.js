@@ -296,59 +296,13 @@ document.getElementById("load-operation").onclick = () => {
     return;
   }
 
-  fetch(`api/operations/${operation_id}`)
-    .then((response) => response.json())
-    .then((data) => {
-
-      if (String(data.cadastre_id) !== ph.activecadastre) {
-        let operation_cadastre = ph.cadastres[data.cadastre_id];
-        alert(`Le cadastre de l'opération (${operation_cadastre}) est différent de celui sélectionné.\n\nL'opération n'est pas chargée. Réessayez avec une autre opération ou sélectionnez le bon cadastre.`);
-        return;
-      }
-
-      // update plan list
-      plan_list = document.getElementById("plan_list")
-      desgn_list = document.getElementById("desgn_list")
-
-      element = document.createElement("option");
-      element.selected = true;
-      element.innerText = data["plan_link"];
-      element.value = data["plan_id"];
-      plan_list.prepend(element);
-
-      // update designation list
-      element = document.createElement("option");
-      element.selected = true;
-      element.value = data["plan_id"];
-      if (data["designation_id"] !== null) {
-        element.innerText = data["plan_link"];
-      } else {
-        element.innerText = "-";
-      }
-      desgn_list.prepend(element);
-
-      // update form operation-type + comment
-      document.getElementById("div_check").checked = data.operation_types.div_check;
-      document.getElementById("cad_check").checked = data.operation_types.cad_check;
-      document.getElementById("serv_check").checked = data.operation_types.serv_check;
-      document.getElementById("art35_check").checked = data.operation_types.art35_check;
-      document.getElementById("other_check").checked = data.operation_types.other_check;
-      document.getElementById("delayed_check").checked = data.plan_retarde;
-      document.getElementById("complement").value = data.complement;
-
-
-      ph.activeoperation_id = document.getElementById("operation-id-continue").value;
-
-    }).catch((err) => {
-      alert('Une erreur s\'est produite. Veuillez contacter l\'administrateur\n\n \
-    Détail de l\'erreur:\n' + String(err));
-    });
+  ph.loadOperation(operation_id);
 }
 
 
 document.getElementById("operation-id-continue").addEventListener("keypress", e => {
   if (e.key === 'Enter') {
-      document.getElementById("load-operation").click();
+    document.getElementById("load-operation").click();
   }
 });
 
@@ -500,7 +454,7 @@ ph.load_cadastre = async (html_element_id) => {
         document.getElementById("cadastre_selector").style.display = "block";
       }
     });
-    return;
+  return;
 };
 
 function removeOptions(selectElement) {
@@ -886,37 +840,40 @@ balance_removeBF = (bf, bf_status) => {
   }
 }
 
-ph.showBalance = (id) => {
+ph.showBalance = async (id) => {
   // close modal
   ph.operationDetail.hide();
   // change panel
   const triggerEl = document.querySelector('#nav-saisie-tab');
   bootstrap.Tab.getInstance(triggerEl).show();
+  // load operation
+  await ph.loadOperation(id);
   ph.activeoperation_id = id;
   // simulate click on OK button to open balance
   document.getElementById("submit-form").click();
+  ph.loadBalance();
 }
 
 ph.showDetail = (id) => {
 
   fetch(`api/operations/${id}`)
-  .then(res => res.json())
-  .then((data) => {
+    .then(res => res.json())
+    .then((data) => {
 
-    const operations = data.operation_types;
-    const div = (operations.div_check === true) ? "icon-check" : "icon-cross";
-    const cad = (operations.cad_check === true) ? "icon-check" : "icon-cross";
-    const serv = (operations.serv_check === true) ? "icon-check" : "icon-cross";
-    const art = (operations.art35_check === true) ? "icon-check" : "icon-cross";
-    const autre = (operations.other_check === true) ? "icon-check" : "icon-cross";
-    const ret = (data.plan_retarde === true) ? "icon-check" : "icon-cross";
-    const compl = (data.complement === null) ? "-" : data.complement;
-    let compl_div = "";
-    if (operations.div_check === true) {
-      compl_div = `<button class="btn btn-secondary" onClick="ph.showBalance(${data.id});">Lien vers la balance</button>`;
-    }
-    // create details
-    const tmpl = `
+      const operations = data.operation_types;
+      const div = (operations.div_check === true) ? "icon-check" : "icon-cross";
+      const cad = (operations.cad_check === true) ? "icon-check" : "icon-cross";
+      const serv = (operations.serv_check === true) ? "icon-check" : "icon-cross";
+      const art = (operations.art35_check === true) ? "icon-check" : "icon-cross";
+      const autre = (operations.other_check === true) ? "icon-check" : "icon-cross";
+      const ret = (data.plan_retarde === true) ? "icon-check" : "icon-cross";
+      const compl = (data.complement === null) ? "-" : data.complement;
+      let compl_div = "";
+      if (operations.div_check === true) {
+        compl_div = `<button class="btn btn-secondary" onClick="ph.showBalance(${data.id});">Lien vers la balance</button>`;
+      }
+      // create details
+      const tmpl = `
       <table class="op_detail_table">
         <tr><td>Fichier plan</td><td>${data.plan_name}</td></tr>
         <tr><td>Fichier désignation</td><td>${data.designation_name}</td></tr>
@@ -930,12 +887,12 @@ ph.showDetail = (id) => {
       </table>
     `;
 
-    document.getElementById("operationDetailTitle").innerHTML = `Opération ${data.id}`;
-    document.getElementById("operationDetailBody").innerHTML = tmpl;
-    // open modal
-    ph.operationDetail.show();
-  })
- .catch(err => alert("ERREUR !\nLa récupération de l'opération a échoué.\n\n", err));
+      document.getElementById("operationDetailTitle").innerHTML = `Opération ${data.id}`;
+      document.getElementById("operationDetailBody").innerHTML = tmpl;
+      // open modal
+      ph.operationDetail.show();
+    })
+    .catch(err => alert("ERREUR !\nLa récupération de l'opération a échoué.\n\n", err));
 };
 
 ph.changeStatus = (id, type) => {
@@ -943,10 +900,11 @@ ph.changeStatus = (id, type) => {
     id: id,
     type: type
   }))
-  .then(res => res.json())
-  .then((data) => {
-    ph.list_grid.forceRender();})
-  .catch(err => alert("ERREUR !\nLe fichier n'a pas été enregistré.\n\n", err));
+    .then(res => res.json())
+    .then((data) => {
+      ph.list_grid.forceRender();
+    })
+    .catch(err => alert("ERREUR !\nLe fichier n'a pas été enregistré.\n\n", err));
 };
 
 ph.postBalanceFile = () => {
@@ -1087,21 +1045,21 @@ ph.check_relations = () => {
         }
       }
       // errors
-      if (sum_row===0) {
+      if (sum_row === 0) {
         // Un nouveau bien-fonds n'a pas de relation
         error = `Le bien-fonds ${balance.rows[0].cells[col_id].innerText.split(' ')[0]} n'a aucune relation.`;
         if (!errors.includes(error)) {
           errors.push(error)
         }
       }
-      if (sum_col===0) {
+      if (sum_col === 0) {
         // Un ancien bien-fonds n'a pas de relation
         error = `Le bien-fonds ${balance.rows[row_id].cells[0].innerText.split(' ')[0]} n'a aucune relation.`;
         if (!errors.includes(error)) {
           errors.push(error)
         }
       }
-      if (sum_row===1 && sum_col===1 && balance.rows[row_id].cells[col_id].firstChild.checked === true) {
+      if (sum_row === 1 && sum_col === 1 && balance.rows[row_id].cells[col_id].firstChild.checked === true) {
         // Un ancien bien-fonds est uniquement balancé dans un nouveau bien-fonds (pas divisé, pas réuni)
         error = `Le bien-fonds ${balance.rows[row_id].cells[0].innerText.split(' ')[0]} n'est pas divisé/réuni.`;
         if (!errors.includes(error)) {
@@ -1119,4 +1077,54 @@ ph.check_relations = () => {
 ph.run_control = () => {
   console.log('boum')
 
+ph.loadOperation = async (operation_id) => {
+  await fetch(`api/operations/${operation_id}`)
+    .then((response) => response.json())
+    .then((data) => {
+
+      if (String(data.cadastre_id) !== ph.activecadastre) {
+        let operation_cadastre = ph.cadastres[data.cadastre_id];
+        alert(`Le cadastre de l'opération (${operation_cadastre}) est différent de celui sélectionné.\n\nL'opération n'est pas chargée. Réessayez avec une autre opération ou sélectionnez le bon cadastre.`);
+        return;
+      }
+
+      // update plan list
+      plan_list = document.getElementById("plan_list")
+      desgn_list = document.getElementById("desgn_list")
+
+      element = document.createElement("option");
+      element.selected = true;
+      element.innerText = data["plan_link"];
+      element.value = data["plan_id"];
+      plan_list.prepend(element);
+
+      // update designation list
+      element = document.createElement("option");
+      element.selected = true;
+      element.value = data["plan_id"];
+      if (data["designation_id"] !== null) {
+        element.innerText = data["plan_link"];
+      } else {
+        element.innerText = "-";
+      }
+      desgn_list.prepend(element);
+
+      // update form operation-type + comment
+      document.getElementById("div_check").checked = data.operation_types.div_check;
+      document.getElementById("cad_check").checked = data.operation_types.cad_check;
+      document.getElementById("serv_check").checked = data.operation_types.serv_check;
+      document.getElementById("art35_check").checked = data.operation_types.art35_check;
+      document.getElementById("other_check").checked = data.operation_types.other_check;
+      document.getElementById("delayed_check").checked = data.plan_retarde;
+      document.getElementById("complement").value = data.complement;
+
+
+      ph.activeoperation_id = document.getElementById("operation-id-continue").value;
+
+    }).catch((err) => {
+      alert('Une erreur s\'est produite. Veuillez contacter l\'administrateur\n\n \
+    Détail de l\'erreur:\n' + String(err));
+    });
+
+    return;
 }
