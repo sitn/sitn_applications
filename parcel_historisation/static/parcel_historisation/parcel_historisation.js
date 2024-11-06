@@ -28,6 +28,10 @@ document.getElementById("close-saisie-2").onclick = () => {
   ph.initialize_form();
 }
 
+document.getElementById("run-control").onclick = () => {
+  ph.run_control();
+}
+
 document.getElementById("load-desgn").onclick = () => {
   const id = document.getElementById("desgn_list").value;
   ph.get_download_path(id, 'designation');
@@ -1110,4 +1114,9 @@ ph.check_relations = () => {
   result = confirm(`Erreurs dans la balance:\n\n${errors.join('\n')}\n\nContinuer l'enregistrement de la balance ?`);
 
   return result
+}
+
+ph.run_control = () => {
+  console.log('boum')
+
 }

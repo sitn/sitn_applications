@@ -449,3 +449,9 @@ def liberate(request):
     plan.save()
 
     return JsonResponse({"operation": 'saved'}, safe=False)
+
+
+@permission_required("parcel_historisation.view_designation", raise_exception=True)
+def run_control(request):
+    
+    return JsonResponse({"operation": 'saved'}, safe=False)
