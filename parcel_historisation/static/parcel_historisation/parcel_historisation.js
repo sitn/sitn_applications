@@ -1076,6 +1076,7 @@ ph.check_relations = () => {
 
 ph.run_control = () => {
   console.log('boum')
+}
 
 ph.loadOperation = async (operation_id) => {
   await fetch(`api/operations/${operation_id}`)
