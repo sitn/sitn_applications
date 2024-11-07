@@ -10,9 +10,6 @@ class Command(BaseCommand):
     Prepares local db for unmanaged models
     """
 
-    # Schemas that need to be restored before
-    dependent_schemas = ['edition', 'main_prepub', 'mensuration']
-
     def __init__(self):
         super().__init__()
         self.pg_binaries_path = get_pg_dump_path()

@@ -8,6 +8,7 @@ class Migration(migrations.Migration):
     dependencies = []
 
     operations = [
+        migrations.RunSQL('DROP TEXT SEARCH CONFIGURATION IF EXISTS public.fr cascade;'),
         migrations.RunSQL('CREATE TEXT SEARCH CONFIGURATION public.fr (PARSER=default)'),
         migrations.RunSQL('ALTER TEXT SEARCH CONFIGURATION public.fr ADD MAPPING FOR asciihword WITH simple'),
         migrations.RunSQL('ALTER TEXT SEARCH CONFIGURATION public.fr ADD MAPPING FOR asciiword WITH simple'),
