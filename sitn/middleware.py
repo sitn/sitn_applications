@@ -31,6 +31,7 @@ class RemoteSitnMiddleware(RemoteUserMiddleware):
 
         try:
             username = request.META[self.header].split('\\')[1]
+            username = username.lower()
         except (KeyError, IndexError) as e:
             # When the page which requires kerberos login was redirected from
             # kerberos login entrance, 'REMOTE_USER' header is lost in request

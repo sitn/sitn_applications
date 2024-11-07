@@ -31,7 +31,7 @@ class CATSAllYears(models.Model):
 
     class Meta:
         db_table = 'cockpit_sgrf\".\"cats_toutes_annees'
-
+        managed = False
     
     def year():
         return 

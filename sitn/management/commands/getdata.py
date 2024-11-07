@@ -12,7 +12,7 @@ class Command(BaseCommand):
     """
 
     # Schemas that need to be restored before
-    dependent_schemas = ['edition', 'main_prepub', 'mensuration']
+    dependent_schemas = ['edition', 'main_prepub', 'general', 'mensuration']
 
     def __init__(self):
         super().__init__()
@@ -39,7 +39,7 @@ class Command(BaseCommand):
                 "--no-privileges",
                 "--no-owner",
                 "-n", schema,
-                "--format=C",
+                "--format=c",
                 f"--file=db/{schema}.backup"
             ]
             print(cmd)
@@ -55,7 +55,7 @@ class Command(BaseCommand):
                 "-t", f"{schema}.({table_list})",
                 "--no-privileges",
                 "--no-owner",
-                "--format=C",
+                "--format=c",
                 f"--file=db/{schema}.backup"
             ]
             print(cmd)
@@ -83,7 +83,7 @@ class Command(BaseCommand):
                 "--no-owner",
                 "--clean",
                 "--if-exists",
-                "--format=C",
+                "--format=c",
                 f"db/{schema}.backup"
             ]
             print(pg_restore_cmd)
@@ -101,7 +101,7 @@ class Command(BaseCommand):
                 os.environ['PGDATABASE'],
                 "--no-owner",
                 exists,
-                "--format=C",
+                "--format=c",
                 f"db/{schema}.backup"
             ]
             print(pg_restore_cmd)
