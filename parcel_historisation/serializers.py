@@ -2,7 +2,9 @@ from rest_framework import serializers
 from parcel_historisation.models import Plan, Designation, State, Operation, Balance, DivisonReunion
 
 
-class PlanSerializer(serializers.HyperlinkedModelSerializer):
+class PlanSerializer(serializers.ModelSerializer):
+
+    operation_id = serializers.SerializerMethodField()
 
     designation = serializers.SlugRelatedField(
         queryset=Designation.objects.all(),
@@ -14,7 +16,11 @@ class PlanSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = Plan
-        fields = ["id", "plan_number", "designation", "state", "date_plan"]
+        fields = ["id", "plan_number", "designation", "state", "date_plan", "operation_id"]
+
+    def get_operation_id(self, obj):
+        op = Operation.objects.filter(plan=obj.id).first()
+        return op.id if op is not None else None
 
 
 class OperationSerializer(serializers.ModelSerializer):

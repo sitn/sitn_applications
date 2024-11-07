@@ -1,5 +1,6 @@
 from django.conf import settings
 from django.contrib.auth.decorators import permission_required
+from django.forms.models import model_to_dict
 from django.http import FileResponse, HttpResponse, JsonResponse
 from django.template import loader
 from rest_framework import viewsets, filters
@@ -148,17 +149,18 @@ def submit_saisie(request):
             div.save()
         has_div = True
     else:
-        div = DivisonReunion.objects.filter(operation=op).all()
-        if len(div) > 0:
-            bal = Balance.objects.filter(division=div).all()
+        divs = DivisonReunion.objects.filter(operation=op).all()
+        if len(divs) > 0:
+            for div in divs:
+                bal = Balance.objects.filter(division=div.id).all()  ## !! Cannot use QuerySet for "DivisonReunion": Use a QuerySet for "Operation"
 
-            # remove balance if exists
-            for tmp in bal:
-                tmp.delete()
+                # remove balance if exists
+                for tmp in bal:
+                    tmp.delete()
 
-            # remove division
-            for tmp in div:
-                tmp.delete()
+                # remove division
+                for tmp in div:
+                    tmp.delete()
 
     if data["cad_check"] is True:
         other = OtherOperation(operation=op, type=1)
@@ -423,7 +425,7 @@ def load_operation(request):
     # check if operation_id already exists in database
     op = Operation.objects.get(id=operation_id)
 
-    return JsonResponse({"operation": op}, safe=False)
+    return JsonResponse(model_to_dict(op), safe=False)
 
 
 class OperationViewSet(viewsets.ModelViewSet):
@@ -433,3 +435,24 @@ class OperationViewSet(viewsets.ModelViewSet):
 
     queryset = Operation.objects.all()
     serializer_class = OperationSerializer
+
+
+@permission_required("parcel_historisation.view_designation", raise_exception=True)
+def liberate(request):
+    """
+    Liberate an operation (give again access to it)
+    """
+    id_ = request.GET.get("id")
+
+    # check if operation_id already exists in database
+    plan = Plan.objects.get(id=id_)
+    plan.state = State(id=1)
+    plan.save()
+
+    return JsonResponse({"operation": 'saved'}, safe=False)
+
+
+@permission_required("parcel_historisation.view_designation", raise_exception=True)
+def run_control(request):
+    
+    return JsonResponse({"operation": 'saved'}, safe=False)
