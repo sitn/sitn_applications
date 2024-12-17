@@ -1,5 +1,3 @@
-version: '3'
-
 services:
   apps:
     image: ${DOCKER_BASE}
