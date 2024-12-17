@@ -1,0 +1,18 @@
+{% extends 'ppe/base.html' %}
+
+{% block titre %}
+Dépôt d'un dossier:
+{% endblock titre %}
+
+{% block contenu %}
+    <h3>Dépot d'un dossier</h3>
+    {% if error_message %}<p><strong>{{ error_message }}</strong></p>
+    {% elif form %}
+    <form>
+        {{ form }}
+    </form>
+    {% else %}
+    <p>Une erreur inconnue est survenue</p>
+    {% endif %}
+
+{% endblock contenu %}

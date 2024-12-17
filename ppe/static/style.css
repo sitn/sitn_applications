@@ -1,7 +1,33 @@
+@import "../node_modules/ol/ol.css";
+
 body {
+    margin: 0;
+    height: 100vh;
     font-family: Arial, Helvetica, sans-serif;
     background: rgb(255, 254, 177);
 }
+div {
+    padding: 5px;
+}
+div.entete {
+    background: rgb(0, 0, 0);
+    border-bottom: 1 px solid grey;
+}
 li a {
     color: green;
+}
+
+.map {
+    width: 100%;
+    height: 100%;
+}
+
+#background-selector {
+    position: absolute;
+    z-index: 2;
+    top: .5rem;
+    left: 3.1em;
+    height: 2.95rem;
+    font-size: 1rem;
+    padding: 0.7rem;
 }
