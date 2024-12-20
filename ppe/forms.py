@@ -1,8 +1,10 @@
 from django.contrib.gis.db import models
+from django_extended_ol.forms.widgets import WMTSWidget
 from django.forms import ModelForm
+
 from .models import DossierPPE
 
-class DossierPPEForm(ModelForm):
+class DossierPPEForm(ModelForm, WMTSWidget):
     class Meta: 
         model = DossierPPE
         fields = [

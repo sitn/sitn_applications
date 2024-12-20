@@ -137,7 +137,8 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-# GDAL_LIBRARY_PATH = 'C:\Applications/OSGeo4W/bin/gdal309.dll'
+GDAL_LIBRARY_PATH = 'C:\Applications/OSGeo4W/bin/gdal309.dll'
+GEOS_LIBRARY_PATH = 'C:\Applications/OSGeo4W/bin/geos_c.dll'
 
 OLWIDGET = {
     "globals": {
