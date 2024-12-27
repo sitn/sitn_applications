@@ -4,8 +4,12 @@
 Dépôt d'un dossier:
 {% endblock titre %}
 
+{% block head %}
+  {{ form.media }}
+{% endblock head %}
+
 {% block contenu %}
-    <h3>Dépot d'un dossier</h3>
+    <h3>Dépôt d'un dossier</h3>
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>
     {% elif form %}
     <form class="form-horizontal">
