@@ -49,3 +49,20 @@ svg {
 .op_detail_table td {
   padding: 10px;
 }
+
+#source_table table, #destination_table table {
+  width: 100%;
+  border-collapse: collapse;
+}
+#source_table th, td, #destination_table th, td {
+  border: 1px solid #ddd;
+  padding: 8px;
+  text-align: left;
+}
+#source_table tr, #destination_table tr {
+  cursor: pointer;
+}
+#source_table tr.selected, #destination_table tr.selected {
+  background-color: #007BFF;
+  color: white;
+}

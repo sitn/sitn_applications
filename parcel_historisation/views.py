@@ -15,6 +15,7 @@ import pathlib
 import datetime
 
 from parcel_historisation.models import Plan, Operation, OtherOperation, State, DivisonReunion, Balance
+from parcel_historisation.models import VBalanceSourceNoDest, VBalanceDestNoSource
 from parcel_historisation.serializers import PlanSerializer, OperationSerializer, BalanceSerializer
 
 
@@ -453,6 +454,93 @@ def liberate(request):
 
 
 @permission_required("parcel_historisation.view_designation", raise_exception=True)
-def run_control(request):
-    
-    return JsonResponse({"operation": 'saved'}, safe=False)
+def run_control(request, cad_no):
+    """
+    Returns everything which is a source but has no destination (1)
+    AND everything which is a destination but has no source (2)
+
+    (1):
+    SELECT src.source
+    FROM parcel_historisation.balance src
+    LEFT JOIN parcel_historisation.balance dst
+    ON src.source = dst.destination
+    WHERE dst.destination is null
+    AND src.source like '14_%'
+    GROUP BY src.source
+
+    (2):
+    SELECT dst.destination
+    FROM parcel_historisation.balance src
+    -- RIGHT JOIN (SELECT * FROM parcel_historisation.balance WHERE destination like '14_%') dst
+    RIGHT JOIN parcel_historisation.balance dst
+    ON src.source = dst.destination
+    WHERE src.source is null
+    AND dst.destination like '14_%'
+    GROUP BY dst.destination
+    """
+
+    src = VBalanceSourceNoDest.objects.filter(source__contains=cad_no+"_").all()
+    vbalancesourcenodest = []
+    for row in src:
+        vbalancesourcenodest.append(row.pk)
+
+    dst = VBalanceDestNoSource.objects.filter(destination__contains=cad_no+"_").all()
+    vbalancedestnosource = []
+    for row in dst:
+        vbalancedestnosource.append(row.pk)
+
+    return JsonResponse({
+        "operation": cad_no,
+        "sources": vbalancesourcenodest,
+        "destination": vbalancedestnosource}, safe=False)
+
+
+@permission_required("parcel_historisation.view_designation", raise_exception=True)
+def submit_control(request):
+    """
+    Process control types submitted by user in the control panel
+    """
+
+    data = json.loads(request.body)
+
+    is_ok = False
+
+    if data["type"] in ('rp_out', 'origin'):
+        for item in data["source_bfs"]:
+            balance = Balance()
+            balance.destination_ddp = False
+            balance.destination = item
+            balance.source = 'origin'
+            if data["type"] == 'rp_out':
+                balance.source_rp = True
+            else:
+                balance.source_origin = True
+            balance.save()
+
+        is_ok = True
+
+    if data["type"] in ('rp_in', 'final'):
+        for item in data["destination_bfs"]:
+            balance = Balance()
+            balance.destination_ddp = False
+            balance.source = item
+            balance.destination = 'destination'
+            if data["type"] == 'rp_in':
+                balance.destination_rp = True
+            else:
+                balance.current_destination = True
+            balance.save()
+
+        is_ok = True
+
+    saved = False
+    if is_ok is True:
+        balance.save()
+        saved = True
+
+    return JsonResponse(
+        {
+            "submitted": True,
+            "saved": saved,
+        }
+    )
