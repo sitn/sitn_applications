@@ -31,7 +31,20 @@ class Command(BaseCommand):
                 f'DROP DATABASE IF EXISTS {db_name}'
             ]
         print(" ".join(cmd))
-        subprocess.check_call(cmd)
+        try:
+            subprocess.check_call(cmd)
+        except subprocess.CalledProcessError:
+            # probably db is in use in pgAdmin so let's force quit sessions
+            terminate_cmd = [
+                f'{self.pg_binaries_path}psql.exe',
+                "-d", 'postgres',
+                '-c',
+                f"SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname='{db_name}' and state='idle';"
+            ]
+            print("Closing existing connections")
+            subprocess.check_call(terminate_cmd)
+            print("Trying to drop exisiting DB")
+            subprocess.check_call(cmd)
 
         cmd = [
                 f'{self.pg_binaries_path}psql.exe',
