@@ -19,6 +19,6 @@ urlpatterns = [
     path('balance_file_upload', views.balance_file_upload),
     path('load_operation', views.load_operation),
     path('liberate', views.liberate),
-    path('run_control', views.run_control),
-
+    path('run_control/<path:cad_no>', views.run_control),
+    path('submit_control', views.submit_control)
 ]

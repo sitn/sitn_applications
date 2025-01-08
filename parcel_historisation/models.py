@@ -68,3 +68,16 @@ class Balance(models.Model):
 
     class Meta:
         db_table = 'parcel_historisation\".\"balance'
+
+class VBalanceSourceNoDest(models.Model):
+    source = models.CharField(max_length=200, primary_key=True)
+    class Meta:
+        db_table = 'parcel_historisation\".\"v_source_no_destination'
+        managed = False
+
+
+class VBalanceDestNoSource(models.Model):
+    destination = models.CharField(max_length=200, primary_key=True)
+    class Meta:
+        db_table = 'parcel_historisation\".\"v_destination_no_source'
+        managed = False

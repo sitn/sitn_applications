@@ -657,7 +657,6 @@ ph.load_table = () => {
         formatter: (cell, row) => {
           // Should be set to "done" value (currently not the good value -> developping)
           if (row.cells[2].data !== 'A faire') {
-            console.log(row)
             return new gridjs.h('button', {
               className: 'btn btn-secondary',
               onClick: () => ph.showDetail(row.cells[5].data)
@@ -726,7 +725,9 @@ ph.load_table = () => {
       }
     }
   });
+
   ph.list_grid.render(document.getElementById("plan-list-table"));
+
   document.getElementById("overlay").style.display = "none";
 };
 
@@ -975,6 +976,20 @@ ph.initialize_form = () => {
     document.getElementById("input-continuation-checkbox").checked = false;
     document.getElementById("operation-continue-section").hidden = true;
     document.getElementById("operation-id-continue").value = "";
+    // Reset cadastre text fields
+    const cadastre_text_tags = document.querySelectorAll(".cadastre_text");
+    for (let i = 0; i < cadastre_text_tags.length; i++) {
+      cadastre_text_tags[i].innerText = ph.cadastres[ph.activecadastre];
+    }
+    // get rid of gridjs
+    if (ph.list_grid !== undefined) {
+      ph.list_grid.destroy();
+    }
+    document.getElementById("plan-list-table").innerHTML = "";
+
+    // Empty control tables
+    document.getElementById("run-control").style.display = "block";
+    document.getElementById("source-div").classList.add("d-none");
   }
 }
 
@@ -1071,11 +1086,104 @@ ph.check_relations = () => {
 
   result = confirm(`Erreurs dans la balance:\n\n${errors.join('\n')}\n\nContinuer l'enregistrement de la balance ?`);
 
-  return result
+  return result;
 }
 
 ph.run_control = () => {
-  console.log('boum')
+  document.getElementById("run-control").style.display = "none";
+  document.getElementById("overlay").style.display = "block";
+
+  fetch(`run_control/${ph.activecadastre}`)
+    .then((response) => response.json())
+    .then((data) => {
+      ph.create_control_tables(data);
+    })
+    .catch((err) => {
+      alert("Une erreur est survenue dans le chargement de la balance.\nVeuillez contacter l'administrateur.\n\n" + String(err));
+    });
+}
+
+ph.create_control_tables = (data) => {
+  const source = data.sources;
+  const destination = data.destination;
+  const source_table = document.getElementById('source_table');
+  const destination_table = document.getElementById('destination_table');
+  // reinitialize in case table was already populated
+  const old_source_table_body = source_table.getElementsByTagName('tbody')[0];
+  const source_table_body = document.createElement('tbody');
+  old_source_table_body.parentNode.replaceChild(source_table_body, old_source_table_body);
+  const old_destination_table_body = destination_table.getElementsByTagName('tbody')[0];
+  const destination_table_body = document.createElement('tbody');
+  old_destination_table_body.parentNode.replaceChild(destination_table_body, old_destination_table_body);
+
+  let lastSourceSelectedRow = null;
+  let lastDestinationSelectedRow = null;
+  let new_row;
+  let new_cell;
+  source.forEach(element => {
+    new_row = source_table_body.insertRow();
+    new_cell = new_row.insertCell();
+    new_cell.appendChild(document.createTextNode(element));
+  });
+  destination.forEach(element => {
+    new_row = destination_table_body.insertRow();
+    new_cell = new_row.insertCell();
+    new_cell.appendChild(document.createTextNode(element));
+  });
+  source_table.addEventListener('click', (event) => {
+    const row = event.target.closest('tr');
+    if (!row || row.parentNode.tagName === 'THEAD') return; // Ignore header clicks
+
+    if (event.ctrlKey || event.metaKey) { // Multi-selection with Ctrl
+        row.classList.toggle('selected');
+    } else if (event.shiftKey) { // Range selection with Shift
+        if (lastSourceSelectedRow) {
+            const rows = Array.from(source_table.querySelectorAll('tbody tr'));
+            const start = Math.min(rows.indexOf(lastSourceSelectedRow), rows.indexOf(row));
+            const end = Math.max(rows.indexOf(lastSourceSelectedRow), rows.indexOf(row));
+
+            rows.forEach((r, index) => {
+                if (index >= start && index <= end) {
+                    r.classList.add('selected');
+                }
+            });
+        }
+    } else { // Single selection
+        Array.from(source_table.querySelectorAll('tbody tr.selected')).forEach((r) => {
+            r.classList.remove('selected');
+        });
+        row.classList.add('selected');
+    }
+    lastSourceSelectedRow = row;
+  });
+  destination_table.addEventListener('click', (event) => {
+    const row = event.target.closest('tr');
+    if (!row || row.parentNode.tagName === 'THEAD') return; // Ignore header clicks
+
+    if (event.ctrlKey || event.metaKey) { // Multi-selection with Ctrl
+        row.classList.toggle('selected');
+    } else if (event.shiftKey) { // Range selection with Shift
+        if (lastDestinationSelectedRow) {
+            const rows = Array.from(destination_table.querySelectorAll('tbody tr'));
+            const start = Math.min(rows.indexOf(lastDestinationSelectedRow), rows.indexOf(row));
+            const end = Math.max(rows.indexOf(lastDestinationSelectedRow), rows.indexOf(row));
+
+            rows.forEach((r, index) => {
+                if (index >= start && index <= end) {
+                    r.classList.add('selected');
+                }
+            });
+        }
+    } else { // Single selection
+        Array.from(destination_table.querySelectorAll('tbody tr.selected')).forEach((r) => {
+            r.classList.remove('selected');
+        });
+        row.classList.add('selected');
+    }
+    lastDestinationSelectedRow = row;
+  });
+  document.getElementById("source-div").classList.remove("d-none");
+  document.getElementById("overlay").style.display = "none";
 }
 
 ph.loadOperation = async (operation_id) => {
@@ -1128,4 +1236,61 @@ ph.loadOperation = async (operation_id) => {
     });
 
     return;
+}
+
+ph.parcelState = (type) => {
+  // Retriev selected lines in table(s)
+  const source_table = document.getElementById('source_table');
+  const dest_table = document.getElementById('destination_table');
+  const selected_source_rows = source_table.getElementsByClassName("selected");
+  const selected_dest_rows = dest_table.getElementsByClassName("selected");
+  const types = {
+    'origin': 'BF(s) originel(s)',
+    'rp_in': 'Entré(s) RP',
+    'rp_out': 'Sorti(s) RP',
+    'final': 'Final-aux',
+  };
+  let source_bf_list = [];
+  let dest_bf_list = [];
+  for (let row of selected_source_rows) {
+    source_bf_list.push(row.firstChild.innerText);
+  }
+  for (let row of selected_dest_rows) {
+    dest_bf_list.push(row.firstChild.innerText);
+  }
+  if ((type === 'origin' || type === 'rp_out') && dest_bf_list > 0) {
+    alert("Attention, cette action ne peut pas être utilisée avec des BFs qui n'ont pas d'enfants (liste pas prise en compte).")
+  }
+  if ((type === 'final' || type === 'rp_in') && source_bf_list > 0) {
+    alert("Attention, cette action ne peut pas être utilisée avec des BFs qui n'ont pas de parents (liste pas prise en compte).")
+  }
+
+  if (window.confirm("Les BFs sélectionnés vont être traités (\""+types[type]+"\"). Êtes-vous sûr(e) ?")) {
+
+    // Show overlay
+    document.getElementById("overlay").style.display = "block";
+
+    const params = {
+      'type': type,
+      'cadastre': ph.activecadastre,
+      'source_bfs': source_bf_list,
+      'dest_bfs': dest_bf_list
+    };
+
+    fetch('submit_control', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/json, text/plain,  */*',
+        'Content-Type': 'application/json'
+      },
+      headers: { 'X-CSRFToken': ph.csrftoken },
+      mode: 'same-origin',
+      body: JSON.stringify(params),
+    })
+    .then(res => res.json())
+    .then(res => {
+      // unselect rows, reload tables
+      ph.run_control();
+    });
+  }
 }
