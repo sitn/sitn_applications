@@ -520,7 +520,7 @@ def submit_control(request):
         is_ok = True
 
     if data["type"] in ('rp_in', 'final'):
-        for item in data["destination_bfs"]:
+        for item in data["dest_bfs"]:
             balance = Balance()
             balance.destination_ddp = False
             balance.source = item
