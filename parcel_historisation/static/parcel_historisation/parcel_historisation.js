@@ -609,8 +609,6 @@ ph.resetSubmitForm = async (div) => {
     if (document.getElementById("input-continuation-checkbox").checked === true) {
       ph.loadBalance();
     }
-
-    // ph.showDetail();
   } else {
     document.getElementById("operation_id_title_section").hidden = true;
     document.getElementById("choose_cadastre").click();
@@ -642,7 +640,6 @@ ph.load_table = () => {
         name: 'Actions',
         sort: false,
         formatter: (cell, row) => {
-          // Should be set to "done" value (currently not the good value -> developping)
           if (row.cells[2].data !== 'A faire') {
             return new gridjs.h('button', {
               className: 'btn btn-secondary',
@@ -655,7 +652,6 @@ ph.load_table = () => {
         name: 'Détails',
         sort: false,
         formatter: (cell, row) => {
-          // Should be set to "done" value (currently not the good value -> developping)
           if (row.cells[2].data !== 'A faire') {
             return new gridjs.h('button', {
               className: 'btn btn-secondary',
