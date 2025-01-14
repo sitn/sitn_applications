@@ -1,8 +1,6 @@
-version: '3'
-
 services:
-  sitn_applications:
-    image: sitn_applications
+  apps:
+    image: ${DOCKER_BASE}
     build:
       context: .
       args:
