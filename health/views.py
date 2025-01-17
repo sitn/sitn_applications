@@ -63,7 +63,7 @@ class St20AvailableDoctorsViewSet(
 
         # If email not found, send email to explain
         obj.guid_requested_when = timezone.now()
-        if obj.login_email != serializer.data.get('login_email'):
+        if obj.login_email.lower() != serializer.data.get('login_email').lower():
             obj.save()
             send_email(
                 "Modification de vos informations cartographie SITN",
