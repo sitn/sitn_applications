@@ -63,6 +63,9 @@ class St20AvailableDoctorsViewSet(
 
         # If email not found, send email to explain
         obj.guid_requested_when = timezone.now()
+        print(obj.login_email.lower() != serializer.data.get('login_email').lower())
+        print(serializer.data.get('login_email').lower())
+        print(obj.login_email.lower())
         if obj.login_email.lower() != serializer.data.get('login_email').lower():
             obj.save()
             send_email(
@@ -80,17 +83,16 @@ class St20AvailableDoctorsViewSet(
             return Response("ok")
 
         # Generate GUID if previous controls pass
-        if obj.login_email == serializer.data.get('login_email'):
-            obj.prepare_for_edit()
-            url = f"{settings.HEALTH.get('front_url')}?guid={obj.edit_guid}"
-            send_email(
-                "Modification de vos informations cartographie SITN",
-                to=obj.login_email,
-                template_name="email_magic_link",
-                template_data={"url": url},
-            )
-            obj.save()
-            return Response("ok")
+        obj.prepare_for_edit()
+        url = f"{settings.HEALTH.get('front_url')}?guid={obj.edit_guid}"
+        send_email(
+            "Modification de vos informations cartographie SITN",
+            to=obj.login_email,
+            template_name="email_magic_link",
+            template_data={"url": url},
+        )
+        obj.save()
+        return Response("ok")
 
 
 class DoctorsByTokenView(APIView):
