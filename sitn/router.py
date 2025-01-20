@@ -3,7 +3,7 @@ from collections import OrderedDict
 from rest_framework.routers import DefaultRouter
 
 
-class DoctorRouter(DefaultRouter):
+class SitnRouter(DefaultRouter):
     """
     Extension of DefaultRouter to add more urls to Root
     """

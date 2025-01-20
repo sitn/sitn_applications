@@ -1,8 +1,8 @@
 from django.urls import include, path, re_path
 from . import views
-from . import router
+from sitn import router
 
-router = router.DoctorRouter()
+router = router.SitnRouter()
 router.register(r'doctors', views.St20AvailableDoctorsViewSet)
 router.register(r'sites', views.St23HealthSiteViewSet)
 router.register_additional_route_to_root('doctors/edit', 'doctors-by-token-detail')
