@@ -3,7 +3,15 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from djgeojson.serializers import Serializer as GeoJSONSerializer
 from django.contrib.gis.geos import Point
 from django.conf import settings
+from django.http import JsonResponse
+
+from rest_framework import viewsets
+from rest_framework.decorators import action
+from rest_framework_gis.pagination import GeoJsonPagination
+
 from cadastre.models import Mo9Immeubles
+from ecap.models import ObjetImmobilise
+from ecap.serializers import ObjetImmobiliseSerializer
 
 def is_valid_number(value):
     try:
@@ -53,3 +61,18 @@ def get_estate(request):
 
 class HelpView(TemplateView):
     template_name = "help_ecap.html"
+
+
+class ObjetImmobiliseViewSet(viewsets.ModelViewSet):
+    serializer_class = ObjetImmobiliseSerializer
+    pagination_class = GeoJsonPagination
+    queryset = ObjetImmobilise.objects.order_by('peggi_id').all()
+
+    @action(detail=False)
+    def download(self, request):
+        data = ObjetImmobilise.as_geojson()
+        return JsonResponse(
+            data, 
+            safe=False,
+            json_dumps_params={'ensure_ascii': False}
+        )

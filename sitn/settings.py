@@ -33,17 +33,18 @@ INTRANET_ONLY_APPS = [
     'cats',
     'parcel_historisation',
     'intranet_proxy',
+    'ecap'
 ]
 
 INTERNET_ONLY_APPS = [
     'stationnement',
     'forest_forpriv',
+    'health',
 ]
 
 INSTALLED_APPS = [
     'sitn',
     'cadastre',
-    'health',
     "corsheaders",
     'django.contrib.admin',
     'django.contrib.auth',
