@@ -1,6 +1,6 @@
 from django.conf import settings
 from django.core.exceptions import BadRequest
-from django.http import HttpResponse
+from django.http import JsonResponse
 from django.shortcuts import get_object_or_404
 from django.utils import timezone
 
@@ -41,11 +41,11 @@ class St20AvailableDoctorsViewSet(
 
     @action(detail=False, methods=["get"])
     def as_geojson(self, request):
-        return HttpResponse(
-            St21AvailableDoctorsWithGeom.as_geojson(),
-            headers={
-                "Content-Type": "application/json",
-            },
+        data = St21AvailableDoctorsWithGeom.as_geojson()
+        return JsonResponse(
+            data, 
+            safe=False,
+            json_dumps_params={'ensure_ascii': False}
         )
 
     @action(detail=True, methods=["post"])

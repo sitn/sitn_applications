@@ -10,6 +10,8 @@ from django.db import connection
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
+from sitn.mixins import GeoJSONModelMixin
+
 logger = logging.getLogger(__name__)
 
 
@@ -35,7 +37,7 @@ class AbstractDoctors(models.Model):
         abstract = True
 
 
-class St21AvailableDoctorsWithGeom(AbstractDoctors):
+class St21AvailableDoctorsWithGeom(AbstractDoctors, GeoJSONModelMixin):
     id_person_address = models.TextField(_("id_person_address"), primary_key=True)
     nom = models.TextField()
     prenoms = models.TextField()
@@ -73,25 +75,6 @@ class St21AvailableDoctorsWithGeom(AbstractDoctors):
         db_table = 'sante\".\"st21_available_doctors_with_geom'
         verbose_name = _("St21AvailableDoctorsWithGeom")
         managed=False
-
-    @classmethod
-    def as_geojson(cls):
-        """
-        Custom database GeoJSON serializer rendering only PUBLIC_FIELDS
-        """
-
-        sql_query = f"""
-            SELECT json_build_object(
-                'type', 'FeatureCollection',
-                'features', json_agg(ST_AsGeoJSON(t.*)::json)
-            )::text FROM (
-                SELECT {', '.join(cls.PUBLIC_FIELDS)} FROM "{cls._meta.db_table}") t
-        """
-        with connection.cursor() as cursor:
-            cursor.execute(sql_query)
-            result = cursor.fetchone()
-
-        return result[0]
     
     def __str__(self):
         return "%s %s (%s)" % (
