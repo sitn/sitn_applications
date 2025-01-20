@@ -43,7 +43,6 @@ INTERNET_ONLY_APPS = [
 INSTALLED_APPS = [
     'sitn',
     'cadastre',
-    'ecap',
     'health',
     "corsheaders",
     'django.contrib.admin',
@@ -53,6 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_gis',
 ]
 
 if IS_INTRANET:
@@ -208,14 +208,6 @@ NEARCH2_CONSULTATION = os.environ.get('NEARCH2_CONSULTATION')
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
-
-if DEVELOPMENT_MODE and os.environ.get('GDAL_PATH'):
-    GDAL_PATH = os.environ["GDAL_PATH"]
-    GDAL_LIBRARY_PATH = os.environ["GDAL_LIBRARY_PATH"]
-    os.environ['GDAL_DATA'] = GDAL_PATH + "gdal-data"
-    os.environ['PROJ_LIB'] = GDAL_PATH + "projlib"
-    GDAL_LIBRARY_PATH = os.environ["GDAL_LIBRARY_PATH"]
-    GEOS_LIBRARY_PATH = os.environ["GEOS_LIBRARY_PATH"]
 
 LOGGING = {
     'version': 1,
