@@ -54,6 +54,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'rest_framework',
     'rest_framework_gis',
+    'drf_spectacular',
+    'drf_spectacular_sidecar'
 ]
 
 if IS_INTRANET:
@@ -257,7 +259,18 @@ HEALTH = {
 # parcel_historisation\static\parcel_historisation\parcel_historisation.js
 REST_FRAMEWORK = {
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.PageNumberPagination',
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'PAGE_SIZE': 20
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Sitn REST API',
+    'DESCRIPTION': 'Home of SITN REST Services',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    'SWAGGER_UI_DIST': 'SIDECAR',
+    'SWAGGER_UI_FAVICON_HREF': 'SIDECAR',
+    'REDOC_DIST': 'SIDECAR',
 }
 
 DEFAULT_SRID = 2056

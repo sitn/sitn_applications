@@ -6,7 +6,7 @@ from django.conf import settings
 from django.http import JsonResponse
 
 from rest_framework import viewsets
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from rest_framework_gis.pagination import GeoJsonPagination
 
 from cadastre.models import Mo9Immeubles
@@ -20,6 +20,7 @@ def is_valid_number(value):
     except ValueError:
         return False
 
+@api_view(['GET'])
 def get_estate(request):
     """
     Retrieves estates found at east and north params.
