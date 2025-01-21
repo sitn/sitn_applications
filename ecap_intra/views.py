@@ -3,7 +3,15 @@ from django.http import HttpResponse, HttpResponseBadRequest
 from djgeojson.serializers import Serializer as GeoJSONSerializer
 from django.contrib.gis.geos import Point
 from django.conf import settings
+from django.http import JsonResponse
+
+from rest_framework import viewsets
+from rest_framework.decorators import action, api_view
+from rest_framework_gis.pagination import GeoJsonPagination
+
 from cadastre.models import Mo9Immeubles
+from ecap_intra.models import ObjetImmobilise
+from ecap_intra.serializers import ObjetImmobiliseSerializer
 
 def is_valid_number(value):
     try:
@@ -12,6 +20,7 @@ def is_valid_number(value):
     except ValueError:
         return False
 
+@api_view(['GET'])
 def get_estate(request):
     """
     Retrieves estates found at east and north params.
@@ -51,5 +60,16 @@ def get_estate(request):
     )
 
 
-class HelpView(TemplateView):
-    template_name = "help_ecap.html"
+class ObjetImmobiliseViewSet(viewsets.ModelViewSet):
+    serializer_class = ObjetImmobiliseSerializer
+    pagination_class = GeoJsonPagination
+    queryset = ObjetImmobilise.objects.order_by('peggi_id').all()
+
+    @action(detail=False)
+    def download(self, request):
+        data = ObjetImmobilise.as_geojson()
+        return JsonResponse(
+            data, 
+            safe=False,
+            json_dumps_params={'ensure_ascii': False}
+        )

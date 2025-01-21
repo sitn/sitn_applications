@@ -33,13 +33,14 @@ INTRANET_ONLY_APPS = [
     'cats',
     'parcel_historisation',
     'intranet_proxy',
-    'ecap'
+    'ecap_intra'
 ]
 
 INTERNET_ONLY_APPS = [
     'stationnement',
     'forest_forpriv',
     'health',
+    'ecap'
 ]
 
 INSTALLED_APPS = [

@@ -28,13 +28,14 @@ urlpatterns = [
 
 if settings.IS_INTRANET:
     urlpatterns.extend([
-        path('ecap/', include('ecap.urls')),
+        path('ecap/', include('ecap_intra.urls')),
         path('cats/', include('cats.urls')),
         path('parcel_historisation/', include('parcel_historisation.urls')),
         re_path(r'(?:vcron|intranet)_proxy/', include('intranet_proxy.urls')),
     ])
 else:
     urlpatterns.extend([
+        path('ecap/', include('ecap.urls')),
         path('health/', include('health.urls')),
         path('stationnement/', include('stationnement.urls')),
         path('forest_forpriv/', include('forest_forpriv.urls')),
