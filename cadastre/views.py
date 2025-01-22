@@ -3,6 +3,7 @@ from django.contrib.postgres.search import TrigramSimilarity, SearchQuery
 from django.http import HttpResponse, JsonResponse, HttpResponseBadRequest
 from djgeojson.serializers import Serializer as GeoJSONSerializer
 from cadastre.models import Cadastre, ImmeublesAdressesSearch
+from rest_framework.decorators import api_view
 
 import re
 
@@ -12,6 +13,7 @@ def get_cadastre(request):
 
     return JsonResponse(list(cadastres), safe=False)
 
+@api_view(['GET'])
 def search_parcel(request):
     """
       Extended properties on search estates by address.

@@ -7,7 +7,7 @@ Depending on the context, some apps will not be installed when deploying.
 
 * PostgreSQL >= 11 + PostGIS
 * Python >= 3.10
-* GDAL (if running without docker)
+* GDAL, GEOS (if running without docker on Windows, install OSGEO4W and add its bin directory to the Path)
 * GNU gettext https://www.gnu.org/software/gettext/
 
 ## Getting started
@@ -146,4 +146,3 @@ Then:
 1. Put something in `urls.py` in your app folder
 2. Import your urls in `sitn/urls.py`
 3. Install the app in `settings.py`
-4. 

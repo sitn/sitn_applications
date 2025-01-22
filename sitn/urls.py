@@ -16,21 +16,26 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import include, path, re_path
 from django.conf import settings
+from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 
 urlpatterns = [
+    path('schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     path('admin/', admin.site.urls),
     path('cadastre/', include('cadastre.urls')),
-    path('ecap/', include('ecap.urls')),
 ]
 
 if settings.IS_INTRANET:
     urlpatterns.extend([
+        path('ecap/', include('ecap_intra.urls')),
         path('cats/', include('cats.urls')),
         path('parcel_historisation/', include('parcel_historisation.urls')),
         re_path(r'(?:vcron|intranet)_proxy/', include('intranet_proxy.urls')),
     ])
 else:
     urlpatterns.extend([
+        path('ecap/', include('ecap.urls')),
         path('health/', include('health.urls')),
         path('stationnement/', include('stationnement.urls')),
         path('forest_forpriv/', include('forest_forpriv.urls')),
