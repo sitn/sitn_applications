@@ -9,20 +9,18 @@ Application de gestion des PPE
     
     <h2>Bienvenue sur l'application de gestion numérique des dossiers PPE</h2>
 
-    <form name="choix" action="{% url 'ppe:confirmation' %}" method="post">
-        {% csrf_token %}
-        <fieldset>
-            <legend><h3>Veuillez choisir une action:</h3></legend>
-                <input type="radio" name="choix" id="choix1" value="depot">
-                <label for="choix1">Dépot d'un dossier</label><br>
-                <input type="radio" name="choix" id="choix2" value="modification">
-                <label for="choix2">Modification d'un dossier</label><br>
-        </fieldset>
-        <input type="submit" value="envoyer">
-    </form>
+    <h4>Veuillez choisir une action:</h4>
+
+    <p>
+        <a href="{% url 'ppe:geolocalisation' %}" class="btn btn-success">Dépot d'un dossier</a>
+        <a href="{% url 'ppe:modification' %}" class="btn btn-success">Modification d'un dossier</a>
+    </p>
+
     </br>
-    <h3>Plus d'informations quant à la constitution d'un dossier PPE:</h3>
+    <h4>Plus d'informations quant à la constitution d'un dossier PPE:</h4>
     <p><a href="https://www.ne.ch/autorites/DDTE/SGRF/mensuration/Pages/propriete_par_etages.aspx" target="blank">Documentation sur les pages du SGRF</a></p>
+    </br>
+    
     <h4>Liste des dossiers PPE en cours</h4>
 {% if latest_dossiers_list %}
     <ul>

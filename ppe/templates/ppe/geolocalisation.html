@@ -4,19 +4,20 @@
 Dépôt d'un dossier:
 {% endblock titre %}
 
-{% block head %}
-  {{ form.media }}
-{% endblock head %}
-
+<div name="contenu" class="contenu">
 {% block contenu %}
-    <h3>Dépôt d'un dossier</h3>
+
+<div name="carte" class="container">
+    <h3>Dépôt d'un dossier - étape 1</h3>
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>
-    {% elif form %}
+    <p>Veuillez localiser l'emplacement de la PPE sur la carte</p>
     <form class="form-horizontal">
         {{ form }}
+        <input type="submit" value="étape suivante" class="btn btn-success">
     </form>
     {% else %}
     <p>Une erreur inconnue est survenue</p>
     {% endif %}
-
+</div>
 {% endblock contenu %}
+</div>

@@ -3,6 +3,8 @@ from django.utils.timezone import now
 
 from django_extended_ol.forms.widgets import WMTSWidget
 
+class Geolocalisation(models.Model):
+    geom = models.PointField(srid=2056)
 
 class Document(models.Model):
     nom_document = models.CharField(max_length=150)
