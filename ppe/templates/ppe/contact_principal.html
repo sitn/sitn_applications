@@ -9,8 +9,7 @@ Dépôt d'un dossier - étape 2:
 
 <div name="carte" class="container">
     <h3>Contacts</h3>
-    <p>Coordonnées sélectionnées: {{ coord_est }} {{ coord_nord }}</p>
-    <p>EGRID trouvé: {{ egrid }} (No. du bien-fonds: {{ idemai }})</p>
+    <p>Cadastre: {{}} EGRID: {{ ppe.egrid }}</p>
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>
     {% elif contact_form %}
     <p>Veuillez saisir les coordonnées du contact principal</p>

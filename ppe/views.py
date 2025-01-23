@@ -7,6 +7,8 @@ from .models import DossierPPE
 from .forms import DossierPPEForm, GeolocalisationForm, ContactPrincipalForm
 from .forms import DocumentForm, AdresseFacturationForm, NotaireForm, SignataireForm
 
+from .util import get_localisation
+
 def index(request):
     latest_dossiers_list = DossierPPE.objects.order_by("-date_creation")[:5]
     template = loader.get_template("ppe/index.html")
@@ -20,6 +22,8 @@ def detail(request, id):
     return render(request, "ppe/detail.html", {"dossier_ppe": dossier_ppe})
 
 def geolocalisation(request):
+    # initialising a dict collecting the necessary information by step
+    ppe = {}
 
     try:
         localisation = json.loads(request.GET["geom"])
@@ -35,27 +39,7 @@ def geolocalisation(request):
         )
     
     if localisation:
-        coordinates = localisation["coordinates"]
-        coord_est = round(coordinates[0],1)
-        coord_nord = round(coordinates[1],1)
-        # SEARCH: Get real estate nb and EGRID for this coordinates
-
-    results = [{"egrid": "CH848749790063", "idemai": "1_14127"}]
-    if len(results) > 1:
-        # THERE MIGHT BE DDP's ...
-        # TODO: Establish a list to select from
-        return render(
-            request,
-            "ppe/geolocalisation.html",
-            {
-                "error_message": "Plusieurs résultats trouvé" + {{ results }},
-                "form": GeolocalisationForm
-            },
-        )
-    else:
-        result = results[0]
-        egrid = result["egrid"]
-        idemai = result["idemai"]
+        ppe.update(get_localisation(localisation))
 
     return render(
         request, 
@@ -66,10 +50,12 @@ def geolocalisation(request):
         "facturation_form": AdresseFacturationForm,
         "document_form": DocumentForm,
         "localisation": localisation,
-        "coord_est": coord_est,
-        "coord_nord": coord_nord,
-        "egrid": egrid,
-        "idemai": idemai
+        "ppe": ppe
+#        "coord_est": coord_est,
+#        "coord_nord": coord_nord,
+#        "cadastre": cadastre,
+#        "egrid": egrid,
+#        "idemai": idemai
             })
 
 def modification(request):
