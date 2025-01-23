@@ -1,3 +1,6 @@
 Django>=5.0
+django-extended-ol==1.0.0
 psycopg2==2.9.9
 psycopg2-binary==2.9.3
+python-dotenv==1.0.1
+tzdata>=2024.2

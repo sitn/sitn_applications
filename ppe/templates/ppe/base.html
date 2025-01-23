@@ -1,0 +1,38 @@
+{% load static %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.ico' %}">
+    <link href="https://sitn.ne.ch/sitnstatic/sitn-bootstrap@v5.2.3/sitn-bootstrap.css" rel="stylesheet" crossorigin="anonymous">
+
+    <title>{% block titre %} {% endblock titre %}</title>
+    {% block head %}
+      {{ form.media }}
+    {% endblock head %}
+
+    <link rel="stylesheet" href="{% static 'ppe/style.css' %}">
+</head>
+
+<body>
+    
+    <div name="en-tete" class="entete">
+        <img src="{% static 'images/logo_ne.png' %}" alt="Logo du canton" style="float:left">
+        PPE numérique
+    </div>
+
+    <div name="contenu" class="contenu">
+    {% block contenu %}
+    {% endblock contenu %}
+    </div>
+
+    {% block pied %}
+    <div name="pied" class="footer">
+    <hr>
+    <p>FV-SITN</p>
+    </div>
+    {% endblock pied %}
+    
+    </body>
+</html>

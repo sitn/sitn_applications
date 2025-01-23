@@ -1,10 +1,17 @@
-from django.db import models
+from django.contrib.gis.db import models
 from django.utils.timezone import now
+
+from django_extended_ol.forms.widgets import WMTSWidget
+
+class Geolocalisation(models.Model):
+    geom = models.PointField(srid=2056)
 
 class Document(models.Model):
     nom_document = models.CharField(max_length=150)
     file = models.FileField()
 
+    def __str__(self):
+        return self.nom_document
 
 class AdresseFacturation(models.Model):
     type_personne = models.CharField(
@@ -52,6 +59,11 @@ class ContactPrincipal(models.Model):
     localite = models.CharField(max_length=100)
     pays= models.CharField(max_length=50)
 
+    def __str__(self):
+        return self.nom
+
+    class Meta:
+        ordering = ["nom"]
 
 class Notaire(models.Model):
     politesse = models.CharField(default="Me", max_length=2)
@@ -67,6 +79,11 @@ class Notaire(models.Model):
     localite = models.CharField(max_length=100)
     pays= models.CharField(max_length=50)
 
+    def __str__(self):
+        return self.nom
+
+    class Meta:
+        ordering = ["nom"]
 
 class Signataire(models.Model):
     nom = models.CharField(max_length=100)
@@ -81,6 +98,11 @@ class Signataire(models.Model):
     localite = models.CharField(max_length=100)
     pays= models.CharField(max_length=50)
 
+    def __str__(self):
+        return self.nom
+
+    class Meta:
+        ordering = ["nom"]
 
 class DossierPPE(models.Model):
     id_unique = models.CharField(max_length=200)
@@ -113,3 +135,4 @@ class DossierPPE(models.Model):
     date_creation = models.DateTimeField("Date de création", auto_now=True)
     date_soumission = models.DateTimeField("Date de soumission", auto_now=True, blank=True)
     date_validation = models.DateTimeField("Date de validation", auto_now=True, blank=True)
+    geom = models.PointField(srid=2056)

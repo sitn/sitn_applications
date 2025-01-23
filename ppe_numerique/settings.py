@@ -11,6 +11,11 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 import os
 from pathlib import Path
+from dotenv import load_dotenv
+
+load_dotenv()
+# automatically loads the existing .env of the root folder
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -38,6 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "django.contrib.gis",
+    "django_extended_ol",
 ]
 
 MIDDLEWARE = [
@@ -76,7 +83,7 @@ WSGI_APPLICATION = 'ppe_numerique.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': "django.contrib.gis.db.backends.postgis",
         'NAME': os.environ["PGDB"],
         'USER': os.environ["PGUSER"],
         'HOST': os.environ["PGHOST"],
@@ -130,4 +137,27 @@ STATIC_URL = 'static/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-GDAL_LIBRARY_PATH = 'C:/Applications/OSGeo4W/bin/gdal309.dll'
+if os.name == 'nt':
+    DEBUG = True
+    GDAL_LIBRARY_PATH = os.environ.get('GDAL_LIBRARY_PATH')
+    GEOS_LIBRARY_PATH = os.environ.get('GEOS_LIBRARY_PATH')
+
+OLWIDGET = {
+    "globals": {
+        "srid": 2056,
+        "default_center": [2551470, 1211190], # optional
+        "default_resolution": 18, # optional
+        "extent": [2420000, 1030000, 2900000, 1360000],
+        "resolutions": [250, 100, 50, 20, 10, 5, 2.5, 2, 1.5, 1, 0.5, 0.25, 0.125, 0.0625]
+    },
+    "wmts": {
+        "layer_name": 'plan_cadastral',
+        "style": 'default',
+        "matrix_set": 'EPSG2056',
+        "attributions": '<a target="new" href="https://sitn.ne.ch/web/conditions_utilisation/contrat_SITN_MO.htm'
+            + '">© SITN</a>', # optional
+        "url_template": 'https://sitn.ne.ch/mapproxy95/wmts/1.0.0/{layer}/{style}/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png',
+        "request_encoding": 'REST', # optional
+        "format": 'image/png' # optional
+    }
+}

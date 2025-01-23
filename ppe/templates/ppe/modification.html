@@ -1,0 +1,6 @@
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>
+{% elif choix %}
+<p>Votre choix: {{ choix }}</p>
+{% else %}
+<p>Une erreur inconnue est survenue</p>
+{% endif %}
