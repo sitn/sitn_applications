@@ -1,7 +1,12 @@
 from django.contrib import admin
+from django_extended_ol.admin import WMTSGISModelAdmin
 
-from .models import DossierPPE, Contact, Role
+from .models import DossierPPE, Document, AdresseFacturation, ContactPrincipal, Notaire, Signataire, Geolocalisation
 
-admin.site.register(DossierPPE)
-admin.site.register(Contact)
-admin.site.register(Role)
+admin.site.register(AdresseFacturation)
+admin.site.register(ContactPrincipal)
+admin.site.register(Document)
+admin.site.register(DossierPPE, WMTSGISModelAdmin)
+admin.site.register(Notaire)
+admin.site.register(Signataire)
+admin.site.register(Geolocalisation)

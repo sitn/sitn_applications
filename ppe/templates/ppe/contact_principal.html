@@ -1,0 +1,50 @@
+{% extends 'ppe/base.html' %}
+
+{% block titre %}
+Dépôt d'un dossier - étape 2:
+{% endblock titre %}
+
+<div name="contenu" class="contenu">
+{% block contenu %}
+
+<div name="carte" class="container">
+    <h3>Contacts</h3>
+    <p>Coordonnées sélectionnées: {{ coord_est }} {{ coord_nord }}</p>
+    <p>EGRID trouvé: {{ egrid }} (No. du bien-fonds: {{ idemai }})</p>
+    {% if error_message %}<p><strong>{{ error_message }}</strong></p>
+    {% elif contact_form %}
+    <p>Veuillez saisir les coordonnées du contact principal</p>
+    <form>
+        <div class="row">
+            <div class="col">
+        <fieldset>
+            <legend>Personne de contact principale</legend>
+            {{ contact_form }}
+        </fieldset>
+        <fieldset>
+            <legend>Notaire</legend>
+            {{ notaire_form }}
+        </fieldset>
+    </div>
+    <div class="col">
+        <fieldset>
+            <legend>Signataire</legend>
+            {{ signataire_form }}
+        </fieldset>
+        <fieldset>
+            <legend>Adresse de facturation</legend>
+            {{ facturation_form }}
+        </fieldset>
+        <fieldset>
+            <legend>Accord de prise en charge</legend>
+            {{ document_form }}
+        </fieldset>
+        </div>
+        <input type="submit" value="étape suivante" class="btn btn-success">
+    </form>
+    {% else %}
+    <p>Une erreur inconnue est survenue</p>
+    {% endif %}
+</div>
+{% endblock contenu %}
+</div>

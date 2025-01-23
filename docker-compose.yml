@@ -4,6 +4,7 @@ services:
       - default
     restart: unless-stopped
     build: .
+    image: sitn/${COMPOSE_PROJECT_NAME}
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
@@ -11,9 +12,9 @@ services:
       - "8000:8000"
     environment:
       - TZ=Europe/Zurich
-      - PGHOST=host.docker.internal
-      - PGDB=ppe_numerique
-      - PGSCHEMA=ppe
-      - PGUSER=ppe_admin
-      - PGPASSWORD=BigBr0ther
-      - PGPORT=5433
+      - PGHOST=${PGHOST:-host.docker.internal}
+      - PGDB=${PGDB:-ppe_numerique}
+      - PGSCHEMA=${PGSCHEMA:-ppe}
+      - PGPORT=${PGPORT:-5432}
+      - PGUSER=${PGUSER:-usr}
+      - PGPASSWORD=${PGPASSWORD:-pwd}

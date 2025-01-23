@@ -1,29 +1,35 @@
-{% load static %}
+{% extends 'ppe/base.html' %}
 
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-<html lang="fr">
-<head>
-    <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.ico' %}">
-    <link href="https://sitn.ne.ch/sitnstatic/sitn-bootstrap@v5.2.3/sitn-bootstrap.css" rel="stylesheet" crossorigin="anonymous">
+{% block titre %}
+Application de gestion des PPE
+{% endblock titre %}
 
-    <title>Application de gestion des PPE</title>
-
-    <link rel="stylesheet" href="{% static 'ppe/style.css' %}">
-</head>
-<body>
+{% block contenu %}
+<div name="contenu" class="container">
     
-<h3>Liste des dossiers PPE en cours</h3>
+    <h2>Bienvenue sur l'application de gestion numérique des dossiers PPE</h2>
+
+    <h4>Veuillez choisir une action:</h4>
+
+    <p>
+        <a href="{% url 'ppe:geolocalisation' %}" class="btn btn-success">Dépot d'un dossier</a>
+        <a href="{% url 'ppe:modification' %}" class="btn btn-success">Modification d'un dossier</a>
+    </p>
+
+    </br>
+    <h4>Plus d'informations quant à la constitution d'un dossier PPE:</h4>
+    <p><a href="https://www.ne.ch/autorites/DDTE/SGRF/mensuration/Pages/propriete_par_etages.aspx" target="blank">Documentation sur les pages du SGRF</a></p>
+    </br>
+    
+    <h4>Liste des dossiers PPE en cours</h4>
 {% if latest_dossiers_list %}
     <ul>
     {% for dossierppe in latest_dossiers_list %}
-        <li><a href="{% url 'ppe:detail' dossierppe.id_dossier %}"> {{ dossierppe.egrid }}</a></li>
+        <li><a href="{% url 'ppe:detail' dossierppe.id %}">Dossier PPE no. {{ dossierppe.id }}, du {{ dossierppe.date_creation }}</a></li>
     {% endfor %}
     </ul>
 {% else %}
     <p>No dossiers are available.</p>
 {% endif %}
-
-</body>
-</html>
+</div>
+{% endblock contenu %}
