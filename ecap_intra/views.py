@@ -1,4 +1,3 @@
-from django.views.generic import TemplateView
 from django.http import HttpResponse, HttpResponseBadRequest
 from djgeojson.serializers import Serializer as GeoJSONSerializer
 from django.contrib.gis.geos import Point
@@ -10,8 +9,21 @@ from rest_framework.decorators import action, api_view
 from rest_framework_gis.pagination import GeoJsonPagination
 
 from cadastre.models import Mo9Immeubles
-from ecap_intra.models import ObjetImmobilise
-from ecap_intra.serializers import ObjetImmobiliseSerializer
+from sitn.mixins import MultiSerializerMixin
+from ecap_intra.models import (
+    ObjetImmobilise,
+    RepartitionExpert,
+    PlanSpecial,
+    PlanQuartier,
+)
+from ecap_intra.serializers import (
+    ObjetImmobiliseSerializer,
+    RepartitionExpertSerializer,
+    RepartitionExpertDigestSerializer,
+    PlanQuartierSerializer,
+    PlanSpecialSerializer,
+)
+
 
 def is_valid_number(value):
     try:
@@ -20,7 +32,8 @@ def is_valid_number(value):
     except ValueError:
         return False
 
-@api_view(['GET'])
+
+@api_view(["GET"])
 def get_estate(request):
     """
     Retrieves estates found at east and north params.
@@ -29,28 +42,29 @@ def get_estate(request):
     """
     if "east" not in request.GET or "north" not in request.GET:
         return HttpResponseBadRequest("east and north coordinates should be provided")
-    
-    east = request.GET.get('east')
-    north = request.GET.get('north')
+
+    east = request.GET.get("east")
+    north = request.GET.get("north")
 
     if not is_valid_number(east) or not is_valid_number(north):
-        return HttpResponseBadRequest("Invalid parameters: east and north must be valid numbers.")
+        return HttpResponseBadRequest(
+            "Invalid parameters: east and north must be valid numbers."
+        )
 
     intersector = Point(float(east), float(north), srid=settings.DEFAULT_SRID)
 
     if "buffer" in request.GET:
-        buffer = request.GET.get('buffer')
+        buffer = request.GET.get("buffer")
         if not is_valid_number(buffer):
-            return HttpResponseBadRequest("Invalid parameters: buffer must be a valid number.")
+            return HttpResponseBadRequest(
+                "Invalid parameters: buffer must be a valid number."
+            )
         intersector = intersector.buffer(float(buffer))
 
     intersected_estate = Mo9Immeubles.objects.filter(geom__intersects=intersector)[:200]
 
     serializer = GeoJSONSerializer()
-    response_data = serializer.serialize(
-        intersected_estate,
-        srid=settings.DEFAULT_SRID
-    )
+    response_data = serializer.serialize(intersected_estate, srid=settings.DEFAULT_SRID)
 
     return HttpResponse(
         response_data,
@@ -60,16 +74,61 @@ def get_estate(request):
     )
 
 
-class ObjetImmobiliseViewSet(viewsets.ModelViewSet):
+class ObjetImmobiliseViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Objects immobilisés actifs
+    """
+
     serializer_class = ObjetImmobiliseSerializer
     pagination_class = GeoJsonPagination
-    queryset = ObjetImmobilise.objects.order_by('peggi_id').all()
+    queryset = ObjetImmobilise.objects.order_by("no_obj").all()
 
     @action(detail=False)
     def download(self, request):
         data = ObjetImmobilise.as_geojson()
-        return JsonResponse(
-            data, 
-            safe=False,
-            json_dumps_params={'ensure_ascii': False}
-        )
+        return JsonResponse(data, safe=False, json_dumps_params={"ensure_ascii": False})
+
+
+class RepartitionExpertViewSet(MultiSerializerMixin, viewsets.ReadOnlyModelViewSet):
+    """
+    Répartition générale des experts
+    """
+
+    queryset = RepartitionExpert.objects.order_by("ini_expert").all()
+    serializers = {
+        "default": RepartitionExpertSerializer,
+        "list": RepartitionExpertDigestSerializer,
+    }
+
+    @action(detail=False)
+    def download(self, request):
+        data = RepartitionExpert.as_geojson()
+        return JsonResponse(data, safe=False, json_dumps_params={"ensure_ascii": False})
+
+
+class PlanQuartierViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Périmètres de plan de quartier
+    """
+
+    serializer_class = PlanQuartierSerializer
+    queryset = PlanQuartier.objects.order_by("identifiant_unique_ct").all()
+
+    @action(detail=False)
+    def download(self, request):
+        data = PlanSpecial.as_geojson()
+        return JsonResponse(data, safe=False, json_dumps_params={"ensure_ascii": False})
+
+
+class PlanSpecialViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Périmètres de plan spécial
+    """
+
+    serializer_class = PlanSpecialSerializer
+    queryset = PlanSpecial.objects.order_by("identifiant_unique_ct").all()
+
+    @action(detail=False)
+    def download(self, request):
+        data = PlanSpecial.as_geojson()
+        return JsonResponse(data, safe=False, json_dumps_params={"ensure_ascii": False})
