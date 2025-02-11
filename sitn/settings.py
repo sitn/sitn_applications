@@ -33,7 +33,8 @@ INTRANET_ONLY_APPS = [
     'cats',
     'parcel_historisation',
     'intranet_proxy',
-    'ecap_intra'
+    'ecap_intra',
+    'spch'
 ]
 
 INTERNET_ONLY_APPS = [
