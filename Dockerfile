@@ -29,4 +29,4 @@ RUN mv ${ENV_FILE} .env
 RUN export $(egrep -v '^#' .env | xargs) && \
     python manage.py collectstatic --noinput && \
     python manage.py compilemessages --locale=fr && \
-    python manage.py migrate health
+    python manage.py migrate

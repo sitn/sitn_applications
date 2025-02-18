@@ -5,6 +5,21 @@ from django.contrib.postgres.aggregates import JSONBAgg
 from sitn.functions import JsonBuildObject
 
 
+class MultiSerializerMixin():
+    """
+    Include this mixin in a serializer to be able to select a different serializer per action
+    This is useful when you want to use viewsets but the main serializer is not performant
+      so you can provide a "Digest" serializer that will perform quick
+    """
+    serializers = {
+        'default': None,
+    }
+
+    def get_serializer_class(self):
+        return self.serializers.get(self.action,
+                                    self.serializers['default'])
+
+
 class GeoJSONModelMixin:
     """
     A mixin to add database GeoJSON serialization to a GeoDjango model.
