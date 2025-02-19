@@ -9,7 +9,7 @@ Dépôt d'un dossier - étape 2:
 
 <div name="carte" class="container">
     <h3>Contacts</h3>
-    <p>Cadastre: {{}} EGRID: {{ ppe.egrid }}</p>
+    <p>Cadastre: {{ ppe.cadastre }} EGRID: {{ ppe.egrid }}</p>
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>
     {% elif contact_form %}
     <p>Veuillez saisir les coordonnées du contact principal</p>
@@ -18,6 +18,10 @@ Dépôt d'un dossier - étape 2:
             <div class="col">
         <fieldset>
             <legend>Personne de contact principale</legend>
+            <div id="contact">La personne de contact principale est celle qui dépose 
+                le dossier et recevra les résultats du contrôle. 
+                Il s’agit en principe de la personne qui dessine les plans.
+            </div>
             {{ contact_form }}
         </fieldset>
         <fieldset>

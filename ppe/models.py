@@ -22,14 +22,11 @@ class AdresseFacturation(models.Model):
                 max_length=50, default="pp")
     nom_raison_sociale = models.CharField(max_length=150)
     prenom = models.CharField(max_length=100)
-    email = models.CharField(max_length=100)
-    no_tel = models.CharField(max_length=15)
     complement = models.CharField(max_length=100, blank=True)
     rue = models.CharField(max_length=100)
     no_rue = models.CharField(max_length=10, blank=True)
     npa = models.IntegerField()
     localite = models.CharField(max_length=100)
-    pays= models.CharField(max_length=50)
 
     def __str__(self):
         return self.nom_raison_sociale
@@ -49,38 +46,28 @@ class ContactPrincipal(models.Model):
             max_length=30, default="A")
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
-    raison_sociale = models.CharField(max_length=150)
     email = models.CharField(max_length=100)
     no_tel = models.CharField(max_length=15)
-    complement = models.CharField(max_length=100, blank=True)
-    rue = models.CharField(max_length=100)
-    no_rue = models.CharField(max_length=10, blank=True)
-    npa = models.IntegerField()
-    localite = models.CharField(max_length=100)
-    pays= models.CharField(max_length=50)
+    raison_sociale = models.CharField(max_length=150)
 
     def __str__(self):
-        return self.nom
+        return self.nom + str(' ') + self.prenom
 
     class Meta:
         ordering = ["nom"]
 
 class Notaire(models.Model):
-    politesse = models.CharField(default="Me", max_length=2)
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
     raison_sociale = models.CharField(max_length=150)
-    email = models.CharField(max_length=100)
-    no_tel = models.CharField(max_length=15)
     complement = models.CharField(max_length=100, blank=True)
     rue = models.CharField(max_length=100)
     no_rue = models.CharField(max_length=10, blank=True)
     npa = models.IntegerField()
     localite = models.CharField(max_length=100)
-    pays= models.CharField(max_length=50)
 
     def __str__(self):
-        return self.nom
+        return self.nom + str(' ') + self.prenom
 
     class Meta:
         ordering = ["nom"]
@@ -89,17 +76,14 @@ class Signataire(models.Model):
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
     raison_sociale = models.CharField(max_length=150)
-    email = models.CharField(max_length=100)
-    no_tel = models.CharField(max_length=15)
     complement = models.CharField(max_length=100, blank=True)
     rue = models.CharField(max_length=100)
     no_rue = models.CharField(max_length=10, blank=True)
     npa = models.IntegerField()
     localite = models.CharField(max_length=100)
-    pays= models.CharField(max_length=50)
 
     def __str__(self):
-        return self.nom
+        return self.nom + str(' ') + self.prenom
 
     class Meta:
         ordering = ["nom"]

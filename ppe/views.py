@@ -26,7 +26,19 @@ def geolocalisation(request):
     ppe = {}
 
     try:
-        localisation = json.loads(request.GET["geom"])
+        localisation = request.GET["geom"]
+        if isinstance(localisation, str) and localisation != '':
+            localisation = json.loads(localisation)
+        else:
+         # Redisplay the question voting form.
+            return render(
+                request,
+                "ppe/geolocalisation.html",
+                {
+                    "error_message": "Aucune localisation trouvée",
+                    "form": GeolocalisationForm
+                },
+            )                      
     except KeyError:
         # Redisplay the question voting form.
         return render(

@@ -44,3 +44,15 @@ li a {
     font-size: 1rem;
     padding: 0.7rem;
 }
+
+div#contact {
+    font-size: small;
+    background-color: lightyellow;
+    border: 1px solid lightgrey;
+    padding: 3px;
+    display: none;
+  }
+  
+legend:hover + div#contact {
+    display: block;
+  }
