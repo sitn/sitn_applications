@@ -12,15 +12,18 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/4.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = os.environ.get('SECRET_KEY') 
+SECRET_KEY = os.environ.get('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEVELOPMENT_MODE = False
 
 if 'DEVELOPMENT_MODE' in os.environ and os.environ['DEVELOPMENT_MODE'] == "True":
     DEVELOPMENT_MODE = True
+    GDAL_PATH = os.environ.get('GDAL_PATH')
+    GDAL_LIBRARY_PATH = os.environ.get('GDAL_LIBRARY_PATH')
+    GEOS_LIBRARY_PATH = os.environ.get('GEOS_LIBRARY_PATH')
 
-DEBUG = DEVELOPMENT_MODE 
+DEBUG = DEVELOPMENT_MODE
 
 # Application definition
 
@@ -276,3 +279,4 @@ SPECTACULAR_SETTINGS = {
 }
 
 DEFAULT_SRID = 2056
+
