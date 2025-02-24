@@ -170,7 +170,8 @@ CORS_DEV_ORIGINS = [
     "https://localhost:4300",
     "http://localhost:5173"
 ]
-CORS_ALLOWED_ORIGINS = CORS_DEV_ORIGINS + os.environ["CORS_ALLOWED_ORIGINS"].split(",")
+
+CORS_ALLOWED_ORIGINS = CORS_DEV_ORIGINS + list(map(str.rstrip, os.environ["CORS_ALLOWED_ORIGINS"].split(",")))
 
 CSRF_USE_SESSIONS = True
 CSRF_COOKIE_SECURE = True
