@@ -1,0 +1,76 @@
+{% extends 'ppe/base.html' %}
+
+{% block titre %}
+Dépôt d'un dossier - étape 2:
+{% endblock titre %}
+
+<div name="contenu" class="contenu">
+{% block contenu %}
+
+    <div name="contacts" class="container">
+        {% if error_message %}<p><strong>{{ error_message }}</strong></p>
+        {% elif resumee %}
+        <h3>Aperçu des informations de base du dossier PPE</h3>
+        <h4>Localisation</h4>
+        <p> 
+            Commune: {{ resumee.commune }}</br>
+            Cadastre: {{ resumee.cadastre }}</br>
+            EGRID: {{ resumee.egrid }}</br>
+            No. bien-fonds: {{ resumee.nummai }}
+        </p>
+
+        <h4>Contact principal</h4>
+        <p>
+            {{ resumee.contact_principal.politesse }}</br> 
+            {{ resumee.contact_principal.id}} {{ resumee.contact_principal.prenom }}</br>
+            {%if resumee.contact_principal.raison_sociale %}
+            Raison sociale: {{ resumee.contact_principal.raison_sociale }}</br>
+            {% endif %}
+            {{ resumee.contact_principal.no_tel }}</br>
+            {{ resumee.contact_principal.email }}
+        </p>
+
+        <h4>Notaire</h4>
+        <p>
+            Me {{ resumee.notaire.nom}} {{ resumee.notaire.prenom }}</br>
+            {%if resumee.notaire.raison_sociale %}
+            {{ resumee.notaire.raison_sociale }}</br>
+            {% endif %}
+            {%if resumee.notaire.complement %}
+            {{ resumee.notaire.complement }}</br>
+            {% endif %}
+            {{ resumee.notaire.rue }} {{ resumee.notaire.no_rue }}</br>
+            {{ resumee.notaire.npa }} {{ resumee.notaire.localite }}</br>
+        </p>
+
+        <h4>Signataire</h4>
+        <p>
+            {{ resumee.signataire.nom}} {{ resumee.signataire.prenom }}</br>
+            {%if resumee.signataire.raison_sociale %}
+            {{ resumee.signataire.raison_sociale }}</br>
+            {% endif %}
+            {%if resumee.signataire.complement %}
+            {{ resumee.signataire.complement }}</br>
+            {% endif %}
+            {{ resumee.signataire.rue }} {{ resumee.signataire.no_rue }}</br>
+            {{ resumee.signataire.npa }} {{ resumee.signataire.localite }}</br>
+        </p>
+        <h4>Adresse de facturation</h4>
+        <p>
+            {{ resumee.adresse_facturation.type_personne }}</br>
+            {{ resumee.adresse_facturation.nom_raison_sociale}} {{ resumee.adresse_facturation.prenom }}</br>
+            {%if resumee.adresse_facturation.complement %}
+            {{ resumee.adresse_facturation.complement }}</br>
+            {% endif %}
+            {{ resumee.adresse_facturation.rue }} {{ resumee.adresse_facturation.no_rue }}</br>
+            {{ resumee.adresse_facturation.npa }} {{ resumee.adresse_facturation.localite }}</br>
+        </p>
+        {% else %}
+        <p>Une erreur inconnue est survenue</p>
+        {% endif %}
+        <p>
+            <a href="{% url 'ppe:soumission' resumee.id %}" class="btn btn-success">Déposer le dossier</a>
+        </p>
+    </div>
+{% endblock contenu %}
+</div>

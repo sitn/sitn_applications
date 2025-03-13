@@ -1,6 +1,21 @@
+{% extends 'ppe/base.html' %}
+
+{% block titre %}
+Dépôt d'un dossier:
+{% endblock titre %}
+
+<div name="contenu" class="contenu">
+{% block contenu %}
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>
-{% elif choix %}
-<p>Votre choix: {{ choix }}</p>
-{% else %}
-<p>Une erreur inconnue est survenue</p>
 {% endif %}
+<p>        
+    <form class="form-horizontal">
+        <label for "id_dossier">Veuillez indiquer le no. de dossier PPE</label>
+        <input type="text" name="id_dossier" id ="id_dossier">
+        <input type="submit" value="Chercher le dossier" class="btn btn-success">
+    </form>
+</p>
+
+
+{% endblock contenu %}
+</div>

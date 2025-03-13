@@ -5,6 +5,7 @@ body {
     background: white;
 }
 
+
 div {
     padding: 5px;
 }
@@ -20,12 +21,16 @@ div.entete {
     border-bottom: 1 px solid grey;
 }
 
+li a {
+    color: green;
+}
+
 .contenu{
     padding: 10px 5px 10px 5px;
 }
 
-li a {
-    color: green;
+.red {
+    color: #990000;
 }
 
 .dj_map {

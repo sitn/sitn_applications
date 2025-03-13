@@ -7,13 +7,15 @@ Dépôt d'un dossier - étape 2:
 <div name="contenu" class="contenu">
 {% block contenu %}
 
-<div name="carte" class="container">
+<div name="contacts" class="container">
     <h3>Contacts</h3>
-    <p>Cadastre: {{ ppe.cadastre }} EGRID: {{ ppe.egrid }}</p>
+    <p>Commune: {{ localisation_ppe.commune }} Cadastre: {{ localisation_ppe.cadastre }} 
+        Id bien-fonds: {{ localisation_ppe.idemai }} EGRID: {{ localisation_ppe.egrid }}</p>
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>
     {% elif contact_form %}
     <p>Veuillez saisir les coordonnées du contact principal</p>
-    <form>
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
         <div class="row">
             <div class="col">
         <fieldset>
@@ -40,7 +42,7 @@ Dépôt d'un dossier - étape 2:
         </fieldset>
         <fieldset>
             <legend>Accord de prise en charge</legend>
-            {{ document_form }}
+            {{ accord_form }}
         </fieldset>
         </div>
         <input type="submit" value="étape suivante" class="btn btn-success">
