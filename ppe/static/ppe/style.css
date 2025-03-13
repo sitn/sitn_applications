@@ -40,6 +40,22 @@ li a {
     clear: both;
 }
 
+a:link#home {
+    color: white !important;
+    text-decoration: none !important;
+}
+
+a:visited#home {
+    color: white !important;
+    text-decoration: none !important;
+}
+a:hover#home {
+    color: rgb(34, 210, 125);
+  }
+a:active#home {
+    color: white;
+  }
+
 #background-selector {
     position: absolute;
     z-index: 2;

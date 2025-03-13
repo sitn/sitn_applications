@@ -68,7 +68,8 @@ Dépôt d'un dossier - étape 2:
         {% else %}
         <p>Une erreur inconnue est survenue</p>
         {% endif %}
-        <p>
+        <p> 
+            <button class="btn btn-success" onclick="alert('ToDo: Permettre des corrections')">Modifier un élément</button>
             <a href="{% url 'ppe:soumission' resumee.id %}" class="btn btn-success">Déposer le dossier</a>
         </p>
     </div>

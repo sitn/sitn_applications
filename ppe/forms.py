@@ -7,7 +7,7 @@ from .models import ContactPrincipal, Notaire, Signataire
 from django.utils.translation import gettext_lazy as _
 
 class GeolocalisationForm(forms.ModelForm):
-    geom = forms.PointField(widget=WMTSWidget())
+    geom = forms.PointField(widget=WMTSWidget(attrs={"geom": ""}))
     class Meta: 
         model = Geolocalisation
         fields = "__all__"

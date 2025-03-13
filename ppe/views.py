@@ -115,6 +115,9 @@ def contact_principal(request, geolocalisation_ppe):
             new_dossier_ppe.geom = Point(new_geom["coordinates"])
             new_dossier_ppe.save()
 
+            # Get all the elements from the freshly created dossier ppe
+            dossierppe = get_object_or_404(DossierPPE, pk=new_dossier_ppe.id)  
+
             return resumee_nouveau_depot(request, dossierppe)
         else:
             return render(
