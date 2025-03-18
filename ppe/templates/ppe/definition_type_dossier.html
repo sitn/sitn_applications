@@ -1,0 +1,31 @@
+{% extends 'ppe/base.html' %}
+
+{% block titre %}
+Etape 2: Détails du projet:
+{% endblock titre %}
+
+<div name="contenu" class="contenu">
+{% block contenu %}
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>
+{% endif %}
+<h3>Etape 2: Détails du projet</h3>
+<p>        
+    <form class="form-horizontal">
+        <label for="type_dossier">Type de dossier<sup>*</sup>:</label>
+
+        <select id="type_dossier">
+        {% if type_dossier %}
+        <option value="C" selected>Constitution</option>
+        {% else %}
+          <option value="C">Constitution</option>
+        {% endif %}
+          <option value="R">Révision</option>
+          <option value="M">Modification</option>
+        </select> 
+    </form>
+</p>
+<p class="red"><sup>*</sup>Les champs marqués d’un astérisque sont obligatoires</p>
+
+
+{% endblock contenu %}
+</div>

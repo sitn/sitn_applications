@@ -1,0 +1,29 @@
+{% extends 'ppe/base.html' %}
+
+{% block titre %}
+Soumission dossier
+{% endblock titre %}
+
+<div name="contenu" class="contenu">
+{% block contenu %}
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>
+{% endif %}
+<p>        
+    Votre dossier a bien été enregistré. 
+    Veuillez trouver ci-dessous le code unique vous permettant de modifier ultérieurement votre dossier.
+</p>
+<p>
+    Un e-mail contenant ce code a été envoyé à l’adresse suivante : {{ dossier_ppe.contact_principal.email }}
+</p>
+
+<h2>
+    XYZ-todo {{ dossier_ppe.id }}
+</h2>
+<p  class="alert alert-danger">
+    Attention ! A ce stade, votre dossier est encore incomplet 
+    et ne sera pas analysé par notre service. Pour le compléter, 
+    merci de passer à l’étape suivante.
+</p>
+<a href="{% url 'ppe:definition_type_dossier' dossier_ppe.id %}" class="btn btn-success">Etape suivante >></a>
+{% endblock contenu %}
+</div>

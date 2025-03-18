@@ -8,13 +8,27 @@ Dépôt d'un dossier:
 {% block contenu %}
 
 <div name="carte" class="container">
-    <h3>Dépôt d'un dossier - étape 1</h3>
+    <h3>Dépôt d'un dossier de propriété par étages (PPE): Nouveau dépôt</h3>
+</br>
+    <h4>Etape 1 - Informations générales</h4>
+
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>
-    <p>Veuillez localiser l'emplacement de la PPE sur la carte</p>
-    <form class="form-horizontal">
-        {{ form }}
-        <input type="submit" value="étape suivante" class="btn btn-success">
-    </form>
+    <p class="alert alert-danger">Un dossier PPE ne peut pas être déposé tant que les travaux de division/réunion parcellaire 
+    ne sont pas effectués.
+    </br>Pour ce faire, merci d'envoyer un e-mail avec votre demande à l'adresse
+    <a href="mailto:ppe.sgrf@ne.ch">ppe.sgrf@ne.ch</a>
+    </p>
+    <p>Si votre projet ne nécessite pas de travaux, veuillez cocher la case suivante pour continuer:</p>
+    <input type="checkbox" id="check_mutation" onclick="showMap()">
+    <label for="check_mutation" class="alert alert-success">Mon projet NE nécessite PAS de modification du parcellaire</label>
+
+    <div name="mapwidget" id="mapwidget" style="display:none">
+        <p>Veuillez localiser l'emplacement de la PPE sur la carte</p>
+        <form class="form-horizontal">
+            {{ form }}
+            <input type="submit" value="étape suivante" class="btn btn-success">
+        </form>
+    </div>
     {% else %}
     <p>Une erreur inconnue est survenue</p>
     {% endif %}

@@ -9,6 +9,7 @@ __pycache__/
 .env.prod
 .env.dev
 .venv
+/venv
 
 # Templated files
 /development.ini

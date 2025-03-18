@@ -5,6 +5,7 @@ body {
     background: white;
 }
 
+
 div {
     padding: 5px;
 }
@@ -20,12 +21,16 @@ div.entete {
     border-bottom: 1 px solid grey;
 }
 
+li a {
+    color: green;
+}
+
 .contenu{
     padding: 10px 5px 10px 5px;
 }
 
-li a {
-    color: green;
+.red {
+    color: #990000;
 }
 
 .dj_map {
@@ -34,6 +39,22 @@ li a {
     border: 1px solid darkgrey;
     clear: both;
 }
+
+a:link#home {
+    color: white !important;
+    text-decoration: none !important;
+}
+
+a:visited#home {
+    color: white !important;
+    text-decoration: none !important;
+}
+a:hover#home {
+    color: rgb(34, 210, 125);
+  }
+a:active#home {
+    color: white;
+  }
 
 #background-selector {
     position: absolute;
@@ -44,3 +65,15 @@ li a {
     font-size: 1rem;
     padding: 0.7rem;
 }
+
+div#contact {
+    font-size: small;
+    background-color: lightyellow;
+    border: 1px solid lightgrey;
+    padding: 3px;
+    display: none;
+  }
+  
+legend:hover + div#contact {
+    display: block;
+  }
