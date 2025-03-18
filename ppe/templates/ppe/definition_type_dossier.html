@@ -1,0 +1,59 @@
+{% extends 'ppe/base.html' %}
+
+{% block titre %}
+Etape 2: Détails du projet:
+{% endblock titre %}
+
+<div name="contenu" class="contenu">
+{% block contenu %}
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>
+{% endif %}
+<h3>Etape 2: Détails du projet</h3>
+<div>        
+    <form class="form-horizontal">
+        <label for="type_dossier">Type de dossier<sup>*</sup>:</label>
+        <select id="type_dossier" onchange="showSituationBatiments()">
+          <option value="" selected>Choisir...</option>
+          <option value="C">Constitution</option>
+          <option value="R">Révision</option>
+          <option value="M">Modification</option>
+        </select>
+        <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+        <div id="info_type_dossier">
+          <b>Constitution</b> : création d’une nouvelle PPE dans un bâtiment existant ou futur.<br>
+          <b>Révision</b> : révision d’une PPE déjà inscrite au registre foncier.<br>
+          <b>Modification</b> : modification du dossier PPE avant son inscription au registre foncier (constitution ou révision).        
+        </div>
+        <div id="type_modification" style="display:none">
+          <label for "id_dossier">Identifiant unique du dossier d’origine</label>
+          <input type="text" name="id_dossier" id ="id_unique"><br>
+          <input type="submit" value="Chercher le dossier" class="btn btn-success">
+        </div>
+
+        <div id="type_constitution" style="display:none">
+          <h4>Sitution des bâtiments*</h4>
+          <p>
+            <input type="radio" name="situation_bati" id="bati_existant" value="bati_existant" onchange="showRefGeoshop()">
+            <label for="bati_existant">Tous les bâtiments sont existants et leur emprise au sol n’est pas modifiée
+            </label><br>
+            <input type="radio" name="situation_bati" id="nouveau_bati" value="nouveau_batiment" onchange="showRefGeoshop()">
+            <label for="nouveau_bati">Au moins un bâtiment est nouveau ou son emprise est modifiée
+            </label>
+          <div id="ref_geoshop" style="display:none">
+            <label for="reference_geoshop">Référence geoshop*</label>
+            <input type="text" name="ref_geoshop" id="reference_geoshop">
+            <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+            <div id="info_reference_geoshop">
+              Référence de commande des données cadastrales
+            </div><br>
+          </div>
+          <input id="submit_btn" type="submit" value="étape suivante" class="btn btn-success" style="display:none;">
+        </div>
+
+    </form>
+  </div>
+<p class="red"><sup>*</sup>Les champs marqués d’un astérisque sont obligatoires</p>
+
+
+{% endblock contenu %}
+</div>

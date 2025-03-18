@@ -44,3 +44,47 @@ li a {
     font-size: 1rem;
     padding: 0.7rem;
 }
+
+div#contact {
+    display: none;
+    margin-left: 5px;
+    padding: 5px;
+    font-size: small;
+    background-color: lightblue;
+    border: 1px solid cornflowerblue;
+  }
+  
+legend:hover + div#contact {
+    position: absolute;
+    display: inline-block;
+  }
+
+  div#info_type_dossier {
+    display: none;
+    margin-top: 15px;
+    margin-left: 3px;
+    padding: 5px;
+    font-size: small;
+    background-color: lightblue;
+    border: 1px solid cornflowerblue;
+  }
+
+i:hover + div#info_type_dossier {
+    position: absolute;
+    display: inline-block;
+}
+
+div#info_reference_geoshop {
+    display: none;
+    margin-top: 15px;
+    margin-left: 3px;
+    padding: 5px;
+    font-size: small;
+    background-color: lightblue;
+    border: 1px solid cornflowerblue; 
+}
+
+i:hover + div#info_reference_geoshop {
+    position: absolute;
+    display: inline-block;
+}
