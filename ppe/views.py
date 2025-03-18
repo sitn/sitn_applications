@@ -34,10 +34,14 @@ def geolocalisation(request):
     # if this is a POST request we need to process the form data
 
     try:
+        # Check if a localisation exists
         localisation = request.GET["geom"]
         geoloc = Geolocalisation(localisation)
+
+        # Convert an existing localisation to a JSON dict
         if isinstance(localisation, str) and localisation != '':
             localisation = json.loads(localisation)
+        # Fetch geolocalisation calling the satac service
         if localisation is not None and 'coordinates' in localisation:
             geolocalisation_ppe = get_localisation(localisation)
             return contact_principal(request, geolocalisation_ppe)
@@ -118,7 +122,7 @@ def contact_principal(request, geolocalisation_ppe):
             # Get all the elements from the freshly created dossier ppe
             dossierppe = get_object_or_404(DossierPPE, pk=new_dossier_ppe.id)  
 
-            return resumee_nouveau_depot(request, dossierppe)
+            return overview_nouveau_depot(request, dossierppe)
         else:
             return render(
                 request, 
@@ -144,9 +148,9 @@ def contact_principal(request, geolocalisation_ppe):
         "localisation_ppe": geolocalisation_ppe
             })
 
-def resumee_nouveau_depot(request, new_dossier_ppe):
+def overview_nouveau_depot(request, new_dossier_ppe):
     
-    return render(request, "ppe/resumee_nouveau_depot.html", {"resumee": new_dossier_ppe})
+    return render(request, "ppe/overview_nouveau_depot.html", {"overview": new_dossier_ppe})
 
 
 def soumission(request, id):
@@ -158,6 +162,6 @@ def definition_type_dossier(request, id, type_dossier=None):
     if id is not None and type_dossier is None:
         dossier_ppe = get_object_or_404(DossierPPE, pk=id)
         type_dossier = dossier_ppe.type_dossier
-    else:
-        pass
+    # TODO: handle other cases
+
     return render(request, "ppe/definition_type_dossier.html", {"dossier_ppe": dossier_ppe, "type_dossier": type_dossier })

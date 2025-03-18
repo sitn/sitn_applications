@@ -5,6 +5,15 @@ from django.http import HttpResponseBadRequest
 import requests
 from json import loads
 
+# BOUNDING BOX CANTON NEUCHATEL
+NE_MIN_EST = 2515000
+NE_MAX_EST = 2585000
+NE_MIN_NORD = 1180000
+NE_MAX_NORD = 1230000
+
+# Geolocalisation service
+GEOLOC_SERVICE_URL = 'https://sitn.ne.ch/satac_localisation?'
+
 def get_localisation(localisation):
 
     try:
@@ -21,9 +30,8 @@ def get_localisation(localisation):
             },
         )
 
-    if (coord_est > 2515000 and coord_est < 2585000) and (coord_nord > 1180000 and coord_nord < 1230000):
-        url = "https://sitn.ne.ch/satac_localisation?X="+str(coord_est)+"&Y="+str(coord_nord)
-
+    if (NE_MIN_EST < coord_est < NE_MAX_EST) and (NE_MIN_NORD < coord_nord < NE_MAX_NORD):
+        url = GEOLOC_SERVICE_URL+"X="+str(coord_est)+"&Y="+str(coord_nord)
 
         headers = {
             'cache-control': "no-cache",
@@ -32,6 +40,9 @@ def get_localisation(localisation):
 
         response = requests.request("GET", url, headers=headers)
         data = response.json()
+        
+        # THERE MIGHT BE DDP's ...
+        # TODO: Establish a list to select from
 
         if isinstance(data, dict) and 'bien_fonds' in data:
             idemai = data['bien_fonds']
@@ -39,6 +50,8 @@ def get_localisation(localisation):
             numcad = data['numcad']
             cadastre = data['nomcad']
             commune = data['nomcom']
+        else:
+            return HttpResponseBadRequest("Une erreur inconnue s'est produite. La localisation a échouée.")
 
     else:
         return HttpResponseBadRequest("La localisation semble se situer en dehors du canton.")
@@ -55,28 +68,3 @@ def get_localisation(localisation):
     }
 
     return(geoloc)
-
-def get_immeubles(coordinates):
-
-    # SEARCH: Get real estate nb and EGRID for this coordinates
-    results = []
-    if (coord_est > 2515000 and coord_est < 2585000) and (coord_nord > 1180000 and coord_nord < 1230000):
-        results = [{"egrid": "CH848749790063", "idemai": "1_14127", "cadastre": "Neuchâtel"}]
-
-    if len(results) >= 1:
-        # THERE MIGHT BE DDP's ...
-        # TODO: Establish a list to select from
-        for result in results:
-            egrid = result["egrid"]
-            idemai = result["idemai"]
-            cadastre = result["cadastre"]
-
-            ppe.append({
-                "coord_est": coord_est,
-                "coord_nord": coord_nord,
-                "egrid": egrid,
-                "idemai": idemai,
-                "cadastre": cadastre
-            })
-    else:
-        ppe =  {"error_message": "Aucun résultat trouvé."}
