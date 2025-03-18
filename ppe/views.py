@@ -36,8 +36,7 @@ def geolocalisation(request):
     try:
         # Check if a localisation exists
         localisation = request.GET["geom"]
-        geoloc = Geolocalisation(localisation)
-
+        
         # Convert an existing localisation to a JSON dict
         if isinstance(localisation, str) and localisation != '':
             localisation = json.loads(localisation)
@@ -47,16 +46,18 @@ def geolocalisation(request):
             return contact_principal(request, geolocalisation_ppe)
         else:
             error_message = "La localisation n'a pas donné de résultat"
-    except KeyError:
+    except:
         # Redisplay the question voting form.
-        return render(
-            request,
-            "ppe/geolocalisation.html",
-            {
-                "error_message": "Aucune localisation définie.",
-                "form": GeolocalisationForm
-            },
-        )
+        error_message = "Aucune localisation définie."
+
+    return render(
+        request,
+        "ppe/geolocalisation.html",
+        {
+            "error_message": error_message,
+            "form": GeolocalisationForm
+        },
+    )
 
 
 def modification(request):
