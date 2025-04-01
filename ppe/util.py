@@ -1,9 +1,10 @@
-from .forms import GeolocalisationForm
-from django.shortcuts import render
-from django.http import HttpResponseBadRequest
-
 import requests
-from json import loads
+from functools import wraps
+
+from .forms import GeolocalisationForm
+from .models import DossierPPE
+from django.shortcuts import render, redirect
+from django.http import HttpResponseBadRequest
 
 # BOUNDING BOX CANTON NEUCHATEL
 NE_MIN_EST = 2515000
@@ -13,6 +14,17 @@ NE_MAX_NORD = 1230000
 
 # Geolocalisation service
 GEOLOC_SERVICE_URL = 'https://sitn.ne.ch/satac_localisation?'
+
+def login_required(func):
+    @wraps(func)
+    def wrapper(request, *args, **kwargs):
+        if 'login_code' in request.session : 
+            try:
+                return func(request, DossierPPE.objects.get(login_code=request.session['login_code']), *args, **kwargs)
+            except:
+                pass
+        return redirect('/ppe/login')
+    return wrapper
 
 def get_localisation(localisation):
 
