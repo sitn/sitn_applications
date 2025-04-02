@@ -91,8 +91,7 @@ class Signataire(models.Model):
         ordering = ["nom"]
 
 class DossierPPE(models.Model):
-    id_unique = models.CharField(max_length=40)
-    # to change to id_unique = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    login_code = models.CharField(max_length=16)
     egrid = models.CharField(max_length=14, blank=True)
     cadastre = models.CharField(max_length=50)
     numcad = models.IntegerField()
