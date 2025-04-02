@@ -13,6 +13,7 @@ logger = logging.getLogger(__name__)
 
 def index(request):
     # A list for the PPE admins to see the latest demands
+    # TODO : This should only be visible to admins
     latest_dossiers_list = DossierPPE.objects.order_by("-date_creation")[:5]
     template = loader.get_template("ppe/index.html")
     return HttpResponse(template.render({"latest_dossiers_list": latest_dossiers_list}, request))

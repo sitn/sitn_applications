@@ -97,7 +97,6 @@ class Migration(migrations.Migration):
             name='DossierPPE',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('id_unique', models.CharField(max_length=200)),
                 ('login_code', models.CharField(max_length=16)),
                 ('egrid', models.CharField(blank=True, max_length=14)),
                 ('cadastre', models.CharField(max_length=50)),

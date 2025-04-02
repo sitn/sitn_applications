@@ -26,11 +26,6 @@ class Migration(migrations.Migration):
         ),
         migrations.AlterField(
             model_name='dossierppe',
-            name='id_unique',
-            field=models.CharField(max_length=40),
-        ),
-        migrations.AlterField(
-            model_name='dossierppe',
             name='statut',
             field=models.CharField(choices=[('P', 'En projet'), ('S', 'Soumis'), ('T', 'En traitement'), ('R', 'Rejeté')], default='P', max_length=20),
         ),
