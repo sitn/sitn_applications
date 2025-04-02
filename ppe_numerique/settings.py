@@ -31,6 +31,7 @@ SECRET_KEY = 'django-insecure-uhqqu0s-9u^4#*v!6^9z3*v#dy!%e7k+e$lin71k&jp45wt_7^
 DEBUG = True
 
 ALLOWED_HOSTS = [
+    'localhost',
     'nesitnd3.ne.ch'
 ]
 

@@ -12,7 +12,7 @@ Etape 2: Détails du projet:
 <div>        
     <form class="form-horizontal">
         <label for="type_dossier">Type de dossier<sup>*</sup>:</label>
-        <select id="type_dossier" onchange="showSituationBatiments()">
+        <select  name="type_dossier" id="type_dossier" onchange="showSituationBatiments()">
           <option value="" selected>Choisir...</option>
           <option value="C">Constitution</option>
           <option value="R">Révision</option>
@@ -26,7 +26,7 @@ Etape 2: Détails du projet:
         </div>
         <div id="type_modification" style="display:none">
           <label for "id_dossier">Identifiant unique du dossier d’origine</label>
-          <input type="text" name="id_dossier" id ="id_unique"><br>
+          <input type="text" name="id_unique" id="id_unique"><br>
           <input type="submit" value="Chercher le dossier" class="btn btn-success">
         </div>
 

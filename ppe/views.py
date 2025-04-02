@@ -1,11 +1,19 @@
+# FOR DEV purposes
+import logging
+log = logging.getLogger(__name__)
+route_prefix = None
+
+# GENERAL LIBS
 import datetime
 import json
 
+# DJANGO LIBS
 from django.shortcuts import get_object_or_404, render
 from django.http import HttpResponse
 from django.template import loader
 from django.contrib.gis.geos import Point
 
+# INDIVIDUAL ELEMENTS
 from .models import DossierPPE, ContactPrincipal, Notaire, Signataire, AdresseFacturation
 from .models import AccordFrais, Geolocalisation
 from .forms import GeolocalisationForm, ContactPrincipalForm
@@ -61,11 +69,23 @@ def geolocalisation(request):
 
 
 def modification(request):
-    
+  
     try:
         id = request.GET["id_dossier"]
         if isinstance(id, str) and id != '':
-            return detail(request, id)
+            dossier_ppe = get_object_or_404(DossierPPE, pk=id)
+            geolocalisation_ppe = dossier_ppe.geom
+            dossier = {
+                "contact_form": ContactPrincipalForm(instance=dossier_ppe.contact_principal, prefix='contact'),
+                "notaire_form": NotaireForm(instance=dossier_ppe.notaire, prefix='notaire'),
+                "signataire_form": SignataireForm(instance=dossier_ppe.signataire, prefix='signataire'),
+                "facturation_form": AdresseFacturationForm(instance=dossier_ppe.adresse_facturation, prefix='facturation'),
+                #"accord_form": AccordFraisForm(instance=dossier_ppe.accord_frais, prefix='accord')
+            }
+            return render(request, "ppe/modification.html", {
+                "dossier_ppe" : dossier_ppe, 
+                "dossier": dossier,
+                "geolocalisation_ppe": geolocalisation_ppe})
         else:
             return render(request, "ppe/modification.html", {"error_message" : "Il manque l'identifiant du dossier."})
     except:
@@ -159,10 +179,35 @@ def soumission(request, id):
     return render(request, "ppe/soumission.html", {"dossier_ppe": dossier_ppe})
 
 
-def definition_type_dossier(request, id, type_dossier=None):
-    if id is not None and type_dossier is None:
-        dossier_ppe = get_object_or_404(DossierPPE, pk=id)
-        type_dossier = dossier_ppe.type_dossier
-    # TODO: handle other cases
+def definition_type_dossier(request, id):
+    """ This function allows to set the project type"""
+    id_dossier = id
+    log.info("L'identifiant du dossier est le: "+ str(id))
+    dossier_ppe = get_object_or_404(DossierPPE, pk=id_dossier)
 
-    return render(request, "ppe/definition_type_dossier.html", {"dossier_ppe": dossier_ppe, "type_dossier": type_dossier })
+    try:
+        id_unique = request.GET["id_unique"] if 'id_unique' in request.GET else id_dossier
+        type_dossier = request.GET["type_dossier"] if 'type_dossier' in request.GET else dossier_ppe.type_dossier
+        ref_geoshop = request.GET["ref_geoshop"] if 'ref_geoshop' in request.GET else None
+    except:
+        error_message = "Veuillez saisir le type de dossier PPE"
+
+    # TODO: handle other cases
+    results = {
+        "id_unique": id_unique,
+        "type_dossier": type_dossier,
+        "ref_geoshop": ref_geoshop
+    }
+
+    if type_dossier != '':
+        #if type_dossier == 'M':
+    
+        return load_ppe_files(request, id, results)
+    else:
+        return render(request, "ppe/definition_type_dossier.html", {"dossier_ppe": dossier_ppe, "type_dossier": type_dossier })
+
+def load_ppe_files(request, id, results):
+    """ Function to load the zip file with the PPE documents"""
+    dossier_ppe = get_object_or_404(DossierPPE, pk=id)
+    results = results
+    return render(request, "ppe/load_ppe_files.html", {"dossier_ppe": dossier_ppe, "results": results})

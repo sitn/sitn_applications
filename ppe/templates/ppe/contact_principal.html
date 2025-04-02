@@ -19,9 +19,10 @@ Dépôt d'un dossier - étape 2:
         <div class="row">
             <div class="col">
         <fieldset>
-            <legend>Personne de contact principale</legend>
-            <div id="contact">La personne de contact principale est celle qui dépose 
-                le dossier et recevra les résultats du contrôle. 
+            <legend>Personne de contact principale</legend>  
+            <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+            <div id="info_contact"> personne de contact principale est celle qui dépose<br> 
+                le dossier et recevra les résultats du contrôle. <br>
                 Il s’agit en principe de la personne qui dessine les plans.
             </div>
             {{ contact_form }}
@@ -34,6 +35,12 @@ Dépôt d'un dossier - étape 2:
     <div class="col">
         <fieldset>
             <legend>Signataire</legend>
+            <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+            <div id="info_signataire">
+                La personne signataire est obligatoirement un·e architecte inscrit·e <br>
+                au registre neuchâtelois des architectes ou un·e ingénieur-géomètre <br>
+                breveté·e du canton de Neuchâtel
+            </div>
             {{ signataire_form }}
         </fieldset>
         <fieldset>
@@ -42,6 +49,13 @@ Dépôt d'un dossier - étape 2:
         </fieldset>
         <fieldset>
             <legend>Accord de prise en charge</legend>
+            <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+            <div id="info_accord">
+                Les frais du Service de la Géomatique et du Registre Foncier <br>
+                comprennent le contrôle de conformité du dossier aux directives <br>
+                cantonales en vigueur ainsi que l’attribution des numéros de <br>
+                bien-fonds aux unités juridiques
+            </div>
             {{ accord_form }}
         </fieldset>
         </div>

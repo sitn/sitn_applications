@@ -66,7 +66,7 @@ a:active#home {
     padding: 0.7rem;
 }
 
-div#contact {
+div#info_contact {
     display: none;
     margin-left: 5px;
     padding: 5px;
@@ -75,12 +75,68 @@ div#contact {
     border: 1px solid cornflowerblue;
   }
   
-legend:hover + div#contact {
+i:hover + div#info_contact {
+    position: absolute;
+    display: inline-block;
+  }
+  
+div#info_notaire {
+    display: none;
+    margin-left: 5px;
+    padding: 5px;
+    font-size: small;
+    background-color: lightblue;
+    border: 1px solid cornflowerblue;
+  }
+  
+i:hover + div#info_notaire {
+    position: absolute;
+    display: inline-block;
+  }
+    
+div#info_signataire {
+    display: none;
+    margin-left: 5px;
+    padding: 5px;
+    font-size: small;
+    background-color: lightblue;
+    border: 1px solid cornflowerblue;
+  }
+  
+i:hover + div#info_signataire {
+    position: absolute;
+    display: inline-block;
+  }
+  
+div#info_zip {
+    display: none;
+    margin-left: 5px;
+    padding: 5px;
+    font-size: small;
+    background-color: lightblue;
+    border: 1px solid cornflowerblue;
+  }
+  
+i:hover + div#info_zip {
+    position: absolute;
+    display: inline-block;
+  }
+  
+div#info_accord {
+    display: none;
+    margin-left: 5px;
+    padding: 5px;
+    font-size: small;
+    background-color: lightblue;
+    border: 1px solid cornflowerblue;
+  }
+  
+i:hover + div#info_accord {
     position: absolute;
     display: inline-block;
   }
 
-  div#info_type_dossier {
+div#info_type_dossier {
     display: none;
     margin-top: 15px;
     margin-left: 3px;

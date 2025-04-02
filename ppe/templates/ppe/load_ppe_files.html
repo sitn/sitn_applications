@@ -1,0 +1,48 @@
+{% extends 'ppe/base.html' %}
+
+{% block titre %}
+Dépôt d'un dossier:
+{% endblock titre %}
+
+<div name="contenu" class="contenu">
+{% block contenu %}
+<h3>Etape 3: Chargement des fichiers</h3>
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>
+{% endif %}
+<p>        
+    {{ results.type_dossier }}
+    </p>
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    <fieldset>
+        <legend>Dossier *.zip</legend>  
+        <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+        <div id="info_zip">
+            Dossier .zip contenant tous les fichiers nécessaires, <br> 
+            structuré selon les directives établies par notre service, consultables 
+            <a href="https://www.ne.ch/autorites/DDTE/SGRF/mensuration/Pages/propriete_par_etages.aspx" target="blank">ici</a>
+        </div>
+        <input type="file" name="zip_file" id="zip_file"> <br>
+        <input type="submit" value="Charger le fichier" class="btn btn-success">
+    </fieldset>
+</form>
+
+<div id="zip_confirmation" name="zip_confirmation" style="display:none;">
+<p>La saisie de votre dossier est maintenant terminée.</p>
+<p>
+    Une vérification automatique de vos données est actuellement en cours, 
+    un compte-rendu vous sera envoyé par e-mail à l’adresse {{ dossier_ppe.contact_principal.email }} d’ici xx minutes.
+</p>
+<p>
+    Toutes les erreurs bloquantes découvertes devront être corrigées, 
+    et les fichiers soumis à nouveau.
+</p>
+<p>Une fois toutes les erreurs bloquantes corrigées, votre dossier poursuivra 
+    automatiquement sa route chez l’un de nos collaborateurs.</p>
+<p>Si vous souhaitez modifier votre dossier, cliquer sur «Etape précédente».
+</p>
+<p>Le statut de votre dossier est actuellement : VERIFICATION AUTOMATIQUE EN COURS</p>
+</div>
+
+{% endblock contenu %}
+</div>
