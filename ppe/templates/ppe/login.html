@@ -1,0 +1,17 @@
+{% extends 'ppe/base.html' %}
+{% block titre %}
+Login
+{% endblock titre %}
+<div name="contenu" class="contenu">
+{% block contenu %}
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+<p>        
+    <form class="form-horizontal" method="POST">
+        {% csrf_token %}
+        <label for="login_code">Veuillez indiquer le code de connexion</label>
+        <input type="text" name="login_code" id="login_code">
+        <input type="submit" value="Login" class="btn btn-success">
+    </form>
+</p>
+{% endblock contenu %}
+</div>
