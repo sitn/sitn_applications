@@ -16,7 +16,7 @@ div.entete {
     font-size: 36pt;
     font-weight: bold;
     color: white;
-    text-align: right;
+    text-align: left;
     background-color:lightseagreen ;
     border-bottom: 1 px solid grey;
 }
@@ -67,13 +67,14 @@ a:active#home {
 }
 
 div#info_contact {
-    display: none;
-    margin-left: 5px;
-    padding: 5px;
-    font-size: small;
-    background-color: lightblue;
-    border: 1px solid cornflowerblue;
-  }
+  display: none;
+  margin-top: 15px;
+  margin-left: 3px;
+  padding: 5px;
+  font-size: small;
+  background-color: lightblue;
+  border: 1px solid cornflowerblue; 
+}
   
 i:hover + div#info_contact {
     position: absolute;
@@ -164,4 +165,34 @@ div#info_reference_geoshop {
 i:hover + div#info_reference_geoshop {
     position: absolute;
     display: inline-block;
+}
+
+
+div#info_soumission {
+  display: none;
+  margin-left: 5px;
+  padding: 5px;
+  font-size: small;
+  background-color: lightblue;
+  border: 1px solid cornflowerblue;
+}
+
+i:hover + div#info_soumission {
+  position: absolute;
+  display: inline-block;
+}
+
+div#info_modification {
+  display: none;
+  margin-top: 15px;
+  margin-left: 3px;
+  padding: 5px;
+  font-size: small;
+  background-color: lightblue;
+  border: 1px solid cornflowerblue; 
+}
+
+i:hover + div#info_modification {
+  position: absolute;
+  display: inline-block;
 }

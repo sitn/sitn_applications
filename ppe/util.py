@@ -33,7 +33,6 @@ def get_localisation(localisation):
         coord_est = round(coords[0],1)
         coord_nord = round(coords[1],1)
     except KeyError:
-        # Redisplay the question voting form.
         return render(
             "ppe/geolocalisation.html",
             {
@@ -57,11 +56,11 @@ def get_localisation(localisation):
         # TODO: Establish a list to select from
 
         if isinstance(data, dict) and 'bien_fonds' in data:
-            idemai = data['bien_fonds']
-            nummai = data['nummai']
-            numcad = data['numcad']
-            cadastre = data['nomcad']
-            commune = data['nomcom']
+            idemai = data["bien_fonds"]
+            nummai = data["nummai"]
+            numcad = data["numcad"]
+            cadastre = data["nomcad"]
+            commune = data["nomcom"]
         else:
             return HttpResponseBadRequest("Une erreur inconnue s'est produite. La localisation a échouée.")
 
@@ -69,14 +68,15 @@ def get_localisation(localisation):
         return HttpResponseBadRequest("La localisation semble se situer en dehors du canton.")
 
     geoloc = {
-        "egrid": 'ToDo',
+        "egrid": "ToDo",
         "idemai": idemai,
         "nummai": nummai,
         "numcad": numcad,
         "cadastre": cadastre,
         "commune": commune,
         "coord_est": coord_est,
-        "coord_nord": coord_nord
+        "coord_nord": coord_nord,
+        "coordinates": coords
     }
 
     return(geoloc)

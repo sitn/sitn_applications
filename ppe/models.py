@@ -10,7 +10,7 @@ class Geolocalisation(models.Model):
 
 class AccordFrais(models.Model):
     nom_document = models.CharField(max_length=150)
-    file = models.FileField(upload_to="temp/")
+    file = models.FileField(upload_to="files/")
 
     def __str__(self):
         return self.nom_document
@@ -61,7 +61,6 @@ class ContactPrincipal(models.Model):
 class Notaire(models.Model):
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
-    raison_sociale = models.CharField(max_length=150)
     complement = models.CharField(max_length=100, blank=True)
     rue = models.CharField(max_length=100)
     no_rue = models.CharField(max_length=10, blank=True)
@@ -77,7 +76,6 @@ class Notaire(models.Model):
 class Signataire(models.Model):
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
-    raison_sociale = models.CharField(max_length=150)
     complement = models.CharField(max_length=100, blank=True)
     rue = models.CharField(max_length=100)
     no_rue = models.CharField(max_length=10, blank=True)

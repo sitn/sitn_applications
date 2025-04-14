@@ -12,10 +12,11 @@ Dépôt d'un dossier - étape 2:
     <p>Commune: {{ localisation_ppe.commune }} Cadastre: {{ localisation_ppe.cadastre }} 
         Id bien-fonds: {{ localisation_ppe.idemai }} EGRID: {{ localisation_ppe.egrid }}</p>
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>
-    {% elif contact_form %}
+    {% endif %}
     <p>Veuillez saisir les coordonnées du contact principal</p>
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
+        <input type="hidden" value="{{ localisation_ppe }}" name="localisation_ppe">
         <div class="row">
             <div class="col">
         <fieldset>
@@ -61,9 +62,7 @@ Dépôt d'un dossier - étape 2:
         </div>
         <input type="submit" value="étape suivante" class="btn btn-success">
     </form>
-    {% else %}
-    <p>Une erreur inconnue est survenue</p>
-    {% endif %}
+
 </div>
 {% endblock contenu %}
 </div>

@@ -11,6 +11,9 @@ __pycache__/
 .venv
 /venv
 
+#uploaded files
+/ppe/files
+
 # Templated files
 /development.ini
 /production.ini

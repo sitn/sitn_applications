@@ -1,4 +1,6 @@
 from django.urls import path
+from django.conf import settings
+from django.conf.urls.static import static
 from . import views
 
 app_name = "ppe"
@@ -13,3 +15,6 @@ urlpatterns = [
     path("definition_type_dossier", views.definition_type_dossier, name="definition_type_dossier"),
     path("overview", views.overview, name="overview")
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
