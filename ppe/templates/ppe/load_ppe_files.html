@@ -4,8 +4,8 @@
 Dépôt d'un dossier:
 {% endblock titre %}
 
-<div name="contenu" class="contenu">
-{% block contenu %}
+<div name="content" class="content">
+{% block content %}
 <h3>Etape 3: Chargement des fichiers</h3>
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>
 {% endif %}
@@ -31,18 +31,18 @@ Dépôt d'un dossier:
 <p>La saisie de votre dossier est maintenant terminée.</p>
 <p>
     Une vérification automatique de vos données est actuellement en cours, 
-    un compte-rendu vous sera envoyé par e-mail à l’adresse {{ dossier_ppe.contact_principal.email }} d’ici xx minutes.
+    un compte-rendu vous sera envoyé par e-mail à l'adresse {{ dossier_ppe.contact_principal.email }} d'ici xx minutes.
 </p>
 <p>
     Toutes les erreurs bloquantes découvertes devront être corrigées, 
     et les fichiers soumis à nouveau.
 </p>
 <p>Une fois toutes les erreurs bloquantes corrigées, votre dossier poursuivra 
-    automatiquement sa route chez l’un de nos collaborateurs.</p>
+    automatiquement sa route chez l'un de nos collaborateurs.</p>
 <p>Si vous souhaitez modifier votre dossier, cliquer sur «Etape précédente».
 </p>
 <p>Le statut de votre dossier est actuellement : VERIFICATION AUTOMATIQUE EN COURS</p>
 </div>
 
-{% endblock contenu %}
+{% endblock content %}
 </div>

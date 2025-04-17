@@ -25,7 +25,7 @@ li a {
     color: green;
 }
 
-.contenu{
+.content{
     padding: 10px 5px 10px 5px;
 }
 
@@ -34,7 +34,7 @@ li a {
 }
 
 .dj_map {
-    width: 1000px;
+    width: 600px;
     height: 500px;
     border: 1px solid darkgrey;
     clear: both;
@@ -77,20 +77,6 @@ div#info_contact {
 }
   
 i:hover + div#info_contact {
-    position: absolute;
-    display: inline-block;
-  }
-  
-div#info_notaire {
-    display: none;
-    margin-left: 5px;
-    padding: 5px;
-    font-size: small;
-    background-color: lightblue;
-    border: 1px solid cornflowerblue;
-  }
-  
-i:hover + div#info_notaire {
     position: absolute;
     display: inline-block;
   }
@@ -167,14 +153,14 @@ i:hover + div#info_reference_geoshop {
     display: inline-block;
 }
 
-
 div#info_soumission {
   display: none;
-  margin-left: 5px;
+  margin-top: 15px;
+  margin-left: 3px;
   padding: 5px;
   font-size: small;
   background-color: lightblue;
-  border: 1px solid cornflowerblue;
+  border: 1px solid cornflowerblue; 
 }
 
 i:hover + div#info_soumission {

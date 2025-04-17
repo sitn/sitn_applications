@@ -4,20 +4,20 @@
 Application de gestion des PPE
 {% endblock titre %}
 
-{% block contenu %}
-<div name="contenu" class="container">
+{% block content %}
+<div name="content" class="container">
     
-    <h4>Bienvenue sur l’application de contrôle des dossiers numériques de propriété par étages (PPE) 
+    <h4>Bienvenue sur l'application de contrôle des dossiers numériques de propriété par étages (PPE) 
         par le service de la géomatique et du registre foncier (SGRF).
     </h4>
 
     <p>Ce contrôle a pour but de vérifier la conformité des dossiers PPE aux directives en vigueur.
     Lorsque vous soumettez un dossier, des contrôles automatiques sont effectués et un compte-rendu des 
     éléments à corriger vous est transmis. Une fois les contrôles automatiques validés, 
-    l’un·e de nos collaborateur·rices prendra contact avec vous pour les dernières corrections 
-    et l’édition des documents.</p>
+    l'un·e de nos collaborateur·rices prendra contact avec vous pour les dernières corrections 
+    et l'édition des documents.</p>
 
-    <p>Pour consulter les directives cantonales d’établissement des dossiers PPE :<br>
+    <p>Pour consulter les directives cantonales d'établissement des dossiers PPE :<br>
         <a href="https://www.ne.ch/autorites/DDTE/SGRF/mensuration/Pages/propriete_par_etages.aspx" target="blank">
         Documentation de la constitution d'une PPE par le SGRF</a>
     </p>
@@ -27,14 +27,12 @@ Application de gestion des PPE
     <p>
         <a href="{% url 'ppe:geolocalisation' %}" class="btn btn-success">Nouvelle soumission</a>
         <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
-        <div id="info_soumission">
-            Soumettre un dossier de constitution, de modification <br> 
-            ou de révision de PPE pour la première fois.
-        </div>
+        <div id="info_soumission">Soumettre un dossier de constitution, de modification <br> 
+            ou de révision de PPE pour la première fois.</div>
+        
         <a href="{% url 'ppe:modification' %}" class="btn btn-success">Modification une soumission</a>
         <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
-        <div id="info_modification">Modifier les informations d’un dossier déjà soumis.
-        </div>
+        <div id="info_modification">Modifier les informations d'un dossier déjà soumis.</div>
     </p>
     
     <p><b>Admin: Liste des dossiers PPE en cours</b></p>
@@ -48,4 +46,4 @@ Application de gestion des PPE
     <p>Aucun dossier n'a été trouvé.</p>
 {% endif %}
 </div>
-{% endblock contenu %}
+{% endblock content %}

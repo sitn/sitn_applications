@@ -4,8 +4,8 @@
 Soumission dossier
 {% endblock titre %}
 
-<div name="contenu" class="contenu">
-{% block contenu %}
+<div name="content" class="content">
+{% block content %}
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>
 {% endif %}
 <p>        
@@ -13,14 +13,14 @@ Soumission dossier
     Vous pouvez consulter ou modifier votre dossier ultérieurement en vous connectant à l'aide du code suivant : <b>{{ dossier_ppe.login_code }}</b>
 </p>
 <p>
-    Un e-mail contenant ce code a été envoyé à l’adresse suivante : {{ dossier_ppe.contact_principal.email }}
+    Un e-mail contenant ce code a été envoyé à l'adresse suivante : {{ dossier_ppe.contact_principal.email }}
 </p>
 
 <p  class="alert alert-danger">
     Attention ! A ce stade, votre dossier est encore incomplet 
     et ne sera pas analysé par notre service. Pour le compléter, 
-    merci de passer à l’étape suivante.
+    merci de passer à l'étape suivante.
 </p>
 <a href="{% url 'ppe:definition_type_dossier' %}" class="btn btn-success">Etape suivante >></a>
-{% endblock contenu %}
+{% endblock content %}
 </div>

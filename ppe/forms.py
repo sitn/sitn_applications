@@ -1,7 +1,7 @@
 from django.contrib.gis import forms
 from django_extended_ol.forms.widgets import WMTSWidget
 
-from .models import DossierPPE, Geolocalisation, AccordFrais, AdresseFacturation
+from .models import DossierPPE, Geolocalisation, AdresseFacturation
 from .models import ContactPrincipal, Notaire, Signataire
 
 from django.utils.translation import gettext_lazy as _
@@ -12,13 +12,8 @@ class GeolocalisationForm(forms.ModelForm):
         model = Geolocalisation
         fields = "__all__"
         labels = {
-            "geom": _(""),
+           # "geom": _(""),
         }
-
-class AccordFraisForm(forms.ModelForm):
-    class Meta:
-        model = AccordFrais
-        fields = "__all__"
 
 class AdresseFacturationForm(forms.ModelForm):
     class Meta:
@@ -26,12 +21,18 @@ class AdresseFacturationForm(forms.ModelForm):
         prefix = "facturation"
         fields = fields = "__all__"
         labels = {
-            "nom_raison_sociale": _("Nom / raison sociale"),
-            "prenom": _("Prénom / à l'att."),
-            "complement": _("Complément"),
+            "nom_raison_sociale": _("Nom / raison sociale *"),
+            "prenom": _("Prénom / à l'att. *"),
+            "complement": _("Complément/Réf."),
+            "rue": _("Rue *"),
+            "no_rue": _("No. rue"),
+            "npa": _("NPA *"),
+            "localite": _("Localité *"),
+            "file": _("Accord de prise en charge *"),
         }
         #help_texts = {
         #    "complement": _("Case postale, appt., unité, etc."),
+        #    "file": _("Document"),
         #}
         error_messages = {
             "complement": {
@@ -45,9 +46,11 @@ class ContactPrincipalForm(forms.ModelForm):
         prefix="contact"
         fields = fields = "__all__"
         labels = {
-            "prenom": _("Prénom"),
+            "nom": _("Nom *"),
+            "prenom": _("Prénom *"),
             "complement": _("Complément"),
-            "no_tel": _("No. tél"),
+            "email": _("Courriel *"),
+            "no_tel": _("No. tél *"),
         }
 
 class NotaireForm(forms.ModelForm):
@@ -55,19 +58,36 @@ class NotaireForm(forms.ModelForm):
         model = Notaire
         prefix="notaire"
         fields = fields = "__all__"
+        labels = {
+            "nom": _("Nom *"),
+            "prenom": _("Prénom *"),
+            "complement": _("Complément"),
+            "rue": _("Rue *"),
+            "no_rue": _("No. rue"),
+            "npa": _("NPA *"),
+            "localite": _("Localité *"),
+        }
 
 class SignataireForm(forms.ModelForm):
     class Meta:
         model = Signataire
         prefix="signataire"
         fields = fields = "__all__"
+        labels = {
+            "nom": _("Nom *"),
+            "prenom": _("Prénom *"),
+            "complement": _("Complément"),
+            "rue": _("Rue *"),
+            "no_rue": _("No. rue"),
+            "npa": _("NPA *"),
+            "localite": _("Localité *"),
+        }
 
 class DossierPPEForm(forms.ModelForm):
     geom = forms.PointField(widget=WMTSWidget())
     class Meta: 
         model = DossierPPE
         fields = [
-            'egrid',
             'cadastre',
             'numcad',
             'nummai',
@@ -79,7 +99,6 @@ class DossierPPEForm(forms.ModelForm):
             'signataire',
             'notaire',
             'adresse_facturation',
-            'accord_frais',
             #'date_creation',
             #'date_soumission',
             #'date_validation,

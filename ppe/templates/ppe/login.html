@@ -2,8 +2,8 @@
 {% block titre %}
 Login
 {% endblock titre %}
-<div name="contenu" class="contenu">
-{% block contenu %}
+<div name="content" class="content">
+{% block content %}
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
 <p>        
     <form class="form-horizontal" method="POST">
@@ -13,5 +13,5 @@ Login
         <input type="submit" value="Login" class="btn btn-success">
     </form>
 </p>
-{% endblock contenu %}
+{% endblock content %}
 </div>

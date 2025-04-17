@@ -19,22 +19,22 @@
 
 <body>
     
-    <div name="en-tete" class="entete">
+    <div name="header" class="entete">
         SGRF | Contrôle des dossiers PPE numériques
         <img src="{% static 'images/logo_ne.png' %}" alt="Logo du canton" style="float:right">
     </div>
 
-    <div name="contenu" class="contenu">
-    {% block contenu %}
-    {% endblock contenu %}
+    <div name="content" class="content">
+    {% block content %}
+    {% endblock content %}
     </div>
 
-    {% block pied %}
-    <div name="pied" class="footer">
+    {% block footer %}
+    <div name="footer" class="footer">
     <hr>
     <p>PPE NUMERIQUE v0.4 - FV-SITN</p>
     </div>
-    {% endblock pied %}
+    {% endblock footer %}
     
     </body>
 </html>

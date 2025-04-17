@@ -1,3 +1,9 @@
+function changeFormAction() {
+    // Get the current action
+    document.getElementById("localisation_form").action = "/ppe/geolocalisation";
+    document.getElementById("localisation_form").submit()
+}
+
 function showMap() {
     // Get the checkbox
     const checkBox = document.getElementById("check_mutation");

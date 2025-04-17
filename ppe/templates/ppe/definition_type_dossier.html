@@ -4,56 +4,82 @@
 Etape 2: Détails du projet:
 {% endblock titre %}
 
-<div name="contenu" class="contenu">
-{% block contenu %}
-{% if error_message %}<p><strong>{{ error_message }}</strong></p>
-{% endif %}
-<h3>Etape 2: Détails du projet</h3>
-<div>        
-    <form class="form-horizontal">
-        <label for="type_dossier">Type de dossier<sup>*</sup>:</label>
-        <select  name="type_dossier" id="type_dossier" onchange="showSituationBatiments()">
-          <option value="" selected>Choisir...</option>
-          <option value="C">Constitution</option>
-          <option value="R">Révision</option>
-          <option value="M">Modification</option>
-        </select>
-        <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
-        <div id="info_type_dossier">
-          <b>Constitution</b> : création d’une nouvelle PPE dans un bâtiment existant ou futur.<br>
-          <b>Révision</b> : révision d’une PPE déjà inscrite au registre foncier.<br>
-          <b>Modification</b> : modification du dossier PPE avant son inscription au registre foncier (constitution ou révision).        
-        </div>
-        <div id="type_modification" style="display:none">
-          <label for "id_dossier">Identifiant unique du dossier d’origine</label>
-          <input type="text" name="id_unique" id="id_unique"><br>
-          <input type="submit" value="Chercher le dossier" class="btn btn-success">
-        </div>
+<div name="content" class="content">
+{% block content %}
+  <div name="contacts" class="container">
+    {% if error_message %}<p><strong>{{ error_message }}</strong></p>
+    {% endif %}
 
-        <div id="type_constitution" style="display:none">
-          <h4>Sitution des bâtiments*</h4>
-          <p>
-            <input type="radio" name="situation_bati" id="bati_existant" value="bati_existant" onchange="showRefGeoshop()">
-            <label for="bati_existant">Tous les bâtiments sont existants et leur emprise au sol n’est pas modifiée
-            </label><br>
-            <input type="radio" name="situation_bati" id="nouveau_bati" value="nouveau_batiment" onchange="showRefGeoshop()">
-            <label for="nouveau_bati">Au moins un bâtiment est nouveau ou son emprise est modifiée
-            </label>
-          <div id="ref_geoshop" style="display:none">
-            <label for="reference_geoshop">Référence geoshop*</label>
-            <input type="text" name="ref_geoshop" id="reference_geoshop">
+    <h3>Etape 3: Type de dossier</h3>  
+      {% if dossier_ppe %}
+      <p class="fs-5"><br>PPE sur le bien-fonds <b>{{ dossier_ppe.nummai }}</b> du cadastre 
+        de <b>{{ dossier_ppe.cadastre }}</b></p>
+
+        <form id="type_form" name="type_form" class="form-horizontal" method="post">
+            {% csrf_token %}
+            <label for="type_dossier">Type de dossier<sup>*</sup>:</label>
+            <select  name="type_dossier" id="type_dossier" onchange="showSituationBatiments()">
+              <option value="" selected>Choisir...</option>
+              <option value="C">Constitution</option>
+              <option value="R">Révision</option>
+              <option value="M">Modification</option>
+            </select>
             <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
-            <div id="info_reference_geoshop">
-              Référence de commande des données cadastrales
-            </div><br>
-          </div>
-          <input id="submit_btn" type="submit" value="étape suivante" class="btn btn-success" style="display:none;">
-        </div>
+            <div id="info_type_dossier">
+              <b>Constitution</b> : création d'une nouvelle PPE dans un bâtiment existant ou futur.<br>
+              <b>Révision</b> : révision d'une PPE déjà inscrite au registre foncier.<br>
+              <b>Modification</b> : modification du dossier PPE avant son inscription au registre foncier (constitution ou révision).        
+            </div>
+            <div id="type_modification" style="display:none">
+              <label for "login_code">Identifiant unique du dossier d'origine</label>
+              <input type="text" name="login_code" id="login_code"><br>
+              <input type="submit" value="Chercher le dossier" class="btn btn-success">
+            </div>
 
-    </form>
+            <div id="type_constitution" style="display:none">
+              <h4>Sitution des bâtiments*</h4>
+              <p>
+                <input type="radio" name="situation_bati" id="bati_existant" value="bati_existant" onchange="showRefGeoshop()">
+                <label for="bati_existant">Tous les bâtiments sont existants et leur emprise au sol n'est pas modifiée
+                </label><br>
+                <input type="radio" name="situation_bati" id="nouveau_bati" value="nouveau_batiment" onchange="showRefGeoshop()">
+                <label for="nouveau_bati">Au moins un bâtiment est nouveau ou son emprise est modifiée
+                </label>
+              </p>
+              <div id="ref_geoshop" style="display:none">
+                <div class="col">
+                <label for="reference_geoshop">Référence geoshop*</label>
+                <input type="text" name="ref_geoshop" id="reference_geoshop">
+                <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+                <div id="info_reference_geoshop">
+                  Référence de commande des données cadastrales
+                </div><br>
+              </div>
+                <div class="col">
+                  <p class="alert alert-success">
+                    Vous n'avez pas encore commandé les données cadastrales ? Vous pouvez les commander dans notre geoshop
+                    à l'adresse <a href="https://sitn.ne.ch/geoshop" target="_sitn">https://sitn.ne.ch/geoshop</a>
+                  </p>
+                </div>
+              </div>
+              <input id="submit_btn" type="submit" value="Etape suivante >>" class="btn btn-success" style="display:none;">
+            </div>
+
+        </form>
+    <p class="red"><sup>*</sup>Les champs marqués d'un astérisque sont obligatoires</p>
+
+    {% else %}
+    <h5>Une erreur est survenue.</h5>
+      <p>        
+        <form class="form-horizontal" method="POST">
+          {% csrf_token %}
+            <label for "id_dossier">Veuillez indiquer le no. de dossier PPE</label>
+            <input type="text" name="id_dossier" id ="id_dossier">
+            <input type="submit" value="Chercher le dossier" class="btn btn-success">
+        </form>
+      </p>
+    {% endif %}
   </div>
-<p class="red"><sup>*</sup>Les champs marqués d’un astérisque sont obligatoires</p>
 
-
-{% endblock contenu %}
+{% endblock content %}
 </div>

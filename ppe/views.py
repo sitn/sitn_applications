@@ -8,8 +8,8 @@ from django.conf.urls.static import static
 from django.core.files.storage import FileSystemStorage
 
 # INDIVIDUAL ELEMENTS
-from .models import DossierPPE, ContactPrincipal, Notaire, Signataire, AdresseFacturation, AccordFrais, Geolocalisation
-from .forms import AccordFraisForm, AdresseFacturationForm, NotaireForm, SignataireForm, GeolocalisationForm, ContactPrincipalForm
+from .models import DossierPPE, ContactPrincipal, Notaire, Signataire, AdresseFacturation, Geolocalisation
+from .forms import AdresseFacturationForm, NotaireForm, SignataireForm, GeolocalisationForm, ContactPrincipalForm
 
 from .util import get_localisation, login_required
 
@@ -25,38 +25,83 @@ def index(request):
 def geolocalisation(request):
     # if this is a POST request we need to process the form data
     error_message = None
+    localisation_ppe = None
+    geo_form = GeolocalisationForm()
+    form_action = 'geolocalisation'
+
+    if 'geom' in request.POST:
+        localisation = request.POST['geom']
+        geo_form = GeolocalisationForm(request.POST)
+        if geo_form.is_valid():
+            geo_form.save()
+        # Convert an existing localisation to a JSON dict
+        if isinstance(localisation, str) and localisation != '':
+            localisation = json.loads(localisation)
+            localisation_ppe = get_localisation(localisation)
+        form_action = 'contact_principal'
+    else:
+        logger.warning(f"Error during geoloc. decoding")
+
 
     return render(
         request,
         "ppe/geolocalisation.html",
         {
             "error_message": error_message,
-            "form": GeolocalisationForm
+            "localisation_ppe": localisation_ppe,
+            "form": geo_form,
+            "form_action": form_action,
         }
     )
 
 
-def modification(request):
+@login_required
+def modification(request, doc):
+    error_message = None
+    notaire_form = NotaireForm(request.POST, prefix='notaire')
+    contact_form = ContactPrincipalForm(request.POST, prefix='contact')
+    signataire_form = SignataireForm(request.POST, prefix='signataire')
+    facturation_form = AdresseFacturationForm(request.POST, request.FILES, prefix='facturation')
+
     try:
-        id = request.GET["id_dossier"]
-        if isinstance(id, str) and id != '':
-            dossier_ppe = get_object_or_404(DossierPPE, pk=id)
-            geolocalisation_ppe = dossier_ppe.geom
-            dossier = {
-                "contact_form": ContactPrincipalForm(instance=dossier_ppe.contact_principal, prefix='contact'),
-                "notaire_form": NotaireForm(instance=dossier_ppe.notaire, prefix='notaire'),
-                "signataire_form": SignataireForm(instance=dossier_ppe.signataire, prefix='signataire'),
-                "facturation_form": AdresseFacturationForm(instance=dossier_ppe.adresse_facturation, prefix='facturation'),
-                #"accord_form": AccordFraisForm(instance=dossier_ppe.accord_frais, prefix='accord')
-            }
-            return render(request, "ppe/modification.html", {
-                "dossier_ppe" : dossier_ppe, 
-                "dossier": dossier,
-                "geolocalisation_ppe": geolocalisation_ppe})
+        if isinstance(doc, object):
+            if 'modification' in request.POST:
+                dossier_ppe = DossierPPE.objects.get(login_code=doc.login_code)
+                print(dossier_ppe.login_code)
+                if (contact_form.is_valid() and
+                    notaire_form.is_valid() and
+                    signataire_form.is_valid()):
+
+                    contact_form.save()
+                    notaire_form.save()
+                    signataire_form.save()
+                    #facturation_form.save()
+
+                    dossier_ppe.contact_principal = ContactPrincipal(pk=contact_form.instance.id)
+                    dossier_ppe.notaire = Notaire(pk=notaire_form.instance.id)
+                    dossier_ppe.signataire = Signataire(pk=signataire_form.instance.id)
+                    dossier_ppe.save()
+
+                    return redirect(f'/ppe/definition_type_dossier', dossier_ppe)
+                else:
+                    error_message = "Une valeur modifiée ne semble pas avoir été conforme."
+
         else:
-            return render(request, "ppe/modification.html", {"error_message" : "Il manque l'identifiant du dossier."})
+            error_message = "Une erreur de chargement du dossier est survenue."
+
+        return render(request, "ppe/modification.html", {
+            "error_mesage": error_message,
+            "dossier": doc,
+            "contact_form": ContactPrincipalForm(instance=doc.contact_principal, prefix='contact'),
+            "notaire_form": NotaireForm(instance=doc.notaire, prefix='notaire'),
+            "signataire_form": SignataireForm(instance=doc.signataire, prefix='signataire'),
+            "facturation_form": AdresseFacturationForm(instance=doc.adresse_facturation, prefix='facturation'),
+            "cadastre": doc.cadastre,
+            "nummai": doc.nummai,
+            "geolocalisation_ppe": doc.geom})
+
     except:
-        return render(request, "ppe/modification.html")
+        return render(request, "ppe/modification.html", {"error_message": "Il manque l'identifiant du dossier."})
 
 
 def contact_principal(request):
@@ -64,14 +109,12 @@ def contact_principal(request):
     notaire_form = NotaireForm(request.POST, prefix='notaire')
     contact_form = ContactPrincipalForm(request.POST, prefix='contact')
     signataire_form = SignataireForm(request.POST, prefix='signataire')
-    facturation_form = AdresseFacturationForm(request.POST, prefix='facturation')
-    accord_form = AccordFraisForm(request.POST, request.FILES, prefix='accord')
+    facturation_form = AdresseFacturationForm(request.POST, request.FILES, prefix='facturation')
 
     if (contact_form.is_valid() and
         notaire_form.is_valid() and
         signataire_form.is_valid() and
-        facturation_form.is_valid() and 
-        accord_form.is_valid()):
+        facturation_form.is_valid()):
 
         geolocalisation_ppe = ast.literal_eval(request.POST["localisation_ppe"])
 
@@ -81,13 +124,10 @@ def contact_principal(request):
         notaire_form.save()
         signataire_form.save()
         facturation_form.save()
-        accord_form.save()
 
         new_dossier_ppe = DossierPPE()
         new_dossier_ppe.login_code = login_code
-        new_dossier_ppe.egrid = geolocalisation_ppe["egrid"]
         new_dossier_ppe.cadastre = geolocalisation_ppe["cadastre"]
-        new_dossier_ppe.commune = geolocalisation_ppe["commune"]
         new_dossier_ppe.numcad = geolocalisation_ppe["numcad"]
         new_dossier_ppe.nummai = geolocalisation_ppe["nummai"]
         new_dossier_ppe.coord_E = geolocalisation_ppe["coord_est"]
@@ -96,7 +136,6 @@ def contact_principal(request):
         new_dossier_ppe.notaire = Notaire(pk=notaire_form.instance.id)
         new_dossier_ppe.signataire = Signataire(pk=signataire_form.instance.id)
         new_dossier_ppe.adresse_facturation = AdresseFacturation(pk=facturation_form.instance.id)
-        new_dossier_ppe.accord_frais = AccordFrais(pk=accord_form.instance.id)
         new_dossier_ppe.statut = 'P'
         new_dossier_ppe.type_dossier = "C"
         new_dossier_ppe.date_creation = datetime.datetime.now()
@@ -104,13 +143,13 @@ def contact_principal(request):
         new_dossier_ppe.save()
 
         request.session['login_code'] = login_code
-        return redirect(f'/ppe/overview')
+        return redirect(f'/ppe/definition_type_dossier', new_dossier_ppe)
 
     if 'geom' in request.POST:
         try:
             # Check if a localisation exists
             localisation = request.POST["geom"]
-            print(localisation)
+
             # Convert an existing localisation to a JSON dict
             if isinstance(localisation, str) and localisation != '':
                 localisation = json.loads(localisation)
@@ -124,20 +163,18 @@ def contact_principal(request):
                         "notaire_form": NotaireForm(prefix='notaire'),
                         "signataire_form": SignataireForm(prefix='signataire'),
                         "facturation_form": AdresseFacturationForm(prefix='facturation'),
-                        "accord_form": AccordFraisForm(prefix='accord'),
                         "localisation_ppe": get_localisation(localisation)
                     }
                 )
             else:
                 error_message = "La localisation n'a pas donné de résultat"
         except Exception as e:
-            # Redisplay the question voting form.
+            # Redisplay the geolocalisation form.
             logger.warning(f"Error during geoloc. decoding : {repr(e)}")
             error_message = "Une erreur est survenue lors de la création du formulaire."
 
     return redirect(f'/ppe/geolocalisation', {"error_message": error_message})
-    
-        
+
 
 def login(request):
     if 'login_code' in request.POST:
@@ -151,6 +188,7 @@ def detail(request, doc):
 
 @login_required
 def overview(request, doc):
+
     return render(request, "ppe/overview.html", {"overview": doc})
 
 @login_required
@@ -159,34 +197,52 @@ def soumission(request, doc):
 
 @login_required
 def definition_type_dossier(request, doc, type_dossier=None):
-    if type_dossier is None:
-        type_dossier = doc.type_dossier
+    error_message = None
 
     try:
-        id_unique = request.GET["id_unique"] if 'id_unique' in request.GET else id_dossier
-        type_dossier = request.GET["type_dossier"] if 'type_dossier' in request.GET else dossier_ppe.type_dossier
-        ref_geoshop = request.GET["ref_geoshop"] if 'ref_geoshop' in request.GET else None
+        # We get the current entry of the dossier ppe if it exists
+        dossier_ppe = DossierPPE.objects.get(login_code=doc.login_code)
     except:
-        error_message = "Veuillez saisir le type de dossier PPE"
+        # ELSE we return an error
+        error_message = "Aucun dossier avec ce code n'a pu être trouvé."
+        return render(request, "ppe/definition_type_dossier.html", {"error_message": error_message})  
 
-    # TODO: handle other cases
-    results = {
-        "id_unique": id_unique,
-        "type_dossier": type_dossier,
-        "ref_geoshop": ref_geoshop
-    }
+    type_dossier = request.POST["type_dossier"] if 'type_dossier' in request.POST else dossier_ppe.type_dossier
+    ref_geoshop = request.POST["ref_geoshop"] if 'ref_geoshop' in request.POST else None
+    situation_bati = request.POST["situation_bati"] if 'situation_bati' in request.POST else None
 
-    if type_dossier != '':
-        #if type_dossier == 'M':
-    
-        return load_ppe_files(request, id, results)
-    else:
-        return render(request, "ppe/definition_type_dossier.html", {"dossier_ppe": doc, "type_dossier": type_dossier })
+    if type_dossier == 'C' and situation_bati in ['bati_existant','nouveau_batiment']:
+        dossier_ppe.type_dossier = type_dossier
+
+        if situation_bati == 'bati_existant':
+            dossier_ppe.save()
+            return redirect("/ppe/overview")
+        # if changes to buildings are planned or under way check for ref
+        elif situation_bati == 'nouveau_batiment' and ref_geoshop != '':
+            #TODO: implement ref validation in geoshop db
+            dossier_ppe.save()
+            return redirect("/ppe/overview")
+        else:
+            return render(request, "ppe/definition_type_dossier.html", {"error_message": 'Type ou référence invalide.'}) 
+    elif type_dossier in ['M','R'] and 'login_code' in request.POST:
+        login_code = request.POST['login_code']
+        print(login_code)
+        return redirect("/ppe/modification")
+
+    return render(
+        request,
+        "ppe/definition_type_dossier.html", 
+        {
+            "dossier_ppe": doc, 
+            "type_dossier": type_dossier, 
+            "error_message": error_message
+        }
+    )
 
 @login_required
-def load_ppe_files(request, doc, results):
+def load_ppe_files(request, doc):
     """ Function to load the zip file with the PPE documents"""
-    results = results
-    return render(request, "ppe/load_ppe_files.html", {"dossier_ppe": doc, "results": results})
+
+    return render(request, "ppe/load_ppe_files.html")
 
     

@@ -4,8 +4,8 @@
 Dépôt d'un dossier:
 {% endblock titre %}
 
-<div name="contenu" class="contenu">
-{% block contenu %}
+<div name="content" class="content">
+{% block content %}
 
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>
 {% else %}
@@ -15,15 +15,12 @@ Dépôt d'un dossier:
 </h3>
 <h4>Localisation</h4>
 <p> 
-    Commune: {{ dossier_ppe.commune }}</br>
     Cadastre: {{ dossier_ppe.cadastre }}</br>
-    EGRID: {{ dossier_ppe.egrid }}</br>
-    No. bien-fonds: {{ dossier_ppe.nummai }}
+    Bien-fonds: {{ dossier_ppe.nummai }}
 </p>
 
 <h4>Contact principal</h4>
 <p>
-    {{ dossier_ppe.contact_principal.politesse }}</br> 
     {{ dossier_ppe.contact_principal.id}} {{ dossier_ppe.contact_principal.prenom }}</br>
     {%if dossier_ppe.contact_principal.raison_sociale %}
     Raison sociale: {{ dossier_ppe.contact_principal.raison_sociale }}</br>
@@ -68,5 +65,5 @@ Dépôt d'un dossier:
     {{ dossier_ppe.adresse_facturation.npa }} {{ dossier_ppe.adresse_facturation.localite }}</br>
 </p>
 {% endif %}
-{% endblock contenu %}
+{% endblock content %}
 </div>
