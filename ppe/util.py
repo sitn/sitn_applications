@@ -1,10 +1,12 @@
-import requests
+import requests, logging
 from functools import wraps
 
 from .forms import GeolocalisationForm
 from .models import DossierPPE
 from django.shortcuts import render, redirect
 from django.http import HttpResponseBadRequest
+
+logger = logging.getLogger(__name__)
 
 # BOUNDING BOX CANTON NEUCHATEL
 NE_MIN_EST = 2515000
@@ -21,7 +23,8 @@ def login_required(func):
         if 'login_code' in request.session : 
             try:
                 return func(request, DossierPPE.objects.get(login_code=request.session['login_code']), *args, **kwargs)
-            except:
+            except Exception as e:
+                print(f"Exception : {repr(e)}")
                 pass
         return redirect('/ppe/login')
     return wrapper

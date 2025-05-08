@@ -169,5 +169,8 @@ OLWIDGET = {
         "url_template": 'https://sitn.ne.ch/mapproxy95/wmts/1.0.0/{layer}/{style}/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png',
         "request_encoding": 'REST', # optional
         "format": 'image/png' # optional
+    },
+    "search": {
+        "url_template": 'https://sitn.ne.ch/search?limit=10&partitionlimit=2&interface=desktop&query={search_term}'
     }
 }

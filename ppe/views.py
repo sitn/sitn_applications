@@ -8,8 +8,8 @@ from django.conf.urls.static import static
 from django.core.files.storage import FileSystemStorage
 
 # INDIVIDUAL ELEMENTS
-from .models import DossierPPE, ContactPrincipal, Notaire, Signataire, AdresseFacturation, Geolocalisation
-from .forms import AdresseFacturationForm, NotaireForm, SignataireForm, GeolocalisationForm, ContactPrincipalForm
+from .models import DossierPPE, ContactPrincipal, Notaire, Signataire, AdresseFacturation, Geolocalisation, ZipFile
+from .forms import AdresseFacturationForm, NotaireForm, SignataireForm, GeolocalisationForm, ContactPrincipalForm, ZipFileForm
 
 from .util import get_localisation, login_required
 
@@ -61,28 +61,50 @@ def modification(request, doc):
     notaire_form = NotaireForm(request.POST, prefix='notaire')
     contact_form = ContactPrincipalForm(request.POST, prefix='contact')
     signataire_form = SignataireForm(request.POST, prefix='signataire')
-    facturation_form = AdresseFacturationForm(request.POST, request.FILES, prefix='facturation')
+    facturation_form = AdresseFacturationForm(request.POST, request.FILES or None, prefix='facturation')
 
     try:
         if isinstance(doc, object):
             if 'modification' in request.POST:
                 dossier_ppe = DossierPPE.objects.get(login_code=doc.login_code)
-                print(dossier_ppe.login_code)
+                contact_form = ContactPrincipalForm(
+                    request.POST, 
+                    instance=dossier_ppe.contact_principal, 
+                    prefix='contact'
+                    )
+                notaire_form = NotaireForm(
+                    request.POST, 
+                    instance=dossier_ppe.notaire, 
+                    prefix='notaire'
+                    )
+                signataire_form = SignataireForm(
+                    request.POST, dossier_ppe.signataire,
+                    prefix='signataire'
+                    )
+                facturation_form = AdresseFacturationForm(
+                    request.POST, 
+                    request.FILES, 
+                    instance=dossier_ppe.adresse_facturation,
+                    prefix='facturation'
+                    )
+
                 if (contact_form.is_valid() and
                     notaire_form.is_valid() and
-                    signataire_form.is_valid()):
+                    signataire_form.is_valid() and
+                    facturation_form.is_valid()):
 
                     contact_form.save()
                     notaire_form.save()
                     signataire_form.save()
-                    #facturation_form.save()
+                    facturation_form.save()
 
                     dossier_ppe.contact_principal = ContactPrincipal(pk=contact_form.instance.id)
                     dossier_ppe.notaire = Notaire(pk=notaire_form.instance.id)
                     dossier_ppe.signataire = Signataire(pk=signataire_form.instance.id)
+                    dossier_ppe.adresse_facturation = AdresseFacturation(pk=facturation_form.instance.id)
                     dossier_ppe.save()
 
-                    return redirect(f'/ppe/definition_type_dossier', dossier_ppe)
+                    return redirect(f'/ppe/overview', dossier_ppe)
                 else:
                     error_message = "Une valeur modifiée ne semble pas avoir été conforme."
 
@@ -179,7 +201,11 @@ def contact_principal(request):
 def login(request):
     if 'login_code' in request.POST:
         request.session['login_code'] = request.POST['login_code']
-        return redirect("/ppe/detail")
+        try:
+            doc = DossierPPE.objects.get(login_code=request.session['login_code'])
+            return redirect(f"/ppe/modification", {"dossier_ppe": doc})
+        except:
+            pass
     return render(request, "ppe/login.html")
 
 @login_required
@@ -188,8 +214,7 @@ def detail(request, doc):
 
 @login_required
 def overview(request, doc):
-
-    return render(request, "ppe/overview.html", {"overview": doc})
+    return render(request, "ppe/overview.html", {"dossier_ppe": doc})
 
 @login_required
 def soumission(request, doc):
@@ -226,7 +251,6 @@ def definition_type_dossier(request, doc, type_dossier=None):
             return render(request, "ppe/definition_type_dossier.html", {"error_message": 'Type ou référence invalide.'}) 
     elif type_dossier in ['M','R'] and 'login_code' in request.POST:
         login_code = request.POST['login_code']
-        print(login_code)
         return redirect("/ppe/modification")
 
     return render(
@@ -242,7 +266,17 @@ def definition_type_dossier(request, doc, type_dossier=None):
 @login_required
 def load_ppe_files(request, doc):
     """ Function to load the zip file with the PPE documents"""
+    error_message = None
 
-    return render(request, "ppe/load_ppe_files.html")
+    zip_form = ZipFileForm(request.POST, request.FILES or None, prefix='zip')
+    doc = DossierPPE.objects.get(login_code=doc.login_code)
+    if zip_form.is_valid():
+        zipfile = ZipFile(pk=zip_form.instance.id)
+        print(zipfile)
+        zip_form.save()
 
-    
+        return render(request, "ppe/load_ppe_files.html", {"dossier_ppe" : doc, "zipfile": zipfile })
+    else:
+        print('badaboum')
+
+    return render(request, "ppe/load_ppe_files.html", {"dossier_ppe" : doc, "zip_form": zip_form })

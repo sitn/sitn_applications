@@ -13,12 +13,14 @@ Etape 2: Détails du projet:
     <h3>Etape 3: Type de dossier</h3>  
       {% if dossier_ppe %}
       <p class="fs-5"><br>PPE sur le bien-fonds <b>{{ dossier_ppe.nummai }}</b> du cadastre 
-        de <b>{{ dossier_ppe.cadastre }}</b></p>
+        de <b>{{ dossier_ppe.cadastre }}</b>
+      </p>
 
         <form id="type_form" name="type_form" class="form-horizontal" method="post">
             {% csrf_token %}
+            <section name="ppe_type" id="ppe_type">
             <label for="type_dossier">Type de dossier<sup>*</sup>:</label>
-            <select  name="type_dossier" id="type_dossier" onchange="showSituationBatiments()">
+            <select  name="type_dossier" id="type_dossier" onchange="changeSectionDisplay()">
               <option value="" selected>Choisir...</option>
               <option value="C">Constitution</option>
               <option value="R">Révision</option>
@@ -29,14 +31,77 @@ Etape 2: Détails du projet:
               <b>Constitution</b> : création d'une nouvelle PPE dans un bâtiment existant ou futur.<br>
               <b>Révision</b> : révision d'une PPE déjà inscrite au registre foncier.<br>
               <b>Modification</b> : modification du dossier PPE avant son inscription au registre foncier (constitution ou révision).        
+              <br><br>
+              Si votre projet prévoit de radier la PPE actuellement inscrite au RF pour la refaire à neuf, 
+              sélectionnez l'option «Constitution».
             </div>
-            <div id="type_modification" style="display:none">
+            </section>
+
+            <section name="modification" id="modification" style="display:none">
+            <div id="type_modification">
               <label for "login_code">Identifiant unique du dossier d'origine</label>
               <input type="text" name="login_code" id="login_code"><br>
               <input type="submit" value="Chercher le dossier" class="btn btn-success">
             </div>
+            </section>
 
-            <div id="type_constitution" style="display:none">
+            <section name="revison" id="revision" style="display:none">
+            <div id="type_revision">
+              <p><br>
+                Veuillez cocher la bonne réponse :<br>
+                <div class="row">
+                  <div class="col">
+                  <p class="alert alert-success">La révision concerne uniquement des droits de jouissance</P>
+                  </div>
+                  <div class="col">
+                  <input type="radio" name="droits_jouissance" id="jouissance_oui" value="oui" onchange="showJouissanceRemark()">
+                  <label for="jouissance_oui">Oui</label>
+                  <input type="radio" name="droits_jouissance" id="jouissance_non" value="non" onchange="showJouissanceRemark()">
+                  <label for="jouissance_non">Non</label>
+                  </div>
+                </div>
+                <div class="row" id="elements_rf" style="display:none">
+                  <div class="col">
+                  <p class="alert alert-success">
+                    Les éléments qui figurent sur le plan de situation actuellement inscrit au registre foncier 
+                    (autres que des servitudes) restent identiques (bâtiments, places de parc, accès, murs, etc.)
+                  </p>
+                  </div>
+                  <div class="col val-middle">
+                  <input type="radio" name="elements_rf" id="rf_identique_oui" value="oui" onchange="showElementsRFQuestions()">
+                  <label for="rf_identique_oui">Oui</label>
+                  <input type="radio" name="elements_rf" id="jrf_identique_non" value="non" onchange="showElementsRFQuestions()">
+                  <label for="rf_identique_non">Non</label>
+                  </div>
+                </div>
+                <div class="row" id="new_jouissance" style="display:none">
+                  <div class="col">
+                  <p class="alert alert-success">
+                    Il y a un droit de jouissance nouveau ou modifié sur le plan de situation
+                  </p>
+                  </div>
+                  <div class="col">
+                  <input class="val-middle" type="radio" name="new_jouissance" id="droit_jouissance_oui" value="oui" onchange="showNewJouissanceInfo()">
+                  <label class="val-middle" for="droit_jouissance_oui">Oui</label>
+                  <input class="val-middle" type="radio" name="new_jouissance" id="droit_jouissance_non" value="non" onchange="showNewJouissanceInfo()">
+                  <label class="val-middle" for="droit_jouissance_non">Non</label>
+                  </div>
+                </div>
+                <div class="row alert alert-warning" id="droits_remark" name="droits_remark" style="display: none;">
+                  Si la révision concerne uniquement des droits de jouissance, le contrôle du dossier par le SGRF n’est pas nécessaire
+                </div>
+                <div class="row alert alert-warning" id="no_plan_remark" name="no_plan_remark" style="display: none;">
+                  L’établissement d’un plan de situation n’est pas nécessaire pour ce dossier.
+                </div>
+                <div class="row alert alert-warning" id="jouissance_remark" name="jouissance_remark" style="display: none;">
+                  Seuls les droits de jouissance sont à fournir pour l’établissement du plan de situation.
+                </div>
+              </p>
+            </div>
+            </section>
+
+            <section name="constitution" id="constitution" style="display:none">
+            <div id="type_constitution">
               <h4>Sitution des bâtiments*</h4>
               <p>
                 <input type="radio" name="situation_bati" id="bati_existant" value="bati_existant" onchange="showRefGeoshop()">
@@ -61,12 +126,13 @@ Etape 2: Détails du projet:
                     à l'adresse <a href="https://sitn.ne.ch/geoshop" target="_sitn">https://sitn.ne.ch/geoshop</a>
                   </p>
                 </div>
-              </div>
-              <input id="submit_btn" type="submit" value="Etape suivante >>" class="btn btn-success" style="display:none;">
             </div>
+          </section>
+          <input id="submit_btn" type="submit" value="Etape suivante >>" class="btn btn-success" style="display:none;">
+        </div>
 
+        <p class="red"><sup>*</sup>Les champs marqués d'un astérisque sont obligatoires</p>
         </form>
-    <p class="red"><sup>*</sup>Les champs marqués d'un astérisque sont obligatoires</p>
 
     {% else %}
     <h5>Une erreur est survenue.</h5>

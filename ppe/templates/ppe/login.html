@@ -5,10 +5,12 @@ Login
 <div name="content" class="content">
 {% block content %}
 {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+<h4>Récupération du dossier</h4>
 <p>        
     <form class="form-horizontal" method="POST">
         {% csrf_token %}
-        <label for="login_code">Veuillez indiquer le code de connexion</label>
+        <p>Veuillez saisir le code unique qui vous été communiqué lors de la création du dossier.</p>
+        <label for="login_code">Code unique :</label>
         <input type="text" name="login_code" id="login_code">
         <input type="submit" value="Login" class="btn btn-success">
     </form>

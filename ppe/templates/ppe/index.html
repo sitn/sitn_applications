@@ -11,7 +11,8 @@ Application de gestion des PPE
         par le service de la géomatique et du registre foncier (SGRF).
     </h4>
 
-    <p>Ce contrôle a pour but de vérifier la conformité des dossiers PPE aux directives en vigueur.
+    <p>Ce contrôle a pour but de vérifier la conformité des dossiers PPE aux directives en vigueur.</p>
+    <p>
     Lorsque vous soumettez un dossier, des contrôles automatiques sont effectués et un compte-rendu des 
     éléments à corriger vous est transmis. Une fois les contrôles automatiques validés, 
     l'un·e de nos collaborateur·rices prendra contact avec vous pour les dernières corrections 
@@ -22,28 +23,32 @@ Application de gestion des PPE
         Documentation de la constitution d'une PPE par le SGRF</a>
     </p>
 
-    <p>Veuillez choisir une action:</p>
+    <div class="row">
+        <div class="col">
+            <a href="{% url 'ppe:geolocalisation' %}" class="btn btn-success">Nouvelle soumission</a>
+            <i id="info2" class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+            <div id="info_soumission">Soumettre un dossier de constitution, de modification <br> 
+                ou de révision de PPE pour la première fois.</div>
 
-    <p>
-        <a href="{% url 'ppe:geolocalisation' %}" class="btn btn-success">Nouvelle soumission</a>
-        <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
-        <div id="info_soumission">Soumettre un dossier de constitution, de modification <br> 
-            ou de révision de PPE pour la première fois.</div>
-        
-        <a href="{% url 'ppe:modification' %}" class="btn btn-success">Modification une soumission</a>
-        <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
-        <div id="info_modification">Modifier les informations d'un dossier déjà soumis.</div>
-    </p>
+            <a href="{% url 'ppe:modification' %}" class="btn btn-success">Modification une soumission</a>
+            <i id="info1" class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+            <div id="info_modification">Modifier les informations d'un dossier déjà soumis.</div>
+        </div>
+    </div>
     
+    <div id="admin_list">
+    <br>
     <p><b>Admin: Liste des dossiers PPE en cours</b></p>
 {% if latest_dossiers_list %}
     <ul>
     {% for dossierppe in latest_dossiers_list %}
-        <li><a href="{% url 'ppe:detail' %}">Dossier PPE no. {{ dossierppe.id }}, du {{ dossierppe.date_creation }}</a></li>
+        <li><a href="{% url 'ppe:modification' %}">Dossier PPE no. {{ dossierppe.login_code }}, du {{ dossierppe.date_creation }}</a> -  {{ dossierppe.login_code }}</li>
     {% endfor %}
     </ul>
 {% else %}
     <p>Aucun dossier n'a été trouvé.</p>
 {% endif %}
+    </div>
+
 </div>
 {% endblock content %}

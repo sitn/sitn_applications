@@ -6,7 +6,7 @@ body {
 }
 
 
-div {
+div.contenu {
     padding: 5px;
 }
 
@@ -19,6 +19,14 @@ div.entete {
     text-align: left;
     background-color:lightseagreen ;
     border-bottom: 1 px solid grey;
+}
+
+section {
+  padding: 0px 2px;
+}
+
+.val-middle {
+  vertical-align: middle;
 }
 
 li a {
@@ -34,25 +42,27 @@ li a {
 }
 
 .dj_map {
-    width: 600px;
+    width: 700px;
     height: 500px;
     border: 1px solid darkgrey;
     clear: both;
 }
 
-a:link#home {
+div.entete a:link#home {
     color: white !important;
     text-decoration: none !important;
 }
 
-a:visited#home {
+div.entere a:visited#home {
     color: white !important;
     text-decoration: none !important;
 }
-a:hover#home {
-    color: rgb(34, 210, 125);
+
+div.entete a:hover#home {
+    color: white;
   }
-a:active#home {
+
+div.entete a:active#home {
     color: white;
   }
 
@@ -64,6 +74,25 @@ a:active#home {
     height: 2.95rem;
     font-size: 1rem;
     padding: 0.7rem;
+}
+
+i {
+ clear: none; 
+}
+
+div#info_localisation {
+  display: none;
+  margin-top: 15px;
+  margin-left: 3px;
+  padding: 5px;
+  font-size: small;
+  background-color: lightblue;
+  border: 1px solid cornflowerblue; 
+}
+
+i:hover + div#info_localisation {
+  position: absolute;
+  display: inline-block;
 }
 
 div#info_contact {
@@ -124,6 +153,8 @@ i:hover + div#info_accord {
   }
 
 div#info_type_dossier {
+    position: absolute;
+    z-index: 99;
     display: none;
     margin-top: 15px;
     margin-left: 3px;
@@ -134,6 +165,7 @@ div#info_type_dossier {
   }
 
 i:hover + div#info_type_dossier {
+    z-index: 99;
     position: absolute;
     display: inline-block;
 }

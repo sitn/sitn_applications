@@ -28,7 +28,7 @@ Dépôt d'un dossier:
             </p>
         {% if localisation_ppe %}
             <div class="col">
-                <input type="checkbox" id="check_mutation"  onclick="showMap()" checked>
+                <input type="checkbox" id="check_mutation"  onChange="showMap()" checked>
                 <label for="check_mutation" class="alert alert-success">
                     Mon projet ne nécessite PAS de modification du parcellaire (ou celle-ci a déjà été effectuée)
                 </label>
@@ -37,11 +37,13 @@ Dépôt d'un dossier:
         <div class="row">
             <div class="col">
                 <div name="mapwidget" id="mapwidget">
-                    <p>Veuillez localiser le bien-fonds sur la carte par un simple clic.</p>
+                    Veuillez localiser le bien-fonds sur la carte par un simple clic.
+                    <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+                    <div id="info_localisation">Un dossier PPE doit concerner un seul bien-fonds.</div>
                     {{ form }}
                 </div>
             </div>
-            <div class="col">
+            <div class="col" id="localisation_overview" name="localisation_overview">
                 <h5>Localisation sélectionnée</h5>
                 <p><b>Commune</b>: {{ localisation_ppe.commune }}</p>
                 <p><b>Cadastre</b>: {{ localisation_ppe.cadastre }}</p>
@@ -55,9 +57,9 @@ Dépôt d'un dossier:
                     choissisez le nouvel emplacement et cliquez sur <i>Revalider l'emplacement</i> 
                     puis sur <b>« Etape suivante » si le nouveau choix convient.</b>
                 </p>
-                <button id="geo_validation" onclick="changeFormAction()" class="btn btn-success">Revalider l'emplacement</button>
+                <button id="geo_validation" onclick="changeLocalisationFormAction()" class="btn btn-primary">Revalider l'emplacement</button>
             </div>
-            <input type="submit" value="Etape suivante >>" class="btn btn-success">
+            <input type="submit" value="Etape suivante" class="btn btn-success">
     {% else %}
             <div class="col">
                 <input type="checkbox" id="check_mutation"  onclick="showMap()">

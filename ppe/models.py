@@ -3,7 +3,11 @@ import uuid
 from django.contrib.gis.db import models
 from django.utils.timezone import now
 
-from django_extended_ol.forms.widgets import WMTSWidget
+from django_extended_ol.forms.widgets import WMTSWithSearchWidget 
+
+
+class ZipFile(models.Model):
+    zipfile = models.FileField(upload_to="files/zips/")
 
 class Geolocalisation(models.Model):
     geom = models.PointField(srid=2056)

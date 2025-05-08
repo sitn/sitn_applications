@@ -1,13 +1,24 @@
 from django.contrib.gis import forms
-from django_extended_ol.forms.widgets import WMTSWidget
+from django_extended_ol.forms.widgets import WMTSWithSearchWidget
 
-from .models import DossierPPE, Geolocalisation, AdresseFacturation
+from .models import DossierPPE, Geolocalisation, AdresseFacturation, ZipFile
 from .models import ContactPrincipal, Notaire, Signataire
 
 from django.utils.translation import gettext_lazy as _
 
+
+class ZipFileForm(forms.ModelForm):
+    class Meta:
+        model = ZipFile
+        prefix = "zip"
+        fields = fields = "__all__"
+        labels = {
+            "zipfile": _("Dossier zip des plans"),
+        }
+
+
 class GeolocalisationForm(forms.ModelForm):
-    geom = forms.PointField(widget=WMTSWidget(attrs={"geom": ""}))
+    geom = forms.PointField(widget=WMTSWithSearchWidget(attrs={"geom": ""}))
     class Meta: 
         model = Geolocalisation
         fields = "__all__"
@@ -84,7 +95,7 @@ class SignataireForm(forms.ModelForm):
         }
 
 class DossierPPEForm(forms.ModelForm):
-    geom = forms.PointField(widget=WMTSWidget())
+    geom = forms.PointField(widget=WMTSWithSearchWidget())
     class Meta: 
         model = DossierPPE
         fields = [
