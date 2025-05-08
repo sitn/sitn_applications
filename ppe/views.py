@@ -104,7 +104,7 @@ def modification(request, doc):
                     dossier_ppe.adresse_facturation = AdresseFacturation(pk=facturation_form.instance.id)
                     dossier_ppe.save()
 
-                    return redirect(f'/ppe/overview', dossier_ppe)
+                    return redirect(f'/ppe/definition_type_dossier', dossier_ppe)
                 else:
                     error_message = "Une valeur modifiée ne semble pas avoir été conforme."
 
@@ -251,7 +251,10 @@ def definition_type_dossier(request, doc, type_dossier=None):
             return render(request, "ppe/definition_type_dossier.html", {"error_message": 'Type ou référence invalide.'}) 
     elif type_dossier in ['M','R'] and 'login_code' in request.POST:
         login_code = request.POST['login_code']
-        return redirect("/ppe/modification")
+        if type_dossier == 'R':
+            return redirect(f"/ppe/overview")
+        else:
+            return redirect(f"/ppe/modification")
 
     return render(
         request,
@@ -274,9 +277,6 @@ def load_ppe_files(request, doc):
         zipfile = ZipFile(pk=zip_form.instance.id)
         print(zipfile)
         zip_form.save()
-
         return render(request, "ppe/load_ppe_files.html", {"dossier_ppe" : doc, "zipfile": zipfile })
-    else:
-        print('badaboum')
 
     return render(request, "ppe/load_ppe_files.html", {"dossier_ppe" : doc, "zip_form": zip_form })
