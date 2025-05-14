@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 def index(request):
     # A list for the PPE admins to see the latest demands
     # TODO : This should only be visible to admins
+    request.session['login_code'] = None
     latest_dossiers_list = DossierPPE.objects.order_by("-date_creation")[:5]
     template = loader.get_template("ppe/index.html")
     return HttpResponse(template.render({"latest_dossiers_list": latest_dossiers_list}, request))
@@ -26,12 +27,12 @@ def geolocalisation(request):
     # if this is a POST request we need to process the form data
     error_message = None
     localisation_ppe = None
-    geo_form = GeolocalisationForm()
+    geo_form = GeolocalisationForm(request.POST)
     form_action = 'geolocalisation'
 
     if 'geom' in request.POST:
         localisation = request.POST['geom']
-        geo_form = GeolocalisationForm(request.POST)
+        #geo_form = GeolocalisationForm(request.POST)
         if geo_form.is_valid():
             geo_form.save()
         # Convert an existing localisation to a JSON dict
@@ -39,9 +40,6 @@ def geolocalisation(request):
             localisation = json.loads(localisation)
             localisation_ppe = get_localisation(localisation)
         form_action = 'contact_principal'
-    else:
-        logger.warning(f"Error during geoloc. decoding")
-
 
     return render(
         request,
@@ -200,12 +198,14 @@ def contact_principal(request):
 
 def login(request):
     if 'login_code' in request.POST:
-        request.session['login_code'] = request.POST['login_code']
+        request.session['login_code'] = None
+        request.session['login_code'] = request.POST['login_code'].strip()
         try:
             doc = DossierPPE.objects.get(login_code=request.session['login_code'])
             return redirect(f"/ppe/modification", {"dossier_ppe": doc})
-        except:
-            pass
+        except Exception as e:
+            # Redisplay the geolocalisation form.
+            logger.warning(f"Error fetching the file : {repr(e)}")
     return render(request, "ppe/login.html")
 
 @login_required
@@ -270,13 +270,18 @@ def definition_type_dossier(request, doc, type_dossier=None):
 def load_ppe_files(request, doc):
     """ Function to load the zip file with the PPE documents"""
     error_message = None
+    zipfile = None
 
-    zip_form = ZipFileForm(request.POST, request.FILES or None, prefix='zip')
+    zip_form = ZipFileForm(request.POST, request.FILES, prefix='zip')
     doc = DossierPPE.objects.get(login_code=doc.login_code)
     if zip_form.is_valid():
+        zip_form.save()
+        print('=== FORM VALID ===')
+        print(zip_form.instance.id)
         zipfile = ZipFile(pk=zip_form.instance.id)
         print(zipfile)
-        zip_form.save()
-        return render(request, "ppe/load_ppe_files.html", {"dossier_ppe" : doc, "zipfile": zipfile })
 
+        return render(request, "ppe/load_ppe_files.html", {"dossier_ppe" : doc, "zipfile": zipfile })
+    
+    print('=== FORM INVALID ===')
     return render(request, "ppe/load_ppe_files.html", {"dossier_ppe" : doc, "zip_form": zip_form })
