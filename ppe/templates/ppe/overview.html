@@ -12,53 +12,79 @@ Dépôt d'un dossier - Récapitulatif:
 
         {% elif dossier_ppe %}
         <h3>Récapitulatif</h3>
-        <p class="fs-5"><br>PPE sur le bien-fonds <b>{{ dossier_ppe.nummai }}</b> du cadastre 
-            de <b>{{ dossier_ppe.cadastre }}</b></p>
 
         <div class="row">
-            <div class="col">
-                <h4>Contact principal (id: {{ dossier_ppe.contact_principal.id}})</h4>
-                <p>
-                    {{ dossier_ppe.contact_principal.nom}} {{ dossier_ppe.contact_principal.prenom }}</br>
-                    {%if dossier_ppe.contact_principal.raison_sociale %}
-                    Raison sociale: {{ dossier_ppe.contact_principal.raison_sociale }}</br>
-                    {% endif %}
-                    {{ dossier_ppe.contact_principal.no_tel }}</br>
-                    {{ dossier_ppe.contact_principal.email }}
-                </p>
-            </div>
-            <div class="col">         
-                <h4>Notaire (id: {{ dossier_ppe.notaire.id}})</h4>
-                <p>
-                    Me {{ dossier_ppe.notaire.nom}} {{ dossier_ppe.notaire.prenom }}</br>
-                    {%if dossier_ppe.notaire.raison_sociale %}
-                    {{ dossier_ppe.notaire.raison_sociale }}</br>
-                    {% endif %}
-                    {%if dossier_ppe.notaire.complement %}
-                    {{ dossier_ppe.notaire.complement }}</br>
-                    {% endif %}
-                    {{ dossier_ppe.notaire.rue }} {{ dossier_ppe.notaire.no_rue }}</br>
-                    {{ dossier_ppe.notaire.npa }} {{ dossier_ppe.notaire.localite }}</br>
-                </p>
-            </div>
+        <section>
+            <table width="100%">
+            <tr>
+                <th class="fs-4" width="30%">Localisation</th><th><a href="{% url 'ppe:edit_geolocalisation' %}" class="btn btn-success">Modifier</a></th>
+            </tr>
+            <tr class="fs-5"><td>Cadastre</td><td><b>{{ dossier_ppe.cadastre }}</b></td></tr>
+            <tr class="fs-5"><td>Bien-fonds</td><td><b>{{ dossier_ppe.nummai }}</b></td></tr>
+            </table>
+        </section>
         </div>
+
         <div class="row">
-            <div class="col">
-                <h4>Signataire (id: {{ dossier_ppe.signataire.id}})</h4>
-                <p>
-                    {{ dossier_ppe.signataire.nom}} {{ dossier_ppe.signataire.prenom }}</br>
-                    {%if dossier_ppe.signataire.raison_sociale %}
-                    {{ dossier_ppe.signataire.raison_sociale }}</br>
+        <section>
+            <table width="100%">
+            <tr>
+                <th class="fs-4" width="25%">Contacts</th>
+                <th><a href="{% url 'ppe:edit_contacts' %}" class="btn btn-success">Modifier</a></th>
+            </tr>
+                <td colspan="2" class="fs-5 fw-bold">Personne de contact principal</td>
+            <tr>
+                <td>Nom, prénom :</td><td>{{ dossier_ppe.contact_principal.nom}} {{ dossier_ppe.contact_principal.prenom }}</td>
+            </tr><tr>
+                    {%if dossier_ppe.contact_principal.raison_sociale %}
+                    <td>Raison sociale :</td><td>{{ dossier_ppe.contact_principal.raison_sociale }}</td>
                     {% endif %}
-                    {%if dossier_ppe.signataire.complement %}
-                    {{ dossier_ppe.signataire.complement }}</br>
-                    {% endif %}
-                    {{ dossier_ppe.signataire.rue }} {{ dossier_ppe.signataire.no_rue }}</br>
-                    {{ dossier_ppe.signataire.npa }} {{ dossier_ppe.signataire.localite }}</br>
-                </p>
-            </div>
-            <div class="col">  
-                <h4>Adresse de facturation (id: {{ dossier_ppe.adresse_facturation.id}})</h4>
+            </tr><tr>
+                    <td>No. tél :</td><td>{{ dossier_ppe.contact_principal.no_tel }}</td>
+            </tr><tr>
+                    <td>Courriel :</td><td>{{ dossier_ppe.contact_principal.email }}</td>
+            </tr>
+            </table>
+        </section>
+        </div>
+
+        <div class="row">
+        <section>        
+            <p class="fs-5 fw-bold">Notaire</p>
+            <p>
+                Me {{ dossier_ppe.notaire.nom}} {{ dossier_ppe.notaire.prenom }}</br>
+                {%if dossier_ppe.notaire.raison_sociale %}
+                {{ dossier_ppe.notaire.raison_sociale }}</br>
+                {% endif %}
+                {%if dossier_ppe.notaire.complement %}
+                {{ dossier_ppe.notaire.complement }}</br>
+                {% endif %}
+                {{ dossier_ppe.notaire.rue }} {{ dossier_ppe.notaire.no_rue }}</br>
+                {{ dossier_ppe.notaire.npa }} {{ dossier_ppe.notaire.localite }}</br>
+            </p>
+        </section>
+        </div>
+
+        <div class="row">
+        <section>
+            <p class="fs-5 fw-bold">Signataire</p>
+            <p>
+                {{ dossier_ppe.signataire.nom}} {{ dossier_ppe.signataire.prenom }}</br>
+                {%if dossier_ppe.signataire.raison_sociale %}
+                {{ dossier_ppe.signataire.raison_sociale }}</br>
+                {% endif %}
+                {%if dossier_ppe.signataire.complement %}
+                {{ dossier_ppe.signataire.complement }}</br>
+                {% endif %}
+                {{ dossier_ppe.signataire.rue }} {{ dossier_ppe.signataire.no_rue }}</br>
+                {{ dossier_ppe.signataire.npa }} {{ dossier_ppe.signataire.localite }}</br>
+            </p>
+        </section>
+        </div>
+    
+        <div class="row">
+        <section>
+                <p class="fs-5 fw-bold">Adresse de facturation</p>
                 <p>
                     {{ dossier_ppe.adresse_facturation.type_personne }}</br>
                     {{ dossier_ppe.adresse_facturation.nom_raison_sociale}} {{ dossier_ppe.adresse_facturation.prenom }}</br>
@@ -69,9 +95,32 @@ Dépôt d'un dossier - Récapitulatif:
                     {{ dossier_ppe.adresse_facturation.npa }} {{ dossier_ppe.adresse_facturation.localite }}</br>
                     <i>Chemin vers le fichier: {{ dossier_ppe.adresse_facturation.file }}</br></i>
                 </p>
-            </div>
+        </section>
         </div>
-
+                    
+        {%if dossier_ppe.type_dossier %}
+        <div class="row">
+        <section>
+            <table width="100%">
+            <tr>
+                <th class="fs-4" width="30%">Type de dossier</th><th><a href="{% url 'ppe:edit_ppe_type' %}" class="btn btn-success">Modifier</a></th>
+            </tr>
+            <tr>
+                <td>Type de dossier :</td>
+                <td>
+                    {% if dossier_ppe.type_dossier == 'C' %}
+                    Constitution
+                    {% elif dossier_ppe.type_dossier == 'R' %}
+                    Révision
+                    {% else %}
+                    Modification
+                    {% endif %}
+                </td>
+            </tr>
+            </table>
+        </section>
+        </div>
+        {% endif %}
         <p> 
             <form id="overview_form" class="form-horizontal" action="/ppe/soumission" method="post">
                 {% csrf_token %}

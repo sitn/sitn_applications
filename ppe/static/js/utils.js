@@ -18,7 +18,7 @@ function showMap() {
 
     // If the checkbox is checked, display the output text
     mapwidget.style.display =  checkBox.checked ? "block" : "none";
-    localisation_overview.style.display =  checkBox.checked ? "block" : "none";
+    //localisation_overview.style.display =  checkBox.checked ? "block" : "none";
 }
 
 function changeSectionDisplay() {
@@ -58,14 +58,19 @@ function showJouissanceRemark() {
     for (let i=0;i < droits_jouissance.length; i++) {
             if (droits_jouissance[i].checked) {
                 choix_droits_jouissance = droits_jouissance[i].value;
-                droits_remark.style.display = (choix_droits_jouissance == 'oui') ? "block" : "none";
-                elements_rf.style.display = (choix_droits_jouissance == 'oui') ? "none" : "block";
-                if (choix_droits_jouissance == 'oui') {
+                if (choix_droits_jouissance == 'non'){
+                    droits_remark.style.display = "none";
+                    elements_rf.style.display = "block";
+                    var ele = document.getElementsByName("elements_rf");
+                    for(var j=0;j<ele.length;j++)
+                        ele[j].checked = false;
+                    }
+                else {
+                    droits_remark.style.display = "block";
                     new_jouissance.style.display = "none";
                     no_plan_remark.style.display = "none";
                     jouissance_remark.style.display = "none";
-                    document.getElementsByName("elements_rf")[0].value = false;
-                    document.getElementsByName("elements_rf")[1].value = false;
+                    elements_rf.style.display = "none";
                 }
                 submit_btn.style.display = "block";
             }
@@ -80,12 +85,15 @@ function showElementsRFQuestions() {
         for (let i=0;i < elements_rf.length; i++) {
                 if (elements_rf[i].checked) {
                     choix_elements_rf = elements_rf[i].value;
-                    new_jouissance.style.display = (choix_elements_rf == 'oui') ? "block" : "none";
+                    var ele = document.getElementsByName("new_jouissance");
+                    for(var k=0;k<ele.length;k++)
+                        ele[k].checked = false;
                     if (choix_elements_rf == 'non') {
+                        new_jouissance.style.display = "none";
                         no_plan_remark.style.display = "none";
                         jouissance_remark.style.display = "none";
-                        document.getElementsByName("new_jouissance")[0].value = false;
-                        document.getElementsByName("new_jouissance")[1].value = false;
+                    } else {
+                        new_jouissance.style.display = "block";
                     }
                     submit_btn.style.display = "block";
                 }

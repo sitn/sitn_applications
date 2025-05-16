@@ -285,3 +285,31 @@ def load_ppe_files(request, doc):
     
     print('=== FORM INVALID ===')
     return render(request, "ppe/load_ppe_files.html", {"dossier_ppe" : doc, "zip_form": zip_form })
+
+@login_required
+def edit_geolocalisation(request, doc):
+    return render(request, "ppe/geolocalisation.html", {"dossier_ppe": doc})
+
+@login_required
+def edit_contacts(request, doc):
+    error_message = None
+    try:
+        dossier_ppe = DossierPPE.objects.get(login_code=doc.login_code)        
+        return render(request, "ppe/modification.html", {
+            "error_mesage": error_message,
+            "dossier": doc,
+            "contact_form": ContactPrincipalForm(instance=doc.contact_principal, prefix='contact'),
+            "notaire_form": NotaireForm(instance=doc.notaire, prefix='notaire'),
+            "signataire_form": SignataireForm(instance=doc.signataire, prefix='signataire'),
+            "facturation_form": AdresseFacturationForm(instance=doc.adresse_facturation, prefix='facturation'),
+            "cadastre": doc.cadastre,
+            "nummai": doc.nummai,
+            "geolocalisation_ppe": doc.geom})
+
+    except:
+        return render(request, "ppe/modification.html", {"error_message": "Il manque l'identifiant du dossier."})
+
+@login_required
+def edit_ppe_type(request, doc, type_dossier=None):
+    error_message = None
+    return render(request, "ppe/definition_type_dossier.html", {"dossier_ppe": doc})
