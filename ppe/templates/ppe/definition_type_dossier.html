@@ -21,10 +21,10 @@ Etape 2: Détails du projet:
             <section name="ppe_type" id="ppe_type">
             <label for="type_dossier">Type de dossier<sup>*</sup>:</label>
             <select  name="type_dossier" id="type_dossier" onchange="changeSectionDisplay()">
-              <option value="" selected>Choisir...</option>
-              <option value="C">Constitution</option>
-              <option value="R">Révision</option>
-              <option value="M">Modification</option>
+              <option value="" {% if dossier_ppe.type_dossier == '' %}selected{% endif %}>Choisir...</option>
+              <option value="C" {% if dossier_ppe.type_dossier == 'C' %}selected{% endif %}>Constitution</option>
+              <option value="R" {% if dossier_ppe.type_dossier == 'R' %}selected{% endif %}>Révision</option>
+              <option value="M" {% if dossier_ppe.type_dossier == 'M' %}selected{% endif %}>Modification</option>
             </select>
             <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
             <div id="info_type_dossier">
@@ -37,7 +37,7 @@ Etape 2: Détails du projet:
             </div>
             </section>
 
-            <section name="modification" id="modification" style="display:none">
+            <section name="modification" id="modification"  {% if dossier_ppe.type_dossier != 'M' %}style="display:none"{% endif %}>
             <div id="type_modification">
               <label for "login_code">Identifiant unique du dossier d'origine</label>
               <input type="text" name="login_code" id="login_code"><br>
@@ -45,13 +45,13 @@ Etape 2: Détails du projet:
             </div>
             </section>
 
-            <section name="revison" id="revision" style="display:none">
+            <section name="revison" id="revision"  {% if dossier_ppe.type_dossier != 'R' %}style="display:none"{% endif %}>
             <div id="type_revision">
               <p><br>
                 Veuillez cocher la bonne réponse :<br>
                 <div class="row">
                   <div class="col">
-                  <p class="alert alert-success">La révision concerne uniquement des droits de jouissance</P>
+                  <p class="alert alert-success">La révision concerne uniquement des droits de jouissance</p>
                   </div>
                   <div class="col">
                   <input type="radio" name="droits_jouissance" id="jouissance_oui" value="oui" onchange="showJouissanceRemark()">
@@ -63,11 +63,11 @@ Etape 2: Détails du projet:
                 <div class="row" id="elements_rf" style="display:none">
                   <div class="col">
                   <p class="alert alert-success">
-                    Les éléments qui figurent sur le plan de situation actuellement inscrit au registre foncier 
+                    Les éléments qui figurent sur le plan de situation actuellement inscrit au registre foncier<br> 
                     (autres que des servitudes) restent identiques (bâtiments, places de parc, accès, murs, etc.)
                   </p>
                   </div>
-                  <div class="col val-middle">
+                  <div class="col">
                   <input type="radio" name="elements_rf" id="rf_identique_oui" value="oui" onchange="showElementsRFQuestions()">
                   <label for="rf_identique_oui">Oui</label>
                   <input type="radio" name="elements_rf" id="jrf_identique_non" value="non" onchange="showElementsRFQuestions()">
@@ -100,7 +100,7 @@ Etape 2: Détails du projet:
             </div>
             </section>
 
-            <section name="constitution" id="constitution" style="display:none">
+            <section name="constitution" id="constitution" {% if dossier_ppe.type_dossier != 'C' %}style="display:none"{% endif %}>
             <div id="type_constitution">
               <h4>Sitution des bâtiments*</h4>
               <p>

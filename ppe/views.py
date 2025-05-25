@@ -202,7 +202,7 @@ def login(request):
         request.session['login_code'] = request.POST['login_code'].strip()
         try:
             doc = DossierPPE.objects.get(login_code=request.session['login_code'])
-            return redirect(f"/ppe/modification", {"dossier_ppe": doc})
+            return redirect(f"/ppe/overview", {"dossier_ppe": doc})
         except Exception as e:
             # Redisplay the geolocalisation form.
             logger.warning(f"Error fetching the file : {repr(e)}")
@@ -251,6 +251,7 @@ def definition_type_dossier(request, doc, type_dossier=None):
             return render(request, "ppe/definition_type_dossier.html", {"error_message": 'Type ou référence invalide.'}) 
     elif type_dossier in ['M','R'] and 'login_code' in request.POST:
         login_code = request.POST['login_code']
+        dossier_ppe.save()
         if type_dossier == 'R':
             return redirect(f"/ppe/overview")
         else:
@@ -276,27 +277,113 @@ def load_ppe_files(request, doc):
     doc = DossierPPE.objects.get(login_code=doc.login_code)
     if zip_form.is_valid():
         zip_form.save()
-        print('=== FORM VALID ===')
         print(zip_form.instance.id)
         zipfile = ZipFile(pk=zip_form.instance.id)
         print(zipfile)
 
         return render(request, "ppe/load_ppe_files.html", {"dossier_ppe" : doc, "zipfile": zipfile })
-    
-    print('=== FORM INVALID ===')
+
     return render(request, "ppe/load_ppe_files.html", {"dossier_ppe" : doc, "zip_form": zip_form })
 
 @login_required
 def edit_geolocalisation(request, doc):
-    return render(request, "ppe/geolocalisation.html", {"dossier_ppe": doc})
+    error_message = None
+    localisation_ppe = None
+    geo_form = GeolocalisationForm(request.POST)
+
+    try:
+        # We get the current entry of the dossier ppe if it exists
+        dossier_ppe = DossierPPE.objects.get(login_code=doc.login_code)
+    except:
+        # ELSE we return an error
+        error_message = "Aucun dossier avec ce code n'a pu être trouvé. "+ doc.login_code
+        return render(request, "ppe/geolocalisation.html", {"dossier_ppe": doc, "error_message": error_message})  
+    
+    if 'geom' in request.POST:
+        localisation = request.POST['geom']
+        #geo_form = GeolocalisationForm(request.POST)
+        if geo_form.is_valid():
+            geo_form.save()
+        # Convert an existing localisation to a JSON dict
+        if isinstance(localisation, str) and localisation != '':
+            localisation = json.loads(localisation)
+            localisation_ppe = get_localisation(localisation)
+            #geolocalisation_ppe = ast.literal_eval(localisation_ppe)
+            dossier_ppe.cadastre = localisation_ppe["cadastre"]
+            dossier_ppe.numcad = localisation_ppe["numcad"]
+            dossier_ppe.nummai = localisation_ppe["nummai"]
+            dossier_ppe.coord_E = localisation_ppe["coord_est"]
+            dossier_ppe.coord_N = localisation_ppe["coord_nord"]
+            dossier_ppe.date_creation = datetime.datetime.now()
+            dossier_ppe.geom = Point(localisation_ppe["coordinates"])
+            dossier_ppe.save()
+        form_action = 'overview'
+        return redirect(f"/ppe/overview")
+
+    return render(
+        request,
+        "ppe/geolocalisation.html",
+        {
+            "error_message": error_message,
+            "localisation_ppe": localisation_ppe,
+            "form": geo_form,
+            "form_action": 'edit_geolocalisation',
+        }
+    )
 
 @login_required
 def edit_contacts(request, doc):
     error_message = None
+    notaire_form = NotaireForm(request.POST, prefix='notaire')
+    contact_form = ContactPrincipalForm(request.POST, prefix='contact')
+    signataire_form = SignataireForm(request.POST, prefix='signataire')
+    facturation_form = AdresseFacturationForm(request.POST, request.FILES or None, prefix='facturation')
+
     try:
-        dossier_ppe = DossierPPE.objects.get(login_code=doc.login_code)        
+        if isinstance(doc, object):
+            if 'modification' in request.POST:
+                dossier_ppe = DossierPPE.objects.get(login_code=doc.login_code)
+                contact_form = ContactPrincipalForm(
+                    request.POST, 
+                    instance=dossier_ppe.contact_principal, 
+                    prefix='contact'
+                    )
+                notaire_form = NotaireForm(
+                    request.POST, 
+                    instance=dossier_ppe.notaire, 
+                    prefix='notaire'
+                    )
+                signataire_form = SignataireForm(
+                    request.POST, dossier_ppe.signataire,
+                    prefix='signataire'
+                    )
+                facturation_form = AdresseFacturationForm(
+                    request.POST, 
+                    request.FILES, 
+                    instance=dossier_ppe.adresse_facturation,
+                    prefix='facturation'
+                    )
+
+                if (contact_form.is_valid() and
+                    notaire_form.is_valid() and
+                    signataire_form.is_valid() and
+                    facturation_form.is_valid()):
+
+                    contact_form.save()
+                    notaire_form.save()
+                    signataire_form.save()
+                    facturation_form.save()
+
+                    dossier_ppe.contact_principal = ContactPrincipal(pk=contact_form.instance.id)
+                    dossier_ppe.notaire = Notaire(pk=notaire_form.instance.id)
+                    dossier_ppe.signataire = Signataire(pk=signataire_form.instance.id)
+                    dossier_ppe.adresse_facturation = AdresseFacturation(pk=facturation_form.instance.id)
+                    dossier_ppe.save()
+
+                return redirect(f'/ppe/overview', dossier_ppe)
+
         return render(request, "ppe/modification.html", {
-            "error_mesage": error_message,
+            "error_message": error_message,
             "dossier": doc,
             "contact_form": ContactPrincipalForm(instance=doc.contact_principal, prefix='contact'),
             "notaire_form": NotaireForm(instance=doc.notaire, prefix='notaire'),
@@ -310,6 +397,22 @@ def edit_contacts(request, doc):
         return render(request, "ppe/modification.html", {"error_message": "Il manque l'identifiant du dossier."})
 
 @login_required
-def edit_ppe_type(request, doc, type_dossier=None):
+def edit_ppe_type(request, doc):
     error_message = None
-    return render(request, "ppe/definition_type_dossier.html", {"dossier_ppe": doc})
+
+    try:
+        # We get the current entry of the dossier ppe if it exists
+        dossier_ppe = DossierPPE.objects.get(login_code=doc.login_code)
+    except:
+        # ELSE we return an error
+        error_message = "Aucun dossier avec ce code n'a pu être trouvé."
+        return render(request, "ppe/definition_type_dossier.html", {"error_message": error_message})  
+
+    if 'type_dossier' in request.POST and request.POST["type_dossier"] in ('C','M','R'):
+        type_dossier = request.POST["type_dossier"]
+        dossier_ppe.type_dossier = type_dossier
+        dossier_ppe.save()
+        
+        return redirect(f"/ppe/overview")
+    else: 
+        return render(request, "ppe/definition_type_dossier.html", {"dossier_ppe": doc})
