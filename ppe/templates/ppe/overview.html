@@ -1,77 +1,136 @@
 {% extends 'ppe/base.html' %}
 
 {% block titre %}
-Dépôt d'un dossier - étape 2:
+Dépôt d'un dossier - Récapitulatif:
 {% endblock titre %}
 
-<div name="contenu" class="contenu">
-{% block contenu %}
+<div name="content" class="content">
+{% block content %}
 
     <div name="contacts" class="container">
         {% if error_message %}<p><strong>{{ error_message }}</strong></p>
-        {% elif overview %}
-        <h3>Aperçu des informations de base du dossier PPE</h3>
-        <h4>Localisation</h4>
+
+        {% elif dossier_ppe %}
+        <h3>Récapitulatif</h3>
+
+        <div class="row">
+        <section>
+            <table width="100%">
+            <tr>
+                <th class="fs-4" width="30%">Localisation</th><th><a href="{% url 'ppe:edit_geolocalisation' %}" class="btn btn-success">Modifier</a></th>
+            </tr>
+            <tr class="fs-5"><td>Cadastre</td><td><b>{{ dossier_ppe.cadastre }}</b></td></tr>
+            <tr class="fs-5"><td>Bien-fonds</td><td><b>{{ dossier_ppe.nummai }}</b></td></tr>
+            </table>
+        </section>
+        </div>
+
+        <div class="row">
+        <section>
+            <table width="100%">
+            <tr>
+                <th class="fs-4" width="25%">Contacts</th>
+                <th><a href="{% url 'ppe:edit_contacts' %}" class="btn btn-success">Modifier</a></th>
+            </tr>
+                <td colspan="2" class="fs-5 fw-bold">Personne de contact principal</td>
+            <tr>
+                <td>Nom, prénom :</td><td>{{ dossier_ppe.contact_principal.nom}} {{ dossier_ppe.contact_principal.prenom }}</td>
+            </tr><tr>
+                    {%if dossier_ppe.contact_principal.raison_sociale %}
+                    <td>Raison sociale :</td><td>{{ dossier_ppe.contact_principal.raison_sociale }}</td>
+                    {% endif %}
+            </tr><tr>
+                    <td>No. tél :</td><td>{{ dossier_ppe.contact_principal.no_tel }}</td>
+            </tr><tr>
+                    <td>Courriel :</td><td>{{ dossier_ppe.contact_principal.email }}</td>
+            </tr>
+            </table>
+        </section>
+        </div>
+
+        <div class="row">
+        <section>        
+            <p class="fs-5 fw-bold">Notaire</p>
+            <p>
+                Me {{ dossier_ppe.notaire.nom}} {{ dossier_ppe.notaire.prenom }}</br>
+                {%if dossier_ppe.notaire.raison_sociale %}
+                {{ dossier_ppe.notaire.raison_sociale }}</br>
+                {% endif %}
+                {%if dossier_ppe.notaire.complement %}
+                {{ dossier_ppe.notaire.complement }}</br>
+                {% endif %}
+                {{ dossier_ppe.notaire.rue }} {{ dossier_ppe.notaire.no_rue }}</br>
+                {{ dossier_ppe.notaire.npa }} {{ dossier_ppe.notaire.localite }}</br>
+            </p>
+        </section>
+        </div>
+
+        <div class="row">
+        <section>
+            <p class="fs-5 fw-bold">Signataire</p>
+            <p>
+                {{ dossier_ppe.signataire.nom}} {{ dossier_ppe.signataire.prenom }}</br>
+                {%if dossier_ppe.signataire.raison_sociale %}
+                {{ dossier_ppe.signataire.raison_sociale }}</br>
+                {% endif %}
+                {%if dossier_ppe.signataire.complement %}
+                {{ dossier_ppe.signataire.complement }}</br>
+                {% endif %}
+                {{ dossier_ppe.signataire.rue }} {{ dossier_ppe.signataire.no_rue }}</br>
+                {{ dossier_ppe.signataire.npa }} {{ dossier_ppe.signataire.localite }}</br>
+            </p>
+        </section>
+        </div>
+    
+        <div class="row">
+        <section>
+                <p class="fs-5 fw-bold">Adresse de facturation</p>
+                <p>
+                    {{ dossier_ppe.adresse_facturation.type_personne }}</br>
+                    {{ dossier_ppe.adresse_facturation.nom_raison_sociale}} {{ dossier_ppe.adresse_facturation.prenom }}</br>
+                    {%if dossier_ppe.adresse_facturation.complement %}
+                    {{ dossier_ppe.adresse_facturation.complement }}</br>
+                    {% endif %}
+                    {{ dossier_ppe.adresse_facturation.rue }} {{ dossier_ppe.adresse_facturation.no_rue }}</br>
+                    {{ dossier_ppe.adresse_facturation.npa }} {{ dossier_ppe.adresse_facturation.localite }}</br>
+                    <i>Chemin vers le fichier: {{ dossier_ppe.adresse_facturation.file }}</br></i>
+                </p>
+        </section>
+        </div>
+                    
+        {%if dossier_ppe.type_dossier %}
+        <div class="row">
+        <section>
+            <table width="100%">
+            <tr>
+                <th class="fs-4" width="30%">Type de dossier</th><th><a href="{% url 'ppe:edit_ppe_type' %}" class="btn btn-success">Modifier</a></th>
+            </tr>
+            <tr>
+                <td>Type de dossier :</td>
+                <td>
+                    {% if dossier_ppe.type_dossier == 'C' %}
+                    Constitution
+                    {% elif dossier_ppe.type_dossier == 'R' %}
+                    Révision
+                    {% else %}
+                    Modification
+                    {% endif %}
+                </td>
+            </tr>
+            </table>
+        </section>
+        </div>
+        {% endif %}
         <p> 
-            Commune: {{ overview.commune }}</br>
-            Cadastre: {{ overview.cadastre }}</br>
-            EGRID: {{ overview.egrid }}</br>
-            No. bien-fonds: {{ overview.nummai }}
+            <form id="overview_form" class="form-horizontal" action="/ppe/soumission" method="post">
+                {% csrf_token %}
+                <input type="submit" value="Etape suivante >>" class="btn btn-success">
+            </form> 
         </p>
 
-        <h4>Contact principal</h4>
-        <p>
-            {{ overview.contact_principal.politesse }}</br> 
-            {{ overview.contact_principal.id}} {{ overview.contact_principal.prenom }}</br>
-            {%if overview.contact_principal.raison_sociale %}
-            Raison sociale: {{ overview.contact_principal.raison_sociale }}</br>
-            {% endif %}
-            {{ overview.contact_principal.no_tel }}</br>
-            {{ overview.contact_principal.email }}
-        </p>
-
-        <h4>Notaire</h4>
-        <p>
-            Me {{ overview.notaire.nom}} {{ overview.notaire.prenom }}</br>
-            {%if overview.notaire.raison_sociale %}
-            {{ overview.notaire.raison_sociale }}</br>
-            {% endif %}
-            {%if overview.notaire.complement %}
-            {{ overview.notaire.complement }}</br>
-            {% endif %}
-            {{ overview.notaire.rue }} {{ overview.notaire.no_rue }}</br>
-            {{ overview.notaire.npa }} {{ overview.notaire.localite }}</br>
-        </p>
-
-        <h4>Signataire</h4>
-        <p>
-            {{ overview.signataire.nom}} {{ overview.signataire.prenom }}</br>
-            {%if overview.signataire.raison_sociale %}
-            {{ overview.signataire.raison_sociale }}</br>
-            {% endif %}
-            {%if overview.signataire.complement %}
-            {{ overview.signataire.complement }}</br>
-            {% endif %}
-            {{ overview.signataire.rue }} {{ overview.signataire.no_rue }}</br>
-            {{ overview.signataire.npa }} {{ overview.signataire.localite }}</br>
-        </p>
-        <h4>Adresse de facturation</h4>
-        <p>
-            {{ overview.adresse_facturation.type_personne }}</br>
-            {{ overview.adresse_facturation.nom_raison_sociale}} {{ overview.adresse_facturation.prenom }}</br>
-            {%if overview.adresse_facturation.complement %}
-            {{ overview.adresse_facturation.complement }}</br>
-            {% endif %}
-            {{ overview.adresse_facturation.rue }} {{ overview.adresse_facturation.no_rue }}</br>
-            {{ overview.adresse_facturation.npa }} {{ overview.adresse_facturation.localite }}</br>
-        </p>
         {% else %}
         <p>Une erreur inconnue est survenue</p>
         {% endif %}
-        <p> 
-            <button class="btn btn-success" onclick="alert('ToDo: Permettre des corrections')">Modifier un élément</button>
-            <a href="{% url 'ppe:soumission' %}" class="btn btn-success">Déposer le dossier</a>
-        </p>
     </div>
-{% endblock contenu %}
+{% endblock content %}
 </div>

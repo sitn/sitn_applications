@@ -4,28 +4,148 @@
 Etape 2: Détails du projet:
 {% endblock titre %}
 
-<div name="contenu" class="contenu">
-{% block contenu %}
-{% if error_message %}<p><strong>{{ error_message }}</strong></p>
-{% endif %}
-<h3>Etape 2: Détails du projet</h3>
-<p>        
-    <form class="form-horizontal">
-        <label for="type_dossier">Type de dossier<sup>*</sup>:</label>
+<div name="content" class="content">
+{% block content %}
+  <div name="contacts" class="container">
+    {% if error_message %}<p><strong>{{ error_message }}</strong></p>
+    {% endif %}
 
-        <select id="type_dossier">
-        {% if type_dossier %}
-        <option value="C" selected>Constitution</option>
-        {% else %}
-          <option value="C">Constitution</option>
-        {% endif %}
-          <option value="R">Révision</option>
-          <option value="M">Modification</option>
-        </select> 
-    </form>
-</p>
-<p class="red"><sup>*</sup>Les champs marqués d’un astérisque sont obligatoires</p>
+    <h3>Etape 3: Type de dossier</h3>  
+      {% if dossier_ppe %}
+      <p class="fs-5"><br>PPE sur le bien-fonds <b>{{ dossier_ppe.nummai }}</b> du cadastre 
+        de <b>{{ dossier_ppe.cadastre }}</b>
+      </p>
 
+        <form id="type_form" name="type_form" class="form-horizontal" method="post">
+            {% csrf_token %}
+            <section name="ppe_type" id="ppe_type">
+            <label for="type_dossier">Type de dossier<sup>*</sup>:</label>
+            <select  name="type_dossier" id="type_dossier" onchange="changeSectionDisplay()">
+              <option value="" {% if dossier_ppe.type_dossier == '' %}selected{% endif %}>Choisir...</option>
+              <option value="C" {% if dossier_ppe.type_dossier == 'C' %}selected{% endif %}>Constitution</option>
+              <option value="R" {% if dossier_ppe.type_dossier == 'R' %}selected{% endif %}>Révision</option>
+              <option value="M" {% if dossier_ppe.type_dossier == 'M' %}selected{% endif %}>Modification</option>
+            </select>
+            <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+            <div id="info_type_dossier">
+              <b>Constitution</b> : création d'une nouvelle PPE dans un bâtiment existant ou futur.<br>
+              <b>Révision</b> : révision d'une PPE déjà inscrite au registre foncier.<br>
+              <b>Modification</b> : modification du dossier PPE avant son inscription au registre foncier (constitution ou révision).        
+              <br><br>
+              Si votre projet prévoit de radier la PPE actuellement inscrite au RF pour la refaire à neuf, 
+              sélectionnez l'option «Constitution».
+            </div>
+            </section>
 
-{% endblock contenu %}
+            <section name="modification" id="modification"  {% if dossier_ppe.type_dossier != 'M' %}style="display:none"{% endif %}>
+            <div id="type_modification">
+              <label for "login_code">Identifiant unique du dossier d'origine</label>
+              <input type="text" name="login_code" id="login_code"><br>
+              <input type="submit" value="Chercher le dossier" class="btn btn-success">
+            </div>
+            </section>
+
+            <section name="revison" id="revision"  {% if dossier_ppe.type_dossier != 'R' %}style="display:none"{% endif %}>
+            <div id="type_revision">
+              <p><br>
+                Veuillez cocher la bonne réponse :<br>
+                <div class="row">
+                  <div class="col">
+                  <p class="alert alert-success">La révision concerne uniquement des droits de jouissance</p>
+                  </div>
+                  <div class="col">
+                  <input type="radio" name="droits_jouissance" id="jouissance_oui" value="oui" onchange="showJouissanceRemark()">
+                  <label for="jouissance_oui">Oui</label>
+                  <input type="radio" name="droits_jouissance" id="jouissance_non" value="non" onchange="showJouissanceRemark()">
+                  <label for="jouissance_non">Non</label>
+                  </div>
+                </div>
+                <div class="row" id="elements_rf" style="display:none">
+                  <div class="col">
+                  <p class="alert alert-success">
+                    Les éléments qui figurent sur le plan de situation actuellement inscrit au registre foncier<br> 
+                    (autres que des servitudes) restent identiques (bâtiments, places de parc, accès, murs, etc.)
+                  </p>
+                  </div>
+                  <div class="col">
+                  <input type="radio" name="elements_rf" id="rf_identique_oui" value="oui" onchange="showElementsRFQuestions()">
+                  <label for="rf_identique_oui">Oui</label>
+                  <input type="radio" name="elements_rf" id="jrf_identique_non" value="non" onchange="showElementsRFQuestions()">
+                  <label for="rf_identique_non">Non</label>
+                  </div>
+                </div>
+                <div class="row" id="new_jouissance" style="display:none">
+                  <div class="col">
+                  <p class="alert alert-success">
+                    Il y a un droit de jouissance nouveau ou modifié sur le plan de situation
+                  </p>
+                  </div>
+                  <div class="col">
+                  <input class="val-middle" type="radio" name="new_jouissance" id="droit_jouissance_oui" value="oui" onchange="showNewJouissanceInfo()">
+                  <label class="val-middle" for="droit_jouissance_oui">Oui</label>
+                  <input class="val-middle" type="radio" name="new_jouissance" id="droit_jouissance_non" value="non" onchange="showNewJouissanceInfo()">
+                  <label class="val-middle" for="droit_jouissance_non">Non</label>
+                  </div>
+                </div>
+                <div class="row alert alert-warning" id="droits_remark" name="droits_remark" style="display: none;">
+                  Si la révision concerne uniquement des droits de jouissance, le contrôle du dossier par le SGRF n’est pas nécessaire
+                </div>
+                <div class="row alert alert-warning" id="no_plan_remark" name="no_plan_remark" style="display: none;">
+                  L’établissement d’un plan de situation n’est pas nécessaire pour ce dossier.
+                </div>
+                <div class="row alert alert-warning" id="jouissance_remark" name="jouissance_remark" style="display: none;">
+                  Seuls les droits de jouissance sont à fournir pour l’établissement du plan de situation.
+                </div>
+              </p>
+            </div>
+            </section>
+
+            <section name="constitution" id="constitution" {% if dossier_ppe.type_dossier != 'C' %}style="display:none"{% endif %}>
+            <div id="type_constitution">
+              <h4>Sitution des bâtiments*</h4>
+              <p>
+                <input type="radio" name="situation_bati" id="bati_existant" value="bati_existant" onchange="showRefGeoshop()">
+                <label for="bati_existant">Tous les bâtiments sont existants et leur emprise au sol n'est pas modifiée
+                </label><br>
+                <input type="radio" name="situation_bati" id="nouveau_bati" value="nouveau_batiment" onchange="showRefGeoshop()">
+                <label for="nouveau_bati">Au moins un bâtiment est nouveau ou son emprise est modifiée
+                </label>
+              </p>
+              <div id="ref_geoshop" style="display:none">
+                <div class="col">
+                <label for="reference_geoshop">Référence geoshop*</label>
+                <input type="text" name="ref_geoshop" id="reference_geoshop">
+                <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+                <div id="info_reference_geoshop">
+                  Référence de commande des données cadastrales
+                </div><br>
+              </div>
+                <div class="col">
+                  <br>
+                  <p class="alert alert-success">
+                    Vous n'avez pas encore commandé les données cadastrales ? Vous pouvez les commander dans notre geoshop
+                    à l'adresse <a href="https://sitn.ne.ch/geoshop" target="_sitn">https://sitn.ne.ch/geoshop</a>
+                  </p>
+                </div>
+            </div>
+          </section>
+          <input id="submit_btn" type="submit" value="Etape suivante >>" class="btn btn-success" style="display:none;">
+          <p class="red"><sup>*</sup>Les champs marqués d'un astérisque sont obligatoires</p>
+        </div>
+        </form>
+
+    {% else %}
+    <h5>Une erreur est survenue.</h5>
+      <p>        
+        <form class="form-horizontal" method="POST">
+          {% csrf_token %}
+            <label for "id_dossier">Veuillez indiquer le no. de dossier PPE</label>
+            <input type="text" name="id_dossier" id ="id_dossier">
+            <input type="submit" value="Chercher le dossier" class="btn btn-success">
+        </form>
+      </p>
+    {% endif %}
+  </div>
+
+{% endblock content %}
 </div>

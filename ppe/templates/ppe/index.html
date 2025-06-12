@@ -4,32 +4,51 @@
 Application de gestion des PPE
 {% endblock titre %}
 
-{% block contenu %}
-<div name="contenu" class="container">
+{% block content %}
+<div name="content" class="container">
     
-    <h2>Bienvenue sur l'application de gestion numérique des dossiers PPE</h2>
+    <h4>Bienvenue sur l'application de contrôle des dossiers numériques de propriété par étages (PPE) 
+        par le service de la géomatique et du registre foncier (SGRF).
+    </h4>
 
-    <h4>Veuillez choisir une action:</h4>
-
+    <p>Ce contrôle a pour but de vérifier la conformité des dossiers PPE aux directives en vigueur.</p>
     <p>
-        <a href="{% url 'ppe:geolocalisation' %}" class="btn btn-success">Dépot d'un dossier</a>
-        <a href="{% url 'ppe:modification' %}" class="btn btn-success">Modification d'un dossier</a>
+    Lorsque vous soumettez un dossier, des contrôles automatiques sont effectués et un compte-rendu des 
+    éléments à corriger vous est transmis. Une fois les contrôles automatiques validés, 
+    l'un·e de nos collaborateur·rices prendra contact avec vous pour les dernières corrections 
+    et l'édition des documents.</p>
+
+    <p>Pour consulter les directives cantonales d'établissement des dossiers PPE :<br>
+        <a href="https://www.ne.ch/autorites/DDTE/SGRF/mensuration/Pages/propriete_par_etages.aspx" target="blank">
+        Documentation de la constitution d'une PPE par le SGRF</a>
     </p>
 
-    </br>
-    <h4>Plus d'informations quant à la constitution d'un dossier PPE:</h4>
-    <p><a href="https://www.ne.ch/autorites/DDTE/SGRF/mensuration/Pages/propriete_par_etages.aspx" target="blank">Documentation sur les pages du SGRF</a></p>
-    </br>
+    <div class="row">
+        <div class="col">
+            <a href="{% url 'ppe:geolocalisation' %}" class="btn btn-success">Nouvelle soumission</a>
+            <i id="info2" class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+            <div id="info_soumission">Soumettre un dossier de constitution, de modification <br> 
+                ou de révision de PPE pour la première fois.</div>
+
+            <a href="{% url 'ppe:overview' %}" class="btn btn-success">Modification une soumission</a>
+            <i id="info1" class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+            <div id="info_modification">Modifier les informations d'un dossier déjà soumis.</div>
+        </div>
+    </div>
     
-    <h4>Liste des dossiers PPE en cours</h4>
+    <div id="admin_list">
+    <br>
+    <p><b>Admin: Liste des dossiers PPE en cours</b></p>
 {% if latest_dossiers_list %}
     <ul>
     {% for dossierppe in latest_dossiers_list %}
-        <li><a href="{% url 'ppe:detail' %}">Dossier PPE no. {{ dossierppe.id }}, du {{ dossierppe.date_creation }}</a></li>
+        <li><a href="{% url 'ppe:modification' %}">Dossier PPE no. {{ dossierppe.login_code }}, du {{ dossierppe.date_creation }}</a> -  {{ dossierppe.login_code }}</li>
     {% endfor %}
     </ul>
 {% else %}
-    <p>No dossiers are available.</p>
+    <p>Aucun dossier n'a été trouvé.</p>
 {% endif %}
+    </div>
+
 </div>
-{% endblock contenu %}
+{% endblock content %}

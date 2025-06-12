@@ -6,7 +6,7 @@ body {
 }
 
 
-div {
+div.contenu {
     padding: 5px;
 }
 
@@ -16,16 +16,24 @@ div.entete {
     font-size: 36pt;
     font-weight: bold;
     color: white;
-    text-align: right;
+    text-align: left;
     background-color:lightseagreen ;
     border-bottom: 1 px solid grey;
+}
+
+section {
+  padding: 0px 2px;
+}
+
+.val-middle {
+  vertical-align: middle;
 }
 
 li a {
     color: green;
 }
 
-.contenu{
+.content{
     padding: 10px 5px 10px 5px;
 }
 
@@ -34,25 +42,27 @@ li a {
 }
 
 .dj_map {
-    width: 1000px;
+    width: 700px;
     height: 500px;
     border: 1px solid darkgrey;
     clear: both;
 }
 
-a:link#home {
+div.entete a:link#home {
     color: white !important;
     text-decoration: none !important;
 }
 
-a:visited#home {
+div.entere a:visited#home {
     color: white !important;
     text-decoration: none !important;
 }
-a:hover#home {
-    color: rgb(34, 210, 125);
+
+div.entete a:hover#home {
+    color: white;
   }
-a:active#home {
+
+div.entete a:active#home {
     color: white;
   }
 
@@ -66,14 +76,141 @@ a:active#home {
     padding: 0.7rem;
 }
 
-div#contact {
-    font-size: small;
-    background-color: lightyellow;
-    border: 1px solid lightgrey;
-    padding: 3px;
+i {
+ clear: none; 
+}
+
+div#info_localisation {
+  display: none;
+  margin-top: 15px;
+  margin-left: 3px;
+  padding: 5px;
+  font-size: small;
+  background-color: lightblue;
+  border: 1px solid cornflowerblue; 
+}
+
+i:hover + div#info_localisation {
+  position: absolute;
+  display: inline-block;
+}
+
+div#info_contact {
+  display: none;
+  margin-top: 15px;
+  margin-left: 3px;
+  padding: 5px;
+  font-size: small;
+  background-color: lightblue;
+  border: 1px solid cornflowerblue; 
+}
+  
+i:hover + div#info_contact {
+    position: absolute;
+    display: inline-block;
+  }
+    
+div#info_signataire {
     display: none;
+    margin-left: 5px;
+    padding: 5px;
+    font-size: small;
+    background-color: lightblue;
+    border: 1px solid cornflowerblue;
   }
   
-legend:hover + div#contact {
-    display: block;
+i:hover + div#info_signataire {
+    position: absolute;
+    display: inline-block;
   }
+  
+div#info_zip {
+    display: none;
+    margin-left: 5px;
+    padding: 5px;
+    font-size: small;
+    background-color: lightblue;
+    border: 1px solid cornflowerblue;
+  }
+  
+i:hover + div#info_zip {
+    position: absolute;
+    display: inline-block;
+  }
+  
+div#info_accord {
+    display: none;
+    margin-left: 5px;
+    padding: 5px;
+    font-size: small;
+    background-color: lightblue;
+    border: 1px solid cornflowerblue;
+  }
+  
+i:hover + div#info_accord {
+    position: absolute;
+    display: inline-block;
+  }
+
+div#info_type_dossier {
+    position: absolute;
+    z-index: 99;
+    display: none;
+    margin-top: 15px;
+    margin-left: 3px;
+    padding: 5px;
+    font-size: small;
+    background-color: lightblue;
+    border: 1px solid cornflowerblue;
+  }
+
+i:hover + div#info_type_dossier {
+    z-index: 99;
+    position: absolute;
+    display: inline-block;
+}
+
+div#info_reference_geoshop {
+    display: none;
+    margin-top: 15px;
+    margin-left: 3px;
+    padding: 5px;
+    font-size: small;
+    background-color: lightblue;
+    border: 1px solid cornflowerblue; 
+}
+
+i:hover + div#info_reference_geoshop {
+    position: absolute;
+    display: inline-block;
+}
+
+div#info_soumission {
+  display: none;
+  margin-top: 15px;
+  margin-left: 3px;
+  padding: 5px;
+  font-size: small;
+  background-color: lightblue;
+  border: 1px solid cornflowerblue; 
+}
+
+i:hover + div#info_soumission {
+  position: absolute;
+  display: inline-block;
+}
+
+div#info_modification {
+  display: none;
+  margin-top: 15px;
+  margin-left: 3px;
+  padding: 5px;
+  font-size: small;
+  background-color: lightblue;
+  border: 1px solid cornflowerblue; 
+}
+
+i:hover + div#info_modification {
+  position: absolute;
+  display: inline-block;
+}

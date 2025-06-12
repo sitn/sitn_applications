@@ -4,18 +4,82 @@
 Dépôt d'un dossier:
 {% endblock titre %}
 
-<div name="contenu" class="contenu">
-{% block contenu %}
-{% if error_message %}<p><strong>{{ error_message }}</strong></p>
-{% endif %}
-<p>        
-    <form class="form-horizontal">
-        <label for "id_dossier">Veuillez indiquer le no. de dossier PPE</label>
-        <input type="text" name="id_dossier" id ="id_dossier">
-        <input type="submit" value="Chercher le dossier" class="btn btn-success">
-    </form>
-</p>
+<div name="content" class="content">
+    {% block content %}
+    
+    <div name="contacts" class="container">
+        {% if error_message %}<p><strong>{{ error_message }}</strong></p>
 
+        {% elif dossier %}
+        <h3>Etape 2: Contacts - Modification</h3>
+        <p class="fs-5"><br>PPE sur le bien-fonds <b>{{ nummai }}</b> du cadastre 
+            de <b>{{ cadastre }}</b></p>
 
-{% endblock contenu %}
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="modification" value="update">
+            <div class="row">
+                <div class="col">
+                    <fieldset class="form-group">
+                        <legend>Personne de contact principale</legend>  
+                        <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+                        <div id="info_contact"> personne de contact principale est celle qui dépose<br> 
+                            le dossier et recevra les résultats du contrôle. <br>
+                            Il s'agit en principe de la personne qui dessine les plans.
+                        </div>
+                        {{ contact_form }}
+                    </fieldset>
+                </div>
+                <div class="col">
+                    <fieldset>
+                        <legend>Signataire</legend>
+                        <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+                        <div id="info_signataire">
+                            La personne signataire est obligatoirement un·e architecte inscrit·e <br>
+                            au registre neuchâtelois des architectes ou un·e ingénieur-géomètre <br>
+                            breveté·e du canton de Neuchâtel
+                        </div>
+                        {{ signataire_form }}
+                    </fieldset>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col">
+                    <fieldset>
+                        <legend>Adresse de facturation</legend>
+                        <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+                        <div id="info_accord">
+                            Les frais du Service de la Géomatique et du Registre Foncier <br>
+                            comprennent le contrôle de conformité du dossier aux directives <br>
+                            cantonales en vigueur ainsi que l'attribution des numéros de <br>
+                            bien-fonds aux unités juridiques
+                        </div>
+                        {{ facturation_form }}
+                        <a href="https://www.ne.ch/autorites/DDTE/SGRF/mensuration/Pages/propriete_par_etages.aspx" target="blank">
+                            Lien vers un modèle</a>
+                    </fieldset>
+                </div>
+                <div class="col">
+                    <fieldset>
+                        <legend>Notaire</legend>
+                        {{ notaire_form }}
+                    </fieldset>
+                </div>
+            <p class="red">* Les champs marqués d'un astérisque sont obligatoires</p>
+            <input type="submit" value="Modifier et étape suivante >>" class="btn btn-success">
+        </div>
+        </form>
+
+    </div>
+        {% else %}
+        <p>        
+            <form class="form-horizontal">
+                <label for "login_code">Veuillez indiquer le no. de dossier PPE</label>
+                <input type="text" name="login_code" id ="login_code">
+                <input type="submit" value="Chercher le dossier" class="btn btn-success">
+            </form>
+        </p>
+        {% endif %}
+    </div>
+{% endblock content %}
 </div>

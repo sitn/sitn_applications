@@ -4,23 +4,34 @@
 Soumission dossier
 {% endblock titre %}
 
-<div name="contenu" class="contenu">
-{% block contenu %}
-{% if error_message %}<p><strong>{{ error_message }}</strong></p>
-{% endif %}
-<p>        
-    Votre dossier a bien été enregistré. 
-    Vous pouvez consulter ou modifier votre dossier ultérieurement en vous connectant à l'aide du code suivant : <b>{{ dossier_ppe.login_code }}</b>
-</p>
-<p>
-    Un e-mail contenant ce code a été envoyé à l’adresse suivante : {{ dossier_ppe.contact_principal.email }}
-</p>
+<div name="content" class="content">
+    {% block content %}
+    
+    <div name="contacts" class="container">
+        {% if error_message %}<p><strong>{{ error_message }}</strong></p>
+        {% endif %}
 
-<p  class="alert alert-danger">
-    Attention ! A ce stade, votre dossier est encore incomplet 
-    et ne sera pas analysé par notre service. Pour le compléter, 
-    merci de passer à l’étape suivante.
-</p>
-<a href="{% url 'ppe:definition_type_dossier' %}" class="btn btn-success">Etape suivante >></a>
-{% endblock contenu %}
+        {% if dossier_ppe %}
+        <h3>Votre code personnel</h3>
+        <p>        
+            Votre dossier a bien été enregistré.<br>
+            Veuillez trouver ci-dessous le code unique vous permettant de modifier ultérieurement votre dossier.
+        </p>
+
+        <div id="login_code" style="padding: 30px"> 
+            <h5>{{ dossier_ppe.login_code }}</h5>
+        </div>
+        <p>
+            Un e-mail contenant ce code a été envoyé à l'adresse suivante : {{ dossier_ppe.contact_principal.email }}
+        </p>
+
+        <p  class="alert alert-danger">
+            Attention ! A ce stade, votre dossier est encore incomplet 
+            et ne sera pas analysé par notre service. Pour le compléter, 
+            merci de passer à l'étape suivante.
+        </p>
+        <a href="{% url 'ppe:load_ppe_files' %}" class="btn btn-success">Etape suivante >></a>
+        {% endif %}
+    </div>
+{% endblock content %}
 </div>

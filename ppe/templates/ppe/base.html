@@ -5,35 +5,36 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.ico' %}">
+    <link rel="stylesheet" href="{% static 'ppe/style.css' %}">
     <link href="https://sitn.ne.ch/sitnstatic/sitn-bootstrap@v5.2.3/sitn-bootstrap.css" rel="stylesheet" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <title>{% block titre %} {% endblock titre %}</title>
     {% block head %}
       {{ form.media }}
     {% endblock head %}
 
-    <link rel="stylesheet" href="{% static 'ppe/style.css' %}">
     <script src="{% static 'js/utils.js' %}"></script>
 </head>
 
 <body>
     
-    <div name="en-tete" class="entete">
-        <img src="{% static 'images/logo_ne.png' %}" alt="Logo du canton" style="float:left">
-        PPE numérique
+    <div id="entete" name="header" class="entete">
+        <a class="home" href="{% url 'ppe:index' %}" ><i class="bi bi-house-fill" style="color:white;"></i></a> SGRF | Contrôle des dossiers PPE numériques
+        <img src="{% static 'images/logo_ne.png' %}" alt="Logo du canton" style="float:right">
     </div>
 
-    <div name="contenu" class="contenu">
-    {% block contenu %}
-    {% endblock contenu %}
+    <div name="content" class="content">
+    {% block content %}
+    {% endblock content %}
     </div>
 
-    {% block pied %}
-    <div name="pied" class="footer">
+    {% block footer %}
+    <div name="footer" class="footer">
     <hr>
-    <p>PPE NUMERIQUE v0.3 - FV-SITN</p>
+    <p>PPE NUMERIQUE v0.4 - FV-SITN</p>
     </div>
-    {% endblock pied %}
+    {% endblock footer %}
     
     </body>
 </html>

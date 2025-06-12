@@ -30,7 +30,10 @@ SECRET_KEY = 'django-insecure-uhqqu0s-9u^4#*v!6^9z3*v#dy!%e7k+e$lin71k&jp45wt_7^
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = [
+    'localhost',
+    'nesitnd3.ne.ch'
+]
 
 
 # Application definition
@@ -70,6 +73,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
             ],
         },
     },
@@ -132,6 +136,12 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
+MEDIA_ROOT = os.path.join(BASE_DIR, 'ppe')
+MEDIA_URL = 'ppe/files/'
+
+#if DEBUG:
+#    urlpatterns += static(MEDIA_URL, document_root=MEDIA_ROOT)
+
 # Default primary key field type
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
@@ -159,5 +169,8 @@ OLWIDGET = {
         "url_template": 'https://sitn.ne.ch/mapproxy95/wmts/1.0.0/{layer}/{style}/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png',
         "request_encoding": 'REST', # optional
         "format": 'image/png' # optional
+    },
+    "search": {
+        "url_template": 'https://sitn.ne.ch/search?limit=10&partitionlimit=2&interface=desktop&query={search_term}'
     }
 }

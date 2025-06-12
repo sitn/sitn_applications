@@ -3,17 +3,15 @@ import uuid
 from django.contrib.gis.db import models
 from django.utils.timezone import now
 
-from django_extended_ol.forms.widgets import WMTSWidget
+from django_extended_ol.forms.widgets import WMTSWithSearchWidget 
+
+
+class ZipFile(models.Model):
+    zipfile = models.FileField(upload_to="files/zips/")
 
 class Geolocalisation(models.Model):
     geom = models.PointField(srid=2056)
 
-class AccordFrais(models.Model):
-    nom_document = models.CharField(max_length=150)
-    file = models.FileField(upload_to="temp/")
-
-    def __str__(self):
-        return self.nom_document
 
 class AdresseFacturation(models.Model):
     type_personne = models.CharField(
@@ -29,6 +27,7 @@ class AdresseFacturation(models.Model):
     no_rue = models.CharField(max_length=10, blank=True)
     npa = models.IntegerField()
     localite = models.CharField(max_length=100)
+    file = models.FileField(upload_to="files/")
 
     def __str__(self):
         return self.nom_raison_sociale
@@ -38,14 +37,6 @@ class AdresseFacturation(models.Model):
 
 
 class ContactPrincipal(models.Model):
-    politesse = models.CharField(
-        choices=(
-            ("M", "Monsieur"),
-            ("Mme", "Madame"),
-            ("Me", "Maître"),
-            ("A", "")
-            ),
-            max_length=30, default="A")
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
     email = models.CharField(max_length=100)
@@ -61,7 +52,6 @@ class ContactPrincipal(models.Model):
 class Notaire(models.Model):
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
-    raison_sociale = models.CharField(max_length=150)
     complement = models.CharField(max_length=100, blank=True)
     rue = models.CharField(max_length=100)
     no_rue = models.CharField(max_length=10, blank=True)
@@ -77,7 +67,6 @@ class Notaire(models.Model):
 class Signataire(models.Model):
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
-    raison_sociale = models.CharField(max_length=150)
     complement = models.CharField(max_length=100, blank=True)
     rue = models.CharField(max_length=100)
     no_rue = models.CharField(max_length=10, blank=True)
@@ -92,7 +81,6 @@ class Signataire(models.Model):
 
 class DossierPPE(models.Model):
     login_code = models.CharField(max_length=16)
-    egrid = models.CharField(max_length=14, blank=True)
     cadastre = models.CharField(max_length=50)
     numcad = models.IntegerField()
     nummai = models.CharField(max_length=10)
@@ -117,7 +105,6 @@ class DossierPPE(models.Model):
     signataire = models.ForeignKey(Signataire, on_delete=models.CASCADE)
     notaire = models.ForeignKey(Notaire, on_delete=models.CASCADE)
     adresse_facturation = models.ForeignKey(AdresseFacturation, on_delete=models.CASCADE)
-    accord_frais = models.ForeignKey(AccordFrais, on_delete=models.CASCADE)
     date_creation = models.DateTimeField("Date de création", auto_now=True)
     date_soumission = models.DateTimeField("Date de soumission", auto_now=True, blank=True)
     date_validation = models.DateTimeField("Date de validation", auto_now=True, blank=True)
