@@ -21,10 +21,10 @@ Etape 2: Détails du projet:
             <section name="ppe_type" id="ppe_type">
             <label for="type_dossier">Type de dossier<sup>*</sup>:</label>
             <select  name="type_dossier" id="type_dossier" onchange="changeSectionDisplay()">
-              <option value="" {% if dossier_ppe.type_dossier == '' %}selected{% endif %}>Choisir...</option>
-              <option value="C" {% if dossier_ppe.type_dossier == 'C' %}selected{% endif %}>Constitution</option>
-              <option value="R" {% if dossier_ppe.type_dossier == 'R' %}selected{% endif %}>Révision</option>
-              <option value="M" {% if dossier_ppe.type_dossier == 'M' %}selected{% endif %}>Modification</option>
+              <option value="" selected>Choisir...</option>
+              <option value="C">Constitution</option>
+              <option value="R">Révision</option>
+              <option value="M">Modification</option>
             </select>
             <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
             <div id="info_type_dossier">
@@ -38,11 +38,13 @@ Etape 2: Détails du projet:
             </section>
 
             <section name="modification" id="modification"  {% if dossier_ppe.type_dossier != 'M' %}style="display:none"{% endif %}>
+            <p>
             <div id="type_modification">
               <label for "login_code">Identifiant unique du dossier d'origine</label>
               <input type="text" name="login_code" id="login_code"><br>
               <input type="submit" value="Chercher le dossier" class="btn btn-success">
             </div>
+            </p>
             </section>
 
             <section name="revison" id="revision"  {% if dossier_ppe.type_dossier != 'R' %}style="display:none"{% endif %}>
@@ -51,7 +53,7 @@ Etape 2: Détails du projet:
                 Veuillez cocher la bonne réponse :<br>
                 <div class="row">
                   <div class="col">
-                  <p class="alert alert-success">La révision concerne uniquement des droits de jouissance</p>
+                  <p class="alert alert-success">La révision concerne uniquement des droits de jouissance.</p>
                   </div>
                   <div class="col">
                   <input type="radio" name="droits_jouissance" id="jouissance_oui" value="oui" onchange="showJouissanceRemark()">
@@ -87,8 +89,8 @@ Etape 2: Détails du projet:
                   <label class="val-middle" for="droit_jouissance_non">Non</label>
                   </div>
                 </div>
-                <div class="row alert alert-warning" id="droits_remark" name="droits_remark" style="display: none;">
-                  Si la révision concerne uniquement des droits de jouissance, le contrôle du dossier par le SGRF n’est pas nécessaire
+                <div class="row alert alert-danger" id="droits_remark" name="droits_remark" style="display: none;">
+                  Si la révision concerne uniquement des droits de jouissance, le contrôle du dossier par le SGRF n’est pas nécessaire.
                 </div>
                 <div class="row alert alert-warning" id="no_plan_remark" name="no_plan_remark" style="display: none;">
                   L’établissement d’un plan de situation n’est pas nécessaire pour ce dossier.
@@ -100,26 +102,19 @@ Etape 2: Détails du projet:
             </div>
             </section>
 
-            <section name="constitution" id="constitution" {% if dossier_ppe.type_dossier != 'C' %}style="display:none"{% endif %}>
+            <section name="constitution" id="constitution" style="display:none">
             <div id="type_constitution">
-              <h4>Sitution des bâtiments*</h4>
-              <p>
-                <input type="radio" name="situation_bati" id="bati_existant" value="bati_existant" onchange="showRefGeoshop()">
-                <label for="bati_existant">Tous les bâtiments sont existants et leur emprise au sol n'est pas modifiée
-                </label><br>
-                <input type="radio" name="situation_bati" id="nouveau_bati" value="nouveau_batiment" onchange="showRefGeoshop()">
-                <label for="nouveau_bati">Au moins un bâtiment est nouveau ou son emprise est modifiée
-                </label>
-              </p>
-              <div id="ref_geoshop" style="display:none">
+                <br>
                 <div class="col">
-                <label for="reference_geoshop">Référence geoshop*</label>
-                <input type="text" name="ref_geoshop" id="reference_geoshop">
-                <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
-                <div id="info_reference_geoshop">
-                  Référence de commande des données cadastrales
-                </div><br>
-              </div>
+                  <div id="ref_geoshop">
+                    <label for="reference_geoshop">Référence geoshop*</label>
+                    <input type="text" name="ref_geoshop" id="reference_geoshop">
+                    <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+                    <div id="info_reference_geoshop">
+                      Référence de commande des données cadastrales
+                    </div><br>
+                  </div>
+                </div>
                 <div class="col">
                   <br>
                   <p class="alert alert-success">
@@ -129,8 +124,9 @@ Etape 2: Détails du projet:
                 </div>
             </div>
           </section>
+
           <input id="submit_btn" type="submit" value="Etape suivante >>" class="btn btn-success" style="display:none;">
-          <p class="red"><sup>*</sup>Les champs marqués d'un astérisque sont obligatoires</p>
+          <p class="red"><br><sup>*</sup>Les champs marqués d'un astérisque sont obligatoires</p>
         </div>
         </form>
 

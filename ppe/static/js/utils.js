@@ -32,7 +32,7 @@ function changeSectionDisplay() {
         revision.style.display = "none";
     }
     else if (dossier_type == "C"){
-        submit_btn.style.display = "none";
+        submit_btn.style.display = "block";
         modification.style.display = "none";
         constitution.style.display = "block";
         revision.style.display = "none";
@@ -71,8 +71,9 @@ function showJouissanceRemark() {
                     no_plan_remark.style.display = "none";
                     jouissance_remark.style.display = "none";
                     elements_rf.style.display = "none";
+                    submit_btn.style.display = "none";
                 }
-                submit_btn.style.display = "block";
+                //submit_btn.style.display = "block";
             }
 
         }
@@ -89,11 +90,13 @@ function showElementsRFQuestions() {
                     for(var k=0;k<ele.length;k++)
                         ele[k].checked = false;
                     if (choix_elements_rf == 'non') {
+                        constitution.style.display = "block";
                         new_jouissance.style.display = "none";
                         no_plan_remark.style.display = "none";
                         jouissance_remark.style.display = "none";
                     } else {
                         new_jouissance.style.display = "block";
+                        constitution.style.display = "none";
                     }
                     submit_btn.style.display = "block";
                 }
@@ -108,24 +111,10 @@ function showNewJouissanceInfo() {
         for (let i=0;i < new_jouissance.length; i++) {
                 if (new_jouissance[i].checked) {
                     choix_new_jouissance = new_jouissance[i].value;
-                    no_plan_remark.style.display = (choix_new_jouissance == 'oui') ? "block" : "none";
-                    jouissance_remark.style.display = (choix_new_jouissance == 'oui') ? "none" : "block";
+                    no_plan_remark.style.display = (choix_new_jouissance == 'oui') ? "none" : "block";
+                    jouissance_remark.style.display = (choix_new_jouissance == 'oui') ? "block" : "none";
                     submit_btn.style.display = "block";
                 }
     
             }
         }
-
-function showRefGeoshop() {
-    // Get the selected radio button
-    const situtation_bati = document.getElementsByName("situation_bati");
-
-    for (let i=0;i < situtation_bati.length; i++) {
-            if (situtation_bati[i].checked) {
-                choix_situation_bati = situtation_bati[i].value;
-                ref_geoshop.style.display = (choix_situation_bati == 'nouveau_batiment') ? "block" : "none";
-                submit_btn.style.display = "block";
-            }
-
-        }
-    }

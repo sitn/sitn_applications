@@ -8,8 +8,8 @@ from django.conf.urls.static import static
 from django.core.files.storage import FileSystemStorage
 
 # INDIVIDUAL ELEMENTS
-from .models import DossierPPE, ContactPrincipal, Notaire, Signataire, AdresseFacturation, Geolocalisation, ZipFile
-from .forms import AdresseFacturationForm, NotaireForm, SignataireForm, GeolocalisationForm, ContactPrincipalForm, ZipFileForm
+from .models import DossierPPE, ContactPrincipal, Notaire, Signataire, AdresseFacturation, Geolocalisation, Zipfile
+from .forms import AdresseFacturationForm, NotaireForm, SignataireForm, GeolocalisationForm, ContactPrincipalForm, ZipfileForm
 
 from .util import get_localisation, login_required
 
@@ -236,19 +236,13 @@ def definition_type_dossier(request, doc, type_dossier=None):
     ref_geoshop = request.POST["ref_geoshop"] if 'ref_geoshop' in request.POST else None
     situation_bati = request.POST["situation_bati"] if 'situation_bati' in request.POST else None
 
-    if type_dossier == 'C' and situation_bati in ['bati_existant','nouveau_batiment']:
+    if type_dossier == 'C' and ref_geoshop != '':
         dossier_ppe.type_dossier = type_dossier
 
-        if situation_bati == 'bati_existant':
-            dossier_ppe.save()
-            return redirect("/ppe/overview")
-        # if changes to buildings are planned or under way check for ref
-        elif situation_bati == 'nouveau_batiment' and ref_geoshop != '':
-            #TODO: implement ref validation in geoshop db
-            dossier_ppe.save()
-            return redirect("/ppe/overview")
-        else:
-            return render(request, "ppe/definition_type_dossier.html", {"error_message": 'Type ou référence invalide.'}) 
+        #TODO: Check geoshop_ref is existing
+        dossier_ppe.save()
+        return redirect("/ppe/overview")
+    
     elif type_dossier in ['M','R'] and 'login_code' in request.POST:
         login_code = request.POST['login_code']
         dossier_ppe.save()
@@ -273,12 +267,12 @@ def load_ppe_files(request, doc):
     error_message = None
     zipfile = None
 
-    zip_form = ZipFileForm(request.POST, request.FILES, prefix='zip')
+    zip_form = ZipfileForm(request.POST, request.FILES, prefix='zip')
     doc = DossierPPE.objects.get(login_code=doc.login_code)
     if zip_form.is_valid():
         zip_form.save()
         print(zip_form.instance.id)
-        zipfile = ZipFile(pk=zip_form.instance.id)
+        zipfile = Zipfile(pk=zip_form.instance.id)
         print(zipfile)
 
         return render(request, "ppe/load_ppe_files.html", {"dossier_ppe" : doc, "zipfile": zipfile })

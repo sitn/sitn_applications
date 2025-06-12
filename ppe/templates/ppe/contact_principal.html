@@ -9,8 +9,8 @@ Dépôt d'un dossier - étape 2:
 
 <div name="contacts" class="container">
     <h3>Etape 2: Contacts</h3>
-    <p class="fs-5"><br>PPE sur le bien-fonds no. <b>{{ localisation_ppe.nummai }}</b> du cadastre 
-        de <b>{{ localisation_ppe.cadastre }}</b> - (Commune: {{ localisation_ppe.commune }})</p>
+    <p class="fs-5"><br>PPE sur le bien-fonds <b>{{ localisation_ppe.nummai }}</b> du cadastre 
+        de <b>{{ localisation_ppe.cadastre }}</b></p>
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>
     {% endif %}
 
@@ -22,7 +22,7 @@ Dépôt d'un dossier - étape 2:
                 <fieldset class="form-group">
                     <legend>Personne de contact principale</legend>  
                     <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
-                    <div id="info_contact"> personne de contact principale est celle qui dépose<br> 
+                    <div id="info_contact">La personne de contact principale est celle qui soumet<br> 
                         le dossier et recevra les résultats du contrôle. <br>
                         Il s'agit en principe de la personne qui dessine les plans.
                     </div>
@@ -65,8 +65,8 @@ Dépôt d'un dossier - étape 2:
                 </fieldset>
             </div>
         <p class="red">* Les champs marqués d'un astérisque sont obligatoires</p>
-        <input type="submit" value="Etape suivante >>" class="btn btn-success">
     </div>
+            <input type="submit" value="Etape suivante >>" class="btn btn-success" style="text-align:right;">
     </form>
 
 </div>

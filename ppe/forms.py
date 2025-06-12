@@ -1,15 +1,15 @@
 from django.contrib.gis import forms
 from django_extended_ol.forms.widgets import WMTSWithSearchWidget
 
-from .models import DossierPPE, Geolocalisation, AdresseFacturation, ZipFile
+from .models import DossierPPE, Geolocalisation, AdresseFacturation, Zipfile
 from .models import ContactPrincipal, Notaire, Signataire
 
 from django.utils.translation import gettext_lazy as _
 
 
-class ZipFileForm(forms.ModelForm):
+class ZipfileForm(forms.ModelForm):
     class Meta:
-        model = ZipFile
+        model = Zipfile
         prefix = "zip"
         fields = fields = "__all__"
         labels = {

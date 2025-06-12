@@ -34,15 +34,15 @@ Dépôt d'un dossier - Récapitulatif:
             </tr>
                 <td colspan="2" class="fs-5 fw-bold">Personne de contact principal</td>
             <tr>
-                <td>Nom, prénom :</td><td>{{ dossier_ppe.contact_principal.nom}} {{ dossier_ppe.contact_principal.prenom }}</td>
+                <td colspan="2">{{ dossier_ppe.contact_principal.nom}} {{ dossier_ppe.contact_principal.prenom }}</td>
             </tr><tr>
                     {%if dossier_ppe.contact_principal.raison_sociale %}
                     <td>Raison sociale :</td><td>{{ dossier_ppe.contact_principal.raison_sociale }}</td>
                     {% endif %}
             </tr><tr>
-                    <td>No. tél :</td><td>{{ dossier_ppe.contact_principal.no_tel }}</td>
+                    <td colspan="2" >{{ dossier_ppe.contact_principal.no_tel }}</td>
             </tr><tr>
-                    <td>Courriel :</td><td>{{ dossier_ppe.contact_principal.email }}</td>
+                    <td colspan="2" >{{ dossier_ppe.contact_principal.email }}</td>
             </tr>
             </table>
         </section>
@@ -121,6 +121,24 @@ Dépôt d'un dossier - Récapitulatif:
         </section>
         </div>
         {% endif %}
+
+        {%if dossier_ppe %}
+        <div class="row">
+        <section>
+            <div id="zip_status" name="zip_status">
+                <table width="100%">
+                <tr>
+                    <th width="30%">Date</th><th>Statut des fichiers</th>
+                </tr>
+                <tr>
+                    <td>12.06.2025</td><td>Ligne de test pour dév</td>
+                </tr>
+                </table>
+            </div>
+        </section>
+        </div>
+        {% endif %}
+
         <p> 
             <form id="overview_form" class="form-horizontal" action="/ppe/soumission" method="post">
                 {% csrf_token %}
