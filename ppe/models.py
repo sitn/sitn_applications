@@ -113,13 +113,14 @@ class DossierPPE(models.Model):
 
 class Zipfile(models.Model):
     zipfile = models.FileField(upload_to="files/zips/")
-    pub_date = models.DateField()
+    upload_date = models.DateField("Date de chargement", auto_now=True, blank=True)
     file_statut = models.CharField(
         choices=(
             ("A", "Dossier remplacé et archivé"),
-            ("E", "Erreurs bloquantes à corriger"),
             ("C", "Vérification automatique en cours"),
+            ("E", "Erreurs bloquantes à corriger"),
+            ("P", "Préparation du dossier"),
             ("V", "Dossier validé. Il n'est plus possible de le modifier")
         ),
-        max_length=75, blank=True)
+        max_length=75, default="P")
     dossier_ppe = models.ForeignKey(DossierPPE, on_delete=models.CASCADE)

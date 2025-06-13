@@ -11,7 +11,7 @@ class ZipfileForm(forms.ModelForm):
     class Meta:
         model = Zipfile
         prefix = "zip"
-        fields = fields = "__all__"
+        fields = ["zipfile"]
         labels = {
             "zipfile": _("Dossier zip des plans"),
         }

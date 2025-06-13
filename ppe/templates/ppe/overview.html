@@ -15,6 +15,7 @@ Dépôt d'un dossier - Récapitulatif:
 
         <div class="row">
         <section>
+            <br>
             <table width="100%">
             <tr>
                 <th class="fs-4" width="30%">Localisation</th><th><a href="{% url 'ppe:edit_geolocalisation' %}" class="btn btn-success">Modifier</a></th>
@@ -27,9 +28,10 @@ Dépôt d'un dossier - Récapitulatif:
 
         <div class="row">
         <section>
+            <br>
             <table width="100%">
             <tr>
-                <th class="fs-4" width="25%">Contacts</th>
+                <th class="fs-4" width="30%">Contacts</th>
                 <th><a href="{% url 'ppe:edit_contacts' %}" class="btn btn-success">Modifier</a></th>
             </tr>
                 <td colspan="2" class="fs-5 fw-bold">Personne de contact principal</td>
@@ -100,6 +102,7 @@ Dépôt d'un dossier - Récapitulatif:
                     
         {%if dossier_ppe.type_dossier %}
         <div class="row">
+        <br>
         <section>
             <table width="100%">
             <tr>
@@ -122,17 +125,39 @@ Dépôt d'un dossier - Récapitulatif:
         </div>
         {% endif %}
 
-        {%if dossier_ppe %}
+        {%if dossier_ppe.zipfiles %}
         <div class="row">
         <section>
+            <br>
             <div id="zip_status" name="zip_status">
                 <table width="100%">
+            <tr>
+                <th class="fs-4" width="25%">Chargement des fichiers</th>
+                <th><a href="{% url 'ppe:edit_zipfile' %}" class="btn btn-success">Modifier</a></th>
+            </tr>
                 <tr>
-                    <th width="30%">Date</th><th>Statut des fichiers</th>
+                    <td width="30%"><b>Date</b></td><td><b>Statut des fichiers</b></td>
                 </tr>
+                {% for zip in dossier_ppe.zipfiles %}
                 <tr>
-                    <td>12.06.2025</td><td>Ligne de test pour dév</td>
+                    <td>{{ zip.upload_date }}</td>
+                    <td>
+                    {% if zip.file_statut == 'A' %}
+                    Dossier remplacé et archivé
+                    {% elif zip.file_statut == 'C' %}
+                    Vérification automatique en cours
+                    {% elif zip.file_statut == 'E' %}
+                    Erreurs bloquantes à corriger
+                    {% elif zip.file_statut == 'P' %}
+                    En attente du contrôle automatique
+                    {% elif zip.file_statut == 'V' %}
+                    Dossier validé. Il n'est plus possible de le modifier
+                    {% else %}
+                    Il y a une erreur inconnue sur le statut des fichiers zip
+                    {% endif %}
+                    </td>
                 </tr>
+                {% endfor %}
                 </table>
             </div>
         </section>

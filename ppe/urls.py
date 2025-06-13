@@ -14,6 +14,7 @@ urlpatterns = [
     path("edit_geolocalisation", views.edit_geolocalisation, name="edit_geolocalisation"),
     path("edit_contacts", views.edit_contacts, name="edit_contacts"),
     path("edit_ppe_type", views.edit_ppe_type, name="edit_ppe_type"),
+    path("edit_zipfile", views.edit_zipfile, name="edit_zipfile"),
     path("soumission", views.soumission, name="soumission"),
     path("definition_type_dossier", views.definition_type_dossier, name="definition_type_dossier"),
     path("overview", views.overview, name="overview"),

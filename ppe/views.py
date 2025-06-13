@@ -1,5 +1,5 @@
 import datetime, random, string, json, logging, ast
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import render, redirect, get_list_or_404
 from django.http import HttpResponse
 from django.template import loader
 from django.contrib.gis.geos import Point
@@ -214,6 +214,15 @@ def detail(request, doc):
 
 @login_required
 def overview(request, doc):
+
+    try: 
+        zips =  Zipfile.objects.filter(dossier_ppe=doc.id)
+    except Exception as e:
+        logger.warning(f"Error finding a zip : {repr(e)}")
+
+    if len(zips) > 0:
+        doc.zipfiles = zips
+
     return render(request, "ppe/overview.html", {"dossier_ppe": doc})
 
 @login_required
@@ -410,3 +419,10 @@ def edit_ppe_type(request, doc):
         return redirect(f"/ppe/overview")
     else: 
         return render(request, "ppe/definition_type_dossier.html", {"dossier_ppe": doc})
+    
+
+@login_required
+def edit_zipfile(request, doc):
+    error_message = None
+
+    return render(request, "ppe/load_ppe_files.html", {"dossier_ppe": doc})
