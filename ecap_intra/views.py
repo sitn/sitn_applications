@@ -7,6 +7,7 @@ from django.http import JsonResponse
 from rest_framework import viewsets
 from rest_framework.decorators import action, api_view
 from rest_framework_gis.pagination import GeoJsonPagination
+from rest_framework.response import Response
 
 from cadastre.models import Mo9Immeubles
 from sitn.mixins import MultiSerializerMixin
@@ -15,6 +16,7 @@ from ecap_intra.models import (
     RepartitionExpert,
     PlanSpecial,
     PlanQuartier,
+    Ecap90RepartitionExpertsSinistre
 )
 from ecap_intra.serializers import (
     ObjetImmobiliseSerializer,
@@ -132,3 +134,13 @@ class PlanSpecialViewSet(viewsets.ReadOnlyModelViewSet):
     def download(self, request):
         data = PlanSpecial.as_geojson()
         return JsonResponse(data, safe=False, json_dumps_params={"ensure_ascii": False})
+
+
+@api_view(["GET"])
+def get_sinistres(request):
+    """
+    Retrieves a list of available "secteurs d'intervention" related to a "sinistre"
+    """
+    sinistres = Ecap90RepartitionExpertsSinistre.objects.values_list('name_sinistre', flat=True).distinct()
+
+    return Response(sinistres)

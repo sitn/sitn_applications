@@ -36,3 +36,13 @@ class EcapApiTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
         self.assertEqual(len(data['features']), 200)
+
+    def test_sinistres(self):
+        """
+        Tests json of sinistres is a list
+        """
+        url = '/ecap/sinistres-exceptionnels/'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertGreater(len(data), 2)
