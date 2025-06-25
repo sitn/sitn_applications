@@ -72,3 +72,12 @@ class PlanSpecial(models.Model, GeoJSONModelMixin):
     class Meta:
         db_table = 'amenagement\".\"at205_plans_speciaux'
         managed = False
+
+
+class Ecap90RepartitionExpertsSinistre(models.Model):
+    idobj = models.TextField(primary_key=True)
+    name_sinistre = models.TextField()
+
+    class Meta:
+        db_table = 'ecap\".\"ecap90_repartition_experts_sinistre'
+        managed = False
