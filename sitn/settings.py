@@ -17,17 +17,24 @@ SECRET_KEY = os.environ.get('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEVELOPMENT_MODE = False
 
+IS_INTRANET = True if os.environ.get("IS_INTRANET") == "True" else False
+
 if 'DEVELOPMENT_MODE' in os.environ and os.environ['DEVELOPMENT_MODE'] == "True":
     DEVELOPMENT_MODE = True
     GDAL_PATH = os.environ.get('GDAL_PATH')
     GDAL_LIBRARY_PATH = os.environ.get('GDAL_LIBRARY_PATH')
     GEOS_LIBRARY_PATH = os.environ.get('GEOS_LIBRARY_PATH')
+else:
+    if IS_INTRANET:
+        # Allows cross origin cookies for PEGGI trying to reach secured sitnintra endpoints
+        # Only in production otherwise cookies will not be set on localhost because not HTTPS
+        CSRF_COOKIE_SECURE = True
+        SESSION_COOKIE_SECURE = True
+        CSRF_COOKIE_SAMESITE = 'None'
+        SESSION_COOKIE_SAMESITE = 'None'
+        CORS_ALLOW_CREDENTIALS = True
 
 DEBUG = DEVELOPMENT_MODE
-
-# Application definition
-
-IS_INTRANET = True if os.environ.get("IS_INTRANET") == "True" else False
 
 # Application definition
 
