@@ -18,7 +18,9 @@ Dépôt d'un dossier:
     </br>Pour ce faire, merci d'envoyer un e-mail avec votre demande à l'adresse
     <a href="mailto:didier.gyger@ne.ch">didier.gyger@ne.ch</a>
     </p>
-
+    {% if doc %}
+    {{ doc.login_code }}
+    {% endif %}
     <form id="localisation_form" class="form-horizontal" action="/ppe/{{ form_action }}" method="post">
         {% csrf_token %}
         <div class="row">
@@ -26,9 +28,12 @@ Dépôt d'un dossier:
                 Si votre projet ne nécessite pas de modification du parcellaire, 
                 ou si ceux-ci ont déjà été effectués, veuillez cocher la case suivante :
             </p>
-        {% if localisation_ppe %}
+        {% if localisation_ppe or doc %}
+            {% if doc %}
+            <input type="hidden" id="login_code" name="login_code" value="{{ doc.login_code }}">
+            {% endif %}
             <div class="col">
-                <input type="checkbox" id="check_mutation"  onChange="showMap()" checked>
+                <input type="checkbox" id="check_mutation" onChange="showMap()" checked>
                 <label for="check_mutation" class="alert alert-success">
                     Mon projet ne nécessite PAS de modification du parcellaire (ou celle-ci a déjà été effectuée)
                 </label>
@@ -46,7 +51,7 @@ Dépôt d'un dossier:
                 <p><b>Bien-fonds</b>:  {{ localisation_ppe.nummai }}</p>
 
                 <input type="submit" value="Confirmer cette localisation" class="btn btn-success">
-                <button id="geo_validation" onclick="changeLocalisationFormAction()" class="btn btn-success">Modifier la localisation</button>
+                <button id="geo_validation" onclick="resetLocalisation()" class="btn btn-success">Modifier la localisation</button>
             </div>
     {% else %}
             <div class="col">
@@ -59,7 +64,11 @@ Dépôt d'un dossier:
         <div class="row">
             <div class="col">
                 <div name="mapwidget" id="mapwidget" style="display:none">
-                    <p>Veuillez localiser le bien-fonds de base de la PPE sur la carte par un simple clic.</p>
+                    <div>
+                    Veuillez localiser le bien-fonds de base de la PPE sur la carte par un simple clic.
+                    <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+                    <div id="info_geoloc" name="info_geoloc">Un dossier PPE doit concerner un seul bien-fonds.</div>
+                    </div>
                         {{ form }}
                     <input type="submit" value="Valider la localisation" class="btn btn-success">
                 </div>

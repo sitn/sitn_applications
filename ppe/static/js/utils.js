@@ -1,24 +1,17 @@
-function changeLocalisationFormAction() {
-    // Get the current action
-    document.getElementById("localisation_form").action = "/ppe/geolocalisation";
-    document.getElementById("localisation_form").submit()
+function resetLocalisation() {
+    document.getElementById("id_geom").innerHTML = '';
+    var checkBox = document.getElementById("check_mutation");
+    checkBox.checked = true;
+    mapwidget.style.display =  checkBox.checked ? "block" : "none";
 }
 
-function changeOverviewFormAction() {
-    // Get the current action
-    document.getElementById("overview_form").action = "/ppe/modification";
-    document.getElementById("overview_form").submit()
-}
 
 function showMap() {
-    // Get the checkbox
+    // Get the checkbox status
     const checkBox = document.getElementById("check_mutation");
-    // Get the output text
-    const carte = document.getElementById("mapwidget");
 
     // If the checkbox is checked, display the output text
     mapwidget.style.display =  checkBox.checked ? "block" : "none";
-    //localisation_overview.style.display =  checkBox.checked ? "block" : "none";
 }
 
 function changeSectionDisplay() {

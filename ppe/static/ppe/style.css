@@ -25,6 +25,26 @@ section {
   padding: 0px 2px;
 }
 
+fieldset label {
+  width: 175px;
+  padding: 0px 0px 2px 0px;
+}
+
+fieldset select {
+  width: 188px;
+  padding: 0px 0px 2px 0px;
+}
+
+section label {
+  width: 175px;
+  padding: 0px 0px 2px 0px;
+}
+
+section select {
+  width: 188px;
+  padding: 0px 0px 2px 0px;
+}
+
 .val-middle {
   vertical-align: middle;
 }
@@ -39,6 +59,10 @@ li a {
 
 .red {
     color: #990000;
+}
+
+.etape {
+text-align: right;
 }
 
 .dj_map {
@@ -80,37 +104,7 @@ i {
  clear: none; 
 }
 
-div#info_localisation {
-  display: none;
-  margin-top: 15px;
-  margin-left: 3px;
-  padding: 5px;
-  font-size: small;
-  background-color: lightblue;
-  border: 1px solid cornflowerblue; 
-}
-
-i:hover + div#info_localisation {
-  position: absolute;
-  display: inline-block;
-}
-
-div#info_contact {
-  display: none;
-  margin-top: 15px;
-  margin-left: 3px;
-  padding: 5px;
-  font-size: small;
-  background-color: lightblue;
-  border: 1px solid cornflowerblue; 
-}
-  
-i:hover + div#info_contact {
-    position: absolute;
-    display: inline-block;
-  }
-    
-div#info_signataire {
+div#info_geoloc {
     display: none;
     margin-left: 5px;
     padding: 5px;
@@ -119,7 +113,36 @@ div#info_signataire {
     border: 1px solid cornflowerblue;
   }
   
-i:hover + div#info_signataire {
+i:hover + div#info_geoloc {
+    position: absolute;
+    display: inline-block;
+}
+
+span#info_contact {
+  display: none;
+  margin-top: 15px;
+  margin-left: 3px;
+  padding: 5px;
+  font-size: small;
+  background-color: lightblue;
+  border: 1px solid cornflowerblue; 
+}
+  
+i:hover + span#info_contact {
+    position: absolute;
+    display: inline-block;
+  }
+    
+span#info_signataire {
+    display: none;
+    margin-left: 5px;
+    padding: 5px;
+    font-size: small;
+    background-color: lightblue;
+    border: 1px solid cornflowerblue;
+  }
+  
+i:hover + span#info_signataire {
     position: absolute;
     display: inline-block;
   }
@@ -138,7 +161,7 @@ i:hover + div#info_zip {
     display: inline-block;
   }
   
-div#info_accord {
+span#info_accord {
     display: none;
     margin-left: 5px;
     padding: 5px;
@@ -147,7 +170,7 @@ div#info_accord {
     border: 1px solid cornflowerblue;
   }
   
-i:hover + div#info_accord {
+i:hover + span#info_accord {
     position: absolute;
     display: inline-block;
   }

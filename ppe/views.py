@@ -9,9 +9,9 @@ from django.core.files.storage import FileSystemStorage
 
 # INDIVIDUAL ELEMENTS
 from .models import DossierPPE, ContactPrincipal, Notaire, Signataire, AdresseFacturation, Geolocalisation, Zipfile
-from .forms import AdresseFacturationForm, NotaireForm, SignataireForm, GeolocalisationForm, ContactPrincipalForm, ZipfileForm
+from .forms import AdresseFacturationForm, NotaireForm, SignataireForm, GeolocalisationForm, ContactPrincipalForm, ZipfileForm, WMTSWithSearchWidget
 
-from .util import get_localisation, login_required
+from .util import get_localisation, login_required, check_geoshop_ref
 
 logger = logging.getLogger(__name__)
 
@@ -34,7 +34,7 @@ def geolocalisation(request):
         localisation = request.POST['geom']
         #geo_form = GeolocalisationForm(request.POST)
         if geo_form.is_valid():
-            geo_form.save()
+            geo_form.save(commit=False)
         # Convert an existing localisation to a JSON dict
         if isinstance(localisation, str) and localisation != '':
             localisation = json.loads(localisation)
@@ -130,7 +130,6 @@ def contact_principal(request):
     contact_form = ContactPrincipalForm(request.POST, prefix='contact')
     signataire_form = SignataireForm(request.POST, prefix='signataire')
     facturation_form = AdresseFacturationForm(request.POST, request.FILES, prefix='facturation')
-
     if (contact_form.is_valid() and
         notaire_form.is_valid() and
         signataire_form.is_valid() and
@@ -161,7 +160,6 @@ def contact_principal(request):
         new_dossier_ppe.date_creation = datetime.datetime.now()
         new_dossier_ppe.geom = Point(geolocalisation_ppe["coordinates"])
         new_dossier_ppe.save()
-
         request.session['login_code'] = login_code
         return redirect(f'/ppe/definition_type_dossier', new_dossier_ppe)
 
@@ -216,7 +214,7 @@ def detail(request, doc):
 def overview(request, doc):
 
     try: 
-        zips =  Zipfile.objects.filter(dossier_ppe=doc.id)
+        zips =  Zipfile.objects.filter(dossier_ppe_id=doc.id).order_by('-upload_date')
     except Exception as e:
         logger.warning(f"Error finding a zip : {repr(e)}")
 
@@ -232,6 +230,11 @@ def soumission(request, doc):
 @login_required
 def definition_type_dossier(request, doc, type_dossier=None):
     error_message = None
+    type_dossier = request.POST["type_dossier"] if 'type_dossier' in request.POST else None
+    ref_geoshop = request.POST["ref_geoshop"] if 'ref_geoshop' in request.POST else None
+    revision_jouissances = request.POST["droits_jouissance"] if 'droits_jouissance' in request.POST else None 
+    elements_rf_identiques = request.POST["elements_rf"] if 'elements_rf' in request.POST else None
+    nouveaux_droits = request.POST["new_jouissance"] if 'new_jouissance' in request.POST else None
 
     try:
         # We get the current entry of the dossier ppe if it exists
@@ -241,19 +244,25 @@ def definition_type_dossier(request, doc, type_dossier=None):
         error_message = "Aucun dossier avec ce code n'a pu être trouvé."
         return render(request, "ppe/definition_type_dossier.html", {"error_message": error_message})  
 
-    type_dossier = request.POST["type_dossier"] if 'type_dossier' in request.POST else dossier_ppe.type_dossier
-    ref_geoshop = request.POST["ref_geoshop"] if 'ref_geoshop' in request.POST else None
-    situation_bati = request.POST["situation_bati"] if 'situation_bati' in request.POST else None
-
-    if type_dossier == 'C' and ref_geoshop != '':
+    if type_dossier == 'C' and ref_geoshop is not None:
         dossier_ppe.type_dossier = type_dossier
 
         #TODO: Check geoshop_ref is existing
-        dossier_ppe.save()
-        return redirect("/ppe/overview")
+        ref_exists = check_geoshop_ref(ref_geoshop)
+        if ref_exists == True:
+            #dossier_ppe.elements_rf_identiques = None
+            #dossier_ppe.nouveaux_droits = None
+            #dossier_ppe.revision_jouissances = None
+            dossier_ppe.save()
+            return redirect("/ppe/overview")
+        else:
+            error_message = "La référence de la commande géoshop contient une erreur ou n'existe pas."
     
     elif type_dossier in ['M','R'] and 'login_code' in request.POST:
         login_code = request.POST['login_code']
+        dossier_ppe.elements_rf_identiques = elements_rf_identiques
+        dossier_ppe.nouveaux_droits = nouveaux_droits
+        dossier_ppe.revision_jouissances = revision_jouissances
         dossier_ppe.save()
         if type_dossier == 'R':
             return redirect(f"/ppe/overview")
@@ -275,24 +284,25 @@ def load_ppe_files(request, doc):
     """ Function to load the zip file with the PPE documents"""
     error_message = None
     zipfile = None
-
-    zip_form = ZipfileForm(request.POST, request.FILES, prefix='zip')
+    
+    zip_form = ZipfileForm(request.POST, request.FILES or None)
     doc = DossierPPE.objects.get(login_code=doc.login_code)
+    init_data = {"dossier_ppe": DossierPPE(pk=doc.id)}
+
     if zip_form.is_valid():
         zip_form.save()
-        print(zip_form.instance.id)
         zipfile = Zipfile(pk=zip_form.instance.id)
-        print(zipfile)
 
         return render(request, "ppe/load_ppe_files.html", {"dossier_ppe" : doc, "zipfile": zipfile })
 
-    return render(request, "ppe/load_ppe_files.html", {"dossier_ppe" : doc, "zip_form": zip_form })
+    zip_form = ZipfileForm(initial=init_data)
+
+    return render(request, "ppe/load_ppe_files.html", {"dossier_ppe" : doc, "zip_form": zip_form})
 
 @login_required
 def edit_geolocalisation(request, doc):
     error_message = None
     localisation_ppe = None
-    geo_form = GeolocalisationForm(request.POST)
 
     try:
         # We get the current entry of the dossier ppe if it exists
@@ -301,27 +311,31 @@ def edit_geolocalisation(request, doc):
         # ELSE we return an error
         error_message = "Aucun dossier avec ce code n'a pu être trouvé. "+ doc.login_code
         return render(request, "ppe/geolocalisation.html", {"dossier_ppe": doc, "error_message": error_message})  
-    
+
     if 'geom' in request.POST:
         localisation = request.POST['geom']
-        #geo_form = GeolocalisationForm(request.POST)
+        geo_form = GeolocalisationForm(request.POST)
         if geo_form.is_valid():
-            geo_form.save()
-        # Convert an existing localisation to a JSON dict
-        if isinstance(localisation, str) and localisation != '':
-            localisation = json.loads(localisation)
-            localisation_ppe = get_localisation(localisation)
-            #geolocalisation_ppe = ast.literal_eval(localisation_ppe)
-            dossier_ppe.cadastre = localisation_ppe["cadastre"]
-            dossier_ppe.numcad = localisation_ppe["numcad"]
-            dossier_ppe.nummai = localisation_ppe["nummai"]
-            dossier_ppe.coord_E = localisation_ppe["coord_est"]
-            dossier_ppe.coord_N = localisation_ppe["coord_nord"]
-            dossier_ppe.date_creation = datetime.datetime.now()
-            dossier_ppe.geom = Point(localisation_ppe["coordinates"])
-            dossier_ppe.save()
-        form_action = 'overview'
-        return redirect(f"/ppe/overview")
+            geo_form.save(commit=False)
+            # Convert an existing localisation to a JSON dict
+            if isinstance(localisation, str) and localisation != '':
+                localisation = json.loads(localisation)
+                localisation_ppe = get_localisation(localisation)
+                #geolocalisation_ppe = ast.literal_eval(localisation_ppe)
+                dossier_ppe.cadastre = localisation_ppe["cadastre"]
+                dossier_ppe.numcad = localisation_ppe["numcad"]
+                dossier_ppe.nummai = localisation_ppe["nummai"]
+                dossier_ppe.coord_E = localisation_ppe["coord_est"]
+                dossier_ppe.coord_N = localisation_ppe["coord_nord"]
+                dossier_ppe.date_creation = datetime.datetime.now()
+                dossier_ppe.geom = Point(localisation_ppe["coordinates"])
+                dossier_ppe.save()
+            form_action = 'overview'
+            return redirect(f"/ppe/overview")
+    else:
+        if doc.geom is not None:
+            init_data={"geom": doc.geom}
+            geo_form = GeolocalisationForm(initial=init_data)
 
     return render(
         request,
@@ -331,6 +345,7 @@ def edit_geolocalisation(request, doc):
             "localisation_ppe": localisation_ppe,
             "form": geo_form,
             "form_action": 'edit_geolocalisation',
+            "doc": doc
         }
     )
 
@@ -406,6 +421,10 @@ def edit_ppe_type(request, doc):
     try:
         # We get the current entry of the dossier ppe if it exists
         dossier_ppe = DossierPPE.objects.get(login_code=doc.login_code)
+        elements_rf_identiques = request.POST["elements_rf_identiques"] if 'elements_rf_identiques' in request.POST else dossier_ppe.elements_rf_identiques
+        print(elements_rf_identiques)
+        nouveaux_droits = request.POST["nouveaux_droits"] if 'nouveaux_droits' in request.POST else dossier_ppe.nouveaux_droits
+        revision_jouissances = request.POST["revision_jouissances"] if 'revision_jouissances' in request.POST else dossier_ppe.revision_jouissances
     except:
         # ELSE we return an error
         error_message = "Aucun dossier avec ce code n'a pu être trouvé."
@@ -413,7 +432,13 @@ def edit_ppe_type(request, doc):
 
     if 'type_dossier' in request.POST and request.POST["type_dossier"] in ('C','M','R'):
         type_dossier = request.POST["type_dossier"]
+        dossier_ppe.elements_rf_identiques = elements_rf_identiques
+        dossier_ppe.nouveaux_droits = nouveaux_droits
+        dossier_ppe.revision_jouissances = revision_jouissances
         dossier_ppe.type_dossier = type_dossier
+        print('=== IF ===')
+        print(elements_rf_identiques)
+        print(dossier_ppe.revision_jouissances)
         dossier_ppe.save()
         
         return redirect(f"/ppe/overview")
@@ -423,6 +448,20 @@ def edit_ppe_type(request, doc):
 
 @login_required
 def edit_zipfile(request, doc):
+    """ Replace the zip file with PPE documents by a newer version """
     error_message = None
+    zipfile = None
+    
+    zip_form = ZipfileForm(request.POST, request.FILES or None)
+    doc = DossierPPE.objects.get(login_code=doc.login_code)
+    init_data = {"dossier_ppe": DossierPPE(pk=doc.id)}
 
-    return render(request, "ppe/load_ppe_files.html", {"dossier_ppe": doc})
+    if zip_form.is_valid():
+        zip_form.save()
+        zipfile = Zipfile(pk=zip_form.instance.id)
+
+        return render(request, "ppe/load_ppe_files.html", {"dossier_ppe" : doc, "zipfile": zipfile })
+
+    zip_form = ZipfileForm(initial=init_data)
+
+    return render(request, "ppe/load_ppe_files.html", {"dossier_ppe" : doc, "zip_form": zip_form})

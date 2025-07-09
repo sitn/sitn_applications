@@ -40,7 +40,7 @@ Etape 2: Détails du projet:
             <section name="modification" id="modification"  {% if dossier_ppe.type_dossier != 'M' %}style="display:none"{% endif %}>
             <p>
             <div id="type_modification">
-              <label for "login_code">Identifiant unique du dossier d'origine</label>
+              <label for="login_code">Identifiant unique du dossier d'origine</label>
               <input type="text" name="login_code" id="login_code"><br>
               <input type="submit" value="Chercher le dossier" class="btn btn-success">
             </div>
@@ -125,7 +125,7 @@ Etape 2: Détails du projet:
             </div>
           </section>
 
-          <input id="submit_btn" type="submit" value="Etape suivante >>" class="btn btn-success" style="display:none;">
+          <input id="submit_btn" type="submit" value="Etape suivante >>" class="etape btn btn-success" style="display:none;">
           <p class="red"><br><sup>*</sup>Les champs marqués d'un astérisque sont obligatoires</p>
         </div>
         </form>
@@ -135,7 +135,7 @@ Etape 2: Détails du projet:
       <p>        
         <form class="form-horizontal" method="POST">
           {% csrf_token %}
-            <label for "id_dossier">Veuillez indiquer le no. de dossier PPE</label>
+            <label for="id_dossier">Veuillez indiquer le no. de dossier PPE</label>
             <input type="text" name="id_dossier" id ="id_dossier">
             <input type="submit" value="Chercher le dossier" class="btn btn-success">
         </form>

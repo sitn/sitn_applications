@@ -101,6 +101,7 @@ class DossierPPE(models.Model):
     revision_jouissances = models.CharField(max_length=3, blank=True)
     elements_rf_identiques = models.CharField(max_length=3, blank=True)
     nouveaux_droits = models.CharField(max_length=3, blank=True)
+    ref_geoshop = models.CharField(max_length=20, blank=True)
     contact_principal = models.ForeignKey(ContactPrincipal, on_delete=models.CASCADE)
     signataire = models.ForeignKey(Signataire, on_delete=models.CASCADE)
     notaire = models.ForeignKey(Notaire, on_delete=models.CASCADE)
@@ -113,7 +114,7 @@ class DossierPPE(models.Model):
 
 class Zipfile(models.Model):
     zipfile = models.FileField(upload_to="files/zips/")
-    upload_date = models.DateField("Date de chargement", auto_now=True, blank=True)
+    upload_date = models.DateField("Date de chargement", auto_now=True)
     file_statut = models.CharField(
         choices=(
             ("A", "Dossier remplacé et archivé"),
@@ -123,4 +124,4 @@ class Zipfile(models.Model):
             ("V", "Dossier validé. Il n'est plus possible de le modifier")
         ),
         max_length=75, default="P")
-    dossier_ppe = models.ForeignKey(DossierPPE, on_delete=models.CASCADE)
+    dossier_ppe = models.ForeignKey(DossierPPE, on_delete=models.CASCADE, blank=True)

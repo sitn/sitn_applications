@@ -20,24 +20,26 @@ Dépôt d'un dossier - étape 2:
         <div class="row">
             <div class="col">
                 <fieldset class="form-group">
-                    <legend>Personne de contact principale</legend>  
+                    <legend>Personne de contact principale  
                     <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
-                    <div id="info_contact">La personne de contact principale est celle qui soumet<br> 
+                    <span id="info_contact">La personne de contact principale est celle qui soumet<br> 
                         le dossier et recevra les résultats du contrôle. <br>
                         Il s'agit en principe de la personne qui dessine les plans.
-                    </div>
+                    </span>
+                    </legend>
                     {{ contact_form }}
                 </fieldset>
             </div>
             <div class="col">
                 <fieldset>
-                    <legend>Signataire</legend>
+                    <legend>Signataire
                     <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
-                    <div id="info_signataire">
+                    <span id="info_signataire">
                         La personne signataire est obligatoirement un·e architecte inscrit·e <br>
                         au registre neuchâtelois des architectes ou un·e ingénieur-géomètre <br>
                         breveté·e du canton de Neuchâtel
-                    </div>
+                    </span>
+                    </legend>
                     {{ signataire_form }}
                 </fieldset>
             </div>
@@ -45,14 +47,15 @@ Dépôt d'un dossier - étape 2:
         <div class="row">
             <div class="col">
                 <fieldset>
-                    <legend>Adresse de facturation</legend>
+                    <legend>Adresse de facturation
                     <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
-                    <div id="info_accord">
+                    <span id="info_accord">
                         Les frais du Service de la Géomatique et du Registre Foncier <br>
                         comprennent le contrôle de conformité du dossier aux directives <br>
                         cantonales en vigueur ainsi que l'attribution des numéros de <br>
                         bien-fonds aux unités juridiques
-                    </div>
+                    </span>
+                    </legend>
                     {{ facturation_form }}
                     <a href="https://www.ne.ch/autorites/DDTE/SGRF/mensuration/Pages/propriete_par_etages.aspx" target="blank">
                         Lien vers un modèle</a>
@@ -64,9 +67,11 @@ Dépôt d'un dossier - étape 2:
                     {{ notaire_form }}
                 </fieldset>
             </div>
-        <p class="red">* Les champs marqués d'un astérisque sont obligatoires</p>
+        <p class="red"><br>* Les champs marqués d'un astérisque sont obligatoires</p>
     </div>
-            <input type="submit" value="Etape suivante >>" class="btn btn-success" style="text-align:right;">
+    <div style="text-align:right;">
+        <input type="submit" value="Etape suivante >>" class="btn btn-success" style="text-align:right;">
+    </div>
     </form>
 
 </div>

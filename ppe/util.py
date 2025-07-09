@@ -21,6 +21,7 @@ def login_required(func):
     @wraps(func)
     def wrapper(request, *args, **kwargs):
         if 'login_code' in request.session : 
+            logger.debug('== Trying to log in with code')
             try:
                 return func(request, DossierPPE.objects.get(login_code=request.session['login_code']), *args, **kwargs)
             except Exception as e:
@@ -83,3 +84,8 @@ def get_localisation(localisation):
     }
 
     return(geoloc)
+
+def check_geoshop_ref(ref):
+    """ Function de validation of the provided geoshop reference """
+    no_commande = ref
+    return True

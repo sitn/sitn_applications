@@ -11,7 +11,12 @@ class ZipfileForm(forms.ModelForm):
     class Meta:
         model = Zipfile
         prefix = "zip"
-        fields = ["zipfile"]
+        fields = "__all__"
+        widgets = {
+            'upload_date': forms.HiddenInput(),
+            'file_statut': forms.HiddenInput(),
+            'dossier_ppe': forms.HiddenInput()
+            }
         labels = {
             "zipfile": _("Dossier zip des plans"),
         }
