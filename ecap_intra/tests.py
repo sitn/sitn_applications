@@ -46,3 +46,13 @@ class EcapApiTest(APITestCase):
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
         self.assertGreater(len(data), 2)
+
+    def test_preavis(self):
+        """
+        Tests json of preavis is a list
+        """
+        url = '/ecap/preavis/'
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertGreater(len(data), 2)

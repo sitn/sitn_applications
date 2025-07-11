@@ -81,3 +81,12 @@ class Ecap90RepartitionExpertsSinistre(models.Model):
     class Meta:
         db_table = 'ecap\".\"ecap90_repartition_experts_sinistre'
         managed = False
+
+
+class Ecap06Preavis(models.Model):
+    idobj = models.IntegerField(primary_key=True)
+    document_name = models.TextField()
+
+    class Meta:
+        db_table = 'ecap\".\"ecap06_preavis'
+        managed = False

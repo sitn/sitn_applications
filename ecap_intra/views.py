@@ -16,7 +16,8 @@ from ecap_intra.models import (
     RepartitionExpert,
     PlanSpecial,
     PlanQuartier,
-    Ecap90RepartitionExpertsSinistre
+    Ecap90RepartitionExpertsSinistre,
+    Ecap06Preavis,
 )
 from ecap_intra.serializers import (
     ObjetImmobiliseSerializer,
@@ -144,3 +145,14 @@ def get_sinistres(request):
     sinistres = Ecap90RepartitionExpertsSinistre.objects.values_list('name_sinistre', flat=True).distinct()
 
     return Response(sinistres)
+
+
+@api_view(["GET"])
+def get_preavis(request):
+    """
+    Retrieves a list of available "preavis". "Preavis" are preliminary geometries draw on intranet
+    geoportal. They refer to future "plans de quartier" or "plans spéciaux"
+    """
+    preavis = Ecap06Preavis.objects.values_list('document_name', flat=True).distinct()
+
+    return Response(preavis)
