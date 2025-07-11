@@ -1,3 +1,5 @@
+from django.urls import reverse
+
 from rest_framework import status
 from rest_framework.test import APITestCase
 
@@ -41,8 +43,18 @@ class EcapApiTest(APITestCase):
         """
         Tests json of sinistres is a list
         """
-        url = '/ecap/sinistres-exceptionnels/'
+        url = reverse('ecap-intra-sinistres-exceptionnels')
         response = self.client.get(url)
         self.assertEqual(response.status_code, status.HTTP_200_OK)
         data = response.json()
         self.assertGreater(len(data), 2)
+
+    def test_preavis(self):
+        """
+        Tests json of preavis is a list
+        """
+        url = reverse('ecap-intra-preavis')
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+        data = response.json()
+        self.assertGreater(len(data), 1)
