@@ -15,16 +15,15 @@ Etape 2: Détails du projet:
       <p class="fs-5"><br>PPE sur le bien-fonds <b>{{ dossier_ppe.nummai }}</b> du cadastre 
         de <b>{{ dossier_ppe.cadastre }}</b>
       </p>
-
-        <form id="type_form" name="type_form" class="form-horizontal" method="post">
+         <form id="type_form" name="type_form" class="form-horizontal" method="post">
             {% csrf_token %}
             <section name="ppe_type" id="ppe_type">
             <label for="type_dossier">Type de dossier<sup>*</sup>:</label>
             <select  name="type_dossier" id="type_dossier" onchange="changeSectionDisplay()">
-              <option value="" selected>Choisir...</option>
-              <option value="C">Constitution</option>
-              <option value="R">Révision</option>
-              <option value="M">Modification</option>
+              <option value="" {% if mode != 'edit' %}selected{% endif %}>Choisir...</option>
+              <option value="C" {% if mode and dossier_ppe.type_dossier == 'C' %}selected{% endif %}>Constitution</option>
+              <option value="R" {% if mode and dossier_ppe.type_dossier == 'R' %}selected{% endif %}>Révision</option>
+              <option value="M" {% if mode and dossier_ppe.type_dossier == 'M' %}selected{% endif %}>Modification</option>
             </select>
             <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
             <div id="info_type_dossier">
@@ -56,13 +55,14 @@ Etape 2: Détails du projet:
                   <p class="alert alert-success">La révision concerne uniquement des droits de jouissance.</p>
                   </div>
                   <div class="col">
-                  <input type="radio" name="droits_jouissance" id="jouissance_oui" value="oui" onchange="showJouissanceRemark()">
+                  <input type="radio" name="droits_jouissance" id="jouissance_oui" value="oui" {% if mode == 'edit' and dossier_ppe.revision_jouissances == 'oui' %}checked{% endif %} onchange="showJouissanceRemark()">
                   <label for="jouissance_oui">Oui</label>
-                  <input type="radio" name="droits_jouissance" id="jouissance_non" value="non" onchange="showJouissanceRemark()">
+                  <input type="radio" name="droits_jouissance" id="jouissance_non" value="non" {% if mode == 'edit' and dossier_ppe.revision_jouissances == 'non' %}checked{% endif %} onchange="showJouissanceRemark()">
                   <label for="jouissance_non">Non</label>
                   </div>
                 </div>
-                <div class="row" id="elements_rf" style="display:none">
+                <div class="row" id="elements_rf" {% if mode == 'edit' and dossier_ppe.type_dossier == 'R' and dossier_ppe.revision_jouissances == 'non' %}style="display:block"
+                  {% else %}style="display:none"{% endif %}>
                   <div class="col">
                   <p class="alert alert-success">
                     Les éléments qui figurent sur le plan de situation actuellement inscrit au registre foncier<br> 
@@ -70,22 +70,23 @@ Etape 2: Détails du projet:
                   </p>
                   </div>
                   <div class="col">
-                  <input type="radio" name="elements_rf" id="rf_identique_oui" value="oui" onchange="showElementsRFQuestions()">
+                  <input type="radio" name="elements_rf" id="rf_identique_oui" value="oui" {% if mode == 'edit' and dossier_ppe.elements_rf_identiques == 'oui' %}checked{% endif %} onchange="showElementsRFQuestions()">
                   <label for="rf_identique_oui">Oui</label>
-                  <input type="radio" name="elements_rf" id="jrf_identique_non" value="non" onchange="showElementsRFQuestions()">
+                  <input type="radio" name="elements_rf" id="jrf_identique_non" value="non" {% if mode == 'edit' and dossier_ppe.elements_rf_identiques == 'non' %}checked{% endif %} onchange="showElementsRFQuestions()">
                   <label for="rf_identique_non">Non</label>
                   </div>
                 </div>
-                <div class="row" id="new_jouissance" style="display:none">
+                <div class="row" id="new_jouissance" {% if mode == 'edit' and dossier_ppe.type_dossier == 'R' and dossier_ppe.elements_rf_identiques == 'oui' %}style="display:block"
+                  {% else %}style="display:none"{% endif %}>
                   <div class="col">
                   <p class="alert alert-success">
                     Il y a un droit de jouissance nouveau ou modifié sur le plan de situation
                   </p>
                   </div>
                   <div class="col">
-                  <input class="val-middle" type="radio" name="new_jouissance" id="droit_jouissance_oui" value="oui" onchange="showNewJouissanceInfo()">
+                  <input class="val-middle" type="radio" name="new_jouissance" id="droit_jouissance_oui" value="oui" {% if mode == 'edit' and dossier_ppe.nouveaux_droits == 'oui' %}checked{% endif %} onchange="showNewJouissanceInfo()">
                   <label class="val-middle" for="droit_jouissance_oui">Oui</label>
-                  <input class="val-middle" type="radio" name="new_jouissance" id="droit_jouissance_non" value="non" onchange="showNewJouissanceInfo()">
+                  <input class="val-middle" type="radio" name="new_jouissance" id="droit_jouissance_non" value="non" {% if mode == 'edit' and dossier_ppe.nouveaux_droits == 'non' %}checked{% endif %} onchange="showNewJouissanceInfo()">
                   <label class="val-middle" for="droit_jouissance_non">Non</label>
                   </div>
                 </div>
@@ -102,7 +103,9 @@ Etape 2: Détails du projet:
             </div>
             </section>
 
-            <section name="constitution" id="constitution" style="display:none">
+            <section name="constitution" id="constitution" 
+              {% if mode == 'edit' and dossier_ppe.type_dossier == 'R' and dossier_ppe.elements_rf_identiques == 'non' %}style="display:block"
+              {% else %}style="display:none"{% endif %}>
             <div id="type_constitution">
                 <br>
                 <div class="col">
@@ -125,7 +128,11 @@ Etape 2: Détails du projet:
             </div>
           </section>
 
+          {% if mode == 'edit' %}
+          <input id="submit_btn" type="submit" value="Modifier" class="etape btn btn-success" style="display:none;">
+          {% else %}
           <input id="submit_btn" type="submit" value="Etape suivante >>" class="etape btn btn-success" style="display:none;">
+          {% endif %}
           <p class="red"><br><sup>*</sup>Les champs marqués d'un astérisque sont obligatoires</p>
         </div>
         </form>

@@ -23,12 +23,13 @@ def index(request):
     template = loader.get_template("ppe/index.html")
     return HttpResponse(template.render({"latest_dossiers_list": latest_dossiers_list}, request))
 
-def geolocalisation(request):
+def set_geolocalisation(request):
     # if this is a POST request we need to process the form data
     error_message = None
     localisation_ppe = None
     geo_form = GeolocalisationForm(request.POST)
-    form_action = 'geolocalisation'
+    form_action = 'set_geolocalisation'
+    mode = 'init'
 
     if 'geom' in request.POST:
         localisation = request.POST['geom']
@@ -39,7 +40,12 @@ def geolocalisation(request):
         if isinstance(localisation, str) and localisation != '':
             localisation = json.loads(localisation)
             localisation_ppe = get_localisation(localisation)
-        form_action = 'contact_principal'
+        check_geolocalisation(request)
+        if request.POST['geom'] == '':
+            form_action = 'set_geolocalisation'
+            mode = 'reset'
+        else:
+            form_action = 'contact_principal'
 
     return render(
         request,
@@ -49,9 +55,12 @@ def geolocalisation(request):
             "localisation_ppe": localisation_ppe,
             "form": geo_form,
             "form_action": form_action,
+            "mode": mode
         }
     )
 
+def check_geolocalisation(request):
+    return
 
 @login_required
 def modification(request, doc):
@@ -126,6 +135,12 @@ def modification(request, doc):
 
 def contact_principal(request):
     error_message = None
+    
+    try:
+        nummai = request.POST["nummai"]
+    except:
+        error_message = "Aucun numéro de bien-fonds n'a été trouvé"
+    
     notaire_form = NotaireForm(request.POST, prefix='notaire')
     contact_form = ContactPrincipalForm(request.POST, prefix='contact')
     signataire_form = SignataireForm(request.POST, prefix='signataire')
@@ -173,6 +188,8 @@ def contact_principal(request):
                 localisation = json.loads(localisation)
             # Fetch geolocalisation calling the satac service
             if (localisation is not None) and ('coordinates' in localisation):
+                localisation_ppe = get_localisation(localisation)
+                localisation_ppe['nummai'] = nummai
                 return render(
                     request, 
                     "ppe/contact_principal.html", 
@@ -181,7 +198,7 @@ def contact_principal(request):
                         "notaire_form": NotaireForm(prefix='notaire'),
                         "signataire_form": SignataireForm(prefix='signataire'),
                         "facturation_form": AdresseFacturationForm(prefix='facturation'),
-                        "localisation_ppe": get_localisation(localisation)
+                        "localisation_ppe": localisation_ppe
                     }
                 )
             else:
@@ -191,7 +208,7 @@ def contact_principal(request):
             logger.warning(f"Error during geoloc. decoding : {repr(e)}")
             error_message = "Une erreur est survenue lors de la création du formulaire."
 
-    return redirect(f'/ppe/geolocalisation', {"error_message": error_message})
+    return redirect(f'/ppe/set_geolocalisation', {"error_message": error_message})
 
 
 def login(request):
@@ -244,30 +261,32 @@ def definition_type_dossier(request, doc, type_dossier=None):
         error_message = "Aucun dossier avec ce code n'a pu être trouvé."
         return render(request, "ppe/definition_type_dossier.html", {"error_message": error_message})  
 
-    if type_dossier == 'C' and ref_geoshop is not None:
-        dossier_ppe.type_dossier = type_dossier
-
-        #TODO: Check geoshop_ref is existing
+    if ref_geoshop is not None:
+        # Check geoshop_ref is existing
         ref_exists = check_geoshop_ref(ref_geoshop)
-        if ref_exists == True:
-            #dossier_ppe.elements_rf_identiques = None
-            #dossier_ppe.nouveaux_droits = None
-            #dossier_ppe.revision_jouissances = None
-            dossier_ppe.save()
-            return redirect("/ppe/overview")
-        else:
-            error_message = "La référence de la commande géoshop contient une erreur ou n'existe pas."
-    
-    elif type_dossier in ['M','R'] and 'login_code' in request.POST:
+    else:
+        ref_exists = False
+
+    if type_dossier == 'C' and ref_exists == True:
+        dossier_ppe.type_dossier = type_dossier
+        dossier_ppe.ref_geoshop = ref_geoshop
+        dossier_ppe.save()
+        return redirect("/ppe/overview")
+
+    elif type_dossier in ['M'] and 'login_code' in request.POST:
+        return redirect(f"/ppe/modification")
+
+    elif type_dossier in ['R'] and 'login_code' in request.POST:
         login_code = request.POST['login_code']
         dossier_ppe.elements_rf_identiques = elements_rf_identiques
         dossier_ppe.nouveaux_droits = nouveaux_droits
         dossier_ppe.revision_jouissances = revision_jouissances
-        dossier_ppe.save()
-        if type_dossier == 'R':
-            return redirect(f"/ppe/overview")
+        if elements_rf_identiques == 'non' and ref_exists == False:
+            error_message = "La référence de la commande géoshop contient une erreur ou n'existe pas."
         else:
-            return redirect(f"/ppe/modification")
+            dossier_ppe.ref_geoshop = ref_geoshop
+            dossier_ppe.save()
+            return redirect(f"/ppe/overview")
 
     return render(
         request,
@@ -301,6 +320,7 @@ def load_ppe_files(request, doc):
 
 @login_required
 def edit_geolocalisation(request, doc):
+    """ Modify the geolocation of an existing submission"""
     error_message = None
     localisation_ppe = None
 
@@ -312,16 +332,22 @@ def edit_geolocalisation(request, doc):
         error_message = "Aucun dossier avec ce code n'a pu être trouvé. "+ doc.login_code
         return render(request, "ppe/geolocalisation.html", {"dossier_ppe": doc, "error_message": error_message})  
 
+    # When the function is first called geom and nummai are None
+    # When the function is called to reset location geom and nummai are empty strings
+    # When the function is called to validate a new location geom has a value nummai is empty
+    # Lastly, when geom and nummai have values we set the new location and continue
     if 'geom' in request.POST:
         localisation = request.POST['geom']
         geo_form = GeolocalisationForm(request.POST)
-        if geo_form.is_valid():
-            geo_form.save(commit=False)
-            # Convert an existing localisation to a JSON dict
-            if isinstance(localisation, str) and localisation != '':
-                localisation = json.loads(localisation)
-                localisation_ppe = get_localisation(localisation)
-                #geolocalisation_ppe = ast.literal_eval(localisation_ppe)
+        if isinstance(localisation, str) and localisation != '':
+            localisation = json.loads(localisation)
+            localisation_ppe = get_localisation(localisation)
+
+        if 'nummai' in request.POST and localisation != '':
+            localisation_ppe["nummai"] = request.POST['nummai']
+            if geo_form.is_valid():
+                geo_form.save(commit=False)
+                # Convert an existing localisation to a JSON dict
                 dossier_ppe.cadastre = localisation_ppe["cadastre"]
                 dossier_ppe.numcad = localisation_ppe["numcad"]
                 dossier_ppe.nummai = localisation_ppe["nummai"]
@@ -330,12 +356,26 @@ def edit_geolocalisation(request, doc):
                 dossier_ppe.date_creation = datetime.datetime.now()
                 dossier_ppe.geom = Point(localisation_ppe["coordinates"])
                 dossier_ppe.save()
-            form_action = 'overview'
-            return redirect(f"/ppe/overview")
+                return redirect(f"/ppe/overview")
+        else:
+            mode = 'edit' if localisation != '' else 'reset'
+            return render(
+                request,
+                "ppe/geolocalisation.html",
+                {
+                    "error_message": error_message,
+                    "localisation_ppe": localisation_ppe,
+                    "form": geo_form,
+                    "form_action": 'edit_geolocalisation',
+                    "doc": doc,
+                    "mode": mode
+                }
+            )
     else:
         if doc.geom is not None:
             init_data={"geom": doc.geom}
             geo_form = GeolocalisationForm(initial=init_data)
+            localisation_ppe = {'bien_fonds': {'nummai': doc.nummai}, 'cadastre': doc.cadastre}
 
     return render(
         request,
@@ -345,7 +385,8 @@ def edit_geolocalisation(request, doc):
             "localisation_ppe": localisation_ppe,
             "form": geo_form,
             "form_action": 'edit_geolocalisation',
-            "doc": doc
+            "doc": doc,
+            "mode": 'edit'
         }
     )
 
@@ -421,29 +462,51 @@ def edit_ppe_type(request, doc):
     try:
         # We get the current entry of the dossier ppe if it exists
         dossier_ppe = DossierPPE.objects.get(login_code=doc.login_code)
-        elements_rf_identiques = request.POST["elements_rf_identiques"] if 'elements_rf_identiques' in request.POST else dossier_ppe.elements_rf_identiques
-        print(elements_rf_identiques)
-        nouveaux_droits = request.POST["nouveaux_droits"] if 'nouveaux_droits' in request.POST else dossier_ppe.nouveaux_droits
-        revision_jouissances = request.POST["revision_jouissances"] if 'revision_jouissances' in request.POST else dossier_ppe.revision_jouissances
+        type_dossier = request.POST["type_dossier"] if 'type_dossier' in request.POST else None
+        ref_geoshop = request.POST["ref_geoshop"] if 'ref_geoshop' in request.POST else None
+        ref_exists = check_geoshop_ref(ref_geoshop)
+        revision_jouissances = request.POST["droits_jouissance"] if 'droits_jouissance' in request.POST else None 
+        elements_rf_identiques = request.POST["elements_rf"] if 'elements_rf' in request.POST else None
+        nouveaux_droits = request.POST["new_jouissance"] if 'new_jouissance' in request.POST else None
     except:
         # ELSE we return an error
         error_message = "Aucun dossier avec ce code n'a pu être trouvé."
-        return render(request, "ppe/definition_type_dossier.html", {"error_message": error_message})  
+        return render(request, "ppe/definition_type_dossier.html", {"error_message": error_message})
 
-    if 'type_dossier' in request.POST and request.POST["type_dossier"] in ('C','M','R'):
-        type_dossier = request.POST["type_dossier"]
+    if type_dossier == 'C' and ref_exists == True:
         dossier_ppe.elements_rf_identiques = elements_rf_identiques
         dossier_ppe.nouveaux_droits = nouveaux_droits
         dossier_ppe.revision_jouissances = revision_jouissances
         dossier_ppe.type_dossier = type_dossier
-        print('=== IF ===')
-        print(elements_rf_identiques)
-        print(dossier_ppe.revision_jouissances)
+        dossier_ppe.ref_geoshop = ref_geoshop
         dossier_ppe.save()
-        
-        return redirect(f"/ppe/overview")
-    else: 
-        return render(request, "ppe/definition_type_dossier.html", {"dossier_ppe": doc})
+        return redirect("/ppe/overview")
+
+    if type_dossier == 'R':
+        dossier_ppe.type_dossier = type_dossier
+        dossier_ppe.elements_rf_identiques = elements_rf_identiques
+        dossier_ppe.nouveaux_droits = nouveaux_droits
+        dossier_ppe.revision_jouissances = revision_jouissances
+
+        if elements_rf_identiques == 'non' and ref_exists == False:
+            error_message = "La référence de la commande géoshop contient une erreur ou n'existe pas."
+        else:
+            dossier_ppe.ref_geoshop = ref_geoshop
+            dossier_ppe.save()
+            return redirect(f"/ppe/overview")
+
+    if type_dossier in ['M'] and 'login_code' in request.POST:
+        dossier_ppe.type_dossier = type_dossier
+        dossier_ppe.save()
+        return redirect(f"/ppe/modification")
+    
+    error_message = "Une erreur inconnue est survenue."
+
+    return render(
+        request, 
+        "ppe/definition_type_dossier.html", 
+        {"dossier_ppe": doc, "mode": 'edit', "error_message" : error_message}
+        )
     
 
 @login_required

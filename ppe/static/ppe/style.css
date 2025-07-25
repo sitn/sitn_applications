@@ -118,7 +118,7 @@ i:hover + div#info_geoloc {
     display: inline-block;
 }
 
-span#info_contact {
+div#info_contact {
   display: none;
   margin-top: 15px;
   margin-left: 3px;
@@ -128,7 +128,7 @@ span#info_contact {
   border: 1px solid cornflowerblue; 
 }
   
-i:hover + span#info_contact {
+i:hover + div#info_contact {
     position: absolute;
     display: inline-block;
   }
@@ -236,4 +236,17 @@ div#info_modification {
 i:hover + div#info_modification {
   position: absolute;
   display: inline-block;
+}
+
+/* Deactivate WMTSWidget elements */
+span.clear_features {
+    display: none;
+}
+
+ul.errorlist {
+    display: none;
+}
+
+label#id_geom {
+  display:none;
 }

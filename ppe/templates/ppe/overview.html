@@ -113,8 +113,13 @@ Dépôt d'un dossier - Récapitulatif:
                 <td>
                     {% if dossier_ppe.type_dossier == 'C' %}
                     Constitution
+                    <br>Réf. géoshop: {{ dossier_ppe.ref_geoshop }}
                     {% elif dossier_ppe.type_dossier == 'R' %}
                     Révision
+                    <br>{{ dossier_ppe.revision_jouissances }}
+                    <br>{{ dossier_ppe.elements_rf_identiques }}
+                    <br>{{ dossier_ppe.nouveaux_droits }}
+                    <br>Réf. géoshop: {{ dossier_ppe.ref_geoshop }}
                     {% else %}
                     Modification
                     {% endif %}

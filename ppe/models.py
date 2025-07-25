@@ -114,7 +114,7 @@ class DossierPPE(models.Model):
 
 class Zipfile(models.Model):
     zipfile = models.FileField(upload_to="files/zips/")
-    upload_date = models.DateField("Date de chargement", auto_now=True)
+    upload_date = models.DateTimeField("Date de chargement", auto_now=True)
     file_statut = models.CharField(
         choices=(
             ("A", "Dossier remplacé et archivé"),

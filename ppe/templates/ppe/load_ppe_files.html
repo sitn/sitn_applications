@@ -49,7 +49,7 @@ Dépôt d'un dossier:
                 </p>
                 {% if "A" in zipfile.file_statut or "P" in zipfile.file_statut or "E" in zipfile.file_statut %}
                     <div>
-                        <a href="{% url 'ppe:overview' %}" class="btn btn-success">Modifier</a>
+                        <a href="{% url 'ppe:overview' %}" class="btn btn-success">Revenir au récapitulatif</a>
                     </div>
                 {% endif %}
             </div>

@@ -1,17 +1,20 @@
-function resetLocalisation() {
+function resetLocalisation(mode) {
     document.getElementById("id_geom").innerHTML = '';
-    var checkBox = document.getElementById("check_mutation");
-    checkBox.checked = true;
-    mapwidget.style.display =  checkBox.checked ? "block" : "none";
-}
-
+    const checkBox = document.getElementById("check_mutation");
+    const current_action = document.getElementById("localisation_form").getAttribute("action");
+    if (mode == 'edit' || current_action == 'ppe/edit_geolocalisation'){
+    document.getElementById("localisation_form").action = 'edit_geolocalisation';
+    } else {
+    document.getElementById("localisation_form").action = 'set_geolocalisation';
+    }
+ }
 
 function showMap() {
     // Get the checkbox status
     const checkBox = document.getElementById("check_mutation");
-
     // If the checkbox is checked, display the output text
     mapwidget.style.display =  checkBox.checked ? "block" : "none";
+    validation.style.display =  checkBox.checked ? "block" : "none";
 }
 
 function changeSectionDisplay() {
@@ -54,19 +57,20 @@ function showJouissanceRemark() {
                 if (choix_droits_jouissance == 'non'){
                     droits_remark.style.display = "none";
                     elements_rf.style.display = "block";
+                    constitution.style.display = "none";
                     var ele = document.getElementsByName("elements_rf");
                     for(var j=0;j<ele.length;j++)
                         ele[j].checked = false;
                     }
                 else {
                     droits_remark.style.display = "block";
+                    constitution.style.display = "none";
                     new_jouissance.style.display = "none";
                     no_plan_remark.style.display = "none";
                     jouissance_remark.style.display = "none";
                     elements_rf.style.display = "none";
                     submit_btn.style.display = "none";
                 }
-                //submit_btn.style.display = "block";
             }
 
         }
