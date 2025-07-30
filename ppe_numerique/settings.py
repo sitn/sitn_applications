@@ -98,13 +98,13 @@ DATABASES = {
         },
     },'geoshop': {
         'ENGINE': "django.contrib.gis.db.backends.postgis",
-        'NAME': os.environ["GOSHOPDB"],
-        'USER': os.environ["GOSHOPUSER"],
-        'HOST': os.environ["GOSHOPHOST"],
-        'PORT': os.environ["GOSHOPPORT"],
-        'PASSWORD': os.environ["GOSHOPPASSWORD"],
+        'NAME': os.environ["GEOSHOPDB"],
+        'USER': os.environ["GEOSHOPUSER"],
+        'HOST': os.environ["GEOSHOPHOST"],
+        'PORT': os.environ["GEOSHOPPORT"],
+        'PASSWORD': os.environ["GEOSHOPPASSWORD"],
         'OPTIONS': {
-            'options': '-c search_path='+os.environ["GOSHOPSCHEMA"]+',public'
+            'options': '-c search_path='+os.environ["GEOSHOPSCHEMA"]+',public'
         },
     }
 }

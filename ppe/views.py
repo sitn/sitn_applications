@@ -246,6 +246,7 @@ def soumission(request, doc):
 
 @login_required
 def definition_type_dossier(request, doc, type_dossier=None):
+    """ Definition of the PPE submission type """
     error_message = None
     type_dossier = request.POST["type_dossier"] if 'type_dossier' in request.POST else None
     ref_geoshop = request.POST["ref_geoshop"] if 'ref_geoshop' in request.POST else None
@@ -273,11 +274,10 @@ def definition_type_dossier(request, doc, type_dossier=None):
         dossier_ppe.save()
         return redirect("/ppe/overview")
 
-    elif type_dossier in ['M'] and 'login_code' in request.POST:
+    elif type_dossier in ['M']:
         return redirect(f"/ppe/modification")
 
-    elif type_dossier in ['R'] and 'login_code' in request.POST:
-        login_code = request.POST['login_code']
+    elif type_dossier in ['R']:
         dossier_ppe.elements_rf_identiques = elements_rf_identiques
         dossier_ppe.nouveaux_droits = nouveaux_droits
         dossier_ppe.revision_jouissances = revision_jouissances
@@ -500,8 +500,6 @@ def edit_ppe_type(request, doc):
         dossier_ppe.save()
         return redirect(f"/ppe/modification")
     
-    error_message = "Une erreur inconnue est survenue."
-
     return render(
         request, 
         "ppe/definition_type_dossier.html", 

@@ -120,5 +120,5 @@ def check_geoshop_ref(ref):
             
     except Exception as e:
         print(f"Exception : {repr(e)}")
-        pass
+
     return ref_ok
