@@ -9,10 +9,10 @@ Dépôt d'un dossier:
 
 <div name="carte" class="container">
 
-    <h4>Etape 1 : Localisation</h4>
+    <h3>Etape 1 : Localisation</h3>
 
-    {% if error_message %}<p><strong>{{ error_message }}</strong></p>
-    {% endif %}
+    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+
     <p class="alert alert-danger">Un dossier PPE ne peut pas être soumis tant que les travaux
         de modification du parcellaire n'ont pas été effectués.
     </br>Pour ce faire, merci d'envoyer un e-mail avec votre demande à l'adresse
@@ -21,63 +21,62 @@ Dépôt d'un dossier:
 
     <form id="localisation_form" class="form-horizontal" action="/ppe/{{ form_action }}" method="post">
         {% csrf_token %}
+        {% if doc %}
+        <input type="hidden" id="login_code" name="login_code" value="{{ doc.login_code }}">
+        {% endif %}
         <div class="row">
             <p>
                 Si votre projet ne nécessite pas de modification du parcellaire, 
                 ou si ceux-ci ont déjà été effectués, veuillez cocher la case suivante :
             </p>
-        {% if localisation_ppe %}
             <div class="col">
-                <input type="checkbox" id="check_mutation"  onChange="showMap()" checked>
+                <input type="checkbox" id="check_mutation" onChange="showMap()" {% if localisation_ppe or mode in 'edit,reset' %}checked{% endif %}>
                 <label for="check_mutation" class="alert alert-success">
                     Mon projet ne nécessite PAS de modification du parcellaire (ou celle-ci a déjà été effectuée)
                 </label>
             </div>
         </div>
+
         <div class="row">
             <div class="col">
+            {% if localisation_ppe or mode == 'edit' or mode == 'reset' %}
                 <div name="mapwidget" id="mapwidget">
-                    Veuillez localiser le bien-fonds sur la carte par un simple clic.
-                    <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
-                    <div id="info_localisation">Un dossier PPE doit concerner un seul bien-fonds.</div>
+            {% else %}
+                <div name="mapwidget" id="mapwidget" style="display:none">
+            {% endif %}
                     {{ form }}
                 </div>
             </div>
+            {% if localisation_ppe or mode == 'edit' %}
             <div class="col" id="localisation_overview" name="localisation_overview">
-                <h5>Localisation sélectionnée</h5>
-                <p><b>Commune</b>: {{ localisation_ppe.commune }}</p>
+                <p></p>
                 <p><b>Cadastre</b>: {{ localisation_ppe.cadastre }}</p>
-                <p><b>Bien-fonds</b>:  {{ localisation_ppe.nummai }}</p>
-                <p>
-                    Pour <i>confirmer</i> cette localisation, cliquez sur <b>« Etape suivante »</b>.
-                </p>
-                <p>
-                    Pour <i>réinitialiser la localisation</i>, cliquez sur 
-                    <b><nbr>« Supprimer toutes les localisations »</nbr></b> en dessous de la carte,
-                    choissisez le nouvel emplacement et cliquez sur <i>Revalider l'emplacement</i> 
-                    puis sur <b>« Etape suivante » si le nouveau choix convient.</b>
-                </p>
-                <button id="geo_validation" onclick="changeLocalisationFormAction()" class="btn btn-primary">Revalider l'emplacement</button>
+                {% if 'bf_list' in localisation_ppe and localisation_ppe.bf_list|length > 0 %}
+                    <p>
+                        <b>Bien-fonds</b>:
+                        <select id="nummai" name="nummai">
+                            <option value="">Veuillez choisir</option>
+                        {% for bf in localisation_ppe.bf_list %}
+                            <option value="{{ bf.nummai }}">{{ bf.nummai}} - {{ bf.bf_type }}</option>
+                        {% endfor %}
+                        </select>
+                    </p>
+                {% else %}
+                    <p>
+                        <b>Bien-fonds</b>: {{ localisation_ppe.bien_fonds.nummai }}
+                        <input hidden id="nummai" name="nummai" value="{{ localisation_ppe.bien_fonds.nummai }}">
+                    </p>
+                {% endif %}
+                <input type="submit" value="Confirmer cette localisation" class="btn btn-success">
+                <button id="geo_validation" onclick="resetLocalisation('{{ mode }}')" class="btn btn-success">Modifier la localisation</button>
             </div>
-            <input type="submit" value="Etape suivante" class="btn btn-success">
-    {% else %}
-            <div class="col">
-                <input type="checkbox" id="check_mutation"  onclick="showMap()">
-                <label for="check_mutation" class="alert alert-success">
-                    Mon projet ne nécessite PAS de modification du parcellaire (ou celle-ci a déjà été effectuée)
-                </label>
+            {% else %}
+            <div class="col" id="validation" name="validation"{% if mode != 'reset' %} style="display:none"{% endif %}>
+                <p><br><br></p>
+                <input type="submit" value="Valider la localisation" class="btn btn-success">
             </div>
+            {% endif %}
         </div>
-        <div class="row">
-            <div class="col">
-                <div name="mapwidget" id="mapwidget" style="display:none">
-                    <p>Veuillez localiser l'emplacement de la PPE sur la carte</p>
-                        {{ form }}
-                    <input type="submit" value="Valider l'emplacement" class="btn btn-success">
-                </div>
-            </div>
-    {% endif %}
-    </div>
 </form>
 </div>
 

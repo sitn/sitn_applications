@@ -5,6 +5,7 @@ from .forms import GeolocalisationForm
 from .models import DossierPPE
 from django.shortcuts import render, redirect
 from django.http import HttpResponseBadRequest
+from django.db import connections
 
 logger = logging.getLogger(__name__)
 
@@ -21,6 +22,7 @@ def login_required(func):
     @wraps(func)
     def wrapper(request, *args, **kwargs):
         if 'login_code' in request.session : 
+            logger.debug('== Trying to log in with code')
             try:
                 return func(request, DossierPPE.objects.get(login_code=request.session['login_code']), *args, **kwargs)
             except Exception as e:
@@ -56,14 +58,25 @@ def get_localisation(localisation):
         data = response.json()
         
         # THERE MIGHT BE DDP's ...
-        # TODO: Establish a list to select from
-
         if isinstance(data, dict) and 'bien_fonds' in data:
-            idemai = data["bien_fonds"]
-            nummai = data["nummai"]
+            if isinstance(data['bien_fonds'], list):
+                bf = None
+                bf_list = []
+                for i in range(len(data['nummai'])):
+                    for k,v in data['bien_fonds'][i].items():
+                        bf_type = k
+                    bf_list.append({
+                        "bf_type" : bf_type,
+                        "nummai" : data["nummai"][i]
+                    })
+            else:
+                bf_list = None
+                bf = {
+                "bf_type" : 'bien_fonds',
+                "nummai" : data["nummai"]
+                }
             numcad = data["numcad"]
             cadastre = data["nomcad"]
-            commune = data["nomcom"]
         else:
             return HttpResponseBadRequest("Une erreur inconnue s'est produite. La localisation a échouée.")
 
@@ -72,14 +85,40 @@ def get_localisation(localisation):
 
     geoloc = {
         "egrid": "ToDo",
-        "idemai": idemai,
-        "nummai": nummai,
+        "bf_list": bf_list,
+        "bien_fonds": bf,
         "numcad": numcad,
         "cadastre": cadastre,
-        "commune": commune,
         "coord_est": coord_est,
         "coord_nord": coord_nord,
         "coordinates": coords
     }
 
     return(geoloc)
+
+def check_geoshop_ref(ref):
+    """ Function de validation of the provided geoshop reference """
+    ref_ok = False
+
+    if ref is None:
+        return False
+    
+    try:
+        if not ref.isnumeric():
+            ref = ref.split('_')
+            if len(ref) != 2:
+                return False
+            else:
+                if not ref[0].isnumeric():
+                    return False
+
+        with connections["geoshop"].cursor() as cursor:
+            cursor.execute("SELECT * FROM geoshop.order WHERE id = %s", [ref])
+            row = cursor.fetchone()
+            if row:
+                ref_ok = True
+            
+    except Exception as e:
+        print(f"Exception : {repr(e)}")
+
+    return ref_ok

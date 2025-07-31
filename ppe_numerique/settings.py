@@ -96,6 +96,16 @@ DATABASES = {
         'OPTIONS': {
             'options': '-c search_path='+os.environ["PGSCHEMA"]+',public'
         },
+    },'geoshop': {
+        'ENGINE': "django.contrib.gis.db.backends.postgis",
+        'NAME': os.environ["GEOSHOPDB"],
+        'USER': os.environ["GEOSHOPUSER"],
+        'HOST': os.environ["GEOSHOPHOST"],
+        'PORT': os.environ["GEOSHOPPORT"],
+        'PASSWORD': os.environ["GEOSHOPPASSWORD"],
+        'OPTIONS': {
+            'options': '-c search_path='+os.environ["GEOSHOPSCHEMA"]+',public'
+        },
     }
 }
 

@@ -18,10 +18,11 @@ Dépôt d'un dossier:
             {% if zipfile %}
             <div id="zip_confirmation" name="zip_confirmation">
                 <p>La saisie de votre dossier est maintenant terminée.</p>
-                <p>Le ZIP {{ zipfile.zipfile }} a été déposé pour vérification ({{ zipfile.id }})</p>
+                <p>Le ZIP {{ zipfile.path }} a été déposé pour vérification ({{ zipfile.id }})</p>
                 <p>
                     Une vérification automatique de vos données est actuellement en cours, 
-                    un compte-rendu vous sera envoyé par e-mail à l'adresse {{ dossier_ppe.contact_principal.email }} d'ici xx minutes.
+                    un compte-rendu vous sera envoyé par e-mail à l'adresse 
+                    <a href="mailto:{{ dossier_ppe.contact_principal.email }}?Subject=Dossier PPE" target="blank">{{ dossier_ppe.contact_principal.email }}</a> d'ici xx minutes.
                 </p>
                 <p>
                     Toutes les erreurs bloquantes découvertes devront être corrigées, 
@@ -29,9 +30,28 @@ Dépôt d'un dossier:
                 </p>
                 <p>Une fois toutes les erreurs bloquantes corrigées, votre dossier poursuivra 
                     automatiquement sa route chez l'un de nos collaborateurs.</p>
-                <p>Si vous souhaitez modifier votre dossier, cliquer sur «Etape précédente».
+                {% if "A" in zipfile.file_statut or "P" in zipfile.file_statut or "E" in zipfile.file_statut %}
+                <p>Si vous souhaitez modifier votre dossier, cliquer sur «Modifier».
+                {% endif %}
                 </p>
-                <p>Le statut de votre dossier est actuellement : VERIFICATION AUTOMATIQUE EN COURS</p>
+                <p>Le statut de votre dossier est actuellement : 
+                    {% if zipfile.file_statut == 'A' %}
+                        <b>Dossier remplacé et archivé</b>
+                    {% elif zipfile.file_statut == 'C' %}
+                        Vérification automatique en cours
+                    {% elif zipfile.file_statut == 'E' %}
+                        Erreurs bloquantes à corriger
+                    {% elif zipfile.file_statut == 'V' %}
+                        Dossier validé. Il n'est plus possible de le modifier
+                    {% else %}
+                        <b>Préparation du dossier - En attente du contrôle automatique</b>
+                    {% endif %}
+                </p>
+                {% if "A" in zipfile.file_statut or "P" in zipfile.file_statut or "E" in zipfile.file_statut %}
+                    <div>
+                        <a href="{% url 'ppe:overview' %}" class="btn btn-success">Revenir au récapitulatif</a>
+                    </div>
+                {% endif %}
             </div>
             {% else %}
             <form method="POST" enctype="multipart/form-data">
@@ -47,7 +67,7 @@ Dépôt d'un dossier:
                     </div>
                     <br><br>
                     <div>
-                        <a href="{% url 'ppe:overview' %}" class="btn btn-success">Modifier une information du dossier</a>
+                        <a href="{% url 'ppe:overview' %}" class="btn btn-success">Revenir au récapitulatif</a>
                         <input type="submit" value="Soumettre le dossier pour contrôle" class="btn btn-success">
                     </div>
                 </fieldset>

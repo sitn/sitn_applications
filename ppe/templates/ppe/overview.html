@@ -15,6 +15,7 @@ Dépôt d'un dossier - Récapitulatif:
 
         <div class="row">
         <section>
+            <br>
             <table width="100%">
             <tr>
                 <th class="fs-4" width="30%">Localisation</th><th><a href="{% url 'ppe:edit_geolocalisation' %}" class="btn btn-success">Modifier</a></th>
@@ -27,22 +28,23 @@ Dépôt d'un dossier - Récapitulatif:
 
         <div class="row">
         <section>
+            <br>
             <table width="100%">
             <tr>
-                <th class="fs-4" width="25%">Contacts</th>
+                <th class="fs-4" width="30%">Contacts</th>
                 <th><a href="{% url 'ppe:edit_contacts' %}" class="btn btn-success">Modifier</a></th>
             </tr>
                 <td colspan="2" class="fs-5 fw-bold">Personne de contact principal</td>
             <tr>
-                <td>Nom, prénom :</td><td>{{ dossier_ppe.contact_principal.nom}} {{ dossier_ppe.contact_principal.prenom }}</td>
+                <td colspan="2">{{ dossier_ppe.contact_principal.nom}} {{ dossier_ppe.contact_principal.prenom }}</td>
             </tr><tr>
                     {%if dossier_ppe.contact_principal.raison_sociale %}
                     <td>Raison sociale :</td><td>{{ dossier_ppe.contact_principal.raison_sociale }}</td>
                     {% endif %}
             </tr><tr>
-                    <td>No. tél :</td><td>{{ dossier_ppe.contact_principal.no_tel }}</td>
+                    <td colspan="2" >{{ dossier_ppe.contact_principal.no_tel }}</td>
             </tr><tr>
-                    <td>Courriel :</td><td>{{ dossier_ppe.contact_principal.email }}</td>
+                    <td colspan="2" >{{ dossier_ppe.contact_principal.email }}</td>
             </tr>
             </table>
         </section>
@@ -100,6 +102,7 @@ Dépôt d'un dossier - Récapitulatif:
                     
         {%if dossier_ppe.type_dossier %}
         <div class="row">
+        <br>
         <section>
             <table width="100%">
             <tr>
@@ -110,8 +113,13 @@ Dépôt d'un dossier - Récapitulatif:
                 <td>
                     {% if dossier_ppe.type_dossier == 'C' %}
                     Constitution
+                    <br>Réf. géoshop: {{ dossier_ppe.ref_geoshop }}
                     {% elif dossier_ppe.type_dossier == 'R' %}
                     Révision
+                    <br>{{ dossier_ppe.revision_jouissances }}
+                    <br>{{ dossier_ppe.elements_rf_identiques }}
+                    <br>{{ dossier_ppe.nouveaux_droits }}
+                    <br>Réf. géoshop: {{ dossier_ppe.ref_geoshop }}
                     {% else %}
                     Modification
                     {% endif %}
@@ -121,6 +129,46 @@ Dépôt d'un dossier - Récapitulatif:
         </section>
         </div>
         {% endif %}
+
+        {%if dossier_ppe.zipfiles %}
+        <div class="row">
+        <section>
+            <br>
+            <div id="zip_status" name="zip_status">
+                <table width="100%">
+            <tr>
+                <th class="fs-4" width="25%">Chargement des fichiers</th>
+                <th><a href="{% url 'ppe:edit_zipfile' %}" class="btn btn-success">Modifier</a></th>
+            </tr>
+                <tr>
+                    <td width="30%"><b>Date</b></td><td><b>Statut des fichiers</b></td>
+                </tr>
+                {% for zip in dossier_ppe.zipfiles %}
+                <tr>
+                    <td>{{ zip.upload_date }}</td>
+                    <td>
+                    {% if zip.file_statut == 'A' %}
+                    Dossier remplacé et archivé
+                    {% elif zip.file_statut == 'C' %}
+                    Vérification automatique en cours
+                    {% elif zip.file_statut == 'E' %}
+                    Erreurs bloquantes à corriger
+                    {% elif zip.file_statut == 'P' %}
+                    En attente du contrôle automatique
+                    {% elif zip.file_statut == 'V' %}
+                    Dossier validé. Il n'est plus possible de le modifier
+                    {% else %}
+                    Il y a une erreur inconnue sur le statut des fichiers zip
+                    {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+                </table>
+            </div>
+        </section>
+        </div>
+        {% endif %}
+
         <p> 
             <form id="overview_form" class="form-horizontal" action="/ppe/soumission" method="post">
                 {% csrf_token %}

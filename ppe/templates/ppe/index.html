@@ -42,7 +42,7 @@ Application de gestion des PPE
 {% if latest_dossiers_list %}
     <ul>
     {% for dossierppe in latest_dossiers_list %}
-        <li><a href="{% url 'ppe:modification' %}">Dossier PPE no. {{ dossierppe.login_code }}, du {{ dossierppe.date_creation }}</a> -  {{ dossierppe.login_code }}</li>
+        <li><a href="{% url 'ppe:modification' %}">Bien-fonds: {{ dossierppe.nummai }}, du cadastre {{ dossierppe.cadastre }} créé le {{ dossierppe.date_creation }}</a> -  {{ dossierppe.login_code }}</li>
     {% endfor %}
     </ul>
 {% else %}

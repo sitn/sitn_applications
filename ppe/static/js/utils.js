@@ -1,24 +1,20 @@
-function changeLocalisationFormAction() {
-    // Get the current action
-    document.getElementById("localisation_form").action = "/ppe/geolocalisation";
-    document.getElementById("localisation_form").submit()
-}
-
-function changeOverviewFormAction() {
-    // Get the current action
-    document.getElementById("overview_form").action = "/ppe/modification";
-    document.getElementById("overview_form").submit()
-}
+function resetLocalisation(mode) {
+    document.getElementById("id_geom").innerHTML = '';
+    const checkBox = document.getElementById("check_mutation");
+    const current_action = document.getElementById("localisation_form").getAttribute("action");
+    if (mode == 'edit' || current_action == 'ppe/edit_geolocalisation'){
+    document.getElementById("localisation_form").action = 'edit_geolocalisation';
+    } else {
+    document.getElementById("localisation_form").action = 'set_geolocalisation';
+    }
+ }
 
 function showMap() {
-    // Get the checkbox
+    // Get the checkbox status
     const checkBox = document.getElementById("check_mutation");
-    // Get the output text
-    const carte = document.getElementById("mapwidget");
-
     // If the checkbox is checked, display the output text
     mapwidget.style.display =  checkBox.checked ? "block" : "none";
-    //localisation_overview.style.display =  checkBox.checked ? "block" : "none";
+    validation.style.display =  checkBox.checked ? "block" : "none";
 }
 
 function changeSectionDisplay() {
@@ -32,7 +28,7 @@ function changeSectionDisplay() {
         revision.style.display = "none";
     }
     else if (dossier_type == "C"){
-        submit_btn.style.display = "none";
+        submit_btn.style.display = "block";
         modification.style.display = "none";
         constitution.style.display = "block";
         revision.style.display = "none";
@@ -61,18 +57,20 @@ function showJouissanceRemark() {
                 if (choix_droits_jouissance == 'non'){
                     droits_remark.style.display = "none";
                     elements_rf.style.display = "block";
+                    constitution.style.display = "none";
                     var ele = document.getElementsByName("elements_rf");
                     for(var j=0;j<ele.length;j++)
                         ele[j].checked = false;
                     }
                 else {
                     droits_remark.style.display = "block";
+                    constitution.style.display = "none";
                     new_jouissance.style.display = "none";
                     no_plan_remark.style.display = "none";
                     jouissance_remark.style.display = "none";
                     elements_rf.style.display = "none";
+                    submit_btn.style.display = "none";
                 }
-                submit_btn.style.display = "block";
             }
 
         }
@@ -89,11 +87,13 @@ function showElementsRFQuestions() {
                     for(var k=0;k<ele.length;k++)
                         ele[k].checked = false;
                     if (choix_elements_rf == 'non') {
+                        constitution.style.display = "block";
                         new_jouissance.style.display = "none";
                         no_plan_remark.style.display = "none";
                         jouissance_remark.style.display = "none";
                     } else {
                         new_jouissance.style.display = "block";
+                        constitution.style.display = "none";
                     }
                     submit_btn.style.display = "block";
                 }
@@ -108,24 +108,10 @@ function showNewJouissanceInfo() {
         for (let i=0;i < new_jouissance.length; i++) {
                 if (new_jouissance[i].checked) {
                     choix_new_jouissance = new_jouissance[i].value;
-                    no_plan_remark.style.display = (choix_new_jouissance == 'oui') ? "block" : "none";
-                    jouissance_remark.style.display = (choix_new_jouissance == 'oui') ? "none" : "block";
+                    no_plan_remark.style.display = (choix_new_jouissance == 'oui') ? "none" : "block";
+                    jouissance_remark.style.display = (choix_new_jouissance == 'oui') ? "block" : "none";
                     submit_btn.style.display = "block";
                 }
     
             }
         }
-
-function showRefGeoshop() {
-    // Get the selected radio button
-    const situtation_bati = document.getElementsByName("situation_bati");
-
-    for (let i=0;i < situtation_bati.length; i++) {
-            if (situtation_bati[i].checked) {
-                choix_situation_bati = situtation_bati[i].value;
-                ref_geoshop.style.display = (choix_situation_bati == 'nouveau_batiment') ? "block" : "none";
-                submit_btn.style.display = "block";
-            }
-
-        }
-    }

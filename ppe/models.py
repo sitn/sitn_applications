@@ -6,9 +6,6 @@ from django.utils.timezone import now
 from django_extended_ol.forms.widgets import WMTSWithSearchWidget 
 
 
-class ZipFile(models.Model):
-    zipfile = models.FileField(upload_to="files/zips/")
-
 class Geolocalisation(models.Model):
     geom = models.PointField(srid=2056)
 
@@ -101,6 +98,10 @@ class DossierPPE(models.Model):
             ("M", "Modification")
         ),
         max_length=20)
+    revision_jouissances = models.CharField(max_length=3, blank=True)
+    elements_rf_identiques = models.CharField(max_length=3, blank=True)
+    nouveaux_droits = models.CharField(max_length=3, blank=True)
+    ref_geoshop = models.CharField(max_length=20, blank=True)
     contact_principal = models.ForeignKey(ContactPrincipal, on_delete=models.CASCADE)
     signataire = models.ForeignKey(Signataire, on_delete=models.CASCADE)
     notaire = models.ForeignKey(Notaire, on_delete=models.CASCADE)
@@ -109,3 +110,18 @@ class DossierPPE(models.Model):
     date_soumission = models.DateTimeField("Date de soumission", auto_now=True, blank=True)
     date_validation = models.DateTimeField("Date de validation", auto_now=True, blank=True)
     geom = models.PointField(srid=2056)
+
+
+class Zipfile(models.Model):
+    zipfile = models.FileField(upload_to="files/zips/")
+    upload_date = models.DateTimeField("Date de chargement", auto_now=True)
+    file_statut = models.CharField(
+        choices=(
+            ("A", "Dossier remplacé et archivé"),
+            ("C", "Vérification automatique en cours"),
+            ("E", "Erreurs bloquantes à corriger"),
+            ("P", "Préparation du dossier"),
+            ("V", "Dossier validé. Il n'est plus possible de le modifier")
+        ),
+        max_length=75, default="P")
+    dossier_ppe = models.ForeignKey(DossierPPE, on_delete=models.CASCADE, blank=True)
