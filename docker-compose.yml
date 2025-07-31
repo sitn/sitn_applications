@@ -18,9 +18,9 @@ services:
       - PGPORT=${PGPORT:-5432}
       - PGUSER=${PGUSER:-usr}
       - PGPASSWORD=${PGPASSWORD:-pwd}
-      - GOSHOPHOST=${GOSHOPHOST:-host.docker.internal}
-      - GOSHOPDB=${GOSHOPDB:-geoshop}
-      - GOSHOPSCHEMA=${GOSHOPSCHEMA:-geoshop}
-      - GOSHOPPORT=${GOSHOPPORT:-5432}
-      - GOSHOPUSER=${GOSHOPUSER:-usr}
-      - GOSHOPPASSWORD=${GOSHOPPASSWORD:-pwd}
+      - GEOSHOPHOST=${GEOSHOPHOST:-host.docker.internal}
+      - GEOSHOPDB=${GEOSHOPDB:-geoshop}
+      - GEOSHOPSCHEMA=${GEOSHOPSCHEMA:-geoshop}
+      - GEOSHOPPORT=${GEOSHOPPORT:-5432}
+      - GEOSHOPUSER=${GEOSHOPUSER:-usr}
+      - GEOSHOPPASSWORD=${GEOSHOPPASSWORD:-pwd}
