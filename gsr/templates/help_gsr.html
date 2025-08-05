@@ -9,16 +9,8 @@
   <link rel="stylesheet" href="https://sitn.ne.ch/sitnstatic/sitn-bootstrap@v5.2.3/sitn-bootstrap.css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css">
   <style>
-   /* code {
-      background-color: rgba(200, 200, 200);
-      color: black;
-      border-radius: 0.2em;
-      padding: 0 0.3em;
-      font-family: 'Consolas', monospace;
-    }*/
-
-    .w-15 {
-      width: 15%;
+    .w-30 {
+      width: 30%;
     }
 
     .w-40 {
@@ -31,8 +23,8 @@
   </style>
   <script>
     function envoyerGeoJSON(features) {
-      // URL de destination de la requête POST
-      const url = "/gsr/intersection"; // Remplace avec ton endpoint
+
+      const url = "/gsr/intersection";
 
       fetch(url, {
         method: "POST",
@@ -177,8 +169,6 @@ json = JSON.stringify(polygon, null, 2);
 document.getElementById("code_poly").innerHTML = json;
 hljs.highlightElement(document.getElementById("code_poly"));
 
-
 </script>
 </body>
-
 </html>
