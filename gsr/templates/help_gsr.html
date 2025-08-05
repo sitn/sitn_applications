@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="fr-CH">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="shortcut icon" type="image/png" href="https://sitn.ne.ch/static/0/images/favicon.ico">
+  <title>Service guichet social régional</title>
+  <link rel="stylesheet" href="https://sitn.ne.ch/sitnstatic/sitn-bootstrap@v5.2.3/sitn-bootstrap.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/styles/default.min.css">
+  <style>
+    .w-30 {
+      width: 30%;
+    }
+
+    .w-40 {
+      width: 40%;
+    }
+
+    table td.middle {
+      vertical-align: middle;
+    }
+  </style>
+  <script>
+    function envoyerGeoJSON(features) {
+
+      const url = "/gsr/intersection";
+
+      fetch(url, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(features)
+      })
+      .then(response => {
+        if (!response.ok) throw new Error("Erreur HTTP " + response.status);
+        return response.json();
+      })
+      .then(data => {
+        console.log("Réponse du serveur :", data);
+        alert("GeoJSON envoyé avec succès (résultat dans le log de la console) !");
+      })
+      .catch(error => {
+        console.error("Erreur lors de l'envoi :", error);
+        alert("Erreur lors de l'envoi du GeoJSON.");
+      });
+    }
+  </script>
+</head>
+<div class="container">
+  <header class="header">
+    <img alt="Logo neuchâtel" src="https://sitn.ne.ch/static/0/images/banner_right.png">
+  </header>
+
+  <h1>Description du service "/gsr"</h1>
+  <section id="intersection">
+    <h3>/intersection <span class="badge rounded-pill text-bg-success">POST</span></h3>
+    <p>
+      Service d'intersection spatiale retourne les limites des communes touchant la géométrie soumise.
+      La géométrie peut être de type point, ligne ou polygone.
+    </p>
+    <h6>Requêtes types:</h6>
+    <table class="table table-sm">
+      <thead>
+        <tr>
+          <th class="w-30">Payload</th>
+          <th class="w-40">Description</th>
+          <th class="w-30">Exemple</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><pre id="code_pt"></pre></td>
+          <td>Requête ponctuel, les attributs (contenu de <code>properties</code>) n'ont aucune influence sur le résultat. 
+            Le paramètre <code>srid</code> doit être défini.</td>
+          <td>
+            <button onclick="envoyerGeoJSON(point)">Envoyer la requête "point"</button>
+          </td>
+        </tr>
+        <tr>
+          <td><pre id="code_poly"></pre></td>
+          <td>Requête polygonale, les attributs (contenu de <code>properties</code>) n'ont aucune influence sur le résultat. 
+            Le paramètre <code>srid</code> doit être défini.
+            Un polygone recouvrant plusieurs communes aura comme réponse des polygones
+          couvrant chaque partie des communes touchées, avec un attribut spécifiant la surface
+        touchée en m<sup>2</sup>.</td>
+          <td>
+            <button onclick="envoyerGeoJSON(polygon)">Envoyer la requête "polygone"</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h4>Contenu de la réponse</h4>
+    <p>La réponse sera un GeoJSON contenant zéro à n features avec les propriétés suivantes:</p>
+    <ul>
+      <li>
+        <code>comnom</code>: Nom de la commune touchée
+      </li>
+      <li>
+        <code>nom_gsr</code>: Nom du guichet social régional concerné
+      </li>
+      <li>
+        <code>numero_telephone</code>: N° de téléphone du guichet social régional
+      </li>
+      <li>
+        <code>adresse</code>: Adresse du guichet social régional
+      </li>
+      <li>
+        <code>email</code>: Adresse courriel du guichet social régional
+      </li>
+      <li>
+        <code>form_prise_contact</code>: Lien (URL) vers le formulaire de prise de contact
+      </li>
+      <li>
+        <code>google_maps</code>: Lien (URL) vers la localisatoin (Google Maps) du guichet social régional
+      </li>
+      <li>
+        <code>intersection_sq_m</code>: Si requête par polygone, surface (m<sup>2</sup>) communale touchée par le polygone
+      </li>
+    </ul>
+  </section>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/highlight.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.11.1/languages/json.min.js"></script>
+
+<script>
+const point = {
+  type: "FeatureCollection",
+  features: [{
+  type: "Feature",
+    geometry: {
+      type: "Point",
+      srid: "2056",
+      coordinates: [2558480,1204290]    
+    },
+    properties: {
+      nom: "Le magnifique point"
+    }
+  }]
+};
+const polygon = {
+  type: "FeatureCollection",
+  features: [{
+    type: "Feature",
+    geometry: {
+      type: "Polygon",
+      srid: "2056",
+      coordinates: [[
+        [2556023, 1203207],
+        [2556104, 1203386],
+        [2556267, 1203336],
+        [2556209, 1203055],
+        [2556023, 1203207] 
+      ]]          
+    },
+    properties: {
+      nom: "Le beau polygone"
+    }
+  }]
+};
+
+let json = JSON.stringify(point, null, 2);
+document.getElementById("code_pt").innerHTML = json;
+hljs.highlightElement(document.getElementById("code_pt"));
+json = JSON.stringify(polygon, null, 2);
+document.getElementById("code_poly").innerHTML = json;
+hljs.highlightElement(document.getElementById("code_poly"));
+
+</script>
+</body>
+</html>
