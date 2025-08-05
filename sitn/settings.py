@@ -50,7 +50,8 @@ INTERNET_ONLY_APPS = [
     'stationnement',
     'forest_forpriv',
     'health',
-    'ecap'
+    'ecap',
+    'gsr',
 ]
 
 INSTALLED_APPS = [
