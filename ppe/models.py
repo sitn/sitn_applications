@@ -1,5 +1,6 @@
-import uuid
+import magic
 
+from django.core.exceptions import ValidationError
 from django.contrib.gis.db import models
 from django.utils.timezone import now
 
@@ -29,6 +30,41 @@ class AdresseFacturation(models.Model):
     def __str__(self):
         return self.nom_raison_sociale
 
+    MAX_FILE_SIZE = 2 * 1024 * 1024  # 2 MB
+
+    def clean(self):
+        """
+        Custom model-level validation to check the uploaded file.
+        """
+        # Check if the pdffile field has a value
+        if not self.file:
+            return  # No file provided, nothing to validate
+
+        # Validate the file size
+        self.validate_file_size()
+
+        # Validate the file type (PDF)
+        self.validate_pdf_mimetype()
+
+    def validate_file_size(self):
+        """
+        Validates that the uploaded file does not exceed the maximum allowed size.
+        """
+        file_size = self.file.size  # Get the size in bytes
+        
+        if file_size > self.MAX_FILE_SIZE:
+            raise ValidationError(f"Le fichier dépasse la taille maximale autorisée de {self.MAX_FILE_SIZE / (1024 * 1024)} MB.")
+
+    def validate_pdf_mimetype(self):
+        """
+        Validates that the uploaded file is a PDF file.
+        """
+        accept = ['application/pdf']
+        file_mime_type = magic.from_buffer(self.file.read(1024), mime=True)
+        
+        if file_mime_type not in accept:
+            raise ValidationError("Unsupported file type. Please upload a valid .pdf file.")
+
     class Meta:
         ordering = ["nom_raison_sociale"]
 
@@ -36,7 +72,7 @@ class AdresseFacturation(models.Model):
 class ContactPrincipal(models.Model):
     nom = models.CharField(max_length=100)
     prenom = models.CharField(max_length=100)
-    email = models.CharField(max_length=100)
+    email = models.EmailField(max_length=100)
     no_tel = models.CharField(max_length=15)
     raison_sociale = models.CharField(max_length=150, blank=True)
 
@@ -98,10 +134,10 @@ class DossierPPE(models.Model):
             ("M", "Modification")
         ),
         max_length=20)
-    revision_jouissances = models.CharField(max_length=3, blank=True)
-    elements_rf_identiques = models.CharField(max_length=3, blank=True)
-    nouveaux_droits = models.CharField(max_length=3, blank=True)
-    ref_geoshop = models.CharField(max_length=20, blank=True)
+    revision_jouissances = models.CharField(max_length=3, default=None, blank=True)
+    elements_rf_identiques = models.CharField(max_length=3, default=None, blank=True)
+    nouveaux_droits = models.CharField(max_length=3, default=None, blank=True)
+    ref_geoshop = models.CharField(max_length=20, default=None, blank=True)
     contact_principal = models.ForeignKey(ContactPrincipal, on_delete=models.CASCADE)
     signataire = models.ForeignKey(Signataire, on_delete=models.CASCADE)
     notaire = models.ForeignKey(Notaire, on_delete=models.CASCADE)
@@ -125,3 +161,38 @@ class Zipfile(models.Model):
         ),
         max_length=75, default="P")
     dossier_ppe = models.ForeignKey(DossierPPE, on_delete=models.CASCADE, blank=True)
+
+    MAX_FILE_SIZE = 250 * 1024 * 1024  # 250 MB
+
+    def clean(self):
+        """
+        Custom model-level validation to check the uploaded file.
+        """
+        # Check if the zipfile field has a value
+        if not self.zipfile:
+            return  # No file provided, nothing to validate
+
+        # Validate the file size
+        self.validate_file_size()
+
+        # Validate the file type (ZIP)
+        self.validate_zip_mimetype()
+
+    def validate_file_size(self):
+        """
+        Validates that the uploaded file does not exceed the maximum allowed size.
+        """
+        file_size = self.zipfile.size  # Get the size in bytes
+        
+        if file_size > self.MAX_FILE_SIZE:
+            raise ValidationError(f"Le fichier dépasse la taille maximale autorisée de {self.MAX_FILE_SIZE / (1024 * 1024)} MB.")
+
+    def validate_zip_mimetype(self):
+        """
+        Validates that the uploaded file is a zip file.
+        """
+        accept = ['application/zip']
+        file_mime_type = magic.from_buffer(self.zipfile.read(1024), mime=True)
+        
+        if file_mime_type not in accept:
+            raise ValidationError("Unsupported file type. Please upload a valid .zip file.")

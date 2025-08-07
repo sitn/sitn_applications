@@ -4,29 +4,27 @@
 Dépôt d'un dossier - Récapitulatif:
 {% endblock titre %}
 
-<div name="content" class="content">
 {% block content %}
+<main class="col-12 col-md-9 col-lg-9 p-4 text-start">
 
-    <div name="contacts" class="container">
-        {% if error_message %}<p><strong>{{ error_message }}</strong></p>
+    {% if error_message %}<p><strong>{{ error_message }}</strong></p>
 
-        {% elif dossier_ppe %}
-        <h3>Récapitulatif</h3>
+    {% elif dossier_ppe %}
+    <h3>Récapitulatif</h3>
 
-        <div class="row">
-        <section>
-            <br>
-            <table width="100%">
-            <tr>
-                <th class="fs-4" width="30%">Localisation</th><th><a href="{% url 'ppe:edit_geolocalisation' %}" class="btn btn-success">Modifier</a></th>
-            </tr>
-            <tr class="fs-5"><td>Cadastre</td><td><b>{{ dossier_ppe.cadastre }}</b></td></tr>
-            <tr class="fs-5"><td>Bien-fonds</td><td><b>{{ dossier_ppe.nummai }}</b></td></tr>
-            </table>
-        </section>
-        </div>
+    <div class="row">
+        <div class="col">
+            <section>
+                <br>
+                <table width="100%">
+                <tr>
+                    <th class="fs-4" width="30%">Localisation</th><th><a href="{% url 'ppe:edit_geolocalisation' %}" class="btn btn-success">Modifier</a></th>
+                </tr>
+                <tr class="fs-5"><td>Cadastre</td><td><b>{{ dossier_ppe.cadastre }}</b></td></tr>
+                <tr class="fs-5"><td>Bien-fonds</td><td><b>{{ dossier_ppe.nummai }}</b></td></tr>
+                </table>
+            </section>
 
-        <div class="row">
         <section>
             <br>
             <table width="100%">
@@ -48,9 +46,7 @@ Dépôt d'un dossier - Récapitulatif:
             </tr>
             </table>
         </section>
-        </div>
 
-        <div class="row">
         <section>        
             <p class="fs-5 fw-bold">Notaire</p>
             <p>
@@ -65,9 +61,7 @@ Dépôt d'un dossier - Récapitulatif:
                 {{ dossier_ppe.notaire.npa }} {{ dossier_ppe.notaire.localite }}</br>
             </p>
         </section>
-        </div>
 
-        <div class="row">
         <section>
             <p class="fs-5 fw-bold">Signataire</p>
             <p>
@@ -82,26 +76,24 @@ Dépôt d'un dossier - Récapitulatif:
                 {{ dossier_ppe.signataire.npa }} {{ dossier_ppe.signataire.localite }}</br>
             </p>
         </section>
-        </div>
-    
-        <div class="row">
+
         <section>
-                <p class="fs-5 fw-bold">Adresse de facturation</p>
-                <p>
-                    {{ dossier_ppe.adresse_facturation.type_personne }}</br>
-                    {{ dossier_ppe.adresse_facturation.nom_raison_sociale}} {{ dossier_ppe.adresse_facturation.prenom }}</br>
-                    {%if dossier_ppe.adresse_facturation.complement %}
-                    {{ dossier_ppe.adresse_facturation.complement }}</br>
-                    {% endif %}
-                    {{ dossier_ppe.adresse_facturation.rue }} {{ dossier_ppe.adresse_facturation.no_rue }}</br>
-                    {{ dossier_ppe.adresse_facturation.npa }} {{ dossier_ppe.adresse_facturation.localite }}</br>
-                    <i>Chemin vers le fichier: {{ dossier_ppe.adresse_facturation.file }}</br></i>
-                </p>
+            <p class="fs-5 fw-bold">Adresse de facturation</p>
+            <p>
+                {{ dossier_ppe.adresse_facturation.type_personne }}</br>
+                {{ dossier_ppe.adresse_facturation.nom_raison_sociale}} {{ dossier_ppe.adresse_facturation.prenom }}</br>
+                {%if dossier_ppe.adresse_facturation.complement %}
+                {{ dossier_ppe.adresse_facturation.complement }}</br>
+                {% endif %}
+                {{ dossier_ppe.adresse_facturation.rue }} {{ dossier_ppe.adresse_facturation.no_rue }}</br>
+                {{ dossier_ppe.adresse_facturation.npa }} {{ dossier_ppe.adresse_facturation.localite }}</br>
+                <i>Chemin vers le fichier: {{ dossier_ppe.adresse_facturation.file }}</br></i>
+            </p>
         </section>
         </div>
-                    
+                
         {%if dossier_ppe.type_dossier %}
-        <div class="row">
+        <div class="col">
         <br>
         <section>
             <table width="100%">
@@ -127,58 +119,54 @@ Dépôt d'un dossier - Récapitulatif:
             </tr>
             </table>
         </section>
-        </div>
         {% endif %}
 
         {%if dossier_ppe.zipfiles %}
-        <div class="row">
         <section>
             <br>
-            <div id="zip_status" name="zip_status">
-                <table width="100%">
+            <table width="100%">
             <tr>
                 <th class="fs-4" width="25%">Chargement des fichiers</th>
                 <th><a href="{% url 'ppe:edit_zipfile' %}" class="btn btn-success">Modifier</a></th>
             </tr>
-                <tr>
-                    <td width="30%"><b>Date</b></td><td><b>Statut des fichiers</b></td>
-                </tr>
-                {% for zip in dossier_ppe.zipfiles %}
-                <tr>
-                    <td>{{ zip.upload_date }}</td>
-                    <td>
-                    {% if zip.file_statut == 'A' %}
-                    Dossier remplacé et archivé
-                    {% elif zip.file_statut == 'C' %}
-                    Vérification automatique en cours
-                    {% elif zip.file_statut == 'E' %}
-                    Erreurs bloquantes à corriger
-                    {% elif zip.file_statut == 'P' %}
-                    En attente du contrôle automatique
-                    {% elif zip.file_statut == 'V' %}
-                    Dossier validé. Il n'est plus possible de le modifier
-                    {% else %}
-                    Il y a une erreur inconnue sur le statut des fichiers zip
-                    {% endif %}
-                    </td>
-                </tr>
-                {% endfor %}
-                </table>
-            </div>
+            <tr>
+                <td width="30%"><b>Date</b></td><td><b>Statut des fichiers</b></td>
+            </tr>
+            {% for zip in dossier_ppe.zipfiles %}
+            <tr>
+                <td>{{ zip.upload_date }}</td>
+                <td>
+                {% if zip.file_statut == 'A' %}
+                Dossier remplacé et archivé
+                {% elif zip.file_statut == 'C' %}
+                Vérification automatique en cours
+                {% elif zip.file_statut == 'E' %}
+                Erreurs bloquantes à corriger
+                {% elif zip.file_statut == 'P' %}
+                En attente du contrôle automatique
+                {% elif zip.file_statut == 'V' %}
+                Dossier validé. Il n'est plus possible de le modifier
+                {% else %}
+                Il y a une erreur inconnue sur le statut des fichiers zip
+                {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+            </table>
         </section>
-        </div>
-        {% endif %}
-
-        <p> 
-            <form id="overview_form" class="form-horizontal" action="/ppe/soumission" method="post">
-                {% csrf_token %}
-                <input type="submit" value="Etape suivante >>" class="btn btn-success">
-            </form> 
-        </p>
-
-        {% else %}
-        <p>Une erreur inconnue est survenue</p>
         {% endif %}
     </div>
+
+    <p> 
+        <form id="overview_form" class="form-horizontal" action="/ppe/soumission" method="post">
+            {% csrf_token %}
+            <input type="submit" value="Continuer" class="valider btn btn-success">
+        </form> 
+    </p>
+
+    {% else %}
+    <p>Une erreur inconnue est survenue</p>
+    {% endif %}
+
+</main>
 {% endblock content %}
-</div>

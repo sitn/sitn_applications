@@ -4,34 +4,30 @@
 Soumission dossier
 {% endblock titre %}
 
-<div name="content" class="content">
-    {% block content %}
-    
-    <div name="contacts" class="container">
-        {% if error_message %}<p><strong>{{ error_message }}</strong></p>
-        {% endif %}
+{% block content %}
+<main class="col-12 col-md-9 col-lg-9 p-4 text-start">
+    {% if error_message %}<p><strong>{{ error_message }}</strong></p>
+    {% endif %}
 
-        {% if dossier_ppe %}
-        <h3>Votre code personnel</h3>
-        <p>        
-            Votre dossier a bien été enregistré.<br>
-            Veuillez trouver ci-dessous le code unique vous permettant de modifier ultérieurement votre dossier.
-        </p>
+    {% if dossier_ppe %}
+    <h3>Votre code personnel</h3>
 
-        <div id="login_code" style="padding: 30px"> 
-            <h5>{{ dossier_ppe.login_code }}</h5>
-        </div>
-        <p>
-            Un e-mail contenant ce code a été envoyé à l'adresse suivante : {{ dossier_ppe.contact_principal.email }}
-        </p>
+    <p class="fs-5"><br>PPE sur le bien-fonds <b>{{ dossier_ppe.nummai }}</b> du cadastre 
+        de <b>{{ dossier_ppe.cadastre }}</b>
+    </p>
+    <p>        
+        Votre dossier a bien été enregistré. Veuillez trouver ci-dessous le code unique vous 
+        permettant de modifier ultérieurement votre dossier.
+    </p>
 
-        <p  class="alert alert-danger">
-            Attention ! A ce stade, votre dossier est encore incomplet 
-            et ne sera pas analysé par notre service. Pour le compléter, 
-            merci de passer à l'étape suivante.
-        </p>
-        <a href="{% url 'ppe:load_ppe_files' %}" class="btn btn-success">Etape suivante >></a>
-        {% endif %}
-    </div>
+    <p>
+        Un e-mail contenant ce code a été envoyé à l'adresse suivante : {{ dossier_ppe.contact_principal.email }}
+    </p>
+
+    <h2 id="login_code">{{ dossier_ppe.login_code }}</h2>
+
+    <a href="{% url 'ppe:load_ppe_files' %}" class="valider btn btn-success">Continuer</a>
+    {% endif %}
+
+</main>
 {% endblock content %}
-</div>

@@ -117,6 +117,7 @@ def check_geoshop_ref(ref):
             row = cursor.fetchone()
             if row:
                 ref_ok = True
+                print(row)
             
     except Exception as e:
         print(f"Exception : {repr(e)}")

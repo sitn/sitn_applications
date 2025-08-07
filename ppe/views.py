@@ -134,6 +134,7 @@ def modification(request, doc):
 
 
 def contact_principal(request):
+    """ Checks the geolocation and if ok handles the contact information """
     error_message = None
     
     try:
@@ -145,6 +146,7 @@ def contact_principal(request):
     contact_form = ContactPrincipalForm(request.POST, prefix='contact')
     signataire_form = SignataireForm(request.POST, prefix='signataire')
     facturation_form = AdresseFacturationForm(request.POST, request.FILES, prefix='facturation')
+
     if (contact_form.is_valid() and
         notaire_form.is_valid() and
         signataire_form.is_valid() and
@@ -179,6 +181,7 @@ def contact_principal(request):
         return redirect(f'/ppe/definition_type_dossier', new_dossier_ppe)
 
     if 'geom' in request.POST:
+
         try:
             # Check if a localisation exists
             localisation = request.POST["geom"]
@@ -265,11 +268,16 @@ def definition_type_dossier(request, doc, type_dossier=None):
     if ref_geoshop is not None:
         # Check geoshop_ref is existing
         ref_exists = check_geoshop_ref(ref_geoshop)
+        if ref_exists == False:
+            error_message = "La référence de la commande géoshop contient une erreur ou n'existe pas."
     else:
         ref_exists = False
 
     if type_dossier == 'C' and ref_exists == True:
         dossier_ppe.type_dossier = type_dossier
+        dossier_ppe.elements_rf_identiques = None
+        dossier_ppe.nouveaux_droits = None
+        dossier_ppe.revision_jouissances = None
         dossier_ppe.ref_geoshop = ref_geoshop
         dossier_ppe.save()
         return redirect("/ppe/overview")
@@ -474,9 +482,9 @@ def edit_ppe_type(request, doc):
         return render(request, "ppe/definition_type_dossier.html", {"error_message": error_message})
 
     if type_dossier == 'C' and ref_exists == True:
-        dossier_ppe.elements_rf_identiques = elements_rf_identiques
-        dossier_ppe.nouveaux_droits = nouveaux_droits
-        dossier_ppe.revision_jouissances = revision_jouissances
+        dossier_ppe.elements_rf_identiques = None
+        dossier_ppe.nouveaux_droits = None
+        dossier_ppe.revision_jouissances = None
         dossier_ppe.type_dossier = type_dossier
         dossier_ppe.ref_geoshop = ref_geoshop
         dossier_ppe.save()

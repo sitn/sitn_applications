@@ -1,24 +1,40 @@
 body {
-    margin: 0;
-    height: 100vh;
-    font-family: Arial, Helvetica, sans-serif;
-    background: white;
+  width: 100%;
+  margin: 0;
+  height: 100vh;
+  font-family: Arial, Helvetica, sans-serif;
+  background: white;
 }
 
+/*div {
+  border: 1px solid #990000;
+}*/
 
-div.contenu {
-    padding: 5px;
+header {
+  width: 100%;
+  height: 80px;
+  font-size: 36pt;
+  font-weight: bold;
+  color: white;
+  text-align: left;
+  background-color:lightseagreen ;
+  border-bottom: 1 px solid grey;
+  /*position: sticky;*/
+  top: 0;
+  z-index: 1020; /* ensures it's above content */
 }
 
-div.entete {
-    width: 100%;
-    height: 80px;
-    font-size: 36pt;
-    font-weight: bold;
-    color: white;
-    text-align: left;
-    background-color:lightseagreen ;
-    border-bottom: 1 px solid grey;
+nav .nav-link {
+  padding: 0.5rem 1rem;
+}
+.sidebar {
+  max-width: 300px;
+}
+footer {
+  border-top: 1px solid #ccc;
+  font-size: 0.875rem;
+  text-align: right;
+  padding: 0.5rem 1rem;
 }
 
 section {
@@ -43,6 +59,11 @@ section label {
 section select {
   width: 188px;
   padding: 0px 0px 2px 0px;
+}
+
+.drapeau {
+  float: right;
+  text-align: right;
 }
 
 .val-middle {
@@ -72,12 +93,17 @@ text-align: right;
     clear: both;
 }
 
+.valider {
+  width: 120px;
+  float: right;
+}
+
 div.entete a:link#home {
     color: white !important;
     text-decoration: none !important;
 }
 
-div.entere a:visited#home {
+div.entete a:visited#home {
     color: white !important;
     text-decoration: none !important;
 }
@@ -90,6 +116,11 @@ div.entete a:active#home {
     color: white;
   }
 
+h2#login_code {
+  text-align: center;
+  padding: 20px;
+}
+
 #background-selector {
     position: absolute;
     z-index: 2;
@@ -101,10 +132,11 @@ div.entete a:active#home {
 }
 
 i {
- clear: none; 
+ clear: none;
+ font-size: .9em;
 }
 
-div#info_geoloc {
+span#info_geoloc {
     display: none;
     margin-left: 5px;
     padding: 5px;
@@ -113,7 +145,7 @@ div#info_geoloc {
     border: 1px solid cornflowerblue;
   }
   
-i:hover + div#info_geoloc {
+i:hover + span#info_geoloc {
     position: absolute;
     display: inline-block;
 }
@@ -133,7 +165,22 @@ i:hover + div#info_contact {
     display: inline-block;
   }
     
-span#info_signataire {
+div#info_signataire {
+  display: none;
+  margin-top: 15px;
+  margin-left: 3px;
+  padding: 5px;
+  font-size: small;
+  background-color: lightblue;
+  border: 1px solid cornflowerblue; 
+}
+
+i:hover + div#info_signataire {
+    position: absolute;
+    display: inline-block;
+}
+
+div#info_accord {
     display: none;
     margin-left: 5px;
     padding: 5px;
@@ -142,7 +189,7 @@ span#info_signataire {
     border: 1px solid cornflowerblue;
   }
   
-i:hover + span#info_signataire {
+i:hover + div#info_accord {
     position: absolute;
     display: inline-block;
   }
@@ -161,20 +208,6 @@ i:hover + div#info_zip {
     display: inline-block;
   }
   
-span#info_accord {
-    display: none;
-    margin-left: 5px;
-    padding: 5px;
-    font-size: small;
-    background-color: lightblue;
-    border: 1px solid cornflowerblue;
-  }
-  
-i:hover + span#info_accord {
-    position: absolute;
-    display: inline-block;
-  }
-
 div#info_type_dossier {
     position: absolute;
     z-index: 99;
