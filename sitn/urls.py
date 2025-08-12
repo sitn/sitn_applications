@@ -36,7 +36,7 @@ if settings.IS_INTRANET:
 else:
     urlpatterns.extend([
         path('ecap/', include('ecap.urls')),
-        path('gsr/', include('gsr.urls')),
+        path('action_sociale/', include('action_sociale.urls')),
         path('health/', include('health.urls')),
         path('stationnement/', include('stationnement.urls')),
         path('forest_forpriv/', include('forest_forpriv.urls')),

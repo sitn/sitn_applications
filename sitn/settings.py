@@ -51,7 +51,7 @@ INTERNET_ONLY_APPS = [
     'forest_forpriv',
     'health',
     'ecap',
-    'gsr',
+    'action_sociale',
 ]
 
 INSTALLED_APPS = [

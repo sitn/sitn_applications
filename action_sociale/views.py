@@ -10,11 +10,11 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView
 from djgeojson.serializers import Serializer as GeoJSONSerializer
-from gsr.models import Gsr001Search
+from action_sociale.models import Gsr001Search
 
 
 class HelpView(TemplateView):
-    template_name = "help_gsr.html"
+    template_name = "help_action_sociale.html"
 
 @csrf_exempt
 @require_http_methods(["POST"])

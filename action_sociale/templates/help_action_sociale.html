@@ -24,7 +24,7 @@
   <script>
     function envoyerGeoJSON(features) {
 
-      const url = "/gsr/intersection";
+      const url = "{{ request.path }}intersection";
 
       fetch(url, {
         method: "POST",
@@ -53,7 +53,7 @@
     <img alt="Logo neuchâtel" src="https://sitn.ne.ch/static/0/images/banner_right.png">
   </header>
 
-  <h1>Description du service "/gsr"</h1>
+  <h1>Description du service "/action_sociale"</h1>
   <section id="intersection">
     <h3>/intersection <span class="badge rounded-pill text-bg-success">POST</span></h3>
     <p>
