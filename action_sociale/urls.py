@@ -5,6 +5,6 @@ from sitn import router
 router = router.SitnRouter()
 
 urlpatterns = [
-    path('', views.HelpView.as_view(), name='gsr'),
+    path('', views.HelpView.as_view(), name='action_sociale'),
     path('intersection', views.gsr_intersection, name='gsr_intersection'),
 ]

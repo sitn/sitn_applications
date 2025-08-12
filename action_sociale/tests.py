@@ -8,7 +8,6 @@ import json
 Tests geojson of GSR intersection
 """
 
-
 class GsrTestCase(TestCase):
     def setUp(self):
         self.client = Client()
