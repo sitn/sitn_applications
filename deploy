@@ -7,37 +7,26 @@ import re
 import sys
 from pathlib import Path
 from dotenv import load_dotenv
-import hashlib
+import shutil
 
 # hashes of the content of .env files
-CONTEXTS = {
-    "internet": "D9ED3EF801A8DC7826C42FA972046EF2",
-    "intranet": "BF91BBF458123A9E9465B19E6FE254B3"
-}
+CONTEXTS = ["internet", "intranet"]
 ALLOWED_INSTANCES = ["prepub", "prod", "dev", "local"]
+APP_NAME = "sitn_applications"
 
+def fetch_last_env(env_file_name):
+    print(f"Mise à jour du fichier {env_file_name}")
+    if not "SITN_ENV_PATH" in os.environ:
+        print(f"La variable d'environnement SITN_ENV_PATH n'est pas définie!")
+        os.environ["SITN_ENV_PATH"] = input("Ou se trouve le dossier des environnements de déploiement?")
 
-def get_md5_file_content(file):
-    with open(file, "rb") as f:
-        return hashlib.md5(f.read()).hexdigest()
+    env_file_path = f"{os.environ['SITN_ENV_PATH']}/{APP_NAME}/{env_file_name}"
 
-def is_env_up_to_date(env_file, context, instance):
-    expected_hash = CONTEXTS[context].lower()
-    current_hash = get_md5_file_content(env_file)
-    if instance != "prod":
-        return True
-    if expected_hash == current_hash:
-        return True
-    print(f"💥 Votre fichier {env_file} ne correspond pas à celui du keepass!")
-    print(f"""
-Mettez à jour votre fichier. Si votre modification locale est légitime,
-obtenez un nouveau hash avec 'Get-FileHash -Algorithm MD5 {env_file}'
-et copiez ce nouveau hash dans CONTEXTS du fichier deploy (ce scipt).
-
-N'oubliez pas de tenir le keepass à jour 😉
-    """)
-    sys.exit(f"ERREUR: {env_file} pas à jour!")
-    return False
+    if not os.path.isfile(env_file_path):
+        print(f"💥 {env_file_path} n'existe pas.")
+        sys.exit(f"ERREUR: {env_file_path} pas à jour!")
+    
+    shutil.copy(env_file_path, ".")
 
 def check_settings_file(dest_instance):
     # Do not deploy to the internet with DEBUG set to True
@@ -46,8 +35,7 @@ def check_settings_file(dest_instance):
         settings = f.read()
     is_debug = bool(re.search(r"^\s*DEBUG\s*=\s*True\s*$", settings, re.MULTILINE))
     if is_debug:
-        if dest_instance not in ["local", "dev"]:
-            sys.exit("Cannot deploy if DEBUG=True in settings.py")
+        sys.exit("Cannot deploy if DEBUG=True in settings.py")
 
 def main():
     parser = argparse.ArgumentParser(description="Déploiement sitn applications")
@@ -67,12 +55,14 @@ def main():
     if instance not in ALLOWED_INSTANCES:
         sys.exit("Le deuxième argument est faux.")
 
-    check_settings_file(instance)
-
     env_file = f".env.{context}.{instance}"
+
+    if instance in ["prepub", "prod"]:
+        check_settings_file(instance)
+        fetch_last_env(env_file)
+
     os.environ['ENV_FILE'] = env_file
     load_dotenv(Path(env_file), override=True)
-    is_env_up_to_date(env_file, context, instance)
 
     dest_docker_host = os.environ['DOCKER_HOST']
     os.environ['DOCKER_HOST'] = ""
