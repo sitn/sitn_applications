@@ -9,7 +9,6 @@ from pathlib import Path
 from dotenv import load_dotenv
 import shutil
 
-# hashes of the content of .env files
 CONTEXTS = ["internet", "intranet"]
 ALLOWED_INSTANCES = ["prepub", "prod", "dev", "local"]
 APP_NAME = "sitn_applications"
