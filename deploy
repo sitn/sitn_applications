@@ -7,10 +7,25 @@ import re
 import sys
 from pathlib import Path
 from dotenv import load_dotenv
+import shutil
 
-CONTEXTS = ["internet", "intranet", "dev"]
+CONTEXTS = ["internet", "intranet"]
 ALLOWED_INSTANCES = ["prepub", "prod", "dev", "local"]
+APP_NAME = "sitn_applications"
 
+def fetch_last_env(env_file_name):
+    print(f"Mise à jour du fichier {env_file_name}")
+    if not "SITN_ENV_PATH" in os.environ:
+        print(f"La variable d'environnement SITN_ENV_PATH n'est pas définie!")
+        os.environ["SITN_ENV_PATH"] = input("Ou se trouve le dossier des environnements de déploiement?")
+
+    env_file_path = f"{os.environ['SITN_ENV_PATH']}/{APP_NAME}/{env_file_name}"
+
+    if not os.path.isfile(env_file_path):
+        print(f"💥 {env_file_path} n'existe pas.")
+        sys.exit(f"ERREUR: {env_file_path} pas à jour!")
+    
+    shutil.copy(env_file_path, ".")
 
 def check_settings_file(dest_instance):
     # Do not deploy to the internet with DEBUG set to True
@@ -19,8 +34,7 @@ def check_settings_file(dest_instance):
         settings = f.read()
     is_debug = bool(re.search(r"^\s*DEBUG\s*=\s*True\s*$", settings, re.MULTILINE))
     if is_debug:
-        if dest_instance not in ["local", "dev"]:
-            sys.exit("Cannot deploy if DEBUG=True in settings.py")
+        sys.exit("Cannot deploy if DEBUG=True in settings.py")
 
 def main():
     parser = argparse.ArgumentParser(description="Déploiement sitn applications")
@@ -40,9 +54,12 @@ def main():
     if instance not in ALLOWED_INSTANCES:
         sys.exit("Le deuxième argument est faux.")
 
-    check_settings_file(instance)
-
     env_file = f".env.{context}.{instance}"
+
+    if instance in ["prepub", "prod"]:
+        check_settings_file(instance)
+        fetch_last_env(env_file)
+
     os.environ['ENV_FILE'] = env_file
     load_dotenv(Path(env_file), override=True)
 
