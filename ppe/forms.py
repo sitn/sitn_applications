@@ -61,9 +61,6 @@ class GeolocalisationForm(forms.ModelForm):
     class Meta: 
         model = Geolocalisation
         fields = "__all__"
-        labels = {
-           # "geom": _(""),
-        }
 
 class AdresseFacturationForm(forms.ModelForm):
     class Meta:
@@ -71,6 +68,7 @@ class AdresseFacturationForm(forms.ModelForm):
         prefix = "facturation"
         fields = "__all__"
         labels = {
+            "type_personne": _("Type de personne *"),
             "nom_raison_sociale": _("Nom / raison sociale *"),
             "prenom": _("Prénom / à l'att. *"),
             "complement": _("Complément/Réf."),
@@ -81,14 +79,15 @@ class AdresseFacturationForm(forms.ModelForm):
             "file": _("Accord de prise en charge *"),
         }
         widgets = {
-            'nom_raison_sociale': forms.TextInput(attrs={'placeholder': 'Nom ou raison sociale'}),
-            "prenom": forms.TextInput(attrs={"placeholder": "Prénom"}),
-            "complement": forms.TextInput(attrs={"placeholder": "(Case postale, appt., unité)"}),
-            "rue": forms.TextInput(attrs={"placeholder": "Rue du 1er Mars"}),
-            "no_rue": forms.TextInput(attrs={"placeholder": "(17B)"}),
-            "npa": forms.TextInput(attrs={"placeholder": "1000 - 9999", 'validators':[validate_npa]}),
-            "localite": forms.TextInput(attrs={"placeholder": "Localité"}),
-            'file': forms.FileInput(attrs={'accept': '.pdf,application/pdf', 'validators':[pdf_validator]})
+            'type_personne': forms.Select(attrs={"class": "form-select"}),
+            'nom_raison_sociale': forms.TextInput(attrs={"placeholder": "Nom ou raison sociale", "class": "form-control placeholder"}),
+            "prenom": forms.TextInput(attrs={"placeholder": "Prénom", "class": "form-control placeholder"}),
+            "complement": forms.TextInput(attrs={"placeholder": "(Case postale, appt., unité)", "class": "form-control placeholder"}),
+            "rue": forms.TextInput(attrs={"placeholder": "Rue du 1er Mars", "class": "form-control placeholder"}),
+            "no_rue": forms.TextInput(attrs={"placeholder": "(17B)", "class": "form-control placeholder"}),
+            "npa": forms.TextInput(attrs={"placeholder": "1000 - 9999", 'validators':[validate_npa], "class": "form-control placeholder"}),
+            "localite": forms.TextInput(attrs={"placeholder": "Localité", "class": "form-control placeholder"}),
+            #'file': forms.FileInput(attrs={'accept': '.pdf,application/pdf', 'validators':[pdf_validator], "class": "form-control placeholder"}),
             }
         #help_texts = {
         #    "complement": _("Case postale, appt., unité, etc."),
@@ -99,6 +98,17 @@ class AdresseFacturationForm(forms.ModelForm):
                 "max_length": _("Le contenu du champ est trop long."),
             },
         }
+
+    def clean_npa(self):
+        npa = self.cleaned_data.get("npa")
+        if not isinstance(npa, int):
+            raise forms.ValidationError("Veuillez entrer une NPA suisse valide.")
+        return npa
+    
+    def clean_file(self):
+        filename = self.cleaned_data.get("filename")
+        print(filename)
+        return filename
 
 
 class ContactPrincipalForm(forms.ModelForm):
@@ -114,13 +124,12 @@ class ContactPrincipalForm(forms.ModelForm):
             "raison_sociale": _("Raison sociale"),
         }
         widgets = {
-            "nom": forms.TextInput(attrs={"placeholder": "Nom de famille"}),
-            "prenom": forms.TextInput(attrs={"placeholder": "Prénom"}),
-            "email": forms.EmailInput(attrs={"placeholder": "exemple@domaine.com"}),
-            "no_tel": forms.TextInput(attrs={"placeholder": "(+41 79 123 45 67)", 'validators':[validate_phone_number]}),
-            "raison_sociale": forms.TextInput(attrs={"placeholder": "(Exemple SA)"}),
+            "nom": forms.TextInput(attrs={"placeholder": "Nom de famille", "class": "form-control placeholder"}),
+            "prenom": forms.TextInput(attrs={"placeholder": "Prénom", "class": "form-control placeholder"}),
+            "email": forms.EmailInput(attrs={"placeholder": "exemple@domaine.com", "class": "form-control placeholder"}),
+            "no_tel": forms.TextInput(attrs={"placeholder": "(+41 79 123 45 67)", 'validators':[validate_phone_number], "class": "form-control placeholder"}),
+            "raison_sociale": forms.TextInput(attrs={"placeholder": "(Exemple SA)", "class": "form-control placeholder"})
         }
-
 
     def clean_email(self):
         email = self.cleaned_data.get("email")
@@ -144,20 +153,20 @@ class NotaireForm(forms.ModelForm):
             "localite": _("Localité *"),
         }
         widgets = {
-            "nom": forms.TextInput(attrs={"placeholder": "Nom de famille"}),
-            "prenom": forms.TextInput(attrs={"placeholder": "Prénom"}),
-            "complement": forms.TextInput(attrs={"placeholder": "(Case postale, appt., unité)"}),
-            "rue": forms.TextInput(attrs={"placeholder": "Rue du 1er Mars"}),
-            "no_rue": forms.TextInput(attrs={"placeholder": "(17B)"}),
-            "npa": forms.TextInput(attrs={"placeholder": "1000 - 9999", 'validators':[validate_npa]}),
-            "localite": forms.TextInput(attrs={"placeholder": "Localité"}),
+            "nom": forms.TextInput(attrs={"placeholder": "Nom de famille", "class": "form-control placeholder"}),
+            "prenom": forms.TextInput(attrs={"placeholder": "Prénom", "class": "form-control placeholder"}),
+            "complement": forms.TextInput(attrs={"placeholder": "(Case postale, appt., unité)", "class": "form-control placeholder"}),
+            "rue": forms.TextInput(attrs={"placeholder": "Rue du 1er Mars", "class": "form-control placeholder"}),
+            "no_rue": forms.TextInput(attrs={"placeholder": "(17B)", "class": "form-control placeholder"}),
+            "npa": forms.TextInput(attrs={"placeholder": "1000 - 9999", 'validators':[validate_npa], "class": "form-control placeholder"}),
+            "localite": forms.TextInput(attrs={"placeholder": "Localité", "class": "form-control placeholder"}),
         }
 
 class SignataireForm(forms.ModelForm):
     class Meta:
         model = Signataire
         prefix="signataire"
-        fields = fields = "__all__"
+        fields = "__all__"
         labels = {
             "nom": _("Nom *"),
             "prenom": _("Prénom *"),
@@ -168,13 +177,13 @@ class SignataireForm(forms.ModelForm):
             "localite": _("Localité *"),
         }
         widgets = {
-            "nom": forms.TextInput(attrs={"placeholder": "Nom de famille"}),
-            "prenom": forms.TextInput(attrs={"placeholder": "Prénom"}),
-            "complement": forms.TextInput(attrs={"placeholder": "(Case postale, appt., unité)"}),
-            "rue": forms.TextInput(attrs={"placeholder": "Rue du 1er Mars"}),
-            "no_rue": forms.TextInput(attrs={"placeholder": "(17B)"}),
-            "npa": forms.TextInput(attrs={"placeholder": "1000 - 9999", 'validators':[validate_npa]}),
-            "localite": forms.TextInput(attrs={"placeholder": "Localité"}),
+            "nom": forms.TextInput(attrs={"placeholder": "Nom de famille", "class": "form-control placeholder"}),
+            "prenom": forms.TextInput(attrs={"placeholder": "Prénom", "class": "form-control placeholder"}),
+            "complement": forms.TextInput(attrs={"placeholder": "(Case postale, appt., unité)", "class": "form-control placeholder"}),
+            "rue": forms.TextInput(attrs={"placeholder": "Rue du 1er Mars", "class": "form-control placeholder"}),
+            "no_rue": forms.TextInput(attrs={"placeholder": "(17B)", "class": "form-control placeholder"}),
+            "npa": forms.TextInput(attrs={"placeholder": "1000 - 9999", 'validators':[validate_npa], "class": "form-control placeholder"}),
+            "localite": forms.TextInput(attrs={"placeholder": "Localité", "class": "form-control placeholder"}),
         }
 
 class DossierPPEForm(forms.ModelForm):

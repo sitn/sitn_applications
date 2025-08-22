@@ -37,17 +37,29 @@ def main():
     os.environ['ENV_FILE'] = env_file
     load_dotenv(Path(env_file), override=True)
 
+    dest_docker_host = os.environ['DOCKER_HOST']
+    os.environ['DOCKER_HOST'] = ""
+
+    cmd = ["docker", "compose", "build"]
+    print(" ".join(cmd))
+    subprocess.check_call(cmd)
+
+    cmd = ["docker", "compose", "push"]
+    print(" ".join(cmd))
+    subprocess.check_call(cmd)
+
+    os.environ['DOCKER_HOST'] = dest_docker_host
+
     print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - DOCKER_HOST is: {os.environ['DOCKER_HOST']}")
-
-    cmd = ["docker-compose", "build"]
+    cmd = ["docker", "compose", "pull"]
     print(" ".join(cmd))
     subprocess.check_call(cmd)
 
-    cmd = ["docker-compose", "down", "-v"]
+    cmd = ["docker", "compose", "down", "-v"]
     print(" ".join(cmd))
     subprocess.check_call(cmd)
 
-    cmd = ["docker-compose", "up", "-d"]
+    cmd = ["docker", "compose", "up", "-d"]
     print(" ".join(cmd))
     subprocess.check_call(cmd)
     os.environ["DOCKER_HOST"] = ""

@@ -9,12 +9,12 @@ Login
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
     <h3>Connexion au dossier</h3>
     <p><br></p>
-    <form class="form-horizontal" method="POST">
+    <form class="form-horizontal" method="POST" class="row g-2">
         {% csrf_token %}
         <p>Veuillez saisir le code unique qui vous été communiqué lors de la création du dossier.</p>
         <label for="login_code">Code unique :</label>
-        <input type="text" name="login_code" id="login_code">
-        <input type="submit" value="Login" class="btn btn-success">
+        <div class="col-md-6"><input type="text" name="login_code" id="login_code" class="col-md-6 form-control"></div>
+        <div class="col-md-6"><input type="submit" value="Login" class="valider btn btn-success"></div>
     </form>
 
 </main>

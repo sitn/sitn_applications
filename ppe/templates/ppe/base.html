@@ -17,33 +17,39 @@
     <script src="{% static 'js/utils.js' %}"></script>
 </head>
 
-<body>
+<body class="d-flex flex-column">
+    
   <header class="d-flex px-3 shadow-sm">
-    <div id="title" class="col-lg-9"><a class="home" href="{% url 'ppe:index' %}" ><i class="bi bi-house-fill" style="color:white;"></i> </a>  Contrôle des dossiers PPE</div>
-    <div id="drapeau" class="drapeau col-lg-3"><img src="{% static 'images/logo_ne.png' %}" alt="Drapeau du canton NE"></div>
+    <div id="title" class="col-lg-11"><a class="home" href="{% url 'ppe:index' %}" ><i class="bi bi-house-fill" style="color:white;"></i> </a>Contrôle des dossiers PPE</div>
+    <div id="drapeau" class="drapeau col-lg-1">
+        <img src="{% static 'images/logo_ne.png' %}" alt="Drapeau du canton NE">
+        <p>SERVICE DE LA GEOMATIQUE<br>
+        ET DU REGISTRE FONCIER</p>
+    </div>
   </header>
 
+<!-- Mobile Toggle Button -->
+  <div class="d-lg-none bg-light p-2 border-bottom">
+    <button class="btn btn-outline-secondary w-100" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarMenu">
+      ☰ Menu
+    </button>
+  </div>
 
  <!-- Main Content -->
-  <div class="container-fluid">
-    <div class="row flex-nowrap">
+<div class="container-fluid flex-grow-1 layout">
+   <div class="row h-100">
 
         <!-- Sidebar Navigation -->
-        <nav class="col-12 col-md-3 col-lg-3 sidebar bg-light p-3 border-end">
-        <!-- Mobile Toggle Button -->
-        <button class="btn btn-outline-secondary d-md-none mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu" aria-expanded="false" aria-controls="navMenu">
-          Menu
-        </button>
+        <nav id="sidebarMenu" class="col-12 col-lg-2 collapse d-lg-block bg-light sidebar p-3">
         
         <!-- Collapsible Menu -->
-        <div class="collapse d-md-block" id="navMenu">
             <h5>Liens utiles</h5>
             <ul class="nav flex-column">
                 <li class="nav-item">
                     <a class="nav-link" aria-current="page" href="#">PPE | Page internet</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">PPE | Diretive</a>
+                    <a class="nav-link" href="#">PPE | Directive</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="#">PPE | Annexe 1 : préparation des fichiers numériques</a>
@@ -61,20 +67,21 @@
                     <a class="nav-link" href="#">Registre des architectes et ingénieurs</a>
                 </li>
             </ul>
-        </div>
         </nav>
 
-    {% block content %}
-    {% endblock content %}
-  </div>
-  </div>
+        <div class="col-12 col-lg-10 p-3 d-flex flex-column flex-grow-1">
+        {% block content %}
+        {% endblock content %}
 
+        {% block footer %}
+        <footer class="mt-4 pt-2 text-muted">
+            PPE NUMERIQE v0.6
+        </footer>
+        {% endblock footer %}
+        </div>
+    </div>
+</div>
 
-    {% block footer %}
-    <footer class="container-fluid">
-        PPE NUMERIQE v0.6
-    </footer>
-    {% endblock footer %}
-    
-    </body>
+   
+</body>
 </html>

@@ -17,6 +17,21 @@ function showMap() {
     validation.style.display =  checkBox.checked ? "block" : "none";
 }
 
+function validateRealEstateNb() {
+    // Get the checkbox status
+    const selected_nummai = document.getElementById("nummai").value;
+
+    if (selected_nummai != "") {
+        document.getElementById("select_bf_info").classList.remove('alert-warning');
+        document.getElementById("select_bf_info").classList.add('alert-info');
+        multi_bf.style.display = "block";
+    } else {
+        document.getElementById("select_bf_info").classList.remove('alert-info');
+        document.getElementById("select_bf_info").classList.add('alert-warning');
+        multi_bf.style.display = "none";
+    }
+}
+
 function changeSectionDisplay() {
     // Get the selected value
     const dossier_type = document.getElementById("type_dossier").value;
@@ -66,8 +81,6 @@ function showJouissanceRemark() {
                     droits_remark.style.display = "block";
                     constitution.style.display = "none";
                     new_jouissance.style.display = "none";
-                    no_plan_remark.style.display = "none";
-                    jouissance_remark.style.display = "none";
                     elements_rf.style.display = "none";
                     submit_btn.style.display = "none";
                 }
@@ -89,27 +102,10 @@ function showElementsRFQuestions() {
                     if (choix_elements_rf == 'non') {
                         constitution.style.display = "block";
                         new_jouissance.style.display = "none";
-                        no_plan_remark.style.display = "none";
-                        jouissance_remark.style.display = "none";
                     } else {
                         new_jouissance.style.display = "block";
                         constitution.style.display = "none";
                     }
-                    submit_btn.style.display = "block";
-                }
-    
-            }
-        }
-
-function showNewJouissanceInfo() {
-        // Get the selected radio button
-        const new_jouissance = document.getElementsByName("new_jouissance");
-
-        for (let i=0;i < new_jouissance.length; i++) {
-                if (new_jouissance[i].checked) {
-                    choix_new_jouissance = new_jouissance[i].value;
-                    no_plan_remark.style.display = (choix_new_jouissance == 'oui') ? "none" : "block";
-                    jouissance_remark.style.display = (choix_new_jouissance == 'oui') ? "block" : "none";
                     submit_btn.style.display = "block";
                 }
     

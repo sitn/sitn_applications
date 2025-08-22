@@ -7,7 +7,7 @@ Dépôt d'un dossier - étape 2:
 {% block content %}
 <main class="col-12 col-md-9 col-lg-9 p-4 text-start">
 
-    <h3>Etape 2: contacts</h3>
+    <h3>Etape 2 : contacts</h3>
     <p class="fs-5"><br>PPE sur le bien-fonds <b>{{ localisation_ppe.nummai }}</b> du cadastre 
         de <b>{{ localisation_ppe.cadastre }}</b></p>
     {% if error_message %}<p><strong>{{ error_message }}</strong></p>
@@ -55,6 +55,9 @@ Dépôt d'un dossier - étape 2:
                     </div>
                     </legend>
                     {{ facturation_form }}
+                    {% if dossier_ppe.adresse_facturation.file %}
+                        Actuellement: <br>{{ dossier_ppe.adresse_facturation.file.name }}
+                    {% endif %}
                     <a href="https://www.ne.ch/autorites/DDTE/SGRF/mensuration/Pages/propriete_par_etages.aspx" target="blank">
                         Lien vers un modèle</a>
                 </fieldset>
@@ -63,19 +66,17 @@ Dépôt d'un dossier - étape 2:
                 <fieldset>
                     <legend>Notaire</legend>
                     {% for field in notaire_form %}
-                        <div class="form-group{% if field.errors %} has-error{% endif %}">
-                            {{ field.label_tag }}
-                            {{ field }}
-
-                            {% if field.errors %}
-                                <ul class="errorlist">
-                                    {% for error in field.errors %}
-                                        <li>{{ error }}</li>
-                                    {% endfor %}
-                                </ul>
-                            {% endif %}
-                        </div>
+                    <div class="fieldWrapper">
+                        {{ field.errors }}
+                        {{ field.label_tag }} {{ field }}
+                        {% if field.help_text %}
+                        <p class="help" id="{{ field.auto_id }}_helptext">
+                            {{ field.help_text|safe }}
+                        </p>
+                        {% endif %}
+                    </div>
                     {% endfor %}
+                <p><br><br><br><br></p>
                 <input type="submit" value="Valider" class="valider btn btn-success">
                 </fieldset>
                 <p><br><br></p>

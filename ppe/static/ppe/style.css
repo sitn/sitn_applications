@@ -12,8 +12,8 @@ body {
 
 header {
   width: 100%;
-  height: 80px;
-  font-size: 36pt;
+  height: 85px;
+  font-size: clamp(20px, 5vw, 48px);
   font-weight: bold;
   color: white;
   text-align: left;
@@ -25,13 +25,11 @@ header {
 }
 
 nav .nav-link {
+  font-size: smaller;
   padding: 0.5rem 1rem;
 }
-.sidebar {
-  max-width: 300px;
-}
+
 footer {
-  border-top: 1px solid #ccc;
   font-size: 0.875rem;
   text-align: right;
   padding: 0.5rem 1rem;
@@ -39,16 +37,6 @@ footer {
 
 section {
   padding: 0px 2px;
-}
-
-fieldset label {
-  width: 175px;
-  padding: 0px 0px 2px 0px;
-}
-
-fieldset select {
-  width: 188px;
-  padding: 0px 0px 2px 0px;
 }
 
 section label {
@@ -61,29 +49,36 @@ section select {
   padding: 0px 0px 2px 0px;
 }
 
-.drapeau {
-  float: right;
-  text-align: right;
+fieldset label {
+  width: 175px;
+  padding: 0px 0px 2px 0px;
 }
 
-.val-middle {
-  vertical-align: middle;
+fieldset select {
+  width: 188px;
+  padding: 0px 0px 2px 0px;
+}
+
+i {
+ clear: none;
+ font-size: .9em;
 }
 
 li a {
     color: green;
 }
 
+/* CLASSES ONLY STYLES */
+.button {
+  width: 120px;
+}
+
+.button-lg {
+  width: 250px;
+}
+
 .content{
     padding: 10px 5px 10px 5px;
-}
-
-.red {
-    color: #990000;
-}
-
-.etape {
-text-align: right;
 }
 
 .dj_map {
@@ -93,9 +88,68 @@ text-align: right;
     clear: both;
 }
 
+.drapeau {
+  float: right;
+  font-size: 9px;
+  text-align: center;
+}
+
+.etape {
+text-align: right;
+}
+
+.layout{
+    height: 100vh;
+}
+
+/* Form fields placeholder style *hack* */
+.placeholder {
+  background-color: white !important;
+  color: #aaa;
+  transition: background-color 5000s ease-in-out 0s;
+}
+.placeholder::placeholder {
+  font-size: 0.8em;
+  color: #aaa;
+  box-shadow: None;
+  background-color: white;
+}
+.placeholder::-moz-placeholder{
+  font-size: 0.8em;
+  color: #aaa;
+  box-shadow: None;
+  background-color: white;
+}
+.placeholder::-webkit-input-placeholder{
+  font-size: 0.8em;
+  color: #aaa;
+  box-shadow: None;
+  background-color: white;
+}
+input:-webkit-autofill {
+    background-color: white !important;
+    -webkit-box-shadow: None !important;
+    box-shadow: None !important;
+    transition: background-color 5000s ease-in-out 0s;
+}
+
+.red {
+    color: #990000;
+}
+
+.sidebar {
+  height: calc(100vh - 85px);
+  max-width: 250px;
+  min-width: 100px;
+}
+
 .valider {
   width: 120px;
   float: right;
+}
+
+.val-middle {
+  vertical-align: middle;
 }
 
 div.entete a:link#home {
@@ -131,18 +185,14 @@ h2#login_code {
     padding: 0.7rem;
 }
 
-i {
- clear: none;
- font-size: .9em;
-}
-
 span#info_geoloc {
     display: none;
     margin-left: 5px;
     padding: 5px;
     font-size: small;
-    background-color: lightblue;
-    border: 1px solid cornflowerblue;
+    color: white;
+    background-color: cornflowerblue;
+    border: 1px solid black;
   }
   
 i:hover + span#info_geoloc {
@@ -156,8 +206,9 @@ div#info_contact {
   margin-left: 3px;
   padding: 5px;
   font-size: small;
-  background-color: lightblue;
-  border: 1px solid cornflowerblue; 
+  color: white;
+  background-color: cornflowerblue;
+  border: 1px solid black;
 }
   
 i:hover + div#info_contact {
@@ -171,8 +222,9 @@ div#info_signataire {
   margin-left: 3px;
   padding: 5px;
   font-size: small;
-  background-color: lightblue;
-  border: 1px solid cornflowerblue; 
+  color: white;
+  background-color: cornflowerblue;
+  border: 1px solid black;
 }
 
 i:hover + div#info_signataire {
@@ -181,12 +233,13 @@ i:hover + div#info_signataire {
 }
 
 div#info_accord {
-    display: none;
-    margin-left: 5px;
-    padding: 5px;
-    font-size: small;
-    background-color: lightblue;
-    border: 1px solid cornflowerblue;
+  display: none;
+  margin-left: 5px;
+  padding: 5px;
+  font-size: small;
+  color: white;
+  background-color: cornflowerblue;
+  border: 1px solid black;
   }
   
 i:hover + div#info_accord {
@@ -195,12 +248,13 @@ i:hover + div#info_accord {
   }
   
 div#info_zip {
-    display: none;
-    margin-left: 5px;
-    padding: 5px;
-    font-size: small;
-    background-color: lightblue;
-    border: 1px solid cornflowerblue;
+  display: none;
+  margin-left: 5px;
+  padding: 5px;
+  font-size: small;
+  color: white;
+  background-color: cornflowerblue;
+  border: 1px solid black;
   }
   
 i:hover + div#info_zip {
@@ -209,15 +263,16 @@ i:hover + div#info_zip {
   }
   
 div#info_type_dossier {
-    position: absolute;
-    z-index: 99;
-    display: none;
-    margin-top: 15px;
-    margin-left: 3px;
-    padding: 5px;
-    font-size: small;
-    background-color: lightblue;
-    border: 1px solid cornflowerblue;
+  position: absolute;
+  z-index: 99;
+  display: none;
+  margin-top: 15px;
+  margin-left: 3px;
+  padding: 5px;
+  font-size: small;
+  color: white;
+  background-color: cornflowerblue;
+  border: 1px solid black;
   }
 
 i:hover + div#info_type_dossier {
@@ -227,13 +282,14 @@ i:hover + div#info_type_dossier {
 }
 
 div#info_reference_geoshop {
-    display: none;
-    margin-top: 15px;
-    margin-left: 3px;
-    padding: 5px;
-    font-size: small;
-    background-color: lightblue;
-    border: 1px solid cornflowerblue; 
+  display: none;
+  margin-top: 15px;
+  margin-left: 3px;
+  padding: 5px;
+  font-size: small;
+  color: white;
+  background-color: cornflowerblue;
+  border: 1px solid black;
 }
 
 i:hover + div#info_reference_geoshop {
@@ -247,8 +303,9 @@ div#info_soumission {
   margin-left: 3px;
   padding: 5px;
   font-size: small;
-  background-color: lightblue;
-  border: 1px solid cornflowerblue; 
+  color: white;
+  background-color: cornflowerblue;
+  border: 1px solid black;
 }
 
 i:hover + div#info_soumission {

@@ -1,15 +1,19 @@
 import datetime, random, string, json, logging, ast
 from django.shortcuts import render, redirect, get_list_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseNotFound
 from django.template import loader
 from django.contrib.gis.geos import Point
 from django.conf import settings
 from django.conf.urls.static import static
+from django.core.files.base import ContentFile
 from django.core.files.storage import FileSystemStorage
+from django.core.mail import send_mail
+from django.utils.timezone import now
 
 # INDIVIDUAL ELEMENTS
 from .models import DossierPPE, ContactPrincipal, Notaire, Signataire, AdresseFacturation, Geolocalisation, Zipfile
 from .forms import AdresseFacturationForm, NotaireForm, SignataireForm, GeolocalisationForm, ContactPrincipalForm, ZipfileForm, WMTSWithSearchWidget
+from urllib.request import urlopen
 
 from .util import get_localisation, login_required, check_geoshop_ref
 
@@ -245,6 +249,17 @@ def overview(request, doc):
 
 @login_required
 def soumission(request, doc):
+
+    send_mail(
+    "Nouveau dossier PPE: Création réussite",
+    "Un nouveau dossier PPE sur le bien-fonds {bien_fonds} du cadastre {cadastre} a été créé. \
+        son identifiant unique est: {login_code} Attention: Gardez bien ce code, vous en avez \
+        besoin pour tout changement.".format(bien_fonds=doc.nummai, cadastre = doc.cadastre, login_code = doc.login_code),
+    "sitn@ne.ch",
+    [doc.contact_principal.email, "francois.voisard@ne.ch"],
+    fail_silently=False,
+    )
+    logger.info('')
     return render(request, "ppe/soumission.html", {"dossier_ppe": doc})
 
 @login_required
@@ -267,9 +282,9 @@ def definition_type_dossier(request, doc, type_dossier=None):
 
     if ref_geoshop is not None:
         # Check geoshop_ref is existing
-        ref_exists = check_geoshop_ref(ref_geoshop)
+        ref_exists, ref_error = check_geoshop_ref(ref_geoshop, doc.geom)
         if ref_exists == False:
-            error_message = "La référence de la commande géoshop contient une erreur ou n'existe pas."
+            error_message = ref_error
     else:
         ref_exists = False
 
@@ -319,8 +334,16 @@ def load_ppe_files(request, doc):
     if zip_form.is_valid():
         zip_form.save()
         zipfile = Zipfile(pk=zip_form.instance.id)
-
-        return render(request, "ppe/load_ppe_files.html", {"dossier_ppe" : doc, "zipfile": zipfile })
+        if settings.VCRON_TASK_URL:
+            base_url = settings.VCRON_TASK_URL
+        else:
+            raise HttpResponseNotFound('Il manque l\'URL vers le scheduler')
+        vc_url = "{}login_code={}|email={}".format(base_url, doc.login_code, doc.contact_principal.email)
+        with urlopen(vc_url) as response:
+            status = response.getcode()
+            if status != 200:
+                return render(request, "ppe/overview.html", {"dossier_ppe": doc, "error_message": "Le chargement du zip a échoué."})
+        return redirect(f"/ppe/overview")
 
     zip_form = ZipfileForm(initial=init_data)
 
@@ -472,7 +495,6 @@ def edit_ppe_type(request, doc):
         dossier_ppe = DossierPPE.objects.get(login_code=doc.login_code)
         type_dossier = request.POST["type_dossier"] if 'type_dossier' in request.POST else None
         ref_geoshop = request.POST["ref_geoshop"] if 'ref_geoshop' in request.POST else None
-        ref_exists = check_geoshop_ref(ref_geoshop)
         revision_jouissances = request.POST["droits_jouissance"] if 'droits_jouissance' in request.POST else None 
         elements_rf_identiques = request.POST["elements_rf"] if 'elements_rf' in request.POST else None
         nouveaux_droits = request.POST["new_jouissance"] if 'new_jouissance' in request.POST else None
@@ -481,6 +503,19 @@ def edit_ppe_type(request, doc):
         error_message = "Aucun dossier avec ce code n'a pu être trouvé."
         return render(request, "ppe/definition_type_dossier.html", {"error_message": error_message})
 
+    if ref_geoshop:
+        logger.info('> CHECK REF GEOSHOP: %s', ref_geoshop)
+        ref_exists, ref_error = check_geoshop_ref(ref_geoshop, doc.geom)
+        if ref_error:
+            error_message = ref_error
+            logger.debug("GEOSHOP_REF check failed with error %s", ref_error)
+    else: 
+        ref_exists = False
+    logger.info("GEOSHOP_REF %s exists: %s", ref_geoshop, ref_exists)
+
+    logger.debug("> Submission type is %s, ref_exists is %s, elements_rf_identiques is %s",
+                 type_dossier, ref_exists, elements_rf_identiques
+                 )
     if type_dossier == 'C' and ref_exists == True:
         dossier_ppe.elements_rf_identiques = None
         dossier_ppe.nouveaux_droits = None
@@ -506,7 +541,7 @@ def edit_ppe_type(request, doc):
     if type_dossier in ['M'] and 'login_code' in request.POST:
         dossier_ppe.type_dossier = type_dossier
         dossier_ppe.save()
-        return redirect(f"/ppe/modification")
+        return redirect(f"/ppe/overview")
     
     return render(
         request, 
@@ -526,10 +561,19 @@ def edit_zipfile(request, doc):
     init_data = {"dossier_ppe": DossierPPE(pk=doc.id)}
 
     if zip_form.is_valid():
+        foldername = zip_form.instance.dossier_ppe.login_code
         zip_form.save()
         zipfile = Zipfile(pk=zip_form.instance.id)
-
-        return render(request, "ppe/load_ppe_files.html", {"dossier_ppe" : doc, "zipfile": zipfile })
+        if settings.VCRON_TASK_URL:
+            base_url = settings.VCRON_TASK_URL
+        else:
+            raise HttpResponseNotFound('Il manque l\'URL vers le scheduler')
+        vc_url = "{}login_code={}|email={}".format(base_url, doc.login_code, doc.contact_principal.email)
+        with urlopen(vc_url) as response:
+            status = response.getcode()
+            if status != 200:
+                return render(request, "ppe/overview.html", {"dossier_ppe": doc, "error_message": "Le chargement du zip a échoué."})
+        return redirect(f"/ppe/overview")
 
     zip_form = ZipfileForm(initial=init_data)
 

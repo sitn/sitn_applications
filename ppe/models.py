@@ -1,10 +1,19 @@
 import magic
+import os
 
 from django.core.exceptions import ValidationError
 from django.contrib.gis.db import models
 from django.utils.timezone import now
 
 from django_extended_ol.forms.widgets import WMTSWithSearchWidget 
+
+def unique_folder_path(instance, filename):
+    """ Define the new storage path from login_code
+        and prefixe the uploaded files with the date
+    """
+    date_prefix = now().strftime('%Y%m%d_%H%M%S')
+    new_filename = f"{date_prefix}_{filename}"
+    return '/'.join([instance.dossier_ppe.login_code, new_filename])
 
 
 class Geolocalisation(models.Model):
@@ -25,7 +34,7 @@ class AdresseFacturation(models.Model):
     no_rue = models.CharField(max_length=10, blank=True)
     npa = models.IntegerField()
     localite = models.CharField(max_length=100)
-    file = models.FileField(upload_to="files/")
+    file = models.FileField(upload_to='pdfs')
 
     def __str__(self):
         return self.nom_raison_sociale
@@ -149,7 +158,7 @@ class DossierPPE(models.Model):
 
 
 class Zipfile(models.Model):
-    zipfile = models.FileField(upload_to="files/zips/")
+    zipfile = models.FileField(upload_to=unique_folder_path)
     upload_date = models.DateTimeField("Date de chargement", auto_now=True)
     file_statut = models.CharField(
         choices=(
@@ -164,6 +173,9 @@ class Zipfile(models.Model):
 
     MAX_FILE_SIZE = 250 * 1024 * 1024  # 250 MB
 
+    def filename(self):
+        return os.path.basename(self.zipfile.name)
+    
     def clean(self):
         """
         Custom model-level validation to check the uploaded file.

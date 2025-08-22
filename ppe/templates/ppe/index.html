@@ -20,15 +20,17 @@ Application de gestion des PPE
             <a href="https://www.ne.ch/autorites/DDTE/SGRF/mensuration/Pages/propriete_par_etages.aspx" target="blank">
             Documentation de la constitution d'une PPE par le SGRF</a>
         </p //-->
+        <p><br></p>
         <h5>Que souhaitez-vous faire?</h5>
+        <br>
         <div class="row">
             <div class="col">
-                <a href="{% url 'ppe:geolocalisation' %}" class="btn btn-success">Nouvelle soumission</a>
+                <a href="{% url 'ppe:geolocalisation' %}" class="button-lg btn btn-success">Nouvelle soumission</a>
                 <i id="info2" class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
                 <div id="info_soumission">Soumettre un dossier de constitution,<br> de modification 
                     ou de révision de PPE<br> pour la première fois.</div>
 
-                <a href="{% url 'ppe:overview' %}" class="btn btn-success">Modification une soumission</a>
+                <a href="{% url 'ppe:overview' %}" class="button-lg btn btn-success">Modification une soumission</a>
                 <i id="info1" class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
                 <div id="info_modification">Modifier les informations<br> d'un dossier déjà soumis.</div>
             </div>
