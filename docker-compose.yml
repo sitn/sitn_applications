@@ -4,10 +4,11 @@ services:
       - default
     restart: unless-stopped
     build: .
-    image: sitn/${COMPOSE_PROJECT_NAME}
-    command: python manage.py runserver 0.0.0.0:8000
+    image: ${DOCKER_BASE}
+    # TODO: gunicorn!
+    command: ${DOCKER_CMD}
     volumes:
-      - ${VOLUME_PATH}:/data
+      - ${VOLUME_PATH}:/data:rw
     ports:
       - ${EXTERNAL_PORT}:8000
     environment:
@@ -24,3 +25,5 @@ services:
       - GEOSHOPPORT=${GEOSHOPPORT:-5432}
       - GEOSHOPUSER=${GEOSHOPUSER:-usr}
       - GEOSHOPPASSWORD=${GEOSHOPPASSWORD:-pwd}
+      - MEDIA_ROOT=/data
+      - MEDIA_URL=/data/

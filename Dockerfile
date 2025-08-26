@@ -9,5 +9,7 @@ COPY ppe_numerique ppe_numerique
 COPY manage.py manage.py
 COPY requirements.txt requirements.txt
 
+ENV PYTHONUNBUFFERED 1
+
 RUN python -m pip install --upgrade pip
 RUN pip install -r /app/requirements.txt
