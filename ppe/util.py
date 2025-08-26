@@ -119,30 +119,52 @@ def check_geoshop_ref(ref, pt_geom):
     if ref is None:
         ref_error = 'La référence de commande indiquée n\'existe pas.'
         return ref_ok, ref_error
+    logger.info('CHECKING geoshop reference: %s', ref)
 
-    try: 
-        if GEOSHOP_ORDER_REGEX.search(ref):
+    # Check if the given reference respects the supposed format
+    if GEOSHOP_ORDER_REGEX.search(ref):
             ref = ref.split('_')
             order_date = datetime.datetime.strptime(ref[0], '%Y%m%d').date()
             order_id = int(ref[1])
-    except:
+    else:
         ref_error = 'Il semblerait que la référence ne respecte pas le format attendu.'
         return ref_ok, ref_error
 
+    # Check if the given order date is more recent than a year
     if order_date and (order_date < check_date):
-        ref_error = 'Les données ont plus d\'une année, merci de commander de nouvelles données.'
+        ref_error = 'La commande référencée date de plus d\'une année, merci de commander de nouvelles données.'
         return ref_ok, ref_error
 
+    # Check if the order date has not been invented or misspelled, thus laying in the future
     if order_date and (current < order_date):
-        ref_error = 'La date de commande de la référence se situe dans le futur.'
+        ref_error = 'La date de commande référencée se situe dans le futur.'
         return ref_ok, ref_error
- 
+    
+    # The order date and ref structure are plausible, so we check in the database validating
+    # that the order_id exists and the selected real estate is within the order perimeter
     with connections["geoshop"].cursor() as cursor:
         cursor.execute("SELECT id, to_char(date_ordered, 'YYYYMMDD'), to_char(date_processed, 'YYYYMMDD'), " \
         "geom FROM geoshop.order WHERE id = %s and ST_CONTAINS(geom, %s)", [order_id, wkb_pt])
         row = cursor.fetchone()
-        if row and row[0] == order_id and (datetime.datetime.strptime(row[1], '%Y%m%d').date() <= order_date <= datetime.datetime.strptime(row[2], '%Y%m%d').date()):
-            ref_ok = True
+        # Check if there is a result and both order and processing date exist
+        if row:
+            # Check if the result has an existing order date
+            if row[1] == '' or row[1] is None:
+                ref_ok = False
+                ref_error = 'La commande référencée n\'a pas de date de commande valide.'
+                return ref_ok, ref_error
+            # Check if the result has an existing processing date
+            if row[2] == '' or row[2] is None:
+                ref_ok = False
+                ref_error = 'La commande référencée n\'a pas de date de traitement valide.'
+                return ref_ok, ref_error
+            # Check if the given reference date lays in the interval between order and processing date 
+            if datetime.datetime.strptime(row[1], '%Y%m%d').date() <= order_date <= datetime.datetime.strptime(row[2], '%Y%m%d').date():
+                ref_ok = True
+            else:
+                ref_error = 'La date de commande de la référence semble erronée.'
+                ref_ok = False
+                return ref_ok, ref_error
         else:
             ref_ok = False
             ref_error = "La commande référencée ne comprend pas le bien-fonds sélectionné."

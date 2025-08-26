@@ -275,13 +275,16 @@ def definition_type_dossier(request, doc, type_dossier=None):
     try:
         # We get the current entry of the dossier ppe if it exists
         dossier_ppe = DossierPPE.objects.get(login_code=doc.login_code)
+        logger.debug('CHECK for existing dossier ppe %s', doc.login_code)
     except:
         # ELSE we return an error
         error_message = "Aucun dossier avec ce code n'a pu être trouvé."
+        logger.debug('DID NOT FIND a dossier ppe with code: %s. Error was: %s', doc.login_code, error_message)
         return render(request, "ppe/definition_type_dossier.html", {"error_message": error_message})  
 
     if ref_geoshop is not None:
         # Check geoshop_ref is existing
+        logger.debug('CHECK if given geoshop ref %s exists and is valid for this real estate')
         ref_exists, ref_error = check_geoshop_ref(ref_geoshop, doc.geom)
         if ref_exists == False:
             error_message = ref_error
