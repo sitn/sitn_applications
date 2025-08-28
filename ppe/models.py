@@ -9,12 +9,18 @@ from django_extended_ol.forms.widgets import WMTSWithSearchWidget
 
 def unique_folder_path(instance, filename):
     """ Define the new storage path from login_code
-        and prefixe the uploaded files with the date
+        and prefix the uploaded files with the date
     """
     date_prefix = now().strftime('%Y%m%d_%H%M%S')
     new_filename = f"{date_prefix}_{filename}"
     return '/'.join([instance.dossier_ppe.login_code, new_filename])
 
+def rename_pdf_accord(instance, filename):
+    """ Define the new filname using a date prefix
+    """
+    date_prefix = now().strftime('%Y%m%d_%H%M%S')
+    new_filename = f"{date_prefix}_{filename}"
+    return '/'.join(['pdfs', new_filename])
 
 class Geolocalisation(models.Model):
     geom = models.PointField(srid=2056)
@@ -34,13 +40,16 @@ class AdresseFacturation(models.Model):
     no_rue = models.CharField(max_length=10, blank=True)
     npa = models.IntegerField()
     localite = models.CharField(max_length=100)
-    file = models.FileField(upload_to='pdfs')
+    file = models.FileField(upload_to=rename_pdf_accord)
 
     def __str__(self):
         return self.nom_raison_sociale
 
     MAX_FILE_SIZE = 2 * 1024 * 1024  # 2 MB
 
+    def filename(self):
+        return os.path.basename(self.zipfile.name)
+    
     def clean(self):
         """
         Custom model-level validation to check the uploaded file.

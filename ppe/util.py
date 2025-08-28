@@ -132,7 +132,7 @@ def check_geoshop_ref(ref, pt_geom):
 
     # Check if the given order date is more recent than a year
     if order_date and (order_date < check_date):
-        ref_error = 'La commande référencée date de plus d\'une année, merci de commander de nouvelles données.'
+        ref_error = 'Les données ont plus d\'une année, merci de commander de nouvelles données.'
         return ref_ok, ref_error
 
     # Check if the order date has not been invented or misspelled, thus laying in the future
@@ -167,6 +167,6 @@ def check_geoshop_ref(ref, pt_geom):
                 return ref_ok, ref_error
         else:
             ref_ok = False
-            ref_error = "La commande référencée ne comprend pas le bien-fonds sélectionné."
+            ref_error = "Les données commandées ne comprennent pas le bien-fonds sélectionné."
 
     return ref_ok, ref_error

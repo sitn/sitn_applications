@@ -166,6 +166,9 @@ if os.name == 'nt':
     DEBUG = True
     GDAL_LIBRARY_PATH = os.environ.get('GDAL_LIBRARY_PATH')
     GEOS_LIBRARY_PATH = os.environ.get('GEOS_LIBRARY_PATH')
+    VCRON_TASK_URL = os.environ.get('VCRON_BASE_URL')
+else:
+    VCRON_TASK_URL = os.environ['VCRON_BASE_URL']
 
 OLWIDGET = {
     "globals": {
@@ -189,5 +192,3 @@ OLWIDGET = {
         "url_template": 'https://sitn.ne.ch/search?limit=10&partitionlimit=2&interface=desktop&query={search_term}'
     }
 }
-
-VCRON_TASK_URL = os.environ['VCRON_BASE_URL']

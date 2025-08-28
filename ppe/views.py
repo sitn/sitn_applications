@@ -1,5 +1,5 @@
 import datetime, random, string, json, logging, ast
-from django.shortcuts import render, redirect, get_list_or_404
+from django.shortcuts import render, redirect
 from django.http import HttpResponse, HttpResponseNotFound
 from django.template import loader
 from django.contrib.gis.geos import Point
@@ -11,7 +11,7 @@ from django.core.mail import send_mail
 from django.utils.timezone import now
 
 # INDIVIDUAL ELEMENTS
-from .models import DossierPPE, ContactPrincipal, Notaire, Signataire, AdresseFacturation, Geolocalisation, Zipfile
+from .models import DossierPPE, ContactPrincipal, Notaire, Signataire, AdresseFacturation, Zipfile
 from .forms import AdresseFacturationForm, NotaireForm, SignataireForm, GeolocalisationForm, ContactPrincipalForm, ZipfileForm, WMTSWithSearchWidget
 from urllib.request import urlopen
 

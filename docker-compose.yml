@@ -27,3 +27,4 @@ services:
       - GEOSHOPPASSWORD=${GEOSHOPPASSWORD:-pwd}
       - MEDIA_ROOT=/data
       - MEDIA_URL=/data/
+      - VCRON_BASE_URL=${VCRON_BASE_URL:-https://your-scheduler-url.com/task/params}

@@ -105,10 +105,10 @@ class AdresseFacturationForm(forms.ModelForm):
             raise forms.ValidationError("Veuillez entrer une NPA suisse valide.")
         return npa
     
-    def clean_file(self):
-        filename = self.cleaned_data.get("filename")
-        print(filename)
-        return filename
+#    def clean_file(self):
+#        filename = self.cleaned_data.get("filename")
+#        print(filename)
+#        return filename
 
 
 class ContactPrincipalForm(forms.ModelForm):

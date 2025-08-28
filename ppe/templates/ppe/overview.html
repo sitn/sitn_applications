@@ -18,10 +18,10 @@ Dépôt d'un dossier - Récapitulatif:
                 <br>
                 <table width="100%">
                 <tr>
-                    <th class="fs-4" width="30%">Localisation</th><th><a href="{% url 'ppe:edit_geolocalisation' %}" class="btn btn-success">Modifier</a></th>
+                    <th class="fs-4" width="50%">Localisation</th><th><a href="{% url 'ppe:edit_geolocalisation' %}" class="btn btn-success">Modifier</a></th>
                 </tr>
-                <tr class="fs-5"><td>Cadastre</td><td><b>{{ dossier_ppe.cadastre }}</b></td></tr>
-                <tr class="fs-5"><td>Bien-fonds</td><td><b>{{ dossier_ppe.nummai }}</b></td></tr>
+                <tr><td>Cadastre</td><td><b>{{ dossier_ppe.cadastre }}</b></td></tr>
+                <tr><td>Bien-fonds</td><td><b>{{ dossier_ppe.nummai }}</b></td></tr>
                 </table>
             </section>
 
@@ -29,7 +29,7 @@ Dépôt d'un dossier - Récapitulatif:
             <br>
             <table width="100%">
             <tr>
-                <th class="fs-4" width="30%">Contacts</th>
+                <th class="fs-4" width="50%">Contacts</th>
                 <th><a href="{% url 'ppe:edit_contacts' %}" class="btn btn-success">Modifier</a></th>
             </tr>
                 <td colspan="2" class="fs-5 fw-bold">Personne de contact principal</td>
@@ -98,31 +98,57 @@ Dépôt d'un dossier - Récapitulatif:
         <section>
             <table width="100%">
             <tr>
-                <th class="fs-4" width="30%">Type de dossier</th><th><a href="{% url 'ppe:edit_ppe_type' %}" class="btn btn-success">Modifier</a></th>
+                <th class="fs-4" width="50%">Type de dossier</th><th><a href="{% url 'ppe:edit_ppe_type' %}" class="btn btn-success">Modifier</a></th>
+            </tr>
+                {% if dossier_ppe.type_dossier == 'C' %}
+            <tr>
+                <td>Type de dossier :</td><td>Constitution</td>
             </tr>
             <tr>
-                <td>Type de dossier :</td>
-                <td>
-                    {% if dossier_ppe.type_dossier == 'C' %}
-                    Constitution
-                    <br>Réf. géoshop: {{ dossier_ppe.ref_geoshop }}
-                    {% elif dossier_ppe.type_dossier == 'R' %}
-                    Révision
-                    <br>{{ dossier_ppe.revision_jouissances }}
-                    <br>{{ dossier_ppe.elements_rf_identiques }}
-                    <br>{{ dossier_ppe.nouveaux_droits }}
-                    <br>Réf. géoshop: {{ dossier_ppe.ref_geoshop }}
-                    {% else %}
-                    Modification
-                    {% endif %}
-                </td>
+                <td>Réf. géoshop:</td>
+                <td>{{ dossier_ppe.ref_geoshop }}</td>
             </tr>
+                {% elif dossier_ppe.type_dossier == 'R' %}
+            <tr>
+                <td>Type de dossier :</td><td>Révision</td>
+            </tr>
+            <tr>
+                <td>La révision concerne uniquement des droits de jouissance</td>
+                <td>{{ dossier_ppe.revision_jouissances }}</td>
+            </tr>
+            <tr>
+                <td>Les éléments du plan de situation en vigueur restent identiques</td>
+                <td>{{ dossier_ppe.elements_rf_identiques }}</td>
+            </tr>
+                {% if dossier_ppe.elements_rf_identiques == 'oui' %}
+            <tr>
+                <td colspan="2" class="alert alert-danger">Les fichiers «8_psit» contenant les objets du plan de situation ne sont pas nécessaires.</td>
+            </tr>
+                {% elif dossier_ppe.elements_rf_identiques == 'non' %}
+            <tr>
+                <td>Réf. géoshop:</td>
+                <td>{{ dossier_ppe.ref_geoshop }}</td>
+            </tr>
+                {% endif %}
+            {% else %}
+            <tr>
+                <td>Type de dossier :</td><td>Modification</td>
+            </tr>
+            <tr>
+                <td colspan="2" class="alert alert-info">
+                <h6>Ancien dossier</h6> 
+                <p>Type de dossier : {{ dossier_ppe.type_dossier }}</p>
+                <p>Référence geoshop : {{ dossier_ppe.ref_geoshop }}</p>
+            </td>
+            </tr>
+            {% endif %}
             </table>
         </section>
         {% endif %}
 
-        {%if dossier_ppe.zipfiles %}
+
         <section>
+            {%if dossier_ppe.zipfiles %}
             <br>
             <table width="100%">
             <tr>
@@ -153,16 +179,16 @@ Dépôt d'un dossier - Récapitulatif:
             </tr>
             {% endfor %}
             </table>
+            {% else %}
+            <p> 
+                <form id="overview_form" class="form-horizontal" action="/ppe/soumission" method="post">
+                    {% csrf_token %}
+                    <input type="submit" value="Continuer" class="valider btn btn-success">
+                </form> 
+            </p>
+            {% endif %}
         </section>
-        {% endif %}
     </div>
-
-    <p> 
-        <form id="overview_form" class="form-horizontal" action="/ppe/soumission" method="post">
-            {% csrf_token %}
-            <input type="submit" value="Continuer" class="valider btn btn-success">
-        </form> 
-    </p>
 
     {% else %}
     <p>Une erreur inconnue est survenue</p>
