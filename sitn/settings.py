@@ -56,6 +56,7 @@ INTERNET_ONLY_APPS = [
 
 INSTALLED_APPS = [
     'sitn',
+    'roads',
     'cadastre',
     "corsheaders",
     'django.contrib.admin',
