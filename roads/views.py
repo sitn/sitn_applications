@@ -7,12 +7,6 @@ from django.shortcuts import get_object_or_404
 from rest_framework.reverse import reverse
 
 
-class AxisSegmentViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = AxisSegment.objects.all()
-    serializer_class = AxisSegmentSerializer
-    lookup_field = "asg_name"
-
-
 class AxisViewSet(viewsets.ReadOnlyModelViewSet):
     serializer_class = AxisSegmentSerializer
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]

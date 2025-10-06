@@ -18,7 +18,7 @@ class AxisSegment(models.Model):
 
 class Sector(models.Model):
     """
-    A sector is a part of an AxisSegment, identified also called PR (point de repérage)
+    A sector is a part of an AxisSegment, also called PR (point de repérage)
     """
 
     sec_iliid = models.TextField(primary_key=True)
