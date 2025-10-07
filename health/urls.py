@@ -5,8 +5,8 @@ from sitn import router
 router = router.SitnRouter()
 router.register(r'doctors', views.St20AvailableDoctorsViewSet)
 router.register(r'sites', views.St23HealthSiteViewSet)
-router.register_additional_route_to_root('doctors/edit', 'doctors-by-token-detail')
-router.register_additional_route_to_root('doctors/suggest', 'doctors-suggest')
+router.register_additional_view('doctors/edit', 'doctors-by-token-detail')
+router.register_additional_view('doctors/suggest', 'doctors-suggest')
 
 urlpatterns = [
     path('', include(router.urls)),
