@@ -70,16 +70,17 @@ def main():
     print(" ".join(cmd))
     subprocess.check_call(cmd)
 
-    cmd = ["docker", "compose", "push"]
-    print(" ".join(cmd))
-    subprocess.check_call(cmd)
+    if instance != "local":
+        cmd = ["docker", "compose", "push"]
+        print(" ".join(cmd))
+        subprocess.check_call(cmd)
 
-    os.environ['DOCKER_HOST'] = dest_docker_host
-    print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - DOCKER_HOST is: {os.environ['DOCKER_HOST']}")
+        os.environ['DOCKER_HOST'] = dest_docker_host
+        print(f"{datetime.now().strftime('%Y-%m-%d %H:%M:%S')} - DOCKER_HOST is: {os.environ['DOCKER_HOST']}")
 
-    cmd = ["docker", "compose", "pull"]
-    print(" ".join(cmd))
-    subprocess.check_call(cmd)
+        cmd = ["docker", "compose", "pull"]
+        print(" ".join(cmd))
+        subprocess.check_call(cmd)
 
     cmd = ["docker", "compose", "down", "-v"]
     print(" ".join(cmd))

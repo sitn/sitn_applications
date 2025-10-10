@@ -34,7 +34,7 @@ Install and activate the virual environment:
 python -m venv venv
 ./venv/Scripts/activate
 python -m pip install --upgrade pip
-pip install -r requirements.txt
+pip install -r requirements-lock.txt
 ```
 
 Create a local database:
@@ -146,3 +146,12 @@ Then:
 1. Put something in `urls.py` in your app folder
 2. Import your urls in `sitn/urls.py`
 3. Install the app in `settings.py`
+
+
+## Upgrading packages
+
+In your venv:
+
+1. Update the versions manually in requirements.in
+2. `pip-compile requirements.in --output-file=requirements-lock.txt`
+3. `pip install -r requirements-lock.txt`

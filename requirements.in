@@ -1,0 +1,16 @@
+Django==5.2.7
+django-computedfields
+django-cors-headers
+django-fast-update
+django-geojson
+django-revproxy
+djangorestframework==3.16.1
+djangorestframework-gis
+drf-spectacular
+drf-spectacular-sidecar
+python-dotenv
+psycopg2-binary
+pip-tools
+whitenoise
+openpyxl
+requests
