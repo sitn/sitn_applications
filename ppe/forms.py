@@ -49,11 +49,11 @@ class ZipfileForm(forms.ModelForm):
             'file_statut': forms.HiddenInput(),
             'dossier_ppe': forms.HiddenInput(),
             'zipfile': forms.FileInput(
-                attrs={'accept': '.zip,application/zip', 'placeholder': 'Choisir un dossier .zip'}
+                attrs={'accept': '.zip,application/zip', 'placeholder': 'Choisir un dossier .zip','class': 'form-control placeholder'}
             ),
         }
         labels = {
-            "zipfile": _("Dossier zip des plans"),
+            "zipfile": _("Dossier *.zip"),
         }
 
 class GeolocalisationForm(forms.ModelForm):
@@ -68,12 +68,12 @@ class AdresseFacturationForm(forms.ModelForm):
         prefix = "facturation"
         fields = "__all__"
         labels = {
-            "type_personne": _("Type de personne *"),
-            "nom_raison_sociale": _("Nom / raison sociale *"),
-            "prenom": _("Prénom / à l'att. *"),
+            "type_personne": _("Type *"),
+            "nom_raison_sociale": _("Nom/Raison sociale *"),
+            "prenom": _("Prénom/A l'att. *"),
             "complement": _("Complément/Réf."),
             "rue": _("Rue *"),
-            "no_rue": _("No. rue"),
+            "no_rue": _("No."),
             "npa": _("NPA *"),
             "localite": _("Localité *"),
             "file": _("Accord de prise en charge *"),
@@ -87,7 +87,7 @@ class AdresseFacturationForm(forms.ModelForm):
             "no_rue": forms.TextInput(attrs={"placeholder": "(17B)", "class": "form-control placeholder"}),
             "npa": forms.TextInput(attrs={"placeholder": "1000 - 9999", 'validators':[validate_npa], "class": "form-control placeholder"}),
             "localite": forms.TextInput(attrs={"placeholder": "Localité", "class": "form-control placeholder"}),
-            #'file': forms.FileInput(attrs={'accept': '.pdf,application/pdf', 'validators':[pdf_validator], "class": "form-control placeholder"}),
+            'file': forms.FileInput(attrs={'accept': '.pdf,application/pdf', 'validators':[pdf_validator], "class": "form-control placeholder"}),
             }
         #help_texts = {
         #    "complement": _("Case postale, appt., unité, etc."),
@@ -119,8 +119,8 @@ class ContactPrincipalForm(forms.ModelForm):
         labels = {
             "nom": _("Nom *"),
             "prenom": _("Prénom *"),
-            "email": _("Courriel *"),
-            "no_tel": _("No. tél *"),
+            "email": _("E-mail *"),
+            "no_tel": _("Téléphone *"),
             "raison_sociale": _("Raison sociale"),
         }
         widgets = {
@@ -148,7 +148,7 @@ class NotaireForm(forms.ModelForm):
             "prenom": _("Prénom *"),
             "complement": _("Complément"),
             "rue": _("Rue *"),
-            "no_rue": _("No. rue"),
+            "no_rue": _("No."),
             "npa": _("NPA *"),
             "localite": _("Localité *"),
         }
@@ -172,7 +172,7 @@ class SignataireForm(forms.ModelForm):
             "prenom": _("Prénom *"),
             "complement": _("Complément"),
             "rue": _("Rue *"),
-            "no_rue": _("No. rue"),
+            "no_rue": _("No."),
             "npa": _("NPA *"),
             "localite": _("Localité *"),
         }

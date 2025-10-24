@@ -1,14 +1,25 @@
 body {
   width: 100%;
   margin: 0;
-  height: 100vh;
+  min-height: 100vh;
   font-family: Arial, Helvetica, sans-serif;
   background: white;
 }
 
+/* DEBUG STYLES */
 /*div {
   border: 1px solid #990000;
-}*/
+} 
+*/
+div.row {
+  margin: auto;
+}
+
+
+div.container-fluid {
+    padding-right:0;
+    padding-left:0;
+ }
 
 header {
   width: 100%;
@@ -17,16 +28,24 @@ header {
   font-weight: bold;
   color: white;
   text-align: left;
-  background-color:lightseagreen ;
-  border-bottom: 1 px solid grey;
-  /*position: sticky;*/
-  top: 0;
-  z-index: 1020; /* ensures it's above content */
+  background-color: #036250;
+  border-bottom: 1px solid grey;
+  z-index: 1020;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
 }
 
 nav .nav-link {
   font-size: smaller;
   padding: 0.5rem 1rem;
+  text-decoration:none;
+  color: #045043;
+}
+
+nav .nav-item {
+ max-width: 250px;
+ z-index: 1;
 }
 
 footer {
@@ -35,7 +54,9 @@ footer {
   padding: 0.5rem 1rem;
 }
 
+
 section {
+/*  border: 1px solid #6654cd; */
   padding: 0px 2px;
 }
 
@@ -50,7 +71,7 @@ section select {
 }
 
 fieldset label {
-  width: 175px;
+  width: 210px;
   padding: 0px 0px 2px 0px;
 }
 
@@ -64,21 +85,50 @@ i {
  font-size: .9em;
 }
 
-li a {
-    color: green;
+a {
+    color: #0ABF94;
 }
 
+
 /* CLASSES ONLY STYLES */
+/*
+.entete a {
+  color: white;
+  text-decoration: none;
+  font-size: 1.25rem;
+}
+
+.entete i {
+  font-size: 1.5rem;
+  margin-right: 0.5rem;
+} */
+
+.alert-danger {
+  --bs-alert-color: #B10303 !important;
+  --bs-alert-bg: #FFDDDD !important;
+  --bs-alert-border-color: #FFDDDD !important;
+}
+
+.alert-success {
+  --bs-alert-color: #036250 !important;
+  --bs-alert-bg: #D0FBE9 !important;
+  --bs-alert-border-color: #D0FBE9 !important;
+}
+
 .button {
   width: 120px;
+  background-color:#036250;
 }
 
 .button-lg {
   width: 250px;
 }
 
-.content{
-    padding: 10px 5px 10px 5px;
+.content {
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+/* padding: 10px 5px 10px 5px; */
 }
 
 .dj_map {
@@ -96,10 +146,6 @@ li a {
 
 .etape {
 text-align: right;
-}
-
-.layout{
-    height: 100vh;
 }
 
 /* Form fields placeholder style *hack* */
@@ -126,6 +172,7 @@ text-align: right;
   box-shadow: None;
   background-color: white;
 }
+
 input:-webkit-autofill {
     background-color: white !important;
     -webkit-box-shadow: None !important;
@@ -133,14 +180,38 @@ input:-webkit-autofill {
     transition: background-color 5000s ease-in-out 0s;
 }
 
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+}
+
 .red {
     color: #990000;
 }
 
 .sidebar {
-  height: calc(100vh - 85px);
+  --color-primary-50: #EFF8F6;
+  background-color: #EFF8F6;
+  border-right: 1px solid #dee2e6;
+  padding: 1rem 0.5rem;
+  justify-content: space-between;
+  align-self: stretch;
+}
+/*
   max-width: 250px;
   min-width: 100px;
+*/
+
+/* Collapsible nav area */
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.toggle-btn {
+  margin-bottom: 1rem;
+  width: 100%;  
+  z-index: 1050;
 }
 
 .valider {
@@ -152,23 +223,11 @@ input:-webkit-autofill {
   vertical-align: middle;
 }
 
-div.entete a:link#home {
+.home {
+    text-align: center !important;
     color: white !important;
     text-decoration: none !important;
 }
-
-div.entete a:visited#home {
-    color: white !important;
-    text-decoration: none !important;
-}
-
-div.entete a:hover#home {
-    color: white;
-  }
-
-div.entete a:active#home {
-    color: white;
-  }
 
 h2#login_code {
   text-align: center;
@@ -225,6 +284,7 @@ div#info_signataire {
   color: white;
   background-color: cornflowerblue;
   border: 1px solid black;
+  z-index: 1021; /* ensures it's above content */
 }
 
 i:hover + div#info_signataire {
@@ -240,6 +300,7 @@ div#info_accord {
   color: white;
   background-color: cornflowerblue;
   border: 1px solid black;
+  z-index: 1021; /* ensures it's above content */
   }
   
 i:hover + div#info_accord {
@@ -255,6 +316,7 @@ div#info_zip {
   color: white;
   background-color: cornflowerblue;
   border: 1px solid black;
+  z-index: 1021;
   }
   
 i:hover + div#info_zip {
@@ -297,6 +359,23 @@ i:hover + div#info_reference_geoshop {
     display: inline-block;
 }
 
+
+div#info_dossier_origin {
+  display: none;
+  margin-top: 15px;
+  margin-left: 3px;
+  padding: 5px;
+  font-size: small;
+  color: white;
+  background-color: cornflowerblue;
+  border: 1px solid black;
+}
+
+i:hover + div#info_dossier_origin {
+    position: absolute;
+    display: inline-block;
+}
+
 div#info_soumission {
   display: none;
   margin-top: 15px;
@@ -319,8 +398,9 @@ div#info_modification {
   margin-left: 3px;
   padding: 5px;
   font-size: small;
-  background-color: lightblue;
-  border: 1px solid cornflowerblue; 
+  color: white;
+  background-color: cornflowerblue;
+  border: 1px solid black;
 }
 
 i:hover + div#info_modification {
@@ -339,4 +419,44 @@ ul.errorlist {
 
 label#id_geom {
   display:none;
+}
+
+/* Desktop: sidebar keeps nav pinned */
+@media (min-width: 768px) {
+  .sidebar {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between; /* keeps nav at bottom */
+  }
+
+  .sidebar-nav {
+    position: static; /* no absolute, lets it flow */
+  }
+
+.main-container {
+  display: flex;
+  min-height: calc(100vh - 85px); /* match header height */
+}
+}
+
+/* Mobile: default flow */
+@media (max-width: 767.98px) {
+  .sidebar {
+    height: auto;
+  }
+
+  .sidebar-nav {
+    position: static;
+  }
+
+.main-container {
+  display: flex;
+  min-height: calc(100vh - 85px); /* full screen minus header */
+  flex-wrap: nowrap;
+}
+
+.content {
+  height: auto;
+}
+
 }

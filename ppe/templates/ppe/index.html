@@ -5,26 +5,13 @@ Application de gestion des PPE
 {% endblock titre %}
 
 {% block content %}
-<main class="col-12 col-md-9 col-lg-9 p-4 text-start">
-       
-        <h4>Bienvenue sur l’application de contrôle des dossiers PPE numériques par le SGRF</h4>
+      
+        <h3>Bienvenue sur l’application de contrôle des dossiers PPE numériques par le SGRF</h3>
 
-        <!--p>Ce contrôle a pour but de vérifier la conformité des dossiers PPE aux directives en vigueur.</p>
-        <p>
-        Lorsque vous soumettez un dossier, des contrôles automatiques sont effectués et un compte-rendu des 
-        éléments à corriger vous est transmis. Une fois les contrôles automatiques validés, 
-        l'un·e de nos collaborateur·rices prendra contact avec vous pour les dernières corrections 
-        et l'édition des documents.</p>
-
-        <p>Pour consulter les directives cantonales d'établissement des dossiers PPE :<br>
-            <a href="https://www.ne.ch/autorites/DDTE/SGRF/mensuration/Pages/propriete_par_etages.aspx" target="blank">
-            Documentation de la constitution d'une PPE par le SGRF</a>
-        </p //-->
         <p><br></p>
         <h5>Que souhaitez-vous faire?</h5>
         <br>
-        <div class="row">
-            <div class="col">
+        <div>
                 <a href="{% url 'ppe:geolocalisation' %}" class="button-lg btn btn-success">Nouvelle soumission</a>
                 <i id="info2" class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
                 <div id="info_soumission">Soumettre un dossier de constitution,<br> de modification 
@@ -33,7 +20,6 @@ Application de gestion des PPE
                 <a href="{% url 'ppe:overview' %}" class="button-lg btn btn-success">Modification une soumission</a>
                 <i id="info1" class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
                 <div id="info_modification">Modifier les informations<br> d'un dossier déjà soumis.</div>
-            </div>
         </div>
     
         <div id="admin_list">
@@ -50,5 +36,4 @@ Application de gestion des PPE
         {% endif %}
         </div>
 
-</main>
 {% endblock content %}

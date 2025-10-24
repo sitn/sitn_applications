@@ -127,7 +127,7 @@ def check_geoshop_ref(ref, pt_geom):
             order_date = datetime.datetime.strptime(ref[0], '%Y%m%d').date()
             order_id = int(ref[1])
     else:
-        ref_error = 'Il semblerait que la référence ne respecte pas le format attendu.'
+        ref_error = 'La référence de commande indiquée n\'existe pas.'
         return ref_ok, ref_error
 
     # Check if the given order date is more recent than a year

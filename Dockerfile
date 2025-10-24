@@ -1,4 +1,4 @@
-FROM python:3.12.5-slim-bookworm
+FROM python:3.14-slim-bookworm
 
 RUN apt update && apt install --yes libgdal-dev libffi-dev gettext && apt-get clean
 

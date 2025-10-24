@@ -5,14 +5,14 @@ Soumission dossier
 {% endblock titre %}
 
 {% block content %}
-<main class="col-12 col-md-9 col-lg-9 p-4 text-start">
-    {% if error_message %}<p><strong>{{ error_message }}</strong></p>
-    {% endif %}
+
+    {% if error_message %}<p class="alert alert-danger"><strong>{{ error_message }}</strong></p>{% endif %}
 
     {% if dossier_ppe %}
     <h3>Votre code personnel</h3>
 
-    <p class="fs-5"><br>PPE sur le bien-fonds <b>{{ dossier_ppe.nummai }}</b> du cadastre 
+    <section>
+    <p class="fs-5">PPE sur le bien-fonds <b>{{ dossier_ppe.nummai }}</b> du cadastre 
         de <b>{{ dossier_ppe.cadastre }}</b>
     </p>
     <p>        
@@ -21,13 +21,13 @@ Soumission dossier
     </p>
 
     <p>
-        Un e-mail contenant ce code a été envoyé à l'adresse suivante : {{ dossier_ppe.contact_principal.email }}
+        Un e-mail contenant ce code a été envoyé à l'adresse suivante : <span style="color: #0ABF94;">{{ dossier_ppe.contact_principal.email }}</span>
     </p>
 
     <h2 id="login_code">{{ dossier_ppe.login_code }}</h2>
 
     <a href="{% url 'ppe:load_ppe_files' %}" class="valider btn btn-success">Continuer</a>
+    </section>
     {% endif %}
 
-</main>
 {% endblock content %}

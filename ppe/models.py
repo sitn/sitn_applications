@@ -12,7 +12,7 @@ def unique_folder_path(instance, filename):
         and prefix the uploaded files with the date
     """
     date_prefix = now().strftime('%Y%m%d_%H%M%S')
-    new_filename = f"{date_prefix}_{filename}"
+    new_filename = f"{date_prefix}.zip"
     return '/'.join([instance.dossier_ppe.login_code, new_filename])
 
 def rename_pdf_accord(instance, filename):
@@ -156,6 +156,7 @@ class DossierPPE(models.Model):
     elements_rf_identiques = models.CharField(max_length=3, default=None, blank=True)
     nouveaux_droits = models.CharField(max_length=3, default=None, blank=True)
     ref_geoshop = models.CharField(max_length=20, default=None, blank=True)
+    ref_dossier_initial = models.IntegerField(null=True)
     contact_principal = models.ForeignKey(ContactPrincipal, on_delete=models.CASCADE)
     signataire = models.ForeignKey(Signataire, on_delete=models.CASCADE)
     notaire = models.ForeignKey(Notaire, on_delete=models.CASCADE)
@@ -171,13 +172,16 @@ class Zipfile(models.Model):
     upload_date = models.DateTimeField("Date de chargement", auto_now=True)
     file_statut = models.CharField(
         choices=(
-            ("A", "Dossier remplacé et archivé"),
-            ("C", "Vérification automatique en cours"),
-            ("E", "Erreurs bloquantes à corriger"),
-            ("P", "Préparation du dossier"),
-            ("V", "Dossier validé. Il n'est plus possible de le modifier")
+            ("CMA", "Contrôle automatique : archivé"),
+            ("CAC", "Contrôle automatique : en cours"),
+            ("CAE", "Contrôle automatique : erreurs à corriger"),
+            ("CAP", "Contrôle automatique : en attente"),
+            ("CAV", "Contrôle automatique : validé"),
+            ("CMC", "Contrôle manuel : en cours"),
+            ("CME", "Contrôle manuel : erreurs à corriger"),
+            ("CMV", "Contrôle manuel : validé"),
         ),
-        max_length=75, default="P")
+        max_length=3, default="CAC")
     dossier_ppe = models.ForeignKey(DossierPPE, on_delete=models.CASCADE, blank=True)
 
     MAX_FILE_SIZE = 250 * 1024 * 1024  # 250 MB

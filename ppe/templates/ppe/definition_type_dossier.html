@@ -5,142 +5,140 @@ Etape 3 : type de dossier
 {% endblock titre %}
 
 {% block content %}
-<main class="col-12 col-md-9 col-lg-9 p-4 text-start">
-  
-  <h3>Etape 3 : type de dossier</h3>  
+
+  <h3>Etape 3 : type de dossier</h3>
   {% if dossier_ppe %}
-    <p class="fs-5"><br>PPE sur le bien-fonds <b>{{ dossier_ppe.nummai }}</b> du cadastre 
+    <p class="fs-5">PPE sur le bien-fonds <b>{{ dossier_ppe.nummai }}</b> du cadastre 
       de <b>{{ dossier_ppe.cadastre }}</b>
     </p>
 
       <form id="type_form" name="type_form" class="form-horizontal" method="post">
         {% csrf_token %}
         <section name="ppe_type" id="ppe_type">
-        <label for="type_dossier">Type de dossier<sup>*</sup>:</label>
-        <select  name="type_dossier" id="type_dossier" onchange="changeSectionDisplay()">
-          <option value="" {% if mode != 'edit' %}selected{% endif %}>Choisir...</option>
-          <option value="C" {% if mode and dossier_ppe.type_dossier == 'C' %}selected{% endif %}>Constitution</option>
-          <option value="R" {% if mode and dossier_ppe.type_dossier == 'R' %}selected{% endif %}>Révision</option>
-          <option value="M" {% if mode and dossier_ppe.type_dossier == 'M' %}selected{% endif %}>Modification</option>
-        </select>
-        <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
-        <div id="info_type_dossier">
-          <b>Constitution</b> : création d'une nouvelle PPE dans un bâtiment existant ou futur.<br>
-          <b>Révision</b> : révision d'une PPE déjà inscrite au registre foncier.<br>
-          <b>Modification</b> : modification du dossier PPE avant son inscription au registre foncier (constitution ou révision).        
-          <br><br>
-          Si votre projet prévoit de radier la PPE actuellement inscrite au RF pour la refaire à neuf, 
-          sélectionnez l'option «Constitution».
-        </div>
-        </section>
-
-        <section name="modification" id="modification"  {% if dossier_ppe.type_dossier != 'M' %}style="display:none"{% endif %}>
-        <div id="type_modification" class="row">
-          <div class="col-lg-6">
-          <label for="login_code">Numéro du dossier d'origine*</label>
-          <input type="text" name="login_code" id="login_code"><br>
-          <input type="submit" value="Valider" class="etape btn-success">
-          </div>
-          <div class="col-lg-4">
-            <p class=" alert alert-danger">Le dossier papier initial envoyé au notaire doit être retourné à notre service dans les plus brefs délais.</p>
-          </div>
-        </div>
-        </section>
-
-        <section name="revison" id="revision"  {% if dossier_ppe.type_dossier != 'R' %}style="display:none"{% endif %}>
-        <div id="type_revision">
-          <p><br>
-            Veuillez cocher la bonne réponse :<br>
-            <div class="row">
-              <div class="col-lg-6">
-              <p class="alert alert-success">La révision concerne uniquement des droits de jouissance.</p>
-              <p class="alert alert-danger" id="droits_remark" name="droits_remark" style="display: none;">
-                Le contrôle du dossier par le SGRF n’est pas nécessaire.
-              </p>
-              </div>
-              <div class="col-lg-4">
-              <input type="radio" name="droits_jouissance" id="jouissance_oui" value="oui" {% if mode == 'edit' and dossier_ppe.revision_jouissances == 'oui' %}checked{% endif %} onchange="showJouissanceRemark()">
-              <label for="jouissance_oui">Oui</label>
-              <input type="radio" name="droits_jouissance" id="jouissance_non" value="non" {% if mode == 'edit' and dossier_ppe.revision_jouissances == 'non' %}checked{% endif %} onchange="showJouissanceRemark()">
-              <label for="jouissance_non">Non</label>
-              </div>
+          <div class="row">
+            <div class="col-lg-6">
+              <label for="type_dossier">Type de dossier<sup>*</sup>:
+                <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+                <div id="info_type_dossier">
+                  <b>Constitution</b> : création d'une nouvelle PPE dans un bâtiment existant ou futur.<br>
+                  <b>Révision</b> : révision d'une PPE déjà inscrite au registre foncier.<br>
+                  <b>Modification</b> : modification du dossier PPE avant son inscription au registre foncier (constitution ou révision).        
+                  <br><br>
+                  Si votre projet prévoit de radier la PPE actuellement inscrite au RF pour la refaire à neuf, 
+                  sélectionnez l'option «Constitution».
+                </div>
+              </label>
+              <select class="form-select" name="type_dossier" id="type_dossier" onchange="changeSectionDisplay()">
+                <option value="" {% if mode != 'edit' %}selected{% endif %}>Choisir...</option>
+                <option value="C" {% if mode and dossier_ppe.type_dossier == 'C' %}selected{% endif %}>Constitution</option>
+                <option value="R" {% if mode and dossier_ppe.type_dossier == 'R' %}selected{% endif %}>Révision</option>
+                <option value="M" {% if mode and dossier_ppe.type_dossier == 'M' %}selected{% endif %}>Modification</option>
+              </select>
+              <br>
             </div>
-            <div class="row" id="elements_rf" {% if mode == 'edit' and dossier_ppe.type_dossier == 'R' and dossier_ppe.revision_jouissances == 'non' %}style="display:block" \
-              {% else %}style="display:none"{% endif %}>
-              <div class="col-lg-6">
+          </div>
+        </section>
+
+        <section name="modification" id="modification" {% if dossier_ppe.type_dossier != 'M' %}style="display:none;"{% endif %}>
+          <div id="type_modification" class="row">
+            <div class="col-lg-6">
+              <label for="initial_code">Numéro du dossier d'origine*
+                <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+                <div id="info_dossier_origin">
+                  Il s'agit du numéro unique associé au dossier de constitution ou de révision d'origine
+                </div>
+              </label>
+              <input class="form-control" type="text" name="initial_code" id="initial_code" oninput="showValidateButton()"><br>
+              <input type="submit" id="validate_btn" value="Valider" class="valider btn btn-success" style="display: none;">
+            </div>
+            <div class="col-lg-6">
+              <p class=" alert alert-danger">Le dossier papier initial envoyé au notaire doit être retourné à notre service dans les plus brefs délais.</p>
+            </div>
+          </div>
+        </section>
+
+        <section name="revison" id="revision" {% if dossier_ppe.type_dossier != 'R' %}style="display:none"{% endif %}>
+          <div id="type_revision" class="row">
+            <div class="col-lg-8 col-8">
+            <p class="alert alert-success">La révision concerne uniquement des droits de jouissance.</p>
+            <p class="alert alert-danger" id="droits_remark" name="droits_remark" style="display: none;">
+              Le contrôle du dossier par le SGRF n’est pas nécessaire.
+            </p>
+            </div>
+            <div class="col-lg-4 col-8">
+            <input type="radio" name="droits_jouissance" id="jouissance_oui" value="oui" {% if mode == 'edit' and dossier_ppe.revision_jouissances == 'oui' %}checked{% endif %} onchange="showJouissanceRemark()">
+            <label for="jouissance_oui">Oui</label>
+            <input type="radio" name="droits_jouissance" id="jouissance_non" value="non" {% if mode == 'edit' and dossier_ppe.revision_jouissances == 'non' %}checked{% endif %} onchange="showJouissanceRemark()">
+            <label for="jouissance_non">Non</label>
+            </div>
+          </div>
+          <div class="row" id="elements_rf" {% if mode == 'edit' and dossier_ppe.type_dossier == 'R' and dossier_ppe.revision_jouissances == 'non' %}style="display:block"{% else %}style="display:none"{% endif %}>
+            <div class="col-lg-8 col-8">
               <p class="alert alert-success">
                 Les éléments du plan de situation actuellement en vigueur (celui inscrit au registre foncier),
                 autres que des servitudes, restent identiques (bâtiments, places de parc, accès, murs, etc.)
               </p>
-              </div>
-              <div class="col-lg-4">
-              <input type="radio" name="elements_rf" id="rf_identique_oui" value="oui" {% if mode == 'edit' and dossier_ppe.elements_rf_identiques == 'oui' %}checked{% endif %} onchange="showElementsRFQuestions()">
+            </div>
+            <div class="col-lg-4 col-8">
+              <input type="radio" name="elements_rf" id="rf_identique_oui" value="oui" 
+                {% if mode == 'edit' and dossier_ppe.elements_rf_identiques == 'oui' %}checked{% endif %} onchange="showElementsRFQuestions()">
               <label for="rf_identique_oui">Oui</label>
-              <input type="radio" name="elements_rf" id="jrf_identique_non" value="non" {% if mode == 'edit' and dossier_ppe.elements_rf_identiques == 'non' %}checked{% endif %} onchange="showElementsRFQuestions()">
+              <input type="radio" name="elements_rf" id="rf_identique_non" value="non" 
+                {% if mode == 'edit' and dossier_ppe.elements_rf_identiques == 'non' %}checked{% endif %} onchange="showElementsRFQuestions()">
               <label for="rf_identique_non">Non</label>
-              </div>
             </div>
-            <div class="row" id="new_jouissance" {% if mode == 'edit' and dossier_ppe.type_dossier == 'R' and dossier_ppe.elements_rf_identiques == 'oui' %}style="display:block"
-              {% else %}style="display:none"{% endif %}>
-              <div class="col-lg-6">
-              <p class="alert alert-danger">
-                Les fichiers «8_psit» contenant les objets du plan de situation ne sont pas nécessaires.
-              </p>
-              </div>
+          </div>
+          <div class="row" id="new_jouissance" {% if mode == 'edit' and dossier_ppe.type_dossier == 'R' and dossier_ppe.elements_rf_identiques == 'oui' %}style="display:block"
+            {% else %}style="display:none"{% endif %}>
+            <div class="col-lg-8">
+            <p class="alert alert-danger">
+              Les fichiers «8_psit» ne sont pas nécessaires.
+            </p>
             </div>
-          </p>
-        </div>
+          </div>
+          <br>
         </section>
 
         <section name="constitution" id="constitution" 
-          {% if mode == 'edit' and dossier_ppe.type_dossier == 'C' %}style="display:block"
-          {% elif dossier_ppe.elements_rf_identiques == 'non' %}style="display:block"
+          {% if mode == 'edit' and dossier_ppe.type_dossier == 'C' %}style="display:block;"
+          {% elif dossier_ppe.elements_rf_identiques == 'non' %}style="display:block;"
           {% else %}style="display:none"{% endif %}>
-        <div id="type_constitution">
+          <div class="row">
             <br>
-            <div class="col">
-              <div id="ref_geoshop">
-                <label for="reference_geoshop">Référence geoshop*</label>
-                <input type="text" name="ref_geoshop" id="reference_geoshop" placeholder="20250101_12345" {% if dossier_ppe.ref_geoshop %}value={{ dossier_ppe.ref_geoshop }}{% endif %}>
-                <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
-                <div id="info_reference_geoshop">
-                  Référence de commande des données cadastrales
-                </div><br>
+            <div id="ref_geoshop" class="col-lg-6">
+              <label for="reference_geoshop">Référence geoshop*
+              <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+              <div id="info_reference_geoshop">
+                Référence de commande des données cadastrales<br>
+                Vous trouvez le lien vers notre 'Géoshop' dans la<br>
+                navigation à gauche.
               </div>
-            </div>
-            <div class="col-lg-6">
+              </label>
+              <input class="form-control" type="text" name="ref_geoshop" id="reference_geoshop" oninput="showSubmitButton()" placeholder="20250101_12345" {% if dossier_ppe.ref_geoshop %}value={{ dossier_ppe.ref_geoshop }}{% endif %}>
               <br>
-              <p class="alert alert-success">
+              <p class="alert alert-secondary">
                 Vous n'avez pas encore commandé les données cadastrales ? Vous pouvez les commander dans notre geoshop
                 à l'adresse <a href="https://sitn.ne.ch/geoshop" target="_sitn">https://sitn.ne.ch/geoshop</a>
               </p>
             </div>
-        </div>
-      </section>
+          </div>
+        </section>
 
       
-      {% if error_message %}<p class="alert alert-danger"><strong>{{ error_message }}</strong></p>{% endif %}
+      {% if error_message %}<p id="form_error" class="alert alert-danger"><strong>{{ error_message }}</strong></p>{% endif %}
 
         {% if mode == 'edit' %}
-        <input id="submit_btn" type="submit" value="Modifier" class="etape btn btn-success" {% if dossier_ppe.revision_jouissances == 'oui' %}style="display:none;"{% endif %}>
+        <input id="submit_btn" type="submit" value="Modifier" class="valider btn btn-success" {% if dossier_ppe.revision_jouissances == 'oui' %}style="display:none;"{% endif %}>
         {% else %}
-        <input id="submit_btn" type="submit" value="Valider" class="etape btn btn-success" style="display:none;">
+        <input id="submit_btn" type="submit" value="Valider" class="valider btn btn-success" style="display:none;">
         {% endif %}
         <p class="red"><br><sup>*</sup>Les champs marqués d'un astérisque sont obligatoires</p>
-      </div>
+
       </form>
 
   {% else %}
   <h5>Une erreur est survenue.</h5>
-    <p>        
-      <form class="form-horizontal" method="POST" action="ppe/overview">
-        {% csrf_token %}
-          <label for="id_dossier">Veuillez indiquer le no. de dossier PPE</label>
-          <input type="text" name="id_dossier" id ="id_dossier">
-          <input type="submit" value="Valider" class="btn btn-success">
-      </form>
-    </p>
+
   {% endif %}
 
-</main>
 {% endblock content %}
