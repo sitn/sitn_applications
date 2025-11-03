@@ -17,7 +17,9 @@ Dépôt d'un dossier - Récapitulatif:
                 <br>
                 <table width="100%">
                 <tr>
-                    <th class="fs-4" width="50%">Localisation</th><th><a href="{% url 'ppe:edit_geolocalisation' %}" class="btn btn-success">Modifier</a></th>
+                    <th class="fs-4" width="50%">Localisation</th>
+                    <th>{% if dossier_ppe.statut == 'S' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>{% else %}
+                        <a href="{% url 'ppe:edit_geolocalisation' %}" class="btn btn-success">Modifier</a>{% endif %}</th>
                 </tr>
                 <tr><td>Cadastre</td><td><b>{{ dossier_ppe.cadastre }}</b></td></tr>
                 <tr><td>Bien-fonds</td><td><b>{{ dossier_ppe.nummai }}</b></td></tr>
@@ -29,7 +31,8 @@ Dépôt d'un dossier - Récapitulatif:
                 <table width="100%">
                 <tr>
                     <th class="fs-4" width="50%">Contacts</th>
-                    <th><a href="{% url 'ppe:edit_contacts' %}" class="btn btn-success">Modifier</a></th>
+                    <th>{% if dossier_ppe.statut == 'S' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>{% else %}
+                        <a href="{% url 'ppe:edit_contacts' %}" class="btn btn-success">Modifier</a>{% endif %}</th>
                 </tr>
                     <td colspan="2" class="fs-5 fw-bold">Personne de contact principal</td>
                 <tr>
@@ -96,7 +99,9 @@ Dépôt d'un dossier - Récapitulatif:
         <section>
             <table width="100%">
             <tr>
-                <th class="fs-4" width="50%">Type de dossier</th><th><a href="{% url 'ppe:edit_ppe_type' %}" class="btn btn-success">Modifier</a></th>
+                <th class="fs-4" width="50%">Type de dossier</th>
+                    <th>{% if dossier_ppe.statut == 'S' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>{% else %}
+                        <a href="{% url 'ppe:edit_ppe_type' %}" class="btn btn-success">Modifier</a>{% endif %}</th>
             </tr>
                 {% if dossier_ppe.type_dossier == 'C' %}
             <tr>
@@ -203,6 +208,19 @@ Dépôt d'un dossier - Récapitulatif:
                 {% endif %}
                 </td>
             </tr>
+                {% if forloop.first and zip.file_statut == 'CAC' %}
+                <tr>
+                    <td colspan="2" class="alert alert-danger">Votre dossier est en cours de contrôle automatique. 
+                        Un compte-rendu sera envoyé par e-mail dans quelques minutes à l'adresse 
+                        <span style="color: #045043;">{{ dossier_ppe.contact_principal.email }}</span>.
+                    </td>
+                </tr>
+                {% endif %}
+                {% if forloop.first and zip.file_statut == 'CAE' %}
+                <tr>
+                    <td colspan="2" class="alert alert-danger">Veuillez corriger votre dossier et le soumettre à nouveau.</td>
+                </tr>
+                {% endif %}
             {% endfor %}
             </table>
             {% else %}

@@ -12,6 +12,7 @@ __pycache__/
 /venv
 
 #uploaded files
+/data
 /ppe/files
 
 # Templated files
@@ -24,3 +25,8 @@ assets
 local_settings.py
 db.sqlite3
 db.sqlite3-journal
+
+#internal and temporary documentation items
+app.quickdatabasediagrams.com.txt
+new_style_css.txt
+Modele_documents_manquants.pdf

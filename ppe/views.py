@@ -370,6 +370,8 @@ def load_ppe_files(request, doc):
             status = response.getcode()
             if status != 200:
                 return render(request, "ppe/overview.html", {"dossier_ppe": doc, "error_message": "Le chargement du zip a échoué."})
+            doc.statut = 'S'
+            doc.save()
         return redirect(f"/ppe/overview")
 
     zip_form = ZipfileForm(initial=init_data)

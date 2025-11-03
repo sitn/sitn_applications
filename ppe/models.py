@@ -177,7 +177,7 @@ class Zipfile(models.Model):
             ("CMA", "Contrôle automatique : archivé"),
             ("CAC", "Contrôle automatique : en cours"),
             ("CAE", "Contrôle automatique : erreurs à corriger"),
-            ("CAI", "Contrôle automatique : erreur interne"),
+            ("ERR", "Contrôle automatique : erreur interne"),
             ("CAV", "Contrôle automatique : validé"),
             ("CMC", "Contrôle manuel : en cours"),
             ("CME", "Contrôle manuel : erreurs à corriger"),

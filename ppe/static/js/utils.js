@@ -35,40 +35,25 @@ function validateRealEstateNb() {
 function changeSectionDisplay() {
     // Get the selected value
     const dossier_type = document.getElementById("type_dossier").value;
-    
+
+    submit_btn.style.display = "none";
+    validate_btn.style.display = "none";
+    modification.style.display = "none";
+    constitution.style.display = "none";
+    revision.style.display = "none";
+    form_error.style.display = "none";
+    ref_geoshop.style.display =  "none";
+
     if (dossier_type == "C"){
         constitution.style.display = "block";
         ref_geoshop.style.display =  "block";
-        revision.style.display = "none";
-        modification.style.display = "none";
-        submit_btn.style.display = "none";
-        validate_btn.style.display = "none";
     }
     else if (dossier_type == "R"){
-        submit_btn.style.display = "none";
-        validate_btn.style.display = "none";
-        modification.style.display = "none";
-        constitution.style.display = "none";
         revision.style.display = "block";
-        form_error.style.display = "none";
-        ref_geoshop.style.display =  "none";
     }
     else if (dossier_type == "M"){
-        submit_btn.style.display = "none";
-        validate_btn.style.display = "none";
         modification.style.display = "block";
-        constitution.style.display = "none";
-        revision.style.display = "none";
-        ref_geoshop.style.display =  "none";
-    } else {
-        submit_btn.style.display = "none";
-        validate_btn.style.display = "none";
-        modification.style.display = "none";
-        constitution.style.display = "none";
-        revision.style.display = "none";
-        form_error.style.display = "none";
-        ref_geoshop.style.display =  "none";
-    }
+    } 
 }
 
 function showJouissanceRemark() {
