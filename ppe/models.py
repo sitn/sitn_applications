@@ -7,6 +7,10 @@ from django.utils.timezone import now
 
 from django_extended_ol.forms.widgets import WMTSWithSearchWidget 
 
+# Define maximum file sizes for PDF's and ZIP's
+MAX_PDF_SIZE = 2 * 1024 * 1024  # 2 MB
+MAX_ZIP_SIZE = 250 * 1024 * 1024  # 250 MB
+
 def unique_folder_path(instance, filename):
     """ Define the new storage path from login_code
         and prefix the uploaded files with the date
@@ -16,7 +20,7 @@ def unique_folder_path(instance, filename):
     return '/'.join([instance.dossier_ppe.login_code, new_filename])
 
 def rename_pdf_accord(instance, filename):
-    """ Define the new filname using a date prefix
+    """ Define the new filename using a date prefix
     """
     date_prefix = now().strftime('%Y%m%d_%H%M%S')
     new_filename = f"{date_prefix}_{filename}"
@@ -45,8 +49,6 @@ class AdresseFacturation(models.Model):
     def __str__(self):
         return self.nom_raison_sociale
 
-    MAX_FILE_SIZE = 2 * 1024 * 1024  # 2 MB
-
     def filename(self):
         return os.path.basename(self.zipfile.name)
     
@@ -70,17 +72,17 @@ class AdresseFacturation(models.Model):
         """
         file_size = self.file.size  # Get the size in bytes
         
-        if file_size > self.MAX_FILE_SIZE:
-            raise ValidationError(f"Le fichier dépasse la taille maximale autorisée de {self.MAX_FILE_SIZE / (1024 * 1024)} MB.")
+        if file_size > MAX_PDF_SIZE:
+            raise ValidationError(f"Le fichier dépasse la taille maximale autorisée de {MAX_PDF_SIZE / (1024 * 1024)} MB.")
 
     def validate_pdf_mimetype(self):
         """
         Validates that the uploaded file is a PDF file.
         """
-        accept = ['application/pdf']
+        accept = 'application/pdf'
         file_mime_type = magic.from_buffer(self.file.read(1024), mime=True)
         
-        if file_mime_type not in accept:
+        if file_mime_type != accept:
             raise ValidationError("Unsupported file type. Please upload a valid .pdf file.")
 
     class Meta:
@@ -175,16 +177,15 @@ class Zipfile(models.Model):
             ("CMA", "Contrôle automatique : archivé"),
             ("CAC", "Contrôle automatique : en cours"),
             ("CAE", "Contrôle automatique : erreurs à corriger"),
-            ("CAP", "Contrôle automatique : en attente"),
+            ("CAI", "Contrôle automatique : erreur interne"),
             ("CAV", "Contrôle automatique : validé"),
             ("CMC", "Contrôle manuel : en cours"),
             ("CME", "Contrôle manuel : erreurs à corriger"),
             ("CMV", "Contrôle manuel : validé"),
+            ("DPV", "Dossier papier validé"),
         ),
         max_length=3, default="CAC")
     dossier_ppe = models.ForeignKey(DossierPPE, on_delete=models.CASCADE, blank=True)
-
-    MAX_FILE_SIZE = 250 * 1024 * 1024  # 250 MB
 
     def filename(self):
         return os.path.basename(self.zipfile.name)
@@ -209,15 +210,15 @@ class Zipfile(models.Model):
         """
         file_size = self.zipfile.size  # Get the size in bytes
         
-        if file_size > self.MAX_FILE_SIZE:
-            raise ValidationError(f"Le fichier dépasse la taille maximale autorisée de {self.MAX_FILE_SIZE / (1024 * 1024)} MB.")
+        if file_size > MAX_ZIP_SIZE:
+            raise ValidationError(f"Le fichier dépasse la taille maximale autorisée de {MAX_ZIP_SIZE / (1024 * 1024)} MB.")
 
     def validate_zip_mimetype(self):
         """
         Validates that the uploaded file is a zip file.
         """
-        accept = ['application/zip']
+        accept = 'application/zip'
         file_mime_type = magic.from_buffer(self.zipfile.read(1024), mime=True)
         
-        if file_mime_type not in accept:
+        if file_mime_type != accept:
             raise ValidationError("Unsupported file type. Please upload a valid .zip file.")

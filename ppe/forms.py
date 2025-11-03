@@ -17,7 +17,7 @@ pdf_validator = FileExtensionValidator('pdf')
 
 def validate_phone_number(phone):
     """ Check if the phone number is valid for a selection of european countries """
-    country_codes = ['CH', 'FR', 'DE', 'IT', 'ES']  # Country codes to check
+    country_codes = ['CH', 'FR', 'DE', 'IT', 'FL', 'AT', 'ES']  # Country codes to check
     
     for country_code in country_codes:
         try:
@@ -35,9 +35,9 @@ def validate_phone_number(phone):
 
 def validate_npa(npa):
     if not isinstance(npa, int):
-        raise ValidationError(_("La NPA doit être un entier à quatre chiffres"))
+        raise ValidationError(_("Le NPA doit être un entier à quatre chiffres"))
     if npa < 1000 or npa > 9999:
-        raise ValidationError(_("La NPA doit faire partie de l'intervalle 1000 à 9999."))
+        raise ValidationError(_("Le NPA doit faire partie de l'intervalle 1000 à 9999."))
     
 class ZipfileForm(forms.ModelForm):
     class Meta:
@@ -85,7 +85,7 @@ class AdresseFacturationForm(forms.ModelForm):
             "complement": forms.TextInput(attrs={"placeholder": "(Case postale, appt., unité)", "class": "form-control placeholder"}),
             "rue": forms.TextInput(attrs={"placeholder": "Rue du 1er Mars", "class": "form-control placeholder"}),
             "no_rue": forms.TextInput(attrs={"placeholder": "(17B)", "class": "form-control placeholder"}),
-            "npa": forms.TextInput(attrs={"placeholder": "1000 - 9999", 'validators':[validate_npa], "class": "form-control placeholder"}),
+            "npa": forms.TextInput(attrs={"placeholder": "2000", 'validators':[validate_npa], "class": "form-control placeholder"}),
             "localite": forms.TextInput(attrs={"placeholder": "Localité", "class": "form-control placeholder"}),
             'file': forms.FileInput(attrs={'accept': '.pdf,application/pdf', 'validators':[pdf_validator], "class": "form-control placeholder"}),
             }
@@ -102,13 +102,9 @@ class AdresseFacturationForm(forms.ModelForm):
     def clean_npa(self):
         npa = self.cleaned_data.get("npa")
         if not isinstance(npa, int):
-            raise forms.ValidationError("Veuillez entrer une NPA suisse valide.")
+            raise forms.ValidationError("Veuillez entrer un NPA suisse valide.")
         return npa
-    
-#    def clean_file(self):
-#        filename = self.cleaned_data.get("filename")
-#        print(filename)
-#        return filename
+
 
 
 class ContactPrincipalForm(forms.ModelForm):
@@ -158,7 +154,7 @@ class NotaireForm(forms.ModelForm):
             "complement": forms.TextInput(attrs={"placeholder": "(Case postale, appt., unité)", "class": "form-control placeholder"}),
             "rue": forms.TextInput(attrs={"placeholder": "Rue du 1er Mars", "class": "form-control placeholder"}),
             "no_rue": forms.TextInput(attrs={"placeholder": "(17B)", "class": "form-control placeholder"}),
-            "npa": forms.TextInput(attrs={"placeholder": "1000 - 9999", 'validators':[validate_npa], "class": "form-control placeholder"}),
+            "npa": forms.TextInput(attrs={"placeholder": "2000", 'validators':[validate_npa], "class": "form-control placeholder"}),
             "localite": forms.TextInput(attrs={"placeholder": "Localité", "class": "form-control placeholder"}),
         }
 
@@ -182,7 +178,7 @@ class SignataireForm(forms.ModelForm):
             "complement": forms.TextInput(attrs={"placeholder": "(Case postale, appt., unité)", "class": "form-control placeholder"}),
             "rue": forms.TextInput(attrs={"placeholder": "Rue du 1er Mars", "class": "form-control placeholder"}),
             "no_rue": forms.TextInput(attrs={"placeholder": "(17B)", "class": "form-control placeholder"}),
-            "npa": forms.TextInput(attrs={"placeholder": "1000 - 9999", 'validators':[validate_npa], "class": "form-control placeholder"}),
+            "npa": forms.TextInput(attrs={"placeholder": "2000", 'validators':[validate_npa], "class": "form-control placeholder"}),
             "localite": forms.TextInput(attrs={"placeholder": "Localité", "class": "form-control placeholder"}),
         }
 

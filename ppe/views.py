@@ -221,7 +221,6 @@ def contact_principal(request):
 
 def login(request):
     if 'login_code' in request.POST:
-        request.session['login_code'] = None
         request.session['login_code'] = request.POST['login_code']
         try:
             doc = DossierPPE.objects.get(login_code=request.session['login_code'])
@@ -311,7 +310,7 @@ def definition_type_dossier(request, doc, type_dossier=None):
         dossier_ppe.save()
         return redirect("/ppe/overview")
 
-    elif type_dossier in ['M'] and code_initial is not None:
+    elif type_dossier == 'M' and code_initial is not None:
         # GET the inital DossierPPE to be replaced or return an error
         try: 
             dossier_ppe_initial = DossierPPE.objects.get(login_code=code_initial)
@@ -328,7 +327,7 @@ def definition_type_dossier(request, doc, type_dossier=None):
         else:
             error_message = "Le numéro de bien-fonds n'est pas le même que dans le dossier d'origine."    
 
-    elif type_dossier in ['R']:
+    elif type_dossier == 'R':
         dossier_ppe.elements_rf_identiques = elements_rf_identiques
         dossier_ppe.nouveaux_droits = nouveaux_droits
         dossier_ppe.revision_jouissances = revision_jouissances
@@ -575,14 +574,25 @@ def edit_ppe_type(request, doc):
             dossier_ppe.save()
             return redirect(f"/ppe/overview")
 
-    if type_dossier in ['M'] and code_initial is not None:
+    if type_dossier == 'M' and code_initial is not None:
         # GET the inital DossierPPE to be replaced or return an error
         try:
             dossier_ppe_initial = DossierPPE.objects.get(login_code=code_initial)
+            if dossier_ppe.login_code == code_initial:
+                error_message = "Le dossier actuel et le dossier initial ne peuvent pas être identiques."
+                return render(
+                    request, 
+                    "ppe/definition_type_dossier.html", 
+                    {"dossier_ppe": doc, "mode": 'edit', "error_message" : error_message}
+                    )
 
-            # Check if the geolocation of the new submission is the same as the initial one
+            # Check if the geolocation of the new submission is the same as the initial one,
+            # if so, save the modification with the initial reference
             if (dossier_ppe.cadastre == dossier_ppe_initial.cadastre and dossier_ppe.nummai == dossier_ppe_initial.nummai):
                 dossier_ppe.ref_geoshop = None
+                dossier_ppe.elements_rf_identiques = None
+                dossier_ppe.nouveaux_droits = None
+                dossier_ppe.revision_jouissances = None
                 dossier_ppe.type_dossier = type_dossier
                 dossier_ppe.ref_dossier_initial = dossier_ppe_initial.id
                 dossier_ppe.save()
