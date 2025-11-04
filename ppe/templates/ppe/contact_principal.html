@@ -4,15 +4,13 @@
 Dépôt d'un dossier - étape 2:
 {% endblock titre %}
 
-<div name="content" class="content">
 {% block content %}
 
-<div name="contacts" class="container">
-    <h3>Etape 2: Contacts</h3>
-    <p class="fs-5"><br>PPE sur le bien-fonds <b>{{ localisation_ppe.nummai }}</b> du cadastre 
+    {% if error_message %}<p class="alert alert-danger"><strong>{{ error_message }}</strong></p>{% endif %}
+
+    <h3>Etape 2 : contacts</h3>
+    <p class="fs-4">PPE sur le bien-fonds <b>{{ localisation_ppe.nummai }}</b> du cadastre 
         de <b>{{ localisation_ppe.cadastre }}</b></p>
-    {% if error_message %}<p><strong>{{ error_message }}</strong></p>
-    {% endif %}
 
     <form method="POST" enctype="multipart/form-data">
         {% csrf_token %}
@@ -20,11 +18,10 @@ Dépôt d'un dossier - étape 2:
         <div class="row">
             <div class="col">
                 <fieldset class="form-group">
-                    <legend>Personne de contact principale  
-                    <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
-                    <div id="info_contact">La personne de contact principale est celle qui soumet<br> 
-                        le dossier et recevra les résultats du contrôle. <br>
-                        Il s'agit en principe de la personne qui dessine les plans.
+                    <legend>Personne de contact
+                    <i class="bi bi-info-circle-fill fs-5" style="color: cornflowerblue;"></i>
+                    <div id="info_contact">La personne de contact est celle qui soumet le<br>
+                        dossier et recevra les résultats du contrôle.
                     </div>
                     </legend>
                     {{ contact_form }}
@@ -33,30 +30,43 @@ Dépôt d'un dossier - étape 2:
             <div class="col">
                 <fieldset>
                     <legend>Signataire
-                    <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
-                    <span id="info_signataire">
+                    <i class="bi bi-info-circle-fill fs-5" style="color: cornflowerblue;"></i>
+                    <div id="info_signataire">
                         La personne signataire est obligatoirement un·e architecte inscrit·e <br>
                         au registre neuchâtelois des architectes ou un·e ingénieur-géomètre <br>
                         breveté·e du canton de Neuchâtel
-                    </span>
+                    </div>
                     </legend>
                     {{ signataire_form }}
                 </fieldset>
+                <p></p>
             </div>
         </div>
+        <p><br></p>
         <div class="row">
             <div class="col">
                 <fieldset>
-                    <legend>Adresse de facturation
-                    <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
-                    <span id="info_accord">
-                        Les frais du Service de la Géomatique et du Registre Foncier <br>
-                        comprennent le contrôle de conformité du dossier aux directives <br>
-                        cantonales en vigueur ainsi que l'attribution des numéros de <br>
-                        bien-fonds aux unités juridiques
-                    </span>
-                    </legend>
-                    {{ facturation_form }}
+                    <legend>Adresse de facturation</legend>
+                    {% for field in facturation_form %}
+                        {% if field.errors %}
+                        <div class="alert alert-danger">{{ field.errors }}</div>
+                        {% endif %}
+                        <div>{{ field.label_tag }}
+                        {% if "Accord" in field.label_tag %}
+                        <i class="bi bi-info-circle-fill fs-6" style="color: cornflowerblue;"></i>
+                        <div id="info_accord">
+                            Les frais du Service de la géomatique et du registre foncier <br>
+                            comprennent le contrôle de conformité du dossier aux directives <br>
+                            cantonales en vigueur ainsi que l'attribution des numéros de <br>
+                            bien-fonds aux unités juridiques
+                        </div>
+                        {% endif %}
+                        </div>
+                        <div>{{ field }}</div>
+                    {% if dossier_ppe.adresse_facturation.file %}
+                        Actuellement: <br>{{ dossier_ppe.adresse_facturation.file.name }}
+                    {% endif %}
+                    {% endfor %}
                     <a href="https://www.ne.ch/autorites/DDTE/SGRF/mensuration/Pages/propriete_par_etages.aspx" target="blank">
                         Lien vers un modèle</a>
                 </fieldset>
@@ -64,16 +74,26 @@ Dépôt d'un dossier - étape 2:
             <div class="col">
                 <fieldset>
                     <legend>Notaire</legend>
-                    {{ notaire_form }}
+                    {% for field in notaire_form %}
+                    <div class="fieldWrapper">
+                        {{ field.errors }}
+                        {{ field.label_tag }} {{ field }}
+                        {% if field.help_text %}
+                        <p class="help" id="{{ field.auto_id }}_helptext">
+                            {{ field.help_text|safe }}
+                        </p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                <p><br><br><br><br></p>
+                <input type="submit" value="Valider" class="valider btn btn-success">
                 </fieldset>
+                <p><br><br></p>
             </div>
-        <p class="red"><br>* Les champs marqués d'un astérisque sont obligatoires</p>
-    </div>
-    <div style="text-align:right;">
-        <input type="submit" value="Etape suivante >>" class="btn btn-success" style="text-align:right;">
-    </div>
+
+            <p class="red"><br>* Les champs marqués d'un astérisque sont obligatoires</p>
+        </div>
+
     </form>
 
-</div>
 {% endblock content %}
-</div>

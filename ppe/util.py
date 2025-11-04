@@ -1,4 +1,4 @@
-import requests, logging
+import requests, logging, re, datetime
 from functools import wraps
 
 from .forms import GeolocalisationForm
@@ -6,6 +6,7 @@ from .models import DossierPPE
 from django.shortcuts import render, redirect
 from django.http import HttpResponseBadRequest
 from django.db import connections
+from django.contrib.gis.geos import GEOSGeometry
 
 logger = logging.getLogger(__name__)
 
@@ -18,6 +19,10 @@ NE_MAX_NORD = 1230000
 # Geolocalisation service
 GEOLOC_SERVICE_URL = 'https://sitn.ne.ch/satac_localisation?'
 
+# REGEXP FOR GEOSHOP ORDER
+GEOSHOP_ORDER_REGEX = re.compile(r'(\d{8})_(\d{5,7})')
+
+
 def login_required(func):
     @wraps(func)
     def wrapper(request, *args, **kwargs):
@@ -26,7 +31,7 @@ def login_required(func):
             try:
                 return func(request, DossierPPE.objects.get(login_code=request.session['login_code']), *args, **kwargs)
             except Exception as e:
-                print(f"Exception : {repr(e)}")
+                logger.warning(f"Exception : {repr(e)}")
                 pass
         return redirect('/ppe/login')
     return wrapper
@@ -96,29 +101,72 @@ def get_localisation(localisation):
 
     return(geoloc)
 
-def check_geoshop_ref(ref):
-    """ Function de validation of the provided geoshop reference """
+def check_geoshop_ref(ref, pt_geom):
+    """ Validation of the provided geoshop reference:
+        Does an order with the provided id exist where
+        the PPE coordinates lay within the order perimeter
+        and where the reference date is in the interval
+        date_ordered - date_processed and the order_date 
+        not older than a year
+    """
     ref_ok = False
+    ref_error = None
+    current = datetime.date.today()
+    check_date = current-datetime.timedelta(days=365)
 
+    # Change representation of PPE geolocalisation point
+    wkb_pt = GEOSGeometry(pt_geom).ewkb
     if ref is None:
-        return False
-    
-    try:
-        if not ref.isnumeric():
+        ref_error = 'La référence de commande indiquée n\'existe pas.'
+        return ref_ok, ref_error
+    logger.info('CHECKING geoshop reference: %s', ref)
+
+    # Check if the given reference respects the supposed format
+    if GEOSHOP_ORDER_REGEX.search(ref):
             ref = ref.split('_')
-            if len(ref) != 2:
-                return False
-            else:
-                if not ref[0].isnumeric():
-                    return False
+            order_date = datetime.datetime.strptime(ref[0], '%Y%m%d').date()
+            order_id = int(ref[1])
+    else:
+        ref_error = 'La référence de commande indiquée n\'existe pas.'
+        return ref_ok, ref_error
 
-        with connections["geoshop"].cursor() as cursor:
-            cursor.execute("SELECT * FROM geoshop.order WHERE id = %s", [ref])
-            row = cursor.fetchone()
-            if row:
+    # Check if the given order date is more recent than a year
+    if order_date and (order_date < check_date):
+        ref_error = 'Les données ont plus d\'une année, merci de commander de nouvelles données.'
+        return ref_ok, ref_error
+
+    # Check if the order date has not been invented or misspelled, thus laying in the future
+    if order_date and (current < order_date):
+        ref_error = 'La date de commande référencée se situe dans le futur.'
+        return ref_ok, ref_error
+    
+    # The order date and ref structure are plausible, so we check in the database validating
+    # that the order_id exists and the selected real estate is within the order perimeter
+    with connections["geoshop"].cursor() as cursor:
+        cursor.execute("SELECT id, to_char(date_ordered, 'YYYYMMDD'), to_char(date_processed, 'YYYYMMDD'), " \
+        "geom FROM geoshop.order WHERE id = %s and ST_CONTAINS(geom, %s)", [order_id, wkb_pt])
+        row = cursor.fetchone()
+        # Check if there is a result and both order and processing date exist
+        if row:
+            # Check if the result has an existing order date
+            if row[1] == '' or row[1] is None:
+                ref_ok = False
+                ref_error = 'La commande référencée n\'a pas de date de commande valide.'
+                return ref_ok, ref_error
+            # Check if the result has an existing processing date
+            if row[2] == '' or row[2] is None:
+                ref_ok = False
+                ref_error = 'La commande référencée n\'a pas de date de traitement valide.'
+                return ref_ok, ref_error
+            # Check if the given reference date lays in the interval between order and processing date 
+            if datetime.datetime.strptime(row[1], '%Y%m%d').date() <= order_date <= datetime.datetime.strptime(row[2], '%Y%m%d').date():
                 ref_ok = True
-            
-    except Exception as e:
-        print(f"Exception : {repr(e)}")
+            else:
+                ref_error = 'La date de commande de la référence semble erronée.'
+                ref_ok = False
+                return ref_ok, ref_error
+        else:
+            ref_ok = False
+            ref_error = "Les données commandées ne comprennent pas le bien-fonds sélectionné."
 
-    return ref_ok
+    return ref_ok, ref_error

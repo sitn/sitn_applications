@@ -1,0 +1,143 @@
+{% load static %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html lang="fr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="shortcut icon" type="image/png" href="{% static 'images/favicon.ico' %}">
+    <!-- link rel="stylesheet" href="{% static 'ppe/style.css' %}" //-->
+    <link href="https://sitn.ne.ch/sitnstatic/sitn-bootstrap@v5.2.3/sitn-bootstrap.css" rel="stylesheet" crossorigin="anonymous">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <title>{% block titre %} {% endblock titre %}</title>
+    {% block head %}
+      {{ form.media }}
+    {% endblock head %}
+
+    <script src="{% static 'js/utils.js' %}"></script>
+    <style>
+    body {
+    overflow: hidden;
+    height: 100vh;
+    }
+
+    header {
+  width: 100%;
+  height: 85px;
+  font-size: clamp(20px, 5vw, 48px);
+  font-weight: bold;
+  color: white;
+  text-align: left;
+  background-color: #036250;
+  border-bottom: 1px solid grey;
+  z-index: 1020;
+  display: flex;
+  align-items: center;
+  padding: 0 1rem;
+}
+    main {
+    overflow-y: auto;
+    }
+    aside {
+    flex: 1 0 10%;
+    }
+   
+footer {
+  font-size: 0.875rem;
+  text-align: right;
+  padding: 0.5rem 1rem;
+}
+
+nav .nav-link {
+  font-size: smaller;
+  padding: 0.5rem 1rem;
+  text-decoration:none;
+  color: #045043;
+}
+
+nav .nav-item {
+ max-width: 250px;
+ z-index: 1;
+}
+
+.sidebar {
+  background-color: #f8f9fa;
+  border-right: 1px solid #dee2e6;
+  padding: 1rem 0.5rem;
+}
+    .wrapper {
+    display: flex;
+    height: 100%;
+    }
+
+@media (max-width: 500px) {
+  .wrapper {
+    flex-direction: column-reverse;
+  }
+  ul {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+}
+    </style>
+</head>
+
+<body>
+
+<!-- Header -->
+<header class="row w-100 m-0 align-items-center">
+  <div id="home" class="entete text-center col-lg-10 col-10">
+    <!-- a class="home link-underline-opacity-0" href="{% url 'ppe:index' %}">
+      <i class="bi bi-house-fill navbar-brand" style="color:white;"></i>
+    </a //-->
+    <a class="home link-underline link-underline-opacity-0" href="{% url 'ppe:index' %}">
+      Contrôle des dossiers PPE
+    </a>
+  </div>
+  <div id="drapeau" class="drapeau col-lg-2 col-2 text-end">
+    <a href="https://www.ne.ch/autorites/DDTE/SGRF/Pages/accueil.aspx" target="_new">
+      <img src="{% static 'images/logo_ne_negatif.png' %}" alt="Drapeau du canton NE" />
+    </a>
+  </div>
+</header>
+
+<div class="wrapper">
+  <aside>
+        <!-- Collapse toggle button -->
+        <button class="btn btn-outline-secondary toggle-btn d-md-none" type="button" data-bs-toggle="collapse" data-bs-target="#sidebarLinks" aria-expanded="false" aria-controls="sidebarLinks">
+          ☰ Menu
+        </button>
+
+        <!-- Collapsible Nav -->
+        <div class="collapse d-md-block" id="sidebarLinks">
+          <nav class="nav flex-column sidebar-nav">
+            <h6 class="fw-bold ps-3 mb-2">Liens utiles</h6>
+            <a class="nav-link nav-item" href="#">PPE | Page internet</a>
+            <a class="nav-link nav-item" href="#">PPE | Directive</a>
+            <a class="nav-link nav-item" href="#">PPE | Annexe 1 : préparation<br> des fichiers numériques</a>
+            <a class="nav-link nav-item" href="#">PPE | Modèle : accord de prise<br> en charge des frais</a>
+            <a class="nav-link nav-item" href="#">PPE | Exemples</a>
+            <a class="nav-link nav-item" href="https://sitn.ne.ch/geoshop" target="shop">Géoshop</a>
+            <a class="nav-link nav-item" href="#">Registre des architectes<br> et ingénieurs</a>
+            <a class="nav-link nav-item" href="#">Nous contacter</a>
+          </nav>
+        </div>
+  </aside>
+  <main>
+    <div class="wrapper_inner">
+        <div>
+        {% block content %}
+        {% endblock content %}
+        </div>
+
+        {% block footer %}
+        <footer class="mt-4 pt-2 text-muted">
+            PPE NUMERIQE v0.6
+        </footer>
+        {% endblock footer %}
+     </div>
+   </main>
+ </div>
+</body>

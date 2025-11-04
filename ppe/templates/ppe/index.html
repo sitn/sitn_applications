@@ -5,50 +5,35 @@ Application de gestion des PPE
 {% endblock titre %}
 
 {% block content %}
-<div name="content" class="container">
-    
-    <h4>Bienvenue sur l'application de contrôle des dossiers numériques de propriété par étages (PPE) 
-        par le service de la géomatique et du registre foncier (SGRF).
-    </h4>
+      
+        <h3>Bienvenue sur l’application de contrôle des dossiers PPE numériques par le SGRF</h3>
 
-    <p>Ce contrôle a pour but de vérifier la conformité des dossiers PPE aux directives en vigueur.</p>
-    <p>
-    Lorsque vous soumettez un dossier, des contrôles automatiques sont effectués et un compte-rendu des 
-    éléments à corriger vous est transmis. Une fois les contrôles automatiques validés, 
-    l'un·e de nos collaborateur·rices prendra contact avec vous pour les dernières corrections 
-    et l'édition des documents.</p>
+        <p><br></p>
+        <h5>Que souhaitez-vous faire?</h5>
+        <br>
+        <div>
+                <a href="{% url 'ppe:geolocalisation' %}" class="button-lg btn btn-success">Nouvelle soumission</a>
+                <i id="info2" class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+                <div id="info_soumission">Soumettre un dossier de constitution,<br> de modification 
+                    ou de révision de PPE<br> pour la première fois.</div>
 
-    <p>Pour consulter les directives cantonales d'établissement des dossiers PPE :<br>
-        <a href="https://www.ne.ch/autorites/DDTE/SGRF/mensuration/Pages/propriete_par_etages.aspx" target="blank">
-        Documentation de la constitution d'une PPE par le SGRF</a>
-    </p>
-
-    <div class="row">
-        <div class="col">
-            <a href="{% url 'ppe:geolocalisation' %}" class="btn btn-success">Nouvelle soumission</a>
-            <i id="info2" class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
-            <div id="info_soumission">Soumettre un dossier de constitution, de modification <br> 
-                ou de révision de PPE pour la première fois.</div>
-
-            <a href="{% url 'ppe:overview' %}" class="btn btn-success">Modification une soumission</a>
-            <i id="info1" class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
-            <div id="info_modification">Modifier les informations d'un dossier déjà soumis.</div>
+                <a href="{% url 'ppe:overview' %}" class="button-lg btn btn-success">Modification une soumission</a>
+                <i id="info1" class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+                <div id="info_modification">Modifier les informations<br> d'un dossier déjà soumis.</div>
         </div>
-    </div>
     
-    <div id="admin_list">
-    <br>
-    <p><b>Admin: Liste des dossiers PPE en cours</b></p>
-{% if latest_dossiers_list %}
-    <ul>
-    {% for dossierppe in latest_dossiers_list %}
-        <li><a href="{% url 'ppe:modification' %}">Bien-fonds: {{ dossierppe.nummai }}, du cadastre {{ dossierppe.cadastre }} créé le {{ dossierppe.date_creation }}</a> -  {{ dossierppe.login_code }}</li>
-    {% endfor %}
-    </ul>
-{% else %}
-    <p>Aucun dossier n'a été trouvé.</p>
-{% endif %}
-    </div>
+        <div id="admin_list">
+            <br>
+            <p><b>Admin: Liste des dossiers PPE en cours</b></p>
+        {% if latest_dossiers_list %}
+            <ul>
+            {% for dossierppe in latest_dossiers_list %}
+                <li><a href="{% url 'ppe:modification' %}">Bien-fonds: {{ dossierppe.nummai }}, du cadastre {{ dossierppe.cadastre }} créé le {{ dossierppe.date_creation }}</a> -  {{ dossierppe.login_code }}</li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p>Aucun dossier n'a été trouvé.</p>
+        {% endif %}
+        </div>
 
-</div>
 {% endblock content %}

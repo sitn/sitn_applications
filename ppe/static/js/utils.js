@@ -14,36 +14,60 @@ function showMap() {
     const checkBox = document.getElementById("check_mutation");
     // If the checkbox is checked, display the output text
     mapwidget.style.display =  checkBox.checked ? "block" : "none";
-    validation.style.display =  checkBox.checked ? "block" : "none";
+    validation.style.display =  checkBox.checked ? "inline" : "none";
+}
+
+function validateRealEstateNb() {
+    // Get the checkbox status
+    const selected_nummai = document.getElementById("nummai").value;
+
+    if (selected_nummai != "") {
+        document.getElementById("select_bf_info").classList.remove('alert-warning');
+        document.getElementById("select_bf_info").classList.add('alert-info');
+        multi_bf.style.display = "inline";
+    } else {
+        document.getElementById("select_bf_info").classList.remove('alert-info');
+        document.getElementById("select_bf_info").classList.add('alert-warning');
+        multi_bf.style.display = "none";
+    }
 }
 
 function changeSectionDisplay() {
     // Get the selected value
     const dossier_type = document.getElementById("type_dossier").value;
-
-    if (dossier_type == ""){
-        submit_btn.style.display = "none";
-        modification.style.display = "none";
-        constitution.style.display = "none";
-        revision.style.display = "none";
-    }
-    else if (dossier_type == "C"){
-        submit_btn.style.display = "block";
-        modification.style.display = "none";
+    
+    if (dossier_type == "C"){
         constitution.style.display = "block";
+        ref_geoshop.style.display =  "block";
         revision.style.display = "none";
+        modification.style.display = "none";
+        submit_btn.style.display = "none";
+        validate_btn.style.display = "none";
     }
     else if (dossier_type == "R"){
         submit_btn.style.display = "none";
+        validate_btn.style.display = "none";
         modification.style.display = "none";
         constitution.style.display = "none";
         revision.style.display = "block";
+        form_error.style.display = "none";
+        ref_geoshop.style.display =  "none";
     }
-    else {
+    else if (dossier_type == "M"){
+        submit_btn.style.display = "none";
+        validate_btn.style.display = "none";
         modification.style.display = "block";
         constitution.style.display = "none";
-        submit_btn.style.display = "none";
         revision.style.display = "none";
+        ref_geoshop.style.display =  "none";
+    } else {
+        submit_btn.style.display = "none";
+        validate_btn.style.display = "none";
+        modification.style.display = "none";
+        constitution.style.display = "none";
+        revision.style.display = "none";
+        form_error.style.display = "none";
+        ref_geoshop.style.display =  "none";
     }
 }
 
@@ -66,8 +90,6 @@ function showJouissanceRemark() {
                     droits_remark.style.display = "block";
                     constitution.style.display = "none";
                     new_jouissance.style.display = "none";
-                    no_plan_remark.style.display = "none";
-                    jouissance_remark.style.display = "none";
                     elements_rf.style.display = "none";
                     submit_btn.style.display = "none";
                 }
@@ -88,12 +110,12 @@ function showElementsRFQuestions() {
                         ele[k].checked = false;
                     if (choix_elements_rf == 'non') {
                         constitution.style.display = "block";
+                        ref_geoshop.style.display = "inline";
                         new_jouissance.style.display = "none";
-                        no_plan_remark.style.display = "none";
-                        jouissance_remark.style.display = "none";
                     } else {
                         new_jouissance.style.display = "block";
                         constitution.style.display = "none";
+                        ref_geoshop.style.display = "none";
                     }
                     submit_btn.style.display = "block";
                 }
@@ -101,17 +123,10 @@ function showElementsRFQuestions() {
             }
         }
 
-function showNewJouissanceInfo() {
-        // Get the selected radio button
-        const new_jouissance = document.getElementsByName("new_jouissance");
+function showSubmitButton() {
+    submit_btn.style.display = "inline";
+}
 
-        for (let i=0;i < new_jouissance.length; i++) {
-                if (new_jouissance[i].checked) {
-                    choix_new_jouissance = new_jouissance[i].value;
-                    no_plan_remark.style.display = (choix_new_jouissance == 'oui') ? "none" : "block";
-                    jouissance_remark.style.display = (choix_new_jouissance == 'oui') ? "block" : "none";
-                    submit_btn.style.display = "block";
-                }
-    
-            }
-        }
+ function showValidateButton() {
+    validate_btn.style.display = "inline";
+}

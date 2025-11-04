@@ -19,6 +19,7 @@ load_dotenv()
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+DATA_DIR = Path(__file__).resolve().parent.parent.parent
 
 
 # Quick-start development settings - unsuitable for production
@@ -146,8 +147,8 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-MEDIA_ROOT = os.path.join(BASE_DIR, 'ppe')
-MEDIA_URL = 'ppe/files/'
+MEDIA_ROOT = os.environ.get('MEDIA_ROOT', os.path.join(BASE_DIR, 'data'))
+MEDIA_URL = os.environ.get('MEDIA_URL', 'data/')
 
 #if DEBUG:
 #    urlpatterns += static(MEDIA_URL, document_root=MEDIA_ROOT)
@@ -157,10 +158,17 @@ MEDIA_URL = 'ppe/files/'
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
+DEFAULT_FROM_EMAIL='sitn@ne.ch'
+EMAIL_HOST='smtp.ne.ch'
+
+
 if os.name == 'nt':
     DEBUG = True
     GDAL_LIBRARY_PATH = os.environ.get('GDAL_LIBRARY_PATH')
     GEOS_LIBRARY_PATH = os.environ.get('GEOS_LIBRARY_PATH')
+    VCRON_TASK_URL = os.environ.get('VCRON_BASE_URL')
+else:
+    VCRON_TASK_URL = os.environ['VCRON_BASE_URL']
 
 OLWIDGET = {
     "globals": {
