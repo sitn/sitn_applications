@@ -19,7 +19,7 @@ urlpatterns = [
     path("soumission", views.soumission, name="soumission"),
     path("definition_type_dossier", views.definition_type_dossier, name="definition_type_dossier"),
     path("overview", views.overview, name="overview"),
-    path("load_ppe_files", views.load_ppe_files, name="load_ppe_files"),
+    path("load_zipfile", views.load_zipfile, name="load_zipfile"),
 ]
 
 if settings.DEBUG:

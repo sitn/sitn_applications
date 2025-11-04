@@ -55,7 +55,7 @@
                 <span class="alert alert-danger">Il y a une erreur inconnue sur le statut des fichiers zip</span>
         {% endif %}
         </p>
-        {% if zipfile.file_statut in ["CAA","CAC","CAE"] %}
+        {% if zipfile.file_statut in 'CAA,CAC,CAE' %}
             <div>
                 <a href="{% url 'ppe:overview' %}" class="btn btn-success">Récapitulatif</a>
             </div>

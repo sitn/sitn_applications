@@ -17,7 +17,7 @@ def unique_folder_path(instance, filename):
     """
     date_prefix = now().strftime('%Y%m%d_%H%M%S')
     new_filename = f"{date_prefix}.zip"
-    return '/'.join([instance.dossier_ppe.login_code, new_filename])
+    return '/'.join([f"{instance.dossier_ppe.id}", new_filename])
 
 def rename_pdf_accord(instance, filename):
     """ Define the new filename using a date prefix
@@ -141,10 +141,11 @@ class DossierPPE(models.Model):
     coord_N = models.IntegerField()
     statut = models.CharField(
         choices=(
-            ("P", "En projet"),
+            ("P", "En préparation"),
             ("S", "Soumis"),
             ("T", "En traitement"),
-            ("R","Rejeté")
+            ("C", "Corrections requises"),
+            ("R", "Rejeté")
         ),
         default="P", max_length=20)
     type_dossier = models.CharField(

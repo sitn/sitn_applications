@@ -4,18 +4,13 @@ from django.http import HttpResponse, HttpResponseNotFound
 from django.template import loader
 from django.contrib.gis.geos import Point
 from django.conf import settings
-from django.conf.urls.static import static
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.files.base import ContentFile
-from django.core.files.storage import FileSystemStorage
 from django.core.mail import send_mail
-from django.utils.timezone import now
 
 # INDIVIDUAL ELEMENTS
 from .models import DossierPPE, ContactPrincipal, Notaire, Signataire, AdresseFacturation, Zipfile
-from .forms import AdresseFacturationForm, NotaireForm, SignataireForm, GeolocalisationForm, ContactPrincipalForm, ZipfileForm, WMTSWithSearchWidget
+from .forms import AdresseFacturationForm, NotaireForm, SignataireForm, GeolocalisationForm, ContactPrincipalForm, ZipfileForm
 from urllib.request import urlopen
-
 from .util import get_localisation, login_required, check_geoshop_ref
 
 logger = logging.getLogger(__name__)
@@ -24,7 +19,7 @@ def index(request):
     # A list for the PPE admins to see the latest demands
     # TODO : This should only be visible to admins
     request.session['login_code'] = None
-    latest_dossiers_list = DossierPPE.objects.order_by("-date_creation")[:5]
+    latest_dossiers_list = DossierPPE.objects.order_by("-date_creation")[:10]
     template = loader.get_template("ppe/index.html")
     return HttpResponse(template.render({"latest_dossiers_list": latest_dossiers_list}, request))
 
@@ -132,7 +127,8 @@ def modification(request, doc):
             "facturation_form": AdresseFacturationForm(instance=doc.adresse_facturation, prefix='facturation'),
             "cadastre": doc.cadastre,
             "nummai": doc.nummai,
-            "geolocalisation_ppe": doc.geom})
+            "geolocalisation_ppe": doc.geom
+        })
 
     except:
         return render(request, "ppe/modification.html", {"error_message": "Il manque l'identifiant du dossier."})
@@ -186,11 +182,9 @@ def contact_principal(request):
         return redirect(f'/ppe/definition_type_dossier', new_dossier_ppe)
 
     if 'geom' in request.POST:
-
         try:
             # Check if a localisation exists
             localisation = request.POST["geom"]
-
             # Convert an existing localisation to a JSON dict
             if isinstance(localisation, str) and localisation != '':
                 localisation = json.loads(localisation)
@@ -258,12 +252,11 @@ def overview(request, doc):
 
 @login_required
 def soumission(request, doc):
-
     send_mail(
     "Nouveau dossier PPE: Création réussite",
-    "Un nouveau dossier PPE sur le bien-fonds {bien_fonds} du cadastre {cadastre} a été créé. \
-        son identifiant unique est: {login_code} Attention: Gardez bien ce code, vous en avez \
-        besoin pour tout changement.".format(bien_fonds=doc.nummai, cadastre = doc.cadastre, login_code = doc.login_code),
+    "<p>Un nouveau dossier PPE sur le bien-fonds {bien_fonds} du cadastre {cadastre} a été créé.</p> \
+        <p>Son identifiant unique est :</p> <h5>{login_code}</h5> <p><b>Attention :</b> Gardez bien ce code, vous en avez \
+        besoin pour tout changement.</p>".format(bien_fonds=doc.nummai, cadastre = doc.cadastre, login_code = doc.login_code),
     "sitn@ne.ch",
     [doc.contact_principal.email, "francois.voisard@ne.ch"],
     fail_silently=False,
@@ -349,33 +342,28 @@ def definition_type_dossier(request, doc, type_dossier=None):
     )
 
 @login_required
-def load_ppe_files(request, doc):
+def load_zipfile(request, doc):
     """ Function to load the zip file with the PPE documents"""
-    error_message = None
-    zipfile = None
-    
     zip_form = ZipfileForm(request.POST, request.FILES or None)
     doc = DossierPPE.objects.get(login_code=doc.login_code)
     init_data = {"dossier_ppe": DossierPPE(pk=doc.id)}
 
     if zip_form.is_valid():
         zip_form.save()
-        zipfile = Zipfile(pk=zip_form.instance.id)
+        Zipfile(pk=zip_form.instance.id)
         if settings.VCRON_TASK_URL:
             base_url = settings.VCRON_TASK_URL
         else:
             raise HttpResponseNotFound('Il manque l\'URL vers le scheduler')
-        vc_url = "{}login_code={}|email={}".format(base_url, doc.login_code, doc.contact_principal.email)
+        vc_url = "{}id_dossier={}|login_code={}|email={}".format(base_url, doc.id, doc.login_code, doc.contact_principal.email)
         with urlopen(vc_url) as response:
             status = response.getcode()
             if status != 200:
                 return render(request, "ppe/overview.html", {"dossier_ppe": doc, "error_message": "Le chargement du zip a échoué."})
-            doc.statut = 'S'
-            doc.save()
         return redirect(f"/ppe/overview")
 
     zip_form = ZipfileForm(initial=init_data)
-    return render(request, "ppe/load_ppe_files.html", {"dossier_ppe" : doc, "zip_form": zip_form})
+    return render(request, "ppe/load_zipfile.html", {"dossier_ppe" : doc, "zip_form": zip_form})
 
 @login_required
 def edit_geolocalisation(request, doc):
@@ -417,37 +405,28 @@ def edit_geolocalisation(request, doc):
                 dossier_ppe.save()
                 return redirect(f"/ppe/overview")
         else:
-            mode = 'edit' if localisation != '' else 'reset'
-            return render(
-                request,
-                "ppe/geolocalisation.html",
-                {
-                    "error_message": error_message,
-                    "localisation_ppe": localisation_ppe,
-                    "form": geo_form,
-                    "form_action": 'edit_geolocalisation',
-                    "doc": doc,
-                    "mode": mode
-                }
-            )
+            return render(request, "ppe/geolocalisation.html", {
+                "error_message": error_message,
+                "localisation_ppe": localisation_ppe,
+                "form": geo_form,
+                "form_action": 'edit_geolocalisation',
+                "doc": doc,
+                "mode": 'edit' if localisation != '' else 'reset'
+            })
     else:
         if doc.geom is not None:
             init_data={"geom": doc.geom}
             geo_form = GeolocalisationForm(initial=init_data)
             localisation_ppe = {'bien_fonds': {'nummai': doc.nummai}, 'cadastre': doc.cadastre}
 
-    return render(
-        request,
-        "ppe/geolocalisation.html",
-        {
-            "error_message": error_message,
-            "localisation_ppe": localisation_ppe,
-            "form": geo_form,
-            "form_action": 'edit_geolocalisation',
-            "doc": doc,
-            "mode": 'edit'
-        }
-    )
+    return render(request, "ppe/geolocalisation.html", {
+        "error_message": error_message,
+        "localisation_ppe": localisation_ppe,
+        "form": geo_form,
+        "form_action": 'edit_geolocalisation',
+        "doc": doc,
+        "mode": 'edit'
+    })
 
 @login_required
 def edit_contacts(request, doc):
@@ -509,8 +488,8 @@ def edit_contacts(request, doc):
             "facturation_form": AdresseFacturationForm(instance=doc.adresse_facturation, prefix='facturation'),
             "cadastre": doc.cadastre,
             "nummai": doc.nummai,
-            "geolocalisation_ppe": doc.geom})
-
+            "geolocalisation_ppe": doc.geom
+        })
     except:
         return render(request, "ppe/modification.html", {"error_message": "Il manque l'identifiant du dossier."})
 
@@ -532,6 +511,8 @@ def edit_ppe_type(request, doc):
         # ELSE we return an error
         error_message = "Aucun dossier avec ce code n'a pu être trouvé."
         return render(request, "ppe/definition_type_dossier.html", {"error_message": error_message})
+
+    request.session['type_dossier'] = type_dossier
 
     if ref_geoshop:
         ref_error = None
@@ -609,28 +590,24 @@ def edit_ppe_type(request, doc):
         request, 
         "ppe/definition_type_dossier.html", 
         {"dossier_ppe": doc, "mode": 'edit', "error_message" : error_message}
-        )
+    )
     
 
 @login_required
 def edit_zipfile(request, doc):
     """ Replace the zip file with PPE documents by a newer version """
-    error_message = None
-    zipfile = None
-    
     zip_form = ZipfileForm(request.POST, request.FILES or None)
     doc = DossierPPE.objects.get(login_code=doc.login_code)
     init_data = {"dossier_ppe": DossierPPE(pk=doc.id)}
 
     if zip_form.is_valid():
-        foldername = zip_form.instance.dossier_ppe.login_code
         zip_form.save()
-        zipfile = Zipfile(pk=zip_form.instance.id)
+        Zipfile(pk=zip_form.instance.id)
         if settings.VCRON_TASK_URL:
             base_url = settings.VCRON_TASK_URL
         else:
             raise HttpResponseNotFound('Il manque l\'URL vers le scheduler')
-        vc_url = "{}login_code={}|email={}".format(base_url, doc.login_code, doc.contact_principal.email)
+        vc_url = "{}id_dossier={}|login_code={}|email={}".format(base_url, doc.id, doc.login_code, doc.contact_principal.email)
         with urlopen(vc_url) as response:
             status = response.getcode()
             if status != 200:
@@ -639,4 +616,4 @@ def edit_zipfile(request, doc):
 
     zip_form = ZipfileForm(initial=init_data)
 
-    return render(request, "ppe/load_ppe_files.html", {"dossier_ppe" : doc, "zip_form": zip_form})
+    return render(request, "ppe/load_zipfile.html", {"dossier_ppe" : doc, "zip_form": zip_form})

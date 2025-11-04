@@ -95,8 +95,8 @@ Dépôt d'un dossier - Récapitulatif:
                 
         {%if dossier_ppe.type_dossier %}
         <div class="col-6">
-        <br>
-        <section>
+            <section>
+            <br>
             <table width="100%">
             <tr>
                 <th class="fs-4" width="50%">Type de dossier</th>
@@ -166,9 +166,8 @@ Dépôt d'un dossier - Récapitulatif:
             </tr>
                 {% endif %}
             </table>
-        </section>
+            </section>
         {% endif %}
-
 
         <section>
             {% if dossier_ppe.zipfiles %}
@@ -176,10 +175,10 @@ Dépôt d'un dossier - Récapitulatif:
             <table width="100%">
             <tr>
                 <th class="fs-4" width="50%">Chargement des fichiers</th>
-                <th><a href="{% url 'ppe:edit_zipfile' %}" class="btn btn-success">Modifier</a></th>
+                <th><a href="{% url 'ppe:edit_zipfile' %}" class="btn btn-success">Ajouter</a></th>
             </tr>
             <tr>
-                <td width="30%"><b>Date</b></td><td><b>Statut des fichiers</b></td>
+                <td width="30%"><b>Date et heure</b></td><td><b>Statut des fichiers</b></td>
             </tr>
             {% for zip in dossier_ppe.zipfiles %}
             <tr>
@@ -191,8 +190,8 @@ Dépôt d'un dossier - Récapitulatif:
                 Contrôle automatique : en cours
                 {% elif zip.file_statut == 'CAE' %}
                 Contrôle automatique : erreurs à corriger
-                {% elif zip.file_statut == 'CAP' %}
-                En attente du contrôle automatique
+                {% elif zip.file_statut == 'ERR' %}
+                Contrôle automatique : erreur interne
                 {% elif zip.file_statut == 'CAV' %}
                 Contrôle automatique : validé
                 {% elif zip.file_statut == 'CMC' %}
@@ -215,24 +214,29 @@ Dépôt d'un dossier - Récapitulatif:
                         <span style="color: #045043;">{{ dossier_ppe.contact_principal.email }}</span>.
                     </td>
                 </tr>
-                {% endif %}
-                {% if forloop.first and zip.file_statut == 'CAE' %}
+                {% elif forloop.first and zip.file_statut == 'CAE' %}
                 <tr>
-                    <td colspan="2" class="alert alert-danger">Veuillez corriger votre dossier et le soumettre à nouveau.</td>
+                    <td colspan="2" class="alert alert-warning">Veuillez corriger votre dossier et le soumettre à nouveau.</td>
                 </tr>
+                {% elif forloop.first and zip.file_statut == 'ERR' %}
+                <tr>
+                    <td colspan="2" class="alert alert-danger">Une erreur interne est survenue. Notre équipe y travaille 
+                        et vous informera de la reprise du contrôle dès que possible à l'adresse 
+                        <span style="color: #045043;">{{ dossier_ppe.contact_principal.email }}</span>.
+                    </td>
+                </tr> 
                 {% endif %}
             {% endfor %}
             </table>
+        </section>
             {% else %}
-            <p> 
-                <br><br>
+            </div>
+            <div class="row m-0">
                 <form id="overview_form" class="form-horizontal" action="/ppe/soumission" method="post">
                     {% csrf_token %}
                     <input type="submit" value="Continuer" class="valider btn btn-success">
-                </form> 
-            </p>
+                </form>
             {% endif %}
-        </section>
     </div>
 
     {% else %}

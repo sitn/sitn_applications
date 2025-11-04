@@ -36,13 +36,15 @@ function changeSectionDisplay() {
     // Get the selected value
     const dossier_type = document.getElementById("type_dossier").value;
 
-    submit_btn.style.display = "none";
+    document.getElementById("submit_btn").style.display = "none";
     validate_btn.style.display = "none";
     modification.style.display = "none";
     constitution.style.display = "none";
     revision.style.display = "none";
-    form_error.style.display = "none";
     ref_geoshop.style.display =  "none";
+    if (form_error != undefined) {
+        form_error.style.display = "none";
+    }
 
     if (dossier_type == "C"){
         constitution.style.display = "block";
