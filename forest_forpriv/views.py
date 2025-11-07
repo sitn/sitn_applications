@@ -2,12 +2,12 @@ import json
 from itertools import chain
 
 from django.conf import settings
-from django.db.models import CharField, Value
 from django.http import JsonResponse, HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from django.views.generic import TemplateView
 
+from django.contrib.gis.db.models.functions import Intersection, Area
 from django.contrib.gis.geos import GEOSGeometry
 from django.contrib.gis.gdal.error import GDALException
 
@@ -43,22 +43,29 @@ def forpriv_intersection(request):
     if clipper.geom_type not in ['Polygon', 'MultiPolygon']:
         return JsonResponse({'status': 'error', 'message': 'Invalid geometry type.'})
 
-    # Intersect all layers and annotate them with a simple value in order
-    # to be able to distinguish the features returned in the Geojson response
-    intersected_f01 = Fo01Arrondissement.objects.filter(geom__intersects=clipper).annotate(
-        table_name=Value('fo01_arrondissements', CharField())
-    )
-    intersected_f02 = Fo02Cantonnement.objects.filter(geom__intersects=clipper).annotate(
-        table_name=Value('fo02_cantonnements', CharField())
-    )
-    intersected_f11 = Fo11UniteGestionForprivee.objects.filter(geom__intersects=clipper).annotate(
-        table_name=Value('fo11_unite_gestion_forprivees', CharField())
-    )
+    # For each layer, get the object with the largest intersection area
+    def get_max_intersection(queryset, table_name):
+        objs = queryset.annotate(
+            intersection_area=Area(Intersection('geom', clipper))
+        ).order_by('-intersection_area')
+        if objs:
+            obj = objs.first()
+            obj.table_name = table_name
+            return [obj]
+        return []
+
+    intersected_f01 = Fo01Arrondissement.objects.filter(geom__intersects=clipper)
+    intersected_f02 = Fo02Cantonnement.objects.filter(geom__intersects=clipper)
+    intersected_f11 = Fo11UniteGestionForprivee.objects.filter(geom__intersects=clipper)
+
+    selected_f01 = get_max_intersection(intersected_f01, 'fo01_arrondissements')
+    selected_f02 = get_max_intersection(intersected_f02, 'fo02_cantonnements')
+    selected_f11 = get_max_intersection(intersected_f11, 'fo11_unite_gestion_forprivees')
 
     combined_queryset = list(chain(
-        intersected_f01,
-        intersected_f02,
-        intersected_f11,
+        selected_f01,
+        selected_f02,
+        selected_f11,
     ))
 
     serializer = GeoJSONSerializer()
