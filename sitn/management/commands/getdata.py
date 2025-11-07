@@ -12,7 +12,7 @@ class Command(BaseCommand):
     """
 
     # Schemas that need to be restored before
-    dependent_schemas = ['edition', 'main_prepub', 'general', 'mensuration']
+    dependent_schemas = ['edition', 'main_prepub', 'general', 'mensuration', 'mistra_complet']
 
     def __init__(self):
         super().__init__()
