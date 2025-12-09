@@ -58,6 +58,11 @@ GEOS_LIBRARY_PATH="C:/Projects/sitn_applications/venv/Lib/site-packages/osgeo/ge
 
 You should also have PostgreSQL with PostGIS installed, and the path to PostgreSQL's `bin` directory should be defined in the `Path` variable in your Windows system environment variables (e.g. C:\Program Files\PostgreSQL\18\bin).
 
+Finally, you need to have `gettext` installed:
+
+* [gettext for Windows](https://mlocati.github.io/articles/gettext-iconv-windows.html)
+
+
 ## Running in development mode, without docker
 
 First, create a copy of the `.env.sample` file called `.env`:
