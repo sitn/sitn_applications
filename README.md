@@ -20,6 +20,44 @@ cp .env.sample .env
 
 and configure the different variables.
 
+The paths related to GDAL et GEOS can either point to existing installations on the system, e.g.:
+
+```
+# Path to the folder containing all GDAL/GEOS DLLs
+GDAL_PATH="C:/Program Files/GDAL/"
+
+# Full path to the GDAL DLL
+GDAL_LIBRARY_PATH="C:/Program Files/GDAL/gdal.dll"
+
+# Full path to GEOS C API DLL
+GEOS_LIBRARY_PATH="C:/Program Files/PostgreSQL/16/bin/libgeos_c.dll"
+```
+
+Alternatively, you can install GDAL (and its GEOS and PROJ dependencies), using the geospatial python wheels provided here:
+
+* [geospatial-wheels](https://github.com/cgohlke/geospatial-wheels/releases)
+
+Download the appropriate version, then install it in the venv using pip, e.g.:
+
+```sh
+pip install .\gdal-3.11.4-cp314-cp314-win_amd64.whl
+```
+
+Then configure the GDAL paths in the .env file to point to the ressources in the venv, e.g.:
+
+```
+# Path to the folder containing all GDAL/GEOS DLLs
+GDAL_PATH="C:/Projects/sitn_applications/venv/Lib/site-packages/osgeo/"
+
+# Full path to the GDAL DLL
+GDAL_LIBRARY_PATH="C:/Projects/sitn_applications/venv/Lib/site-packages/osgeo/gdal.dll"
+
+# Full path to GEOS C API DLL
+GEOS_LIBRARY_PATH="C:/Projects/sitn_applications/venv/Lib/site-packages/osgeo/geos_c.dll"
+```
+
+You should also have PostgreSQL with PostGIS installed, and the path to PostgreSQL's `bin` directory should be defined in the `Path` variable in your Windows system environment variables (e.g. C:\Program Files\PostgreSQL\18\bin).
+
 ## Running in development mode, without docker
 
 First, create a copy of the `.env.sample` file called `.env`:
@@ -28,7 +66,7 @@ First, create a copy of the `.env.sample` file called `.env`:
 cp .env.sample .env
 ```
 
-Install and activate the virual environment:
+Install and activate the virtual environment:
 
 ```sh
 python -m venv venv
