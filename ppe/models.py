@@ -145,7 +145,8 @@ class DossierPPE(models.Model):
             ("S", "Soumis"),
             ("T", "En traitement"),
             ("C", "Corrections requises"),
-            ("R", "Rejeté")
+            ("R", "Rejeté"),
+            ("V", "Dossier papier validé"),
         ),
         default="P", max_length=20)
     type_dossier = models.CharField(

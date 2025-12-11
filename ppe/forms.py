@@ -1,6 +1,7 @@
 import magic
 import phonenumbers
 
+from django.contrib.auth.forms import AuthenticationForm
 from django.contrib.gis import forms
 from django.core.exceptions import ValidationError
 from django.core.validators import FileExtensionValidator
@@ -38,6 +39,18 @@ def validate_npa(npa):
         raise ValidationError(_("Le NPA doit être un entier à quatre chiffres"))
     if npa < 1000 or npa > 9999:
         raise ValidationError(_("Le NPA doit faire partie de l'intervalle 1000 à 9999."))
+    
+class AdminLoginForm(AuthenticationForm):
+    username = forms.CharField(
+        label="Nom d'utilisateur",
+        widget=forms.TextInput(attrs={'class': 'form-control'})
+    )
+    password = forms.CharField(
+        label="Mot de passe",
+        strip=False,
+        widget=forms.PasswordInput(attrs={'class': 'form-control'})
+    )
+
     
 class ZipfileForm(forms.ModelForm):
     class Meta:

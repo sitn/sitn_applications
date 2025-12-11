@@ -17,22 +17,23 @@ Application de gestion des PPE
                 <div id="info_soumission">Soumettre un dossier de constitution,<br> de modification 
                     ou de révision de PPE<br> pour la première fois.</div>
 
-                <a href="{% url 'ppe:overview' %}" class="button-lg btn btn-success">Modification une soumission</a>
+                <a href="{% url 'ppe:overview' %}" class="button-lg btn btn-success">Modifier une soumission</a>
                 <i id="info1" class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
                 <div id="info_modification">Modifier les informations<br> d'un dossier déjà soumis.</div>
         </div>
-    
-        <div id="admin_list">
-            <br>
-            <p><b>Admin: Liste des dossiers PPE en cours</b></p>
-        {% if latest_dossiers_list %}
-            <ul>
-            {% for dossierppe in latest_dossiers_list %}
-                <li><a href="{% url 'ppe:modification' %}">Bien-fonds: {{ dossierppe.nummai }}, du cadastre {{ dossierppe.cadastre }} créé le {{ dossierppe.date_creation }}</a> -  {{ dossierppe.login_code }}</li>
-            {% endfor %}
-            </ul>
-        {% else %}
-            <p>Aucun dossier n'a été trouvé.</p>
+        {% if user.is_authenticated %}
+            {% if latest_dossiers_list %}
+            <div id="admin_list">
+                <br>
+                <p><b>Admin: Liste des dossiers PPE en cours</b></p>
+                <ul>
+                {% for dossierppe in latest_dossiers_list %}
+                    <li><a href="{% url 'ppe:modification' %}">Bien-fonds: {{ dossierppe.nummai }}, du cadastre {{ dossierppe.cadastre }} créé le {{ dossierppe.date_creation }}</a> -  {{ dossierppe.login_code }}</li>
+                {% empty %}
+                    <p>Aucun dossier n'a été trouvé.</p>
+                </ul>
+                {% endfor %}
+            {% endif %}
         {% endif %}
         </div>
 

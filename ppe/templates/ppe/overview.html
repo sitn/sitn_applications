@@ -9,7 +9,7 @@ Dépôt d'un dossier - Récapitulatif:
     {% if error_message %}<p class="alert alert-danger"><strong>{{ error_message }}</strong></p>{% endif %}
 
     {% if dossier_ppe %}
-    <h3>Récapitulatif</h3>
+    <h3>Récapitulatif:</h3>
 
     <div class="row m-0">
         <div class="col-6">
@@ -18,7 +18,7 @@ Dépôt d'un dossier - Récapitulatif:
                 <table width="100%">
                 <tr>
                     <th class="fs-4" width="50%">Localisation</th>
-                    <th>{% if dossier_ppe.statut == 'S' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>{% else %}
+                    <th>{% if dossier_ppe.statut in 'S,C' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>{% else %}
                         <a href="{% url 'ppe:edit_geolocalisation' %}" class="btn btn-success">Modifier</a>{% endif %}</th>
                 </tr>
                 <tr><td>Cadastre</td><td><b>{{ dossier_ppe.cadastre }}</b></td></tr>
@@ -31,7 +31,7 @@ Dépôt d'un dossier - Récapitulatif:
                 <table width="100%">
                 <tr>
                     <th class="fs-4" width="50%">Contacts</th>
-                    <th>{% if dossier_ppe.statut == 'S' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>{% else %}
+                    <th>{% if dossier_ppe.statut in 'S,C' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>{% else %}
                         <a href="{% url 'ppe:edit_contacts' %}" class="btn btn-success">Modifier</a>{% endif %}</th>
                 </tr>
                     <td colspan="2" class="fs-5 fw-bold">Personne de contact principal</td>
@@ -100,7 +100,7 @@ Dépôt d'un dossier - Récapitulatif:
             <table width="100%">
             <tr>
                 <th class="fs-4" width="50%">Type de dossier</th>
-                    <th>{% if dossier_ppe.statut == 'S' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>{% else %}
+                    <th>{% if dossier_ppe.statut in 'S,C' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>{% else %}
                         <a href="{% url 'ppe:edit_ppe_type' %}" class="btn btn-success">Modifier</a>{% endif %}</th>
             </tr>
                 {% if dossier_ppe.type_dossier == 'C' %}
@@ -133,13 +133,13 @@ Dépôt d'un dossier - Récapitulatif:
                 <td>{{ dossier_ppe.ref_geoshop }}</td>
             </tr>
                     {% endif %}
-                {% else %}
+                {% elif dossier_ppe.type_dossier == 'M' %}
             <tr>
                 <td class="pb-3">Type de dossier :</td><td>Modification</td>
             </tr>
             <tr>
                 <td colspan="2" class="alert alert-secondary">
-                <h6>Ancien dossier :</h6>
+                <h6>Ancien dossier</h6>
                     {% if dossier_initial.id %}
                     <table width="100%">
                         <tr>
@@ -175,14 +175,16 @@ Dépôt d'un dossier - Récapitulatif:
             <table width="100%">
             <tr>
                 <th class="fs-4" width="50%">Chargement des fichiers</th>
-                <th><a href="{% url 'ppe:edit_zipfile' %}" class="btn btn-success">Ajouter</a></th>
+                <th>{% if dossier_ppe.statut == 'S' and not dossier_ppe.zipfiles.0.file_statut in 'CAE, CME' %}
+                    <button type="button" disabled class="btn btn-secondary">Ajouter</button>{% else %}
+                    <a href="{% url 'ppe:edit_zipfile' %}" class="btn btn-success">Ajouter</a></th>{% endif %}
             </tr>
             <tr>
                 <td width="30%"><b>Date et heure</b></td><td><b>Statut des fichiers</b></td>
             </tr>
             {% for zip in dossier_ppe.zipfiles %}
             <tr>
-                <td>{{ zip.upload_date }}</td>
+                <td style="padding-left: 10px;">{{ zip.upload_date }}</td>
                 <td>
                 {% if zip.file_statut == 'CAA' %}
                 Contrôle automatique : dossier archivé
@@ -202,6 +204,8 @@ Dépôt d'un dossier - Récapitulatif:
                 En attente du contrôle manuel
                 {% elif zip.file_statut == 'CMV' %}
                 Contrôle manuel : validé
+                {% elif zip.file_statut == 'DPV' %}
+                Dossier papier validé
                 {% else %}
                 Il y a une erreur inconnue sur le statut des fichiers zip
                 {% endif %}
@@ -214,21 +218,79 @@ Dépôt d'un dossier - Récapitulatif:
                         <span style="color: #045043;">{{ dossier_ppe.contact_principal.email }}</span>.
                     </td>
                 </tr>
-                {% elif forloop.first and zip.file_statut == 'CAE' %}
+                </table></br>
+                <table width="100%" style="border: 1px solid darkgray">
+                    <th colspan="2">Historique des fichiers zip</th>
+                {% elif forloop.first and zip.file_statut in 'CAE, CME' %}
                 <tr>
-                    <td colspan="2" class="alert alert-warning">Veuillez corriger votre dossier et le soumettre à nouveau.</td>
+                    <td colspan="2" class="alert alert-danger">Veuillez corriger votre dossier et le soumettre à nouveau.</td>
                 </tr>
+                </table></br>
+                <table width="100%" style="border: 1px solid darkgray">
+                    <th colspan="2">Historique des fichiers zip</th>
                 {% elif forloop.first and zip.file_statut == 'ERR' %}
                 <tr>
                     <td colspan="2" class="alert alert-danger">Une erreur interne est survenue. Notre équipe y travaille 
                         et vous informera de la reprise du contrôle dès que possible à l'adresse 
                         <span style="color: #045043;">{{ dossier_ppe.contact_principal.email }}</span>.
                     </td>
-                </tr> 
+                </tr>
+                </table></br>
+                <table width="100%" style="border: 1px solid darkgray">
+                    <th colspan="2">Historique des fichiers zip</th>
+                {% elif forloop.first and zip.file_statut == 'CAV' %}
+                <tr>
+                    <td colspan="2">
+                        <br>
+                        <a href="{% url 'ppe:submit_for_validation' %}" class="btn btn-success">Poursuivre le contrôle de mon dossier</a>
+                        <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+                        <div id="info_soumission_dossier">
+                        En appuyant sur ce bouton, votre dossier sera transmis à l'un de nos collaborateurs 
+                        pour la suite du processus et vous ne pourrez plus le modifier jusqu'à nouvel ordre.
+                        </div>
+                    </td>
+                </tr>
+                </table></br>
+                <table width="100%" style="border: 1px solid darkgray">
+                    <th colspan="2">Historique des fichiers zip</th>
+                {% elif forloop.first and zip.file_statut == 'CMC' %}
+                <tr>
+                    <td colspan="2" class="alert alert-danger">
+                        Votre dossier est en cours de contrôle par l'un de nos collaborateurs, qui prendra contact avec vous 
+                        dans un délai de 10 jours ouvrables.
+                    </td>
+                </tr>
+                </table></br>
+                <table width="100%" style="border: 1px solid darkgray">
+                    <th colspan="2">Historique des fichiers zip</th>
+                {% elif forloop.first and zip.file_statut == 'CMV' %}
+                <tr>
+                    <td colspan="2" class="alert alert-danger">
+                        Votre dossier est validé. Vous pouvez désormais télécharger les documents définitifs, 
+                        les imprimer en deux exemplaires et nous les transmettre par courrier.
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan="2">
+                        <br>
+                        <button id="go_champagne" type="button" onclick="openBottle()" class="btn btn-success">Télécharger mes documents</button>
+                        <img width="600px" height="*" id="champagne" src="https://newdaywine.com/wp-content/uploads/2022/02/Champagne_opening.jpg" alt="Champagne" style="display: none;">
+                    </td>
+                </tr>
+                </table></br>
+                <table width="100%" style="border: 1px solid darkgray">
+                    <th colspan="2">Historique des fichiers zip</th>
+                {% elif forloop.first and zip.file_statut == 'DPV' %}
+                <tr>
+                    <td colspan="2" class="alert alert-danger">
+                    Votre dossier papier est validé. Il sera signé par le géomètre cantonal puis envoyé au notaire 
+                    dans un délai de deux jours ouvrables à partir du xx.xx.xxxx (date de changement de statut 6>7).
+                    </td>
+                </tr>
                 {% endif %}
             {% endfor %}
             </table>
-        </section>
+                </section>
             {% else %}
             </div>
             <div class="row m-0">

@@ -2,26 +2,60 @@ import datetime, random, string, json, logging, ast
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, HttpResponseNotFound
 from django.template import loader
+from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.gis.geos import Point
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist
-from django.core.mail import send_mail
+from django.core.mail import EmailMultiAlternatives
 
 # INDIVIDUAL ELEMENTS
 from .models import DossierPPE, ContactPrincipal, Notaire, Signataire, AdresseFacturation, Zipfile
-from .forms import AdresseFacturationForm, NotaireForm, SignataireForm, GeolocalisationForm, ContactPrincipalForm, ZipfileForm
+from .forms import AdminLoginForm, AdresseFacturationForm, NotaireForm, SignataireForm, GeolocalisationForm, ContactPrincipalForm, ZipfileForm
 from urllib.request import urlopen
 from .util import get_localisation, login_required, check_geoshop_ref
 
 logger = logging.getLogger(__name__)
 
+
 def index(request):
     # A list for the PPE admins to see the latest demands
     # TODO : This should only be visible to admins
     request.session['login_code'] = None
-    latest_dossiers_list = DossierPPE.objects.order_by("-date_creation")[:10]
+
+    if request.user.is_authenticated:
+        latest_dossiers_list = DossierPPE.objects.order_by("-date_creation")[:10]
+    else:
+        latest_dossiers_list = None
+
     template = loader.get_template("ppe/index.html")
     return HttpResponse(template.render({"latest_dossiers_list": latest_dossiers_list}, request))
+
+
+def admin_login(request):
+    if request.user.is_authenticated:
+        return redirect('ppe:index')
+
+    if request.method == 'POST':
+        form = AdminLoginForm(request, data=request.POST)
+        if form.is_valid():
+            user = form.get_user()
+            auth_login(request, user)
+            return redirect('ppe:index')
+        else:
+            return render(request, 'ppe/admin_login.html', {
+                'form': form,
+                'error_message': "Identifiants incorrects"
+            })
+    else:
+        form = AdminLoginForm()
+
+    return render(request, 'ppe/admin_login.html', {'form': form})
+
+
+def admin_logout(request):
+    auth_logout(request)
+    return redirect('ppe:index')
+
 
 def set_geolocalisation(request):
     # if this is a POST request we need to process the form data
@@ -174,7 +208,7 @@ def contact_principal(request):
         new_dossier_ppe.signataire = Signataire(pk=signataire_form.instance.id)
         new_dossier_ppe.adresse_facturation = AdresseFacturation(pk=facturation_form.instance.id)
         new_dossier_ppe.statut = 'P'
-        new_dossier_ppe.type_dossier = "C"
+        new_dossier_ppe.type_dossier = 'I'
         new_dossier_ppe.date_creation = datetime.datetime.now()
         new_dossier_ppe.geom = Point(geolocalisation_ppe["coordinates"])
         new_dossier_ppe.save()
@@ -252,16 +286,41 @@ def overview(request, doc):
 
 @login_required
 def soumission(request, doc):
-    send_mail(
-    "Nouveau dossier PPE: Création réussite",
-    "<p>Un nouveau dossier PPE sur le bien-fonds {bien_fonds} du cadastre {cadastre} a été créé.</p> \
-        <p>Son identifiant unique est :</p> <h5>{login_code}</h5> <p><b>Attention :</b> Gardez bien ce code, vous en avez \
-        besoin pour tout changement.</p>".format(bien_fonds=doc.nummai, cadastre = doc.cadastre, login_code = doc.login_code),
-    "sitn@ne.ch",
-    [doc.contact_principal.email, "francois.voisard@ne.ch"],
-    fail_silently=False,
+    # Set the mail subject
+    mail_subject = "Nouveau dossier PPE: Création réussite"
+    default_sender = settings.DEFAULT_FROM_EMAIL if settings.DEFAULT_FROM_EMAIL else 'no-reply-ppe@ne.ch'
+
+    # First, render the plain text content.
+    text_content = "Vous venez de créer un nouveau dossier PPE sur l'application PETITNOMJOLIATROUVER \
+        \nCadastre {cadastre} \nBien-fonds : {bien_fonds} \nSon identifiant unique est : {login_code} \
+        \nAttention : Gardez bien ce code, vous en avez besoin pour tout changement.\
+        \nRendez-vous sur https://sitn.ne.ch/apps/ppe pour modifier votre \
+        dossier.".format(bien_fonds=doc.nummai, cadastre = doc.cadastre, login_code = doc.login_code)
+        #context={'bien_fonds': doc.nummai, 'cadastre': doc.cadastre, 'login_code': doc.login_code}
+
+    # Secondly, render the HTML content.
+    html_content = "<p>Vous venez de créer un nouveau dossier PPE sur l'application PETITNOMJOLIATROUVER</p> \
+        <p>Cadastre : {cadastre} </p> \
+        <p>Bien-fonds : {bien_fonds}</p> \
+        <p>Son identifiant unique est :</p> <h2 id=\"login_code\">{login_code}</h2> <p><b>Attention :</b> \
+        Gardez bien ce code, vous en avez besoin pour tout changement.</p> \
+        <p>Rendez-vous sur <a href=\"https://sitn.ne.ch/apps/ppe\" target=\"_blank\">https://sitn.ne.ch/apps/ppe</a> \
+        pour modifier votre dossier.".format(bien_fonds=doc.nummai, cadastre = doc.cadastre, login_code = doc.login_code)
+        #context={'bien_fonds': doc.nummai, 'cadastre': doc.cadastre, 'login_code': doc.login_code},
+
+    # Then, create a multipart email instance.
+    msg = EmailMultiAlternatives(
+        mail_subject,
+        text_content,
+        default_sender,
+        [doc.contact_principal.email, "francois.voisard@ne.ch"],
+        headers={"List-Unsubscribe": "<mailto:unsub@example.com>"},
     )
-    logger.info('')
+    print(msg)
+    # Lastly, attach the HTML content to the email instance and send.
+    msg.attach_alternative(html_content, "text/html")
+    msg.send()
+
     return render(request, "ppe/soumission.html", {"dossier_ppe": doc})
 
 @login_required
@@ -321,15 +380,19 @@ def definition_type_dossier(request, doc, type_dossier=None):
             error_message = "Le numéro de bien-fonds n'est pas le même que dans le dossier d'origine."    
 
     elif type_dossier == 'R':
+        dossier_ppe.type_dossier = type_dossier
         dossier_ppe.elements_rf_identiques = elements_rf_identiques
         dossier_ppe.nouveaux_droits = nouveaux_droits
         dossier_ppe.revision_jouissances = revision_jouissances
-        if elements_rf_identiques == 'non' and ref_exists == False:
+        if ref_exists == False:
             error_message = "La référence de commande indiquée n\'existe pas."
-        else:
+        if elements_rf_identiques == 'non' and ref_exists == True:
             dossier_ppe.ref_geoshop = ref_geoshop
-            dossier_ppe.save()
-            return redirect(f"/ppe/overview")
+        dossier_ppe.save()
+        return redirect(f"/ppe/overview")
+    
+    else:
+        error_message = 'Le type de dossier PPE ne semble pas encore défini.'
 
     return render(
         request,
@@ -355,7 +418,7 @@ def load_zipfile(request, doc):
             base_url = settings.VCRON_TASK_URL
         else:
             raise HttpResponseNotFound('Il manque l\'URL vers le scheduler')
-        vc_url = "{}id_dossier={}|login_code={}|email={}".format(base_url, doc.id, doc.login_code, doc.contact_principal.email)
+        vc_url = "{}ppe_numerique_controle_auto?variables=id_dossier={}".format(base_url, doc.id)
         with urlopen(vc_url) as response:
             status = response.getcode()
             if status != 200:
@@ -364,6 +427,37 @@ def load_zipfile(request, doc):
 
     zip_form = ZipfileForm(initial=init_data)
     return render(request, "ppe/load_zipfile.html", {"dossier_ppe" : doc, "zip_form": zip_form})
+
+@login_required
+def submit_for_validation(request, doc):
+    """ Function to start the manual validation process by a employee """
+    logger.debug('Submitting dossier %s for manual check', doc.id)
+
+    if settings.VCRON_TASK_URL:
+        base_url = settings.VCRON_TASK_URL
+    else:
+        raise HttpResponseNotFound('Il manque l\'URL vers le scheduler')
+    vc_url = "{}ppe_numerique_controle_manuel?variables=id_dossier={}".format(base_url, doc.id)
+    logger.debug('VCRON trigger url is: %s', vc_url)
+    with urlopen(vc_url) as response:
+        status = response.getcode()
+        logger.info('VCRON call has status: %s', status)
+        if status != 200:
+            return render(request, "ppe/overview.html", {"dossier_ppe": doc, "error_message": "La transmission a échouée."})
+    # GET all the zipfiles and set the automatically validated 'CAV' to manual check status 'CMC'
+    try: 
+        zip =  Zipfile.objects.filter(dossier_ppe_id=doc.id,file_statut='CAV').order_by('-upload_date').first()
+    except Exception as e:
+        logger.warning(f"Error finding a zip : {repr(e)}")
+
+    zip.file_statut = 'CMC'
+    zip.save()
+
+    # Set the application's status to submitted for manual validation 'S'
+    doc.statut = 'S'
+    doc.date_soumission = datetime.datetime.now()
+    doc.save()
+    return redirect(f"/ppe/overview")
 
 @login_required
 def edit_geolocalisation(request, doc):
@@ -497,6 +591,7 @@ def edit_contacts(request, doc):
 def edit_ppe_type(request, doc):
     error_message = None
     ref_exists = False
+    ref_error = None
     
     try:
         # We get the current entry of the dossier ppe if it exists
@@ -520,7 +615,7 @@ def edit_ppe_type(request, doc):
         ref_exists, ref_error = check_geoshop_ref(ref_geoshop, doc.geom)
         if ref_error:
             error_message = ref_error
-            logger.debug("GEOSHOP_REF check failed with error %s", ref_error)
+            logger.debug("GEOSHOP_REF check failed with error %s", error_message)
 
     logger.info("GEOSHOP_REF %s exists: %s", ref_geoshop, ref_exists)
 
@@ -550,18 +645,18 @@ def edit_ppe_type(request, doc):
         dossier_ppe.nouveaux_droits = nouveaux_droits
         dossier_ppe.revision_jouissances = revision_jouissances
 
-        if elements_rf_identiques == 'non' and ref_exists == False:
+        if ref_exists == False and not ref_error is None :
             error_message = ref_error
-        else:
+        if elements_rf_identiques == 'non' and ref_exists == True:
             dossier_ppe.ref_geoshop = ref_geoshop
-            dossier_ppe.save()
-            return redirect(f"/ppe/overview")
+        dossier_ppe.save()
+        return redirect(f"/ppe/overview")
 
     if type_dossier == 'M' and code_initial is not None:
         # GET the inital DossierPPE to be replaced or return an error
         try:
             dossier_ppe_initial = DossierPPE.objects.get(login_code=code_initial)
-            if dossier_ppe.login_code == code_initial:
+            if dossier_ppe.id == dossier_ppe_initial.id :
                 error_message = "Le dossier actuel et le dossier initial ne peuvent pas être identiques."
                 return render(
                     request, 
@@ -586,6 +681,8 @@ def edit_ppe_type(request, doc):
         except ObjectDoesNotExist:
             error_message = "Ce numéro de dossier n\'existe pas."
 
+    if not error_message is None:
+        doc.type_dossier = request.session['type_dossier']
     return render(
         request, 
         "ppe/definition_type_dossier.html", 
@@ -607,7 +704,7 @@ def edit_zipfile(request, doc):
             base_url = settings.VCRON_TASK_URL
         else:
             raise HttpResponseNotFound('Il manque l\'URL vers le scheduler')
-        vc_url = "{}id_dossier={}|login_code={}|email={}".format(base_url, doc.id, doc.login_code, doc.contact_principal.email)
+        vc_url = "{}ppe_numerique_controle_auto?variables=id_dossier={}".format(base_url, doc.id)
         with urlopen(vc_url) as response:
             status = response.getcode()
             if status != 200:

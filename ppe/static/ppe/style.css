@@ -15,7 +15,6 @@ div.row {
   margin: auto;
 }
 
-
 div.container-fluid {
     padding-right:0;
     padding-left:0;
@@ -399,6 +398,22 @@ div#info_soumission {
 }
 
 i:hover + div#info_soumission {
+  position: absolute;
+  display: inline-block;
+}
+
+div#info_soumission_dossier {
+  display: none;
+  margin-top: 15px;
+  margin-left: 3px;
+  padding: 5px;
+  font-size: small;
+  color: white;
+  background-color: cornflowerblue;
+  border: 1px solid black;
+}
+
+i:hover + div#info_soumission_dossier {
   position: absolute;
   display: inline-block;
 }
