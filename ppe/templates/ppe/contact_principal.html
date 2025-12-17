@@ -24,7 +24,7 @@ Dépôt d'un dossier - étape 2:
                         dossier et recevra les résultats du contrôle.
                     </div>
                     </legend>
-                    {{ contact_form }}
+                    {{ contact_form.as_div }}
                 </fieldset>
             </div>
             <div class="col">
@@ -37,12 +37,11 @@ Dépôt d'un dossier - étape 2:
                         breveté·e du canton de Neuchâtel
                     </div>
                     </legend>
-                    {{ signataire_form }}
+                    {{ signataire_form.as_div }}
                 </fieldset>
                 <p></p>
             </div>
         </div>
-        <p><br></p>
         <div class="row">
             <div class="col">
                 <fieldset>

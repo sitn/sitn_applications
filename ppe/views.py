@@ -16,6 +16,18 @@ from .util import get_localisation, login_required, check_geoshop_ref
 
 logger = logging.getLogger(__name__)
 
+ZIP_STATUS_LABELS = {
+    "CAA": "Contrôle automatique : dossier archivé",
+    "CAC": "Contrôle automatique : en cours",
+    "CAE": "Contrôle automatique : erreurs à corriger",
+    "ERR": "Contrôle automatique : erreur interne",
+    "CAV": "Contrôle automatique : validé",
+    "CMC": "Contrôle manuel : en cours",
+    "CME": "Contrôle manuel : erreurs à corriger",
+    "CMP": "En attente du contrôle manuel",
+    "CMV": "Contrôle manuel : validé",
+    "DPV": "Dossier papier validé",
+}
 
 def index(request):
     # A list for the PPE admins to see the latest demands
@@ -23,7 +35,7 @@ def index(request):
     request.session['login_code'] = None
 
     if request.user.is_authenticated:
-        latest_dossiers_list = DossierPPE.objects.order_by("-date_creation")[:10]
+        latest_dossiers_list = DossierPPE.objects.order_by("-date_creation")[:15]
     else:
         latest_dossiers_list = None
 
@@ -266,13 +278,6 @@ def detail(request, doc):
 def overview(request, doc):
     error_message = None
     dossier_initial = None
-    try: 
-        zips =  Zipfile.objects.filter(dossier_ppe_id=doc.id).order_by('-upload_date')
-    except Exception as e:
-        logger.warning(f"Error finding a zip : {repr(e)}")
-
-    if len(zips) > 0:
-        doc.zipfiles = zips
 
     # GET initial PPE Dossier data if type is modification
     if doc.type_dossier == 'M':
@@ -287,25 +292,27 @@ def overview(request, doc):
 @login_required
 def soumission(request, doc):
     # Set the mail subject
-    mail_subject = "Nouveau dossier PPE: Création réussite"
+    mail_subject = "Nouveau dossier PPE : création réussie"
     default_sender = settings.DEFAULT_FROM_EMAIL if settings.DEFAULT_FROM_EMAIL else 'no-reply-ppe@ne.ch'
 
     # First, render the plain text content.
     text_content = "Vous venez de créer un nouveau dossier PPE sur l'application PETITNOMJOLIATROUVER \
-        \nCadastre {cadastre} \nBien-fonds : {bien_fonds} \nSon identifiant unique est : {login_code} \
+        \nCadastre {cadastre} \nBien-fonds : {bien_fonds} \nType de dossier : {type_dossier}\n \
+        Son identifiant unique est : {login_code} \
         \nAttention : Gardez bien ce code, vous en avez besoin pour tout changement.\
         \nRendez-vous sur https://sitn.ne.ch/apps/ppe pour modifier votre \
-        dossier.".format(bien_fonds=doc.nummai, cadastre = doc.cadastre, login_code = doc.login_code)
+        dossier.".format(bien_fonds=doc.nummai, cadastre = doc.cadastre, type_dossier = doc.type_dossier, login_code = doc.login_code)
         #context={'bien_fonds': doc.nummai, 'cadastre': doc.cadastre, 'login_code': doc.login_code}
 
     # Secondly, render the HTML content.
     html_content = "<p>Vous venez de créer un nouveau dossier PPE sur l'application PETITNOMJOLIATROUVER</p> \
-        <p>Cadastre : {cadastre} </p> \
-        <p>Bien-fonds : {bien_fonds}</p> \
+        <p>Cadastre : {cadastre} <br> \
+            Bien-fonds : {bien_fonds}<br> \
+            Type de dossier : {type_dossier}</p> \
         <p>Son identifiant unique est :</p> <h2 id=\"login_code\">{login_code}</h2> <p><b>Attention :</b> \
         Gardez bien ce code, vous en avez besoin pour tout changement.</p> \
         <p>Rendez-vous sur <a href=\"https://sitn.ne.ch/apps/ppe\" target=\"_blank\">https://sitn.ne.ch/apps/ppe</a> \
-        pour modifier votre dossier.".format(bien_fonds=doc.nummai, cadastre = doc.cadastre, login_code = doc.login_code)
+        pour modifier votre dossier.".format(bien_fonds=doc.nummai, cadastre = doc.cadastre, type_dossier = doc.type_dossier, login_code = doc.login_code)
         #context={'bien_fonds': doc.nummai, 'cadastre': doc.cadastre, 'login_code': doc.login_code},
 
     # Then, create a multipart email instance.
@@ -714,3 +721,23 @@ def edit_zipfile(request, doc):
     zip_form = ZipfileForm(initial=init_data)
 
     return render(request, "ppe/load_zipfile.html", {"dossier_ppe" : doc, "zip_form": zip_form})
+
+
+@login_required
+def zip_status(request, doc):
+    dossier_ppe = get_object_or_404(DossierPPE, pk=doc.id)
+    zip = doc.zipfiles.order_by('-upload_date').first()
+    zip.label = ZIP_STATUS_LABELS.get(
+        zip.file_statut,
+        "Erreur inconnue sur le statut des fichiers zip"
+    )
+
+    return render(
+        request,
+        "ppe/zip_status.html",
+        {
+            "zip": zip,
+            "dossier_ppe": dossier_ppe,
+            "refreshed_at": datetime.datetime.now(),
+        },
+    )

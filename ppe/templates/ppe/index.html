@@ -25,14 +25,36 @@ Application de gestion des PPE
             {% if latest_dossiers_list %}
             <div id="admin_list">
                 <br>
-                <p><b>Admin: Liste des dossiers PPE en cours</b></p>
-                <ul>
+
+                <table width="100%" class="table table-striped caption-top">
+                    <caption>Admin: Liste des dossiers PPE en cours</caption>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Cadastre</th>
+                        <th>No. bien-fonds</th>
+                        <th>Date création</th>
+                        <th>Type dossier</th>
+                        <th>Statut dernier zip</th>
+                        <th>Code</th>
+                    </tr>
+                    </thead>
+                    <tbody>
                 {% for dossierppe in latest_dossiers_list %}
-                    <li><a href="{% url 'ppe:modification' %}">Bien-fonds: {{ dossierppe.nummai }}, du cadastre {{ dossierppe.cadastre }} créé le {{ dossierppe.date_creation }}</a> -  {{ dossierppe.login_code }}</li>
+                    <tr>
+                        <td>{{ dossierppe.id }}</td>
+                        <td>{{ dossierppe.cadastre }}</td>
+                        <td>{{ dossierppe.nummai }}</td>
+                        <td>{{ dossierppe.date_creation }}</td>
+                        <td>{{ dossierppe.get_type_dossier_display }}</td>
+                        <td>{{ dossierppe.zipfiles.first.get_file_statut_display }}</td>
+                        <td><a href="{% url 'ppe:modification' %}">{{ dossierppe.login_code }}</a></td>
+                    </tr>
                 {% empty %}
                     <p>Aucun dossier n'a été trouvé.</p>
-                </ul>
                 {% endfor %}
+                    </tbody>
+                </table>
             {% endif %}
         {% endif %}
         </div>
