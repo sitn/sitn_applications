@@ -47,7 +47,7 @@ Dépôt d'un dossier:
 
             {% if localisation_ppe or mode == 'edit' %}
             <div class="col" id="localisation_overview" name="localisation_overview">
-                <div id="just_for_spacing_pourposes"><p><br></p></div>
+                <div id="spacer"><p><br></p></div>
                 <p><b>Cadastre</b>: {{ localisation_ppe.cadastre }}</p>
                 {% if 'bf_list' in localisation_ppe and localisation_ppe.bf_list|length > 0 %}
                     <p>

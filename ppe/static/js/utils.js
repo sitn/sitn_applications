@@ -35,46 +35,36 @@ function validateRealEstateNb() {
 function changeSectionDisplay() {
     // Get the selected value
     const dossier_type = document.getElementById("type_dossier").value;
-    
+
+    document.getElementById("submit_btn").style.display = "none";
+    document.getElementById("validate_btn").style.display = "none";
+    document.getElementById("modification").style.display = "none";
+    document.getElementById("constitution").style.display = "none";
+    document.getElementById("revision").style.display = "none";
+    document.getElementById("ref_geoshop").style.display =  "none";
+    if (document.getElementById("form_error")) {
+        document.getElementById("form_error").style.display = "none";
+    }
+
     if (dossier_type == "C"){
-        constitution.style.display = "block";
-        ref_geoshop.style.display =  "block";
-        revision.style.display = "none";
-        modification.style.display = "none";
-        submit_btn.style.display = "none";
-        validate_btn.style.display = "none";
+        document.getElementById("constitution").style.display = "block";
+        document.getElementById("ref_geoshop").style.display =  "block";
     }
     else if (dossier_type == "R"){
-        submit_btn.style.display = "none";
-        validate_btn.style.display = "none";
-        modification.style.display = "none";
-        constitution.style.display = "none";
-        revision.style.display = "block";
-        form_error.style.display = "none";
-        ref_geoshop.style.display =  "none";
+        document.getElementById("revision").style.display = "block";
     }
     else if (dossier_type == "M"){
-        submit_btn.style.display = "none";
-        validate_btn.style.display = "none";
-        modification.style.display = "block";
-        constitution.style.display = "none";
-        revision.style.display = "none";
-        ref_geoshop.style.display =  "none";
-    } else {
-        submit_btn.style.display = "none";
-        validate_btn.style.display = "none";
-        modification.style.display = "none";
-        constitution.style.display = "none";
-        revision.style.display = "none";
-        form_error.style.display = "none";
-        ref_geoshop.style.display =  "none";
-    }
+        document.getElementById("modification").style.display = "block";
+    } 
 }
 
 function showJouissanceRemark() {
     // Get the selected radio button
     const droits_jouissance = document.getElementsByName("droits_jouissance");
 
+    if (document.getElementById("form_error")) {
+        document.getElementById("form_error").style.display = "none";
+    }
     for (let i=0;i < droits_jouissance.length; i++) {
             if (droits_jouissance[i].checked) {
                 choix_droits_jouissance = droits_jouissance[i].value;
@@ -128,5 +118,13 @@ function showSubmitButton() {
 }
 
  function showValidateButton() {
+    if (document.getElementById("form_error")) {
+        document.getElementById("form_error").style.display = "none";
+    }
     validate_btn.style.display = "inline";
+}
+
+function openBottle() {
+    go_champagne.style.display = "none";
+    champagne.style.display = "inline";
 }

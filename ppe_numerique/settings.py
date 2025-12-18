@@ -158,7 +158,7 @@ MEDIA_URL = os.environ.get('MEDIA_URL', 'data/')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-DEFAULT_FROM_EMAIL='sitn@ne.ch'
+DEFAULT_FROM_EMAIL='no-reply-ppe@ne.ch'
 EMAIL_HOST='smtp.ne.ch'
 
 

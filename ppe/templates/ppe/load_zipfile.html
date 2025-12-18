@@ -55,7 +55,7 @@
                 <span class="alert alert-danger">Il y a une erreur inconnue sur le statut des fichiers zip</span>
         {% endif %}
         </p>
-        {% if "CAA" in zipfile.file_statut or "CAC" in zipfile.file_statut or "CAE" in zipfile.file_statut %}
+        {% if zipfile.file_statut in 'CAA,CAC,CAE' %}
             <div>
                 <a href="{% url 'ppe:overview' %}" class="btn btn-success">Récapitulatif</a>
             </div>
@@ -78,7 +78,7 @@
                             Voir lien dans la navigation à gauche.
                         </div>
                     </div>
-                    <div><input onchange="showSubmitButton()" type="file" name="zipfile" accept=".zip,application/zip" placeholder="Choisir un dossier .zip" class="form-control placeholder" required id="id_zipfile"></div>
+                    <div><input onchange="showSubmitButton()" type="file" name="zipfile" accept=".zip,application/zip" placeholder="Choisir un dossier .zip" class="form-control" required id="id_zipfile"></div>
                 {% else %}
                     <div>{{ field }}</div>
                 {% endif %}

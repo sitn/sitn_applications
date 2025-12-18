@@ -1,7 +1,7 @@
 {% extends 'ppe/base.html' %}
 
 {% block titre %}
-Dépôt d'un dossier - Récapitulatif:
+Dépôt d'un dossier - Récapitulatif
 {% endblock titre %}
 
 {% block content %}
@@ -17,7 +17,9 @@ Dépôt d'un dossier - Récapitulatif:
                 <br>
                 <table width="100%">
                 <tr>
-                    <th class="fs-4" width="50%">Localisation</th><th><a href="{% url 'ppe:edit_geolocalisation' %}" class="btn btn-success">Modifier</a></th>
+                    <th class="fs-4" width="50%">Localisation</th>
+                    <th>{% if dossier_ppe.statut in 'S,C' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>{% else %}
+                        <a href="{% url 'ppe:edit_geolocalisation' %}" class="btn btn-success">Modifier</a>{% endif %}</th>
                 </tr>
                 <tr><td>Cadastre</td><td><b>{{ dossier_ppe.cadastre }}</b></td></tr>
                 <tr><td>Bien-fonds</td><td><b>{{ dossier_ppe.nummai }}</b></td></tr>
@@ -25,11 +27,12 @@ Dépôt d'un dossier - Récapitulatif:
             </section>
 
             <section>
-                <br>
+                <br><br>
                 <table width="100%">
                 <tr>
                     <th class="fs-4" width="50%">Contacts</th>
-                    <th><a href="{% url 'ppe:edit_contacts' %}" class="btn btn-success">Modifier</a></th>
+                    <th>{% if dossier_ppe.statut in 'S,C' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>{% else %}
+                        <a href="{% url 'ppe:edit_contacts' %}" class="btn btn-success">Modifier</a>{% endif %}</th>
                 </tr>
                     <td colspan="2" class="fs-5 fw-bold">Personne de contact principal</td>
                 <tr>
@@ -92,11 +95,13 @@ Dépôt d'un dossier - Récapitulatif:
                 
         {%if dossier_ppe.type_dossier %}
         <div class="col-6">
-        <br>
-        <section>
+            <section>
+            <br>
             <table width="100%">
             <tr>
-                <th class="fs-4" width="50%">Type de dossier</th><th><a href="{% url 'ppe:edit_ppe_type' %}" class="btn btn-success">Modifier</a></th>
+                <th class="fs-4" width="50%">Type de dossier</th>
+                    <th>{% if dossier_ppe.statut in 'S,C' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>{% else %}
+                        <a href="{% url 'ppe:edit_ppe_type' %}" class="btn btn-success">Modifier</a>{% endif %}</th>
             </tr>
                 {% if dossier_ppe.type_dossier == 'C' %}
             <tr>
@@ -128,13 +133,13 @@ Dépôt d'un dossier - Récapitulatif:
                 <td>{{ dossier_ppe.ref_geoshop }}</td>
             </tr>
                     {% endif %}
-                {% else %}
+                {% elif dossier_ppe.type_dossier == 'M' %}
             <tr>
                 <td class="pb-3">Type de dossier :</td><td>Modification</td>
             </tr>
             <tr>
                 <td colspan="2" class="alert alert-secondary">
-                <h6>Ancien dossier :</h6>
+                <h6>Ancien dossier</h6>
                     {% if dossier_initial.id %}
                     <table width="100%">
                         <tr>
@@ -161,60 +166,56 @@ Dépôt d'un dossier - Récapitulatif:
             </tr>
                 {% endif %}
             </table>
-        </section>
-        {% endif %}
+            </section>
+            {% endif %}
 
-
-        <section>
-            {% if dossier_ppe.zipfiles %}
-            <br>
-            <table width="100%">
-            <tr>
-                <th class="fs-4" width="50%">Chargement des fichiers</th>
-                <th><a href="{% url 'ppe:edit_zipfile' %}" class="btn btn-success">Modifier</a></th>
-            </tr>
-            <tr>
-                <td width="30%"><b>Date</b></td><td><b>Statut des fichiers</b></td>
-            </tr>
-            {% for zip in dossier_ppe.zipfiles %}
-            <tr>
-                <td>{{ zip.upload_date }}</td>
-                <td>
-                {% if zip.file_statut == 'CAA' %}
-                Contrôle automatique : dossier archivé
-                {% elif zip.file_statut == 'CAC' %}
-                Contrôle automatique : en cours
-                {% elif zip.file_statut == 'CAE' %}
-                Contrôle automatique : erreurs à corriger
-                {% elif zip.file_statut == 'CAP' %}
-                En attente du contrôle automatique
-                {% elif zip.file_statut == 'CAV' %}
-                Contrôle automatique : validé
-                {% elif zip.file_statut == 'CMC' %}
-                Contrôle manuel : en cours
-                {% elif zip.file_statut == 'CME' %}
-                Contrôle manuel : erreurs à corriger
-                {% elif zip.file_statut == 'CMP' %}
-                En attente du contrôle manuel
-                {% elif zip.file_statut == 'CMV' %}
-                Contrôle manuel : validé
-                {% else %}
-                Il y a une erreur inconnue sur le statut des fichiers zip
-                {% endif %}
-                </td>
-            </tr>
-            {% endfor %}
-            </table>
-            {% else %}
-            <p> 
+            <section>
                 <br><br>
+                {% for zip in dossier_ppe.zipfiles.all %}
+                <table width="100%">
+                {% if forloop.first %}
+                    <tr>
+                        <th class="fs-4" width="50%">Chargement des fichiers</th>
+                        <th>{% if dossier_ppe.statut == 'S' and not dossier_ppe.zipfiles.0.file_statut in 'CAE, CME' %}
+                            <button type="button" disabled class="btn btn-secondary">Ajouter</button>{% else %}
+                            <a href="{% url 'ppe:edit_zipfile' %}" class="btn btn-success">Ajouter</a></th>{% endif %}
+                    </tr>
+                    </table>
+                    <table width="100%">
+                    <thead>
+                    <tr>
+                        <th width="30%" style="padding-top: 20px;">Date et heure</th><th style="padding-top: 20px;">Statut des fichiers</th>
+                    </tr>
+                    </thead>
+                    <tbody
+                        id="zip-status-block"
+                        hx-get="{% url 'ppe:zip_status' %}"
+                        hx-trigger="load, every 60s"
+                        hx-swap="innerHTML"
+                    >
+                        {% include "ppe/zip_status.html" %}
+                    </tbody>
+                    {% if dossier_ppe.zipfiles.all|length > 1 %}
+                    <tr>
+                        <th colspan="2" style="padding-top: 25px;">Historique des fichiers zip</th>
+                    </tr>
+                    {% endif %}
+                {% else %}
+                    <tr>
+                        <td width="30%" style="padding-left: 10px;">{{ zip.upload_date }}</td>
+                        <td style="text-align: left;">{{ zip.get_file_statut_display }}</td>
+                    </tr>
+                {% endif %}
+                </table>
+            </section>
+            {% empty %}
+        </div>
+            <div class="row m-0">
                 <form id="overview_form" class="form-horizontal" action="/ppe/soumission" method="post">
                     {% csrf_token %}
                     <input type="submit" value="Continuer" class="valider btn btn-success">
-                </form> 
-            </p>
-            {% endif %}
-        </section>
+                </form>
+            {% endfor %}
     </div>
 
     {% else %}

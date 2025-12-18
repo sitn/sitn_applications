@@ -15,7 +15,6 @@ div.row {
   margin: auto;
 }
 
-
 div.container-fluid {
     padding-right:0;
     padding-left:0;
@@ -54,7 +53,6 @@ footer {
   padding: 0.5rem 1rem;
 }
 
-
 section {
 /*  border: 1px solid #6654cd; */
   padding: 0px 2px;
@@ -89,6 +87,11 @@ a {
     color: #0ABF94;
 }
 
+caption {
+  caption-side: top;
+  padding-bottom: 10px;
+  font-weight: bold;
+}
 
 /* CLASSES ONLY STYLES */
 /*
@@ -149,24 +152,24 @@ text-align: right;
 }
 
 /* Form fields placeholder style *hack* */
-.placeholder {
+.form-control::placeholder {
   background-color: white !important;
   color: #aaa;
   transition: background-color 5000s ease-in-out 0s;
 }
-.placeholder::placeholder {
+.form-control::placeholder {
   font-size: 0.8em;
   color: #aaa;
   box-shadow: None;
   background-color: white;
 }
-.placeholder::-moz-placeholder{
+.form-control::-moz-placeholder{
   font-size: 0.8em;
   color: #aaa;
   box-shadow: None;
   background-color: white;
 }
-.placeholder::-webkit-input-placeholder{
+.form-control::-webkit-input-placeholder{
   font-size: 0.8em;
   color: #aaa;
   box-shadow: None;
@@ -190,17 +193,12 @@ input:-webkit-autofill {
 }
 
 .sidebar {
-  --color-primary-50: #EFF8F6;
   background-color: #EFF8F6;
   border-right: 1px solid #dee2e6;
   padding: 1rem 0.5rem;
   justify-content: space-between;
   align-self: stretch;
 }
-/*
-  max-width: 250px;
-  min-width: 100px;
-*/
 
 /* Collapsible nav area */
 .sidebar-nav {
@@ -258,6 +256,22 @@ i:hover + span#info_geoloc {
     position: absolute;
     display: inline-block;
 }
+
+div#info_code {
+  display: none;
+  margin-left: 3px;
+  padding: 5px;
+  font-size: small;
+  color: white;
+  background-color: cornflowerblue;
+  border: 1px solid black;
+  z-index: 1021; /* ensures it's above content */
+}
+  
+i:hover + div#info_code {
+    position: absolute;
+    display: inline-block;
+  }
 
 div#info_contact {
   display: none;
@@ -388,6 +402,22 @@ div#info_soumission {
 }
 
 i:hover + div#info_soumission {
+  position: absolute;
+  display: inline-block;
+}
+
+div#info_soumission_dossier {
+  display: none;
+  margin-top: 15px;
+  margin-left: 3px;
+  padding: 5px;
+  font-size: small;
+  color: white;
+  background-color: cornflowerblue;
+  border: 1px solid black;
+}
+
+i:hover + div#info_soumission_dossier {
   position: absolute;
   display: inline-block;
 }

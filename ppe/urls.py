@@ -1,6 +1,7 @@
 from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
+from django.contrib import admin
 from . import views
 
 app_name = "ppe"
@@ -19,7 +20,11 @@ urlpatterns = [
     path("soumission", views.soumission, name="soumission"),
     path("definition_type_dossier", views.definition_type_dossier, name="definition_type_dossier"),
     path("overview", views.overview, name="overview"),
-    path("load_ppe_files", views.load_ppe_files, name="load_ppe_files"),
+    path("load_zipfile", views.load_zipfile, name="load_zipfile"),
+    path("submit_for_validation", views.submit_for_validation, name="submit_for_validation"),
+    path("admin_login", views.admin_login, name="admin_login"),
+    path("admin_logout", views.admin_logout, name="admin_logout"),
+    path("zip_status", views.zip_status, name="zip_status"),
 ]
 
 if settings.DEBUG:

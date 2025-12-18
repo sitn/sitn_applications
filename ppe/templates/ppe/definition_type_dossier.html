@@ -52,7 +52,7 @@ Etape 3 : type de dossier
               <input type="submit" id="validate_btn" value="Valider" class="valider btn btn-success" style="display: none;">
             </div>
             <div class="col-lg-6">
-              <p class=" alert alert-danger">Le dossier papier initial envoyé au notaire doit être retourné à notre service dans les plus brefs délais.</p>
+              <p class="alert alert-danger">Le dossier papier initial envoyé au notaire doit être retourné à notre service dans les plus brefs délais.</p>
             </div>
           </div>
         </section>
@@ -127,7 +127,7 @@ Etape 3 : type de dossier
       
       {% if error_message %}<p id="form_error" class="alert alert-danger"><strong>{{ error_message }}</strong></p>{% endif %}
 
-        {% if mode == 'edit' %}
+        {% if mode == 'edit' and dossier_ppe.type_dossier != 'M' %}
         <input id="submit_btn" type="submit" value="Modifier" class="valider btn btn-success" {% if dossier_ppe.revision_jouissances == 'oui' %}style="display:none;"{% endif %}>
         {% else %}
         <input id="submit_btn" type="submit" value="Valider" class="valider btn btn-success" style="display:none;">

@@ -17,7 +17,7 @@ def unique_folder_path(instance, filename):
     """
     date_prefix = now().strftime('%Y%m%d_%H%M%S')
     new_filename = f"{date_prefix}.zip"
-    return '/'.join([instance.dossier_ppe.login_code, new_filename])
+    return '/'.join([f"{instance.dossier_ppe.id}", new_filename])
 
 def rename_pdf_accord(instance, filename):
     """ Define the new filename using a date prefix
@@ -141,17 +141,20 @@ class DossierPPE(models.Model):
     coord_N = models.IntegerField()
     statut = models.CharField(
         choices=(
-            ("P", "En projet"),
+            ("P", "En préparation"),
             ("S", "Soumis"),
             ("T", "En traitement"),
-            ("R","Rejeté")
+            ("C", "Corrections requises"),
+            ("R", "Rejeté"),
+            ("V", "Dossier papier validé"),
         ),
         default="P", max_length=20)
     type_dossier = models.CharField(
         choices=(
             ("C", "Constitution"),
             ("R", "Révision"),
-            ("M", "Modification")
+            ("M", "Modification"),
+            ("I", "Indéfini")
         ),
         max_length=20)
     revision_jouissances = models.CharField(max_length=3, default=None, blank=True)
@@ -163,6 +166,7 @@ class DossierPPE(models.Model):
     signataire = models.ForeignKey(Signataire, on_delete=models.CASCADE)
     notaire = models.ForeignKey(Notaire, on_delete=models.CASCADE)
     adresse_facturation = models.ForeignKey(AdresseFacturation, on_delete=models.CASCADE)
+    aff_infolica = models.IntegerField(null=True)
     date_creation = models.DateTimeField("Date de création", auto_now=True)
     date_soumission = models.DateTimeField("Date de soumission", auto_now=True, blank=True)
     date_validation = models.DateTimeField("Date de validation", auto_now=True, blank=True)
@@ -170,22 +174,29 @@ class DossierPPE(models.Model):
 
 
 class Zipfile(models.Model):
+
+    class FileStatut(models.TextChoices):
+        CAA = "CAA", "Contrôle automatique : archivé"
+        CAC = "CAC", "Contrôle automatique : en cours"
+        CAE = "CAE", "Contrôle automatique : erreurs à corriger"
+        ERR = "ERR", "Contrôle automatique : erreur interne"
+        CAV = "CAV", "Contrôle automatique : validé"
+        CMC = "CMC", "Contrôle manuel : en cours"
+        CME = "CME", "Contrôle manuel : erreurs à corriger"
+        CMV = "CMV", "Contrôle manuel : validé"
+        DPV = "DPV", "Dossier papier validé"
+
     zipfile = models.FileField(upload_to=unique_folder_path)
     upload_date = models.DateTimeField("Date de chargement", auto_now=True)
     file_statut = models.CharField(
-        choices=(
-            ("CMA", "Contrôle automatique : archivé"),
-            ("CAC", "Contrôle automatique : en cours"),
-            ("CAE", "Contrôle automatique : erreurs à corriger"),
-            ("CAI", "Contrôle automatique : erreur interne"),
-            ("CAV", "Contrôle automatique : validé"),
-            ("CMC", "Contrôle manuel : en cours"),
-            ("CME", "Contrôle manuel : erreurs à corriger"),
-            ("CMV", "Contrôle manuel : validé"),
-            ("DPV", "Dossier papier validé"),
-        ),
-        max_length=3, default="CAC")
-    dossier_ppe = models.ForeignKey(DossierPPE, on_delete=models.CASCADE, blank=True)
+        max_length=3,
+        choices=FileStatut.choices,
+        default=FileStatut.CAC,
+    )
+    dossier_ppe = models.ForeignKey(DossierPPE, on_delete=models.CASCADE, related_name="zipfiles", blank=True)
+
+    class Meta:
+        ordering = ["-upload_date"]
 
     def filename(self):
         return os.path.basename(self.zipfile.name)

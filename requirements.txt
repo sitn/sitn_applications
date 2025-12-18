@@ -1,5 +1,5 @@
 Django>=5.0
-django-extended-ol==1.1.4
+django-extended-ol>=1.2.1
 requests>=2.32.3
 phonenumbers>=9.0.10
 psycopg2==2.9.10
