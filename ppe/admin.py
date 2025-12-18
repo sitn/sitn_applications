@@ -29,6 +29,7 @@ class DossierPPEAdmin(admin.ModelAdmin):
         'login_code',
         'statut',
         'type_dossier',
+        'ref_dossier_initial',
         'date_creation'
     )
     inlines = [

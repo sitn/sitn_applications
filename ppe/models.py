@@ -153,7 +153,8 @@ class DossierPPE(models.Model):
         choices=(
             ("C", "Constitution"),
             ("R", "Révision"),
-            ("M", "Modification")
+            ("M", "Modification"),
+            ("I", "Indéfini")
         ),
         max_length=20)
     revision_jouissances = models.CharField(max_length=3, default=None, blank=True)
@@ -175,7 +176,7 @@ class DossierPPE(models.Model):
 class Zipfile(models.Model):
 
     class FileStatut(models.TextChoices):
-        CMA = "CMA", "Contrôle automatique : archivé"
+        CAA = "CAA", "Contrôle automatique : archivé"
         CAC = "CAC", "Contrôle automatique : en cours"
         CAE = "CAE", "Contrôle automatique : erreurs à corriger"
         ERR = "ERR", "Contrôle automatique : erreur interne"

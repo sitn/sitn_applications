@@ -24,14 +24,12 @@ ZIP_STATUS_LABELS = {
     "CAV": "Contrôle automatique : validé",
     "CMC": "Contrôle manuel : en cours",
     "CME": "Contrôle manuel : erreurs à corriger",
-    "CMP": "En attente du contrôle manuel",
     "CMV": "Contrôle manuel : validé",
     "DPV": "Dossier papier validé",
 }
 
 def index(request):
     # A list for the PPE admins to see the latest demands
-    # TODO : This should only be visible to admins
     request.session['login_code'] = None
 
     if request.user.is_authenticated:
@@ -296,33 +294,29 @@ def soumission(request, doc):
     default_sender = settings.DEFAULT_FROM_EMAIL if settings.DEFAULT_FROM_EMAIL else 'no-reply-ppe@ne.ch'
 
     # First, render the plain text content.
-    text_content = "Vous venez de créer un nouveau dossier PPE sur l'application PETITNOMJOLIATROUVER \
-        \nCadastre {cadastre} \nBien-fonds : {bien_fonds} \nType de dossier : {type_dossier}\n \
-        Son identifiant unique est : {login_code} \
+    text_content = f"Vous venez de créer un nouveau dossier PPE sur l'application PETITNOMJOLIATROUVER \
+        \nCadastre {doc.cadastre} \nBien-fonds : {doc.nummai} \nType de dossier : {doc.type_dossier}\n \
+        Son identifiant unique est : {doc.login_code} \
         \nAttention : Gardez bien ce code, vous en avez besoin pour tout changement.\
         \nRendez-vous sur https://sitn.ne.ch/apps/ppe pour modifier votre \
-        dossier.".format(bien_fonds=doc.nummai, cadastre = doc.cadastre, type_dossier = doc.type_dossier, login_code = doc.login_code)
-        #context={'bien_fonds': doc.nummai, 'cadastre': doc.cadastre, 'login_code': doc.login_code}
+        dossier."
 
     # Secondly, render the HTML content.
-    html_content = "<p>Vous venez de créer un nouveau dossier PPE sur l'application PETITNOMJOLIATROUVER</p> \
-        <p>Cadastre : {cadastre} <br> \
-            Bien-fonds : {bien_fonds}<br> \
-            Type de dossier : {type_dossier}</p> \
-        <p>Son identifiant unique est :</p> <h2 id=\"login_code\">{login_code}</h2> <p><b>Attention :</b> \
+    html_content = f"<p>Vous venez de créer un nouveau dossier PPE sur l'application PETITNOMJOLIATROUVER</p> \
+        <p>Cadastre : {doc.cadastre}<br> \
+            Bien-fonds : {doc.nummai}<br> \
+            Type de dossier : {doc.type_dossier}</p> \
+        <p>Son identifiant unique est :</p> <h2 id=\"login_code\">{doc.login_code}</h2> <p><b>Attention :</b> \
         Gardez bien ce code, vous en avez besoin pour tout changement.</p> \
         <p>Rendez-vous sur <a href=\"https://sitn.ne.ch/apps/ppe\" target=\"_blank\">https://sitn.ne.ch/apps/ppe</a> \
-        pour modifier votre dossier.".format(bien_fonds=doc.nummai, cadastre = doc.cadastre, type_dossier = doc.type_dossier, login_code = doc.login_code)
-        #context={'bien_fonds': doc.nummai, 'cadastre': doc.cadastre, 'login_code': doc.login_code},
+        pour modifier votre dossier."
 
     # Then, create a multipart email instance.
     msg = EmailMultiAlternatives(
         mail_subject,
         text_content,
         default_sender,
-        [doc.contact_principal.email, "francois.voisard@ne.ch"],
-        headers={"List-Unsubscribe": "<mailto:unsub@example.com>"},
-    )
+        [doc.contact_principal.email, "francois.voisard@ne.ch"],    )
     print(msg)
     # Lastly, attach the HTML content to the email instance and send.
     msg.attach_alternative(html_content, "text/html")
@@ -425,7 +419,7 @@ def load_zipfile(request, doc):
             base_url = settings.VCRON_TASK_URL
         else:
             raise HttpResponseNotFound('Il manque l\'URL vers le scheduler')
-        vc_url = "{}ppe_numerique_controle_auto?variables=id_dossier={}".format(base_url, doc.id)
+        vc_url = f"{base_url}ppe_numerique_controle_auto?variables=id_dossier={doc.id}"
         with urlopen(vc_url) as response:
             status = response.getcode()
             if status != 200:
@@ -444,7 +438,7 @@ def submit_for_validation(request, doc):
         base_url = settings.VCRON_TASK_URL
     else:
         raise HttpResponseNotFound('Il manque l\'URL vers le scheduler')
-    vc_url = "{}ppe_numerique_controle_manuel?variables=id_dossier={}".format(base_url, doc.id)
+    vc_url = f"{base_url}ppe_numerique_controle_manuel?variables=id_dossier={doc.id}"
     logger.debug('VCRON trigger url is: %s', vc_url)
     with urlopen(vc_url) as response:
         status = response.getcode()
@@ -711,7 +705,7 @@ def edit_zipfile(request, doc):
             base_url = settings.VCRON_TASK_URL
         else:
             raise HttpResponseNotFound('Il manque l\'URL vers le scheduler')
-        vc_url = "{}ppe_numerique_controle_auto?variables=id_dossier={}".format(base_url, doc.id)
+        vc_url = f"{base_url}ppe_numerique_controle_auto?variables=id_dossier={doc.id}"
         with urlopen(vc_url) as response:
             status = response.getcode()
             if status != 200:

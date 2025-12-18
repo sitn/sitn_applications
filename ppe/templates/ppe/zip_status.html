@@ -1,84 +1,70 @@
-    <tr>
-        <td width="30%" style="padding-left: 10px;padding-bottom: 20px;">
-            {{ zip.upload_date }}
-        </td>
-        <td style="padding-left: 10px;padding-bottom: 20px;">{{ zip.label }}</td>
-    </tr>
+<tr>
+    <td width="30%" style="padding-left: 10px;padding-bottom: 20px;">
+        {{ zip.upload_date }}
+    </td>
+    <td style="padding-left: 10px;padding-bottom: 20px;">{{ zip.label }}</td>
+</tr>
 
+<tr>
     {% if zip.file_statut == "CAC" %}
-    <tr>
-        <td colspan="2" class="alert alert-danger">
-            Votre dossier est en cours de contrôle automatique.
-            Un compte-rendu sera envoyé par e-mail à
-            <span style="color:#045043;">{{ dossier_ppe.contact_principal.email }}</span>.
-        </td>
-    </tr>
+    <td colspan="2" class="alert alert-danger">
+        Votre dossier est en cours de contrôle automatique.
+        Un compte-rendu sera envoyé par e-mail à
+        <span style="color:#045043;">{{ dossier_ppe.contact_principal.email }}</span>.
+    </td>
 
     {% elif zip.file_statut in "CAE CME" %}
-    <tr>
-        <td colspan="2" class="alert alert-danger">
-            Veuillez corriger votre dossier et le soumettre à nouveau.
-        </td>
-    </tr>
+    <td colspan="2" class="alert alert-danger">
+        Veuillez corriger votre dossier et le soumettre à nouveau.
+    </td>
     
     {% elif zip.file_statut == "ERR" %}
-    <tr>
-        <td colspan="2" class="alert alert-danger">
-            Une erreur interne est survenue. Notre équipe y travaille 
-            et vous informera de la reprise du contrôle dès que possible à l'adresse 
-            <span style="color:#045043;">{{ dossier_ppe.contact_principal.email }}</span>.
-        </td>
-    </tr>
+    <td colspan="2" class="alert alert-danger">
+        Une erreur interne est survenue. Notre équipe y travaille 
+        et vous informera de la reprise du contrôle dès que possible à l'adresse 
+        <span style="color:#045043;">{{ dossier_ppe.contact_principal.email }}</span>.
+    </td>
 
     {% elif zip.file_statut == "CAV" %}
-    <tr>
-        <td colspan="2">
-            <a href="{% url 'ppe:submit_for_validation' %}" class="btn btn-success">
-                Poursuivre le contrôle de mon dossier
-            </a>
-            <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
-            <div id="info_soumission_dossier">
-            En appuyant sur ce bouton, votre dossier sera transmis à l'un de nos collaborateurs 
-            pour la suite du processus et vous ne pourrez plus le modifier jusqu'à nouvel ordre.
-            </div>
-        </td>
-    </tr>
+    <td colspan="2">
+        <a href="{% url 'ppe:submit_for_validation' %}" class="btn btn-success">
+            Poursuivre le contrôle de mon dossier
+        </a>
+        <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+        <div id="info_soumission_dossier">
+        En appuyant sur ce bouton, votre dossier sera transmis à l'un de nos collaborateurs 
+        pour la suite du processus et vous ne pourrez plus le modifier jusqu'à nouvel ordre.
+        </div>
+    </td>
 
     {% elif zip.file_statut == 'CMC' %}
-    <tr>
-        <td colspan="2" class="alert alert-danger">
-            Votre dossier est en cours de contrôle par l'un de nos collaborateurs, qui prendra contact avec vous 
-            dans un délai de 10 jours ouvrables.
-        </td>
-    </tr>
+    <td colspan="2" class="alert alert-danger">
+        Votre dossier est en cours de contrôle par l'un de nos collaborateurs, qui prendra contact avec vous 
+        dans un délai de 10 jours ouvrables.
+    </td>
 
     {% elif zip.file_statut == "CMV" %}
-    <tr>
-        <td colspan="2" class="alert alert-danger">
-            Votre dossier est validé. Vous pouvez désormais télécharger les documents définitifs, 
-            les imprimer en deux exemplaires et nous les transmettre par courrier.
-        </td>
-    </tr>
-    <tr>
-        <td colspan="2">
-            <br>
-            <button id="go_champagne" type="button" onclick="openBottle()" class="btn btn-success">Télécharger mes documents</button>
-            <img width="600px" height="*" id="champagne" src="https://newdaywine.com/wp-content/uploads/2022/02/Champagne_opening.jpg" alt="Champagne" style="display: none;">
-        </td>
-    </tr>
+    <td colspan="2" class="alert alert-danger">
+        Votre dossier est validé. Vous pouvez désormais télécharger les documents définitifs, 
+        les imprimer en deux exemplaires et nous les transmettre par courrier.
+    </td>
+</tr>
+<tr>
+    <td colspan="2">
+        <br>
+        <button id="go_champagne" type="button" onclick="openBottle()" class="btn btn-success">Télécharger mes documents</button>
+        <img width="600px" height="*" id="champagne" src="https://newdaywine.com/wp-content/uploads/2022/02/Champagne_opening.jpg" alt="Champagne" style="display: none;">
+    </td>
 
     {% elif zip.file_statut == 'DPV' %}
-    <tr>
-        <td colspan="2" class="alert alert-danger">
-        Votre dossier papier est validé. Il sera signé par le géomètre cantonal puis envoyé au notaire 
-        dans un délai de deux jours ouvrables à partir du xx.xx.xxxx (date de changement de statut 6>7).
-        </td>
-    </tr>
+    <td colspan="2" class="alert alert-danger">
+    Votre dossier papier est validé. Il sera signé par le géomètre cantonal puis envoyé au notaire 
+    dans un délai de deux jours ouvrables à partir du xx.xx.xxxx (date de changement de statut 6>7).
+    </td>
 
     {% else %}
-    <tr>
-        <td colspan="2">Une erreur s'est produite. Veuillez nous contacter si elle persiste :
-            <a href="mailto:sitn@ne.ch?subject=PPE numérique : Un erreur est survenue">sitn@ne.ch</a>
-        </td>
-    </tr>
+    <td colspan="2">Une erreur s'est produite. Veuillez nous contacter si elle persiste :
+        <a href="mailto:sitn@ne.ch?subject=PPE numérique : Un erreur est survenue">sitn@ne.ch</a>
+    </td>
     {% endif %}
+</tr>

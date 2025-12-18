@@ -46,7 +46,11 @@ Application de gestion des PPE
                         <td>{{ dossierppe.cadastre }}</td>
                         <td>{{ dossierppe.nummai }}</td>
                         <td>{{ dossierppe.date_creation }}</td>
-                        <td>{{ dossierppe.get_type_dossier_display }}</td>
+                        <td>{{ dossierppe.get_type_dossier_display }}
+                            {% if dossierppe.get_type_dossier_display == 'Modification' %}
+                            (Réf. initiale: <a href="{% url 'admin:index' %}ppe/dossierppe/{{ dossierppe.ref_dossier_initial }}" target="_new">{{ dossierppe.ref_dossier_initial }}</a>)
+                            {% endif %}
+                        </td>
                         <td>{{ dossierppe.zipfiles.first.get_file_statut_display }}</td>
                         <td><a href="{% url 'ppe:modification' %}">{{ dossierppe.login_code }}</a></td>
                     </tr>
