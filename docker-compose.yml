@@ -6,7 +6,7 @@ services:
       args:
         ENV_FILE: ${ENV_FILE}
     env_file: ${ENV_FILE}
-    command: "./startup.sh" 
+    command: "./startup.sh"
     restart: unless-stopped
     ports:
       - "${DOCKER_PORT}:8000"

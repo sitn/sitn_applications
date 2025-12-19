@@ -15,7 +15,7 @@ RUN python3 -m venv venv && . venv/bin/activate && python -m pip install --upgra
 COPY . ./
 
 ARG ENV_FILE
-RUN mv ${ENV_FILE} .env
+RUN mv ${ENV_FILE} .env && chmod +x startup.sh
 
 # Run migrations to create model permissions here
 RUN export $(egrep -v '^#' .env | xargs) && \
