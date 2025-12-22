@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'registre_foncier',
     'rest_framework',
     'rest_framework_gis',
     'drf_spectacular',
@@ -137,7 +138,13 @@ DATABASES = {
         'OPTIONS': {
             'options': '-c search_path=' + os.environ["PGSCHEMA"] + ',public'
         },
-    }
+    },
+    'terris': {
+        'NAME': os.environ["TERRIS_HOST"]+':'+os.environ["TERRIS_PORT"]+'/'+os.environ["TERRIS_SERVICE"],
+        'ENGINE': "django.db.backends.oracle",
+        'USER': os.environ["TERRIS_USER"],
+        'PASSWORD': os.environ["TERRIS_PASSWORD"],
+    },
 }
 
 
