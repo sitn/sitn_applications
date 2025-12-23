@@ -17,3 +17,4 @@ class RfcenAdresse(models.Model):
 
     class Meta:
         db_table = 'RFCEN\".\"ADRESSE'
+        managed = False

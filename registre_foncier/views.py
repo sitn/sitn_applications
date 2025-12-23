@@ -7,6 +7,6 @@ def index(request):
     """
     Serving the base template.
     """
-    ttt = RfcenAdresse.objects.using("terris").values('akt_name', 'akt_vorname').first()
+    ttt = RfcenAdresse.objects.values('akt_name', 'akt_vorname').first()
 
     return JsonResponse(ttt, safe=False)
