@@ -65,6 +65,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'registre_foncier',
     'rest_framework',
     'rest_framework_gis',
     'drf_spectacular',
@@ -137,9 +138,22 @@ DATABASES = {
         'OPTIONS': {
             'options': '-c search_path=' + os.environ["PGSCHEMA"] + ',public'
         },
-    }
+    },
+    'terris': {
+        'ENGINE': 'django.db.backends.oracle',
+        'NAME': os.environ["TERRIS_HOST"] + ':' + os.environ["TERRIS_PORT"] + '/' + os.environ["TERRIS_SERVICE"],
+        'USER': os.environ["TERRIS_USER"],
+        'PASSWORD': os.environ["TERRIS_PASSWORD"],
+        'TEST': {
+            # prevents the creation of a test database
+            'MIRROR': 'terris',
+        },
+    },
 }
 
+DATABASE_ROUTERS = [
+    "sitn.database_router.TerrisRouter",
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators

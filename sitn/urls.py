@@ -23,6 +23,7 @@ router = SitnRouter()
 
 
 router.register_app('cadastre', '/cadastre/')
+router.register_app('registre_foncier', '/registre_foncier/')
 urlpatterns = [
     path('schema/', SpectacularAPIView.as_view(), name='schema'),
     path('schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
@@ -30,6 +31,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', router.get_api_root_view(), name='api-root'),
     path('cadastre/', include('cadastre.urls')),
+    path('registre_foncier/', include('registre_foncier.urls')),
 ]
 
 if settings.IS_INTRANET:
