@@ -2,11 +2,9 @@ import requests, logging, re, datetime
 from functools import wraps
 
 from .forms import GeolocalisationForm
-from .models import DossierPPE, GeoshopOrder
+from .models import DossierPPE, GeoshopCadastreOrder
 from django.shortcuts import render, redirect
 from django.http import HttpResponseBadRequest
-from django.db import connections
-from django.contrib.gis.geos import GEOSGeometry
 
 logger = logging.getLogger(__name__)
 
@@ -134,7 +132,7 @@ def check_geoshop_ref(ref, pt_geom):
     
     # The order date and ref structure are plausible, so we check in the database validating
     # that the order_id exists and the selected real estate is within the order perimeter
-    geoshop_order = GeoshopOrder.objects.filter(pk=int(order_ref), geom__contains=pt_geom).first()
+    geoshop_order = GeoshopCadastreOrder.objects.filter(pk=int(order_ref), geom__contains=pt_geom).first()
 
     # Check if there is a result and both order and processing date exist
     if not geoshop_order:

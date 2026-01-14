@@ -1,15 +1,10 @@
-import magic
 import os
 
-from django.core.exceptions import ValidationError
+from django.core.validators import FileExtensionValidator
 from django.contrib.gis.db import models
 from django.utils.timezone import now
 from django.conf import settings
 
-
-# Define maximum file sizes for PDF's and ZIP's
-MAX_PDF_SIZE = 2 * 1024 * 1024  # 2 MB
-MAX_ZIP_SIZE = 250 * 1024 * 1024  # 250 MB
 
 def unique_folder_path(instance, filename):
     """ Define the new storage path from login_code
@@ -47,46 +42,15 @@ class AdresseFacturation(models.Model):
     no_rue = models.CharField(max_length=10, blank=True)
     npa = models.IntegerField()
     localite = models.CharField(max_length=100)
-    file = models.FileField(upload_to=rename_pdf_accord)
+    file = models.FileField(upload_to=rename_pdf_accord, validators=[
+        FileExtensionValidator("pdf")
+    ])
 
     def __str__(self):
         return self.nom_raison_sociale
 
     def filename(self):
         return os.path.basename(self.zipfile.name)
-    
-    def clean(self):
-        """
-        Custom model-level validation to check the uploaded file.
-        """
-        # Check if the pdffile field has a value
-        if not self.file:
-            return  # No file provided, nothing to validate
-
-        # Validate the file size
-        self.validate_file_size()
-
-        # Validate the file type (PDF)
-        self.validate_pdf_mimetype()
-
-    def validate_file_size(self):
-        """
-        Validates that the uploaded file does not exceed the maximum allowed size.
-        """
-        file_size = self.file.size  # Get the size in bytes
-        
-        if file_size > MAX_PDF_SIZE:
-            raise ValidationError(f"Le fichier dépasse la taille maximale autorisée de {MAX_PDF_SIZE / (1024 * 1024)} MB.")
-
-    def validate_pdf_mimetype(self):
-        """
-        Validates that the uploaded file is a PDF file.
-        """
-        accept = 'application/pdf'
-        file_mime_type = magic.from_buffer(self.file.read(1024), mime=True)
-        
-        if file_mime_type != accept:
-            raise ValidationError("Unsupported file type. Please upload a valid .pdf file.")
 
     class Meta:
         ordering = ["nom_raison_sociale"]
@@ -197,7 +161,9 @@ class Zipfile(models.Model):
         CMV = "CMV", "Contrôle manuel : validé"
         DPV = "DPV", "Dossier papier validé"
 
-    zipfile = models.FileField(upload_to=unique_folder_path)
+    zipfile = models.FileField(upload_to=unique_folder_path, validators=[
+        FileExtensionValidator("zip")
+    ])
     upload_date = models.DateTimeField("Date de chargement", auto_now=True)
     file_statut = models.CharField(
         max_length=3,
@@ -212,42 +178,9 @@ class Zipfile(models.Model):
 
     def filename(self):
         return os.path.basename(self.zipfile.name)
-    
-    def clean(self):
-        """
-        Custom model-level validation to check the uploaded file.
-        """
-        # Check if the zipfile field has a value
-        if not self.zipfile:
-            return  # No file provided, nothing to validate
-
-        # Validate the file size
-        self.validate_file_size()
-
-        # Validate the file type (ZIP)
-        self.validate_zip_mimetype()
-
-    def validate_file_size(self):
-        """
-        Validates that the uploaded file does not exceed the maximum allowed size.
-        """
-        file_size = self.zipfile.size  # Get the size in bytes
-        
-        if file_size > MAX_ZIP_SIZE:
-            raise ValidationError(f"Le fichier dépasse la taille maximale autorisée de {MAX_ZIP_SIZE / (1024 * 1024)} MB.")
-
-    def validate_zip_mimetype(self):
-        """
-        Validates that the uploaded file is a zip file.
-        """
-        accept = 'application/zip'
-        file_mime_type = magic.from_buffer(self.zipfile.read(1024), mime=True)
-        
-        if file_mime_type != accept:
-            raise ValidationError("Unsupported file type. Please upload a valid .zip file.")
 
 
-class GeoshopMOOrder(models.Model):
+class GeoshopCadastreOrder(models.Model):
     date_ordered = models.DateTimeField()
     date_processed = models.DateTimeField()
     geom = models.PolygonField(srid=settings.DEFAULT_SRID)

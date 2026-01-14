@@ -12,6 +12,7 @@ class Migration(migrations.Migration):
     ]
 
     operations = [
+        migrations.RunSQL('CREATE SCHEMA IF NOT EXISTS ppe;'),
         migrations.CreateModel(
             name='AdresseFacturation',
             fields=[

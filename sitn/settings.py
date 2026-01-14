@@ -138,7 +138,7 @@ DATABASES = {
         'PORT': os.environ["PGPORT"],
         'PASSWORD': os.environ["PGPASSWORD"],
         'OPTIONS': {
-            'options': '-c search_path=' + os.environ["PGSCHEMA"] + ',public'
+            'options': '-c search_path=' + os.environ["PGSCHEMA"] + ',ppe,public'
         },
     },
     'terris': {

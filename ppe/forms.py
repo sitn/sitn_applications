@@ -1,4 +1,3 @@
-import magic
 import phonenumbers
 
 from django.contrib.auth.forms import AuthenticationForm
