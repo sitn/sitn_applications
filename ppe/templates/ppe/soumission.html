@@ -1,0 +1,33 @@
+{% extends 'ppe/base.html' %}
+
+{% block titre %}
+Soumission dossier
+{% endblock titre %}
+
+{% block content %}
+
+    {% if error_message %}<p class="alert alert-danger"><strong>{{ error_message }}</strong></p>{% endif %}
+
+    {% if dossier_ppe %}
+    <h3>Votre code personnel</h3>
+
+    <section>
+    <p class="fs-5">PPE sur le bien-fonds <b>{{ dossier_ppe.nummai }}</b> du cadastre 
+        de <b>{{ dossier_ppe.cadastre }}</b>
+    </p>
+    <p>        
+        Votre dossier a bien été enregistré. Veuillez trouver ci-dessous le code unique vous 
+        permettant de modifier ultérieurement votre dossier.
+    </p>
+
+    <p>
+        Un e-mail contenant ce code a été envoyé à l'adresse suivante : <span style="color: #0ABF94;">{{ dossier_ppe.contact_principal.email }}</span>
+    </p>
+
+    <h2 id="login_code">{{ dossier_ppe.login_code }}</h2>
+
+    <a href="{% url 'ppe:load_zipfile' %}" class="valider btn btn-success">Continuer</a>
+    </section>
+    {% endif %}
+
+{% endblock content %}

@@ -1,0 +1,88 @@
+{% extends 'ppe/base.html' %}
+
+{% block titre %}
+Dépôt d'un dossier:
+{% endblock titre %}
+
+{% block content %}
+
+    <h3>Etape 1 : localisation</h3>
+
+    {% if error_message %}<p><strong>{{ error_message }}</strong></p>{% endif %}
+    <br>
+    <p class="alert alert-danger">Les éventuels travaux de modification du parcellaire doivent 
+        être effectués avant la soumission du dossier PPE.<br> 
+        Pour cela, merci d’envoyer un e-mail avec votre demande à l’adresse 
+    <a href="mailto:sgrf.mutation@ne.ch?Subject=Contrôle dossier PPE">sgrf.mutation@ne.ch</a>.
+    </p>
+
+    <form id="localisation_form" class="form-horizontal" action="/ppe/{{ form_action }}" method="post">
+        {% csrf_token %}
+        {% if doc %}
+        <input type="hidden" id="login_code" name="login_code" value="{{ doc.login_code }}">
+        {% endif %}
+        <div class="row">
+            <div class="col">
+                <input type="checkbox" id="check_mutation" onChange="showMap()" {% if localisation_ppe or mode in 'edit,reset' %}checked{% endif %}>
+                <label for="check_mutation" class="alert alert-success">
+                    Mon projet <b>ne nécessite pas</b> de modification du parcellaire (ou celle-ci a déjà été effectuée)
+                </label>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col">
+            {% if localisation_ppe or mode == 'edit' or mode == 'reset' %}
+                <div name="mapwidget" id="mapwidget">
+            {% else %}
+                <div name="mapwidget" id="mapwidget" style="display:none">
+            {% endif %}
+                <p>Veuillez localiser le bien-fonds de base de la PPE sur la carte par un simple clic.
+                    <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+                    <span id="info_geoloc">Un dossier PPE doit concerner un seul bien-fonds.</span>
+                </p>
+                {{ form }}
+                </div>
+            </div>
+
+            {% if localisation_ppe or mode == 'edit' %}
+            <div class="col" id="localisation_overview" name="localisation_overview">
+                <div id="spacer"><p><br></p></div>
+                <p><b>Cadastre</b>: {{ localisation_ppe.cadastre }}</p>
+                {% if 'bf_list' in localisation_ppe and localisation_ppe.bf_list|length > 0 %}
+                    <p>
+                        <b>Bien-fonds</b>:
+                        <br>
+                        <select id="nummai" name="nummai" onchange="validateRealEstateNb()" class="form-select">
+                            <option value="">Veuillez choisir</option>
+                        {% for bf in localisation_ppe.bf_list %}
+                            <option value="{{ bf.nummai }}">{{ bf.nummai}} - {{ bf.bf_type }}</option>
+                        {% endfor %}
+                        </select>
+                    </p>
+                    <p id="select_bf_info" class="alert alert-secondary">La localisation touche plusieurs immeubles, veuillez ne séléctionner qu'un seul.</p>
+                    <p>
+                    <input id="multi_bf" type="submit" value="Valider" class="button btn btn-success" style="display:none">
+                    <button id="geo_validation" onclick="resetLocalisation('{{ mode }}')" class="button btn btn-success">Modifier</button>
+                    </p>
+                {% else %}
+                    <p>
+                        <b>Bien-fonds</b>: {{ localisation_ppe.bien_fonds.nummai }}
+                        <input hidden id="nummai" name="nummai" value="{{ localisation_ppe.bien_fonds.nummai }}">
+                    </p>
+                    <br>
+                    <input type="submit" value="Valider" class="button btn btn-success">
+                <button id="geo_validation" onclick="resetLocalisation('{{ mode }}')" class="button btn btn-success">Modifier</button>
+
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="col" id="validation" name="validation"{% if mode != 'reset' %} style="display:none"{% endif %}>
+                <p><br></p>
+                <input type="submit" value="Valider" class="button btn btn-success">
+            </div>
+            {% endif %}
+        </div>
+    </form>
+
+{% endblock content %}

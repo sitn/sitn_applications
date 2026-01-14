@@ -1,0 +1,98 @@
+{% extends 'ppe/base.html' %}
+
+{% block titre %}
+Dépôt d'un dossier - étape 2:
+{% endblock titre %}
+
+{% block content %}
+
+    {% if error_message %}<p class="alert alert-danger"><strong>{{ error_message }}</strong></p>{% endif %}
+
+    <h3>Etape 2 : contacts</h3>
+    <p class="fs-4">PPE sur le bien-fonds <b>{{ localisation_ppe.nummai }}</b> du cadastre 
+        de <b>{{ localisation_ppe.cadastre }}</b></p>
+
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <input type="hidden" value="{{ localisation_ppe }}" name="localisation_ppe">
+        <div class="row">
+            <div class="col">
+                <fieldset class="form-group">
+                    <legend>Personne de contact
+                    <i class="bi bi-info-circle-fill fs-5" style="color: cornflowerblue;"></i>
+                    <div id="info_contact">La personne de contact est celle qui soumet le<br>
+                        dossier et recevra les résultats du contrôle.
+                    </div>
+                    </legend>
+                    {{ contact_form.as_div }}
+                </fieldset>
+            </div>
+            <div class="col">
+                <fieldset>
+                    <legend>Signataire
+                    <i class="bi bi-info-circle-fill fs-5" style="color: cornflowerblue;"></i>
+                    <div id="info_signataire">
+                        La personne signataire est obligatoirement un·e architecte inscrit·e <br>
+                        au registre neuchâtelois des architectes ou un·e ingénieur-géomètre <br>
+                        breveté·e du canton de Neuchâtel
+                    </div>
+                    </legend>
+                    {{ signataire_form.as_div }}
+                </fieldset>
+                <p></p>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <fieldset>
+                    <legend>Adresse de facturation</legend>
+                    {% for field in facturation_form %}
+                        {% if field.errors %}
+                        <div class="alert alert-danger">{{ field.errors }}</div>
+                        {% endif %}
+                        <div>{{ field.label_tag }}
+                        {% if "Accord" in field.label_tag %}
+                        <i class="bi bi-info-circle-fill fs-6" style="color: cornflowerblue;"></i>
+                        <div id="info_accord">
+                            Les frais du Service de la géomatique et du registre foncier <br>
+                            comprennent le contrôle de conformité du dossier aux directives <br>
+                            cantonales en vigueur ainsi que l'attribution des numéros de <br>
+                            bien-fonds aux unités juridiques
+                        </div>
+                        {% endif %}
+                        </div>
+                        <div>{{ field }}</div>
+                    {% if dossier_ppe.adresse_facturation.file %}
+                        Actuellement: <br>{{ dossier_ppe.adresse_facturation.file.name }}
+                    {% endif %}
+                    {% endfor %}
+                    <a href="https://www.ne.ch/autorites/DDTE/SGRF/mensuration/Pages/propriete_par_etages.aspx" target="blank">
+                        Lien vers un modèle</a>
+                </fieldset>
+            </div>
+            <div class="col">
+                <fieldset>
+                    <legend>Notaire</legend>
+                    {% for field in notaire_form %}
+                    <div class="fieldWrapper">
+                        {{ field.errors }}
+                        {{ field.label_tag }} {{ field }}
+                        {% if field.help_text %}
+                        <p class="help" id="{{ field.auto_id }}_helptext">
+                            {{ field.help_text|safe }}
+                        </p>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                <p><br><br><br><br></p>
+                <input type="submit" value="Valider" class="valider btn btn-success">
+                </fieldset>
+                <p><br><br></p>
+            </div>
+
+            <p class="red"><br>* Les champs marqués d'un astérisque sont obligatoires</p>
+        </div>
+
+    </form>
+
+{% endblock content %}
