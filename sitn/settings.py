@@ -66,6 +66,8 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "django.contrib.gis",
+    "django_extended_ol",
     'registre_foncier',
     'rest_framework',
     'rest_framework_gis',
