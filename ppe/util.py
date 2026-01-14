@@ -120,6 +120,7 @@ def check_geoshop_ref(ref, pt_geom):
         order_date, order_ref = ref.split('_')
         order_date = datetime.datetime.strptime(order_date, '%Y%m%d').date()
     else:
+        logger.info('Geoshop reference: %s does not exist', ref)
         return False, 'La référence de commande indiquée n\'existe pas.'
 
     # Check if the given order date is more recent than a year

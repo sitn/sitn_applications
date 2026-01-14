@@ -5,7 +5,7 @@ from django.template import loader
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.gis.geos import Point
 from django.conf import settings
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, BadRequest
 from django.core.mail import EmailMultiAlternatives
 
 # INDIVIDUAL ELEMENTS
@@ -180,81 +180,78 @@ def modification(request, doc):
 
 def contact_principal(request):
     """ Checks the geolocation and if ok handles the contact information """
-    error_message = None
-    
-    try:
-        nummai = request.POST["nummai"]
-    except:
-        error_message = "Aucun numéro de bien-fonds n'a été trouvé"
+
+    if 'geom' in request.POST:
+        nummai = request.POST.get("nummai")
+        if nummai is None:
+            raise BadRequest("Aucun numéro de bien-fonds n'a été trouvé")
+        # Check if a localisation exists
+        localisation = request.POST["geom"]
+        # Convert an existing localisation to a JSON dict
+        if isinstance(localisation, str) and localisation != '':
+            localisation = json.loads(localisation)
+        # Fetch geolocalisation calling the satac service
+        if (localisation is not None) and ('coordinates' in localisation):
+            localisation_ppe = get_localisation(localisation)
+            localisation_ppe['nummai'] = nummai
+            return render(
+                request, 
+                "ppe/contact_principal.html", 
+                {
+                    "contact_form": ContactPrincipalForm(prefix='contact'),
+                    "notaire_form": NotaireForm(prefix='notaire'),
+                    "signataire_form": SignataireForm(prefix='signataire'),
+                    "facturation_form": AdresseFacturationForm(prefix='facturation'),
+                    "localisation_ppe": localisation_ppe
+                }
+            )
+        else:
+            raise BadRequest("La localisation n'a pas donné de résultat")
     
     notaire_form = NotaireForm(request.POST, prefix='notaire')
     contact_form = ContactPrincipalForm(request.POST, prefix='contact')
     signataire_form = SignataireForm(request.POST, prefix='signataire')
     facturation_form = AdresseFacturationForm(request.POST, request.FILES, prefix='facturation')
 
-    if (contact_form.is_valid() and
-        notaire_form.is_valid() and
-        signataire_form.is_valid() and
-        facturation_form.is_valid()):
+    if not contact_form.is_valid():
+        raise BadRequest(contact_form.errors)
+    
+    if not notaire_form.is_valid():
+        raise BadRequest(notaire_form.errors)
+    
+    if not signataire_form.is_valid():
+        raise BadRequest(signataire_form.errors)
+    
+    if not facturation_form.is_valid():
+        raise BadRequest(facturation_form.errors)
 
-        geolocalisation_ppe = ast.literal_eval(request.POST["localisation_ppe"])
+    geolocalisation_ppe = ast.literal_eval(request.POST["localisation_ppe"])
 
-        login_code = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits + '._-') for _ in range(16))
+    login_code = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits + '._-') for _ in range(16))
 
-        contact_form.save()
-        notaire_form.save()
-        signataire_form.save()
-        facturation_form.save()
+    contact_form.save()
+    notaire_form.save()
+    signataire_form.save()
+    facturation_form.save()
 
-        new_dossier_ppe = DossierPPE()
-        new_dossier_ppe.login_code = login_code
-        new_dossier_ppe.cadastre = geolocalisation_ppe["cadastre"]
-        new_dossier_ppe.numcad = geolocalisation_ppe["numcad"]
-        new_dossier_ppe.nummai = geolocalisation_ppe["nummai"]
-        new_dossier_ppe.coord_E = geolocalisation_ppe["coord_est"]
-        new_dossier_ppe.coord_N = geolocalisation_ppe["coord_nord"]
-        new_dossier_ppe.contact_principal = ContactPrincipal(pk=contact_form.instance.id)
-        new_dossier_ppe.notaire = Notaire(pk=notaire_form.instance.id)
-        new_dossier_ppe.signataire = Signataire(pk=signataire_form.instance.id)
-        new_dossier_ppe.adresse_facturation = AdresseFacturation(pk=facturation_form.instance.id)
-        new_dossier_ppe.statut = 'P'
-        new_dossier_ppe.type_dossier = 'I'
-        new_dossier_ppe.date_creation = datetime.datetime.now()
-        new_dossier_ppe.geom = Point(geolocalisation_ppe["coordinates"])
-        new_dossier_ppe.save()
-        request.session['login_code'] = login_code
-        return redirect(f'/ppe/definition_type_dossier', new_dossier_ppe)
-
-    if 'geom' in request.POST:
-        try:
-            # Check if a localisation exists
-            localisation = request.POST["geom"]
-            # Convert an existing localisation to a JSON dict
-            if isinstance(localisation, str) and localisation != '':
-                localisation = json.loads(localisation)
-            # Fetch geolocalisation calling the satac service
-            if (localisation is not None) and ('coordinates' in localisation):
-                localisation_ppe = get_localisation(localisation)
-                localisation_ppe['nummai'] = nummai
-                return render(
-                    request, 
-                    "ppe/contact_principal.html", 
-                    {
-                        "contact_form": ContactPrincipalForm(prefix='contact'),
-                        "notaire_form": NotaireForm(prefix='notaire'),
-                        "signataire_form": SignataireForm(prefix='signataire'),
-                        "facturation_form": AdresseFacturationForm(prefix='facturation'),
-                        "localisation_ppe": localisation_ppe
-                    }
-                )
-            else:
-                error_message = "La localisation n'a pas donné de résultat"
-        except Exception as e:
-            # Redisplay the geolocalisation form.
-            logger.warning(f"Error during geoloc. decoding : {repr(e)}")
-            error_message = "Une erreur est survenue lors de la création du formulaire."
-
-    return redirect(f'/ppe/set_geolocalisation', {"error_message": error_message})
+    new_dossier_ppe = DossierPPE()
+    new_dossier_ppe.login_code = login_code
+    new_dossier_ppe.cadastre = geolocalisation_ppe["cadastre"]
+    new_dossier_ppe.numcad = geolocalisation_ppe["numcad"]
+    new_dossier_ppe.nummai = geolocalisation_ppe["nummai"]
+    new_dossier_ppe.coord_E = geolocalisation_ppe["coord_est"]
+    new_dossier_ppe.coord_N = geolocalisation_ppe["coord_nord"]
+    new_dossier_ppe.contact_principal = ContactPrincipal(pk=contact_form.instance.id)
+    new_dossier_ppe.notaire = Notaire(pk=notaire_form.instance.id)
+    new_dossier_ppe.signataire = Signataire(pk=signataire_form.instance.id)
+    new_dossier_ppe.adresse_facturation = AdresseFacturation(pk=facturation_form.instance.id)
+    new_dossier_ppe.statut = 'P'
+    new_dossier_ppe.type_dossier = 'I'
+    new_dossier_ppe.date_creation = datetime.datetime.now()
+    new_dossier_ppe.geom = Point(geolocalisation_ppe["coordinates"])
+    new_dossier_ppe.save()
+    request.session['login_code'] = login_code
+    return redirect(f'/ppe/definition_type_dossier', new_dossier_ppe)
 
 
 def login(request):

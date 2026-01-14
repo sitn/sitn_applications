@@ -43,7 +43,7 @@ class AdresseFacturation(models.Model):
     npa = models.IntegerField()
     localite = models.CharField(max_length=100)
     file = models.FileField(upload_to=rename_pdf_accord, validators=[
-        FileExtensionValidator("pdf")
+        FileExtensionValidator(["pdf"])
     ])
 
     def __str__(self):
@@ -131,10 +131,10 @@ class DossierPPE(models.Model):
             ("I", "Indéfini")
         ),
         max_length=20)
-    revision_jouissances = models.CharField(max_length=3, default=None, blank=True)
-    elements_rf_identiques = models.CharField(max_length=3, default=None, blank=True)
-    nouveaux_droits = models.CharField(max_length=3, default=None, blank=True)
-    ref_geoshop = models.CharField(max_length=20, default=None, blank=True)
+    revision_jouissances = models.CharField(max_length=3, default=None, blank=True, null=True)
+    elements_rf_identiques = models.CharField(max_length=3, default=None, blank=True, null=True)
+    nouveaux_droits = models.CharField(max_length=3, default=None, blank=True, null=True)
+    ref_geoshop = models.CharField(max_length=20, default=None, blank=True, null=True)
     ref_dossier_initial = models.IntegerField(null=True)
     contact_principal = models.ForeignKey(ContactPrincipal, on_delete=models.CASCADE)
     signataire = models.ForeignKey(Signataire, on_delete=models.CASCADE)
@@ -162,7 +162,7 @@ class Zipfile(models.Model):
         DPV = "DPV", "Dossier papier validé"
 
     zipfile = models.FileField(upload_to=unique_folder_path, validators=[
-        FileExtensionValidator("zip")
+        FileExtensionValidator(["zip"])
     ])
     upload_date = models.DateTimeField("Date de chargement", auto_now=True)
     file_statut = models.CharField(

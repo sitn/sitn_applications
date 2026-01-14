@@ -41,7 +41,7 @@ class Migration(migrations.Migration):
                 ('no_rue', models.CharField(blank=True, max_length=10)),
                 ('npa', models.IntegerField()),
                 ('localite', models.CharField(max_length=100)),
-                ('file', models.FileField(upload_to=ppe.models.rename_pdf_accord, validators=[django.core.validators.FileExtensionValidator('pdf')])),
+                ('file', models.FileField(upload_to=ppe.models.rename_pdf_accord, validators=[django.core.validators.FileExtensionValidator(['pdf'])])),
             ],
             options={
                 'db_table': 'ppe"."adresse_facturation',
@@ -142,7 +142,7 @@ class Migration(migrations.Migration):
             name='Zipfile',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('zipfile', models.FileField(upload_to=ppe.models.unique_folder_path, validators=[django.core.validators.FileExtensionValidator('zip')])),
+                ('zipfile', models.FileField(upload_to=ppe.models.unique_folder_path, validators=[django.core.validators.FileExtensionValidator(['zip'])])),
                 ('upload_date', models.DateTimeField(auto_now=True, verbose_name='Date de chargement')),
                 ('file_statut', models.CharField(choices=[('CAA', 'Contrôle automatique : archivé'), ('CAC', 'Contrôle automatique : en cours'), ('CAE', 'Contrôle automatique : erreurs à corriger'), ('ERR', 'Contrôle automatique : erreur interne'), ('CAV', 'Contrôle automatique : validé'), ('CMC', 'Contrôle manuel : en cours'), ('CME', 'Contrôle manuel : erreurs à corriger'), ('CMV', 'Contrôle manuel : validé'), ('DPV', 'Dossier papier validé')], default='CAC', max_length=3)),
                 ('dossier_ppe', models.ForeignKey(blank=True, on_delete=django.db.models.deletion.CASCADE, related_name='zipfiles', to='ppe.dossierppe')),

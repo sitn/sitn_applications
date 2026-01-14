@@ -11,9 +11,6 @@ from .models import ContactPrincipal, Notaire, Signataire
 
 from django.utils.translation import gettext_lazy as _
 
-zip_validator = FileExtensionValidator('zip')
-pdf_validator = FileExtensionValidator('pdf')
-
 
 def validate_phone_number(phone):
     """ Check if the phone number is valid for a selection of european countries """
@@ -99,8 +96,9 @@ class AdresseFacturationForm(forms.ModelForm):
             "no_rue": forms.TextInput(attrs={"placeholder": "(17B)", "class": "form-control"}),
             "npa": forms.TextInput(attrs={"placeholder": "2000", 'validators':[validate_npa], "class": "form-control"}),
             "localite": forms.TextInput(attrs={"placeholder": "Localité", "class": "form-control"}),
-            'file': forms.FileInput(attrs={'accept': '.pdf,application/pdf', 'validators':[pdf_validator], "class": "form-control"}),
-            }
+            'file': forms.FileInput(
+                attrs={'accept': '.pdf,application/pdf', 'validators':[FileExtensionValidator(["pdf"])], "class": "form-control"}),
+        }
         #help_texts = {
         #    "complement": _("Case postale, appt., unité, etc."),
         #    "file": _("Document"),
