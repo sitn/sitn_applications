@@ -2,7 +2,7 @@ import requests, logging, re, datetime
 from functools import wraps
 
 from .forms import GeolocalisationForm
-from .models import DossierPPE
+from .models import DossierPPE, GeoshopOrder
 from django.shortcuts import render, redirect
 from django.http import HttpResponseBadRequest
 from django.db import connections
@@ -134,19 +134,16 @@ def check_geoshop_ref(ref, pt_geom):
     
     # The order date and ref structure are plausible, so we check in the database validating
     # that the order_id exists and the selected real estate is within the order perimeter
-    with connections["geoshop"].cursor() as cursor:
-        cursor.execute("SELECT id, to_char(date_ordered, 'YYYYMMDD'), to_char(date_processed, 'YYYYMMDD'), " \
-        "geom FROM geoshop.order WHERE id = %s and ST_CONTAINS(geom, %s)", [int(order_ref), GEOSGeometry(pt_geom).ewkb])
-        row = cursor.fetchone()
+    geoshop_order = GeoshopOrder.objects.filter(pk=int(order_ref), geom__contains=pt_geom).first()
 
     # Check if there is a result and both order and processing date exist
-    if not row:
+    if not geoshop_order:
         return False, "Les données commandées ne comprennent pas le bien-fonds sélectionné."
     # Check if the result has an existing order date
-    if row[1] == '' or row[1] is None:
+    if geoshop_order.date_ordered == '' or geoshop_order.date_ordered is None:
         return False, 'La commande référencée n\'a pas de date de commande valide.'
     # Check if the result has an existing processing date
-    if row[2] == '' or row[2] is None:
+    if geoshop_order.date_processed == '' or geoshop_order.date_processed is None:
         return False, 'La commande référencée n\'a pas de date de traitement valide.'
     # Check if the given reference date lays in the interval between order and processing date 
     if datetime.datetime.strptime(row[1], '%Y%m%d').date() <= order_date <= datetime.datetime.strptime(row[2], '%Y%m%d').date():

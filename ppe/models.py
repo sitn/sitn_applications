@@ -4,8 +4,8 @@ import os
 from django.core.exceptions import ValidationError
 from django.contrib.gis.db import models
 from django.utils.timezone import now
+from django.conf import settings
 
-from django_extended_ol.forms.widgets import WMTSWithSearchWidget 
 
 # Define maximum file sizes for PDF's and ZIP's
 MAX_PDF_SIZE = 2 * 1024 * 1024  # 2 MB
@@ -17,7 +17,7 @@ def unique_folder_path(instance, filename):
     """
     date_prefix = now().strftime('%Y%m%d_%H%M%S')
     new_filename = f"{date_prefix}.zip"
-    return '/'.join([f"{instance.dossier_ppe.id}", new_filename])
+    return '/'.join(["ppe", f"{instance.dossier_ppe.id}", new_filename])
 
 def rename_pdf_accord(instance, filename):
     """ Define the new filename using a date prefix
@@ -27,7 +27,10 @@ def rename_pdf_accord(instance, filename):
     return '/'.join(['pdfs', new_filename])
 
 class Geolocalisation(models.Model):
-    geom = models.PointField(srid=2056)
+    geom = models.PointField(srid=settings.DEFAULT_SRID)
+
+    class Meta:
+        db_table = 'ppe\".\"geolocalisation'
 
 
 class AdresseFacturation(models.Model):
@@ -87,6 +90,7 @@ class AdresseFacturation(models.Model):
 
     class Meta:
         ordering = ["nom_raison_sociale"]
+        db_table = 'ppe\".\"adresse_facturation'
 
 
 class ContactPrincipal(models.Model):
@@ -101,6 +105,8 @@ class ContactPrincipal(models.Model):
 
     class Meta:
         ordering = ["nom"]
+        db_table = 'ppe\".\"contact_principal'
+
 
 class Notaire(models.Model):
     nom = models.CharField(max_length=100)
@@ -116,6 +122,8 @@ class Notaire(models.Model):
 
     class Meta:
         ordering = ["nom"]
+        db_table = 'ppe\".\"notaire'
+
 
 class Signataire(models.Model):
     nom = models.CharField(max_length=100)
@@ -131,6 +139,8 @@ class Signataire(models.Model):
 
     class Meta:
         ordering = ["nom"]
+        db_table = 'ppe\".\"signataire'
+
 
 class DossierPPE(models.Model):
     login_code = models.CharField(max_length=16)
@@ -170,11 +180,12 @@ class DossierPPE(models.Model):
     date_creation = models.DateTimeField("Date de création", auto_now=True)
     date_soumission = models.DateTimeField("Date de soumission", auto_now=True, blank=True)
     date_validation = models.DateTimeField("Date de validation", auto_now=True, blank=True)
-    geom = models.PointField(srid=2056)
-
+    geom = models.PointField(srid=settings.DEFAULT_SRID)
+    
+    class Meta:
+        db_table = 'ppe\".\"dossier_ppe'
 
 class Zipfile(models.Model):
-
     class FileStatut(models.TextChoices):
         CAA = "CAA", "Contrôle automatique : archivé"
         CAC = "CAC", "Contrôle automatique : en cours"
@@ -197,6 +208,7 @@ class Zipfile(models.Model):
 
     class Meta:
         ordering = ["-upload_date"]
+        db_table = 'ppe\".\"zipfile'
 
     def filename(self):
         return os.path.basename(self.zipfile.name)
@@ -233,3 +245,13 @@ class Zipfile(models.Model):
         
         if file_mime_type != accept:
             raise ValidationError("Unsupported file type. Please upload a valid .zip file.")
+
+
+class GeoshopMOOrder(models.Model):
+    date_ordered = models.DateTimeField()
+    date_processed = models.DateTimeField()
+    geom = models.PolygonField(srid=settings.DEFAULT_SRID)
+
+    class Meta:
+        managed = False
+        db_table = 'ppe_static\".\"geoshop_order'

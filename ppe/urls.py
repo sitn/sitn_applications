@@ -26,6 +26,3 @@ urlpatterns = [
     path("admin_logout", views.admin_logout, name="admin_logout"),
     path("zip_status", views.zip_status, name="zip_status"),
 ]
-
-if settings.DEBUG:
-    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
