@@ -19,7 +19,7 @@ def rename_pdf_accord(instance, filename):
     """
     date_prefix = now().strftime('%Y%m%d_%H%M%S')
     new_filename = f"{date_prefix}_{filename}"
-    return '/'.join(['pdfs', new_filename])
+    return '/'.join(['ppe', 'confirmations', new_filename])
 
 class Geolocalisation(models.Model):
     geom = models.PointField(srid=settings.DEFAULT_SRID)

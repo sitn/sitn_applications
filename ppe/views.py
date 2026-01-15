@@ -412,36 +412,17 @@ def load_zipfile(request, doc):
     if zip_form.is_valid():
         zip_form.save()
         Zipfile(pk=zip_form.instance.id)
-        if settings.VCRON_TASK_URL:
-            base_url = settings.VCRON_TASK_URL
-        else:
-            raise HttpResponseNotFound('Il manque l\'URL vers le scheduler')
-        vc_url = f"{base_url}ppe_numerique_controle_auto?variables=id_dossier={doc.id}"
-        with urlopen(vc_url) as response:
-            status = response.getcode()
-            if status != 200:
-                return render(request, "ppe/overview.html", {"dossier_ppe": doc, "error_message": "Le chargement du zip a échoué."})
-        return redirect(f"/ppe/overview")
-
+        return render(f"/ppe/submited.html")
+    # TODO VCRON ajouter un trigger sur statut CAC
+    # TODO: zip_form.errors probablement intéressant pour l'utilisateur
     zip_form = ZipfileForm(initial=init_data)
     return render(request, "ppe/load_zipfile.html", {"dossier_ppe" : doc, "zip_form": zip_form})
 
 @login_required
 def submit_for_validation(request, doc):
+    # TODO VCRON ajouter un trigger sur statut CMC
     """ Function to start the manual validation process by a employee """
     logger.debug('Submitting dossier %s for manual check', doc.id)
-
-    if settings.VCRON_TASK_URL:
-        base_url = settings.VCRON_TASK_URL
-    else:
-        raise HttpResponseNotFound('Il manque l\'URL vers le scheduler')
-    vc_url = f"{base_url}ppe_numerique_controle_manuel?variables=id_dossier={doc.id}|aff_infolica={doc.aff_infolica}"
-    logger.debug('VCRON trigger url is: %s', vc_url)
-    with urlopen(vc_url) as response:
-        status = response.getcode()
-        logger.info('VCRON call has status: %s', status)
-        if status != 200:
-            return render(request, "ppe/overview.html", {"dossier_ppe": doc, "error_message": "La transmission a échouée."})
     # GET all the zipfiles and set the automatically validated 'CAV' to manual check status 'CMC'
     try: 
         zip =  Zipfile.objects.filter(dossier_ppe_id=doc.id,file_statut='CAV').order_by('-upload_date').first()
@@ -698,16 +679,9 @@ def edit_zipfile(request, doc):
     if zip_form.is_valid():
         zip_form.save()
         Zipfile(pk=zip_form.instance.id)
-        if settings.VCRON_TASK_URL:
-            base_url = settings.VCRON_TASK_URL
-        else:
-            raise HttpResponseNotFound('Il manque l\'URL vers le scheduler')
-        vc_url = f"{base_url}ppe_numerique_controle_auto?variables=id_dossier={doc.id}"
-        with urlopen(vc_url) as response:
-            status = response.getcode()
-            if status != 200:
-                return render(request, "ppe/overview.html", {"dossier_ppe": doc, "error_message": "Le chargement du zip a échoué."})
-        return redirect(f"/ppe/overview")
+        return render(f"/ppe/submited.html")
+    
+    # TODO zip_form.errors?
 
     zip_form = ZipfileForm(initial=init_data)
 

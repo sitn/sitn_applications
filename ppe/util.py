@@ -145,7 +145,7 @@ def check_geoshop_ref(ref, pt_geom):
     if geoshop_order.date_processed == '' or geoshop_order.date_processed is None:
         return False, 'La commande référencée n\'a pas de date de traitement valide.'
     # Check if the given reference date lays in the interval between order and processing date 
-    if datetime.datetime.strptime(row[1], '%Y%m%d').date() <= order_date <= datetime.datetime.strptime(row[2], '%Y%m%d').date():
+    if geoshop_order.date_ordered.date() <= order_date <= geoshop_order.date_processed.date():
         return True, None
     else:
         return False, 'La date de commande de la référence semble erronée.'
