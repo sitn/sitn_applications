@@ -13,6 +13,8 @@ class Command(BaseCommand):
 
     # Schemas that need to be restored before
     dependent_schemas = ['edition', 'main_prepub', 'general', 'mensuration', 'mistra_complet']
+    excluded_apps = ['registre_foncier']
+
 
     def __init__(self):
         super().__init__()
@@ -114,8 +116,8 @@ class Command(BaseCommand):
         unmanaged_tables = {}
         models = apps.get_models()
         for model in models:
-            if not model._meta.managed:
-                # typicall model._meta.db_table is 'schema_name"."table_name'
+            if not model._meta.managed and model._meta.app_label not in self.excluded_apps:
+                # typical model._meta.db_table is 'schema_name"."table_name'
                 schema_name, table_name = model._meta.db_table.replace('"','').split(".")
                 if not schema_name in unmanaged_tables:
                     unmanaged_tables[schema_name] = []

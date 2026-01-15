@@ -1,0 +1,69 @@
+{% extends 'ppe/base.html' %}
+
+{% block titre %}
+Dépôt d'un dossier:
+{% endblock titre %}
+
+<div name="content" class="content">
+{% block content %}
+
+{% if error_message %}<p><strong>{{ error_message }}</strong></p>
+{% else %}
+
+<h3>
+   Dossier PPE - Réf. {{ dossier_ppe.id }}
+</h3>
+<h4>Localisation</h4>
+<p> 
+    Cadastre: {{ dossier_ppe.cadastre }}</br>
+    Bien-fonds: {{ dossier_ppe.nummai }}
+</p>
+
+<h4>Contact principal</h4>
+<p>
+    {{ dossier_ppe.contact_principal.id}} {{ dossier_ppe.contact_principal.prenom }}</br>
+    {%if dossier_ppe.contact_principal.raison_sociale %}
+    Raison sociale: {{ dossier_ppe.contact_principal.raison_sociale }}</br>
+    {% endif %}
+    {{ dossier_ppe.contact_principal.no_tel }}</br>
+    {{ dossier_ppe.contact_principal.email }}
+</p>
+
+<h4>Notaire</h4>
+<p>
+    Me {{ dossier_ppe.notaire.nom}} {{ dossier_ppe.notaire.prenom }}</br>
+    {%if dossier_ppe.notaire.raison_sociale %}
+    {{ dossier_ppe.notaire.raison_sociale }}</br>
+    {% endif %}
+    {%if dossier_ppe.notaire.complement %}
+    {{ dossier_ppe.notaire.complement }}</br>
+    {% endif %}
+    {{ dossier_ppe.notaire.rue }} {{ dossier_ppe.notaire.no_rue }}</br>
+    {{ dossier_ppe.notaire.npa }} {{ dossier_ppe.notaire.localite }}</br>
+</p>
+
+<h4>Signataire</h4>
+<p>
+    {{ dossier_ppe.signataire.nom}} {{ dossier_ppe.signataire.prenom }}</br>
+    {%if dossier_ppe.signataire.raison_sociale %}
+    {{ dossier_ppe.signataire.raison_sociale }}</br>
+    {% endif %}
+    {%if dossier_ppe.signataire.complement %}
+    {{ dossier_ppe.signataire.complement }}</br>
+    {% endif %}
+    {{ dossier_ppe.signataire.rue }} {{ dossier_ppe.signataire.no_rue }}</br>
+    {{ dossier_ppe.signataire.npa }} {{ dossier_ppe.signataire.localite }}</br>
+</p>
+<h4>Adresse de facturation</h4>
+<p>
+    {{ dossier_ppe.adresse_facturation.type_personne }}</br>
+    {{ dossier_ppe.adresse_facturation.nom_raison_sociale}} {{ dossier_ppe.adresse_facturation.prenom }}</br>
+    {%if dossier_ppe.adresse_facturation.complement %}
+    {{ dossier_ppe.adresse_facturation.complement }}</br>
+    {% endif %}
+    {{ dossier_ppe.adresse_facturation.rue }} {{ dossier_ppe.adresse_facturation.no_rue }}</br>
+    {{ dossier_ppe.adresse_facturation.npa }} {{ dossier_ppe.adresse_facturation.localite }}</br>
+</p>
+{% endif %}
+{% endblock content %}
+</div>

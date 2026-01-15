@@ -1,0 +1,225 @@
+{% extends 'ppe/base.html' %}
+
+{% block titre %}
+Dépôt d'un dossier - Récapitulatif
+{% endblock titre %}
+
+{% block content %}
+
+    {% if error_message %}<p class="alert alert-danger"><strong>{{ error_message }}</strong></p>{% endif %}
+
+    {% if dossier_ppe %}
+    <h3>Récapitulatif</h3>
+
+    <div class="row m-0">
+        <div class="col-6">
+            <section>
+                <br>
+                <table width="100%">
+                <tr>
+                    <th class="fs-4" width="50%">Localisation</th>
+                    <th>{% if dossier_ppe.statut in 'S,C' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>{% else %}
+                        <a href="{% url 'ppe:edit_geolocalisation' %}" class="btn btn-success">Modifier</a>{% endif %}</th>
+                </tr>
+                <tr><td>Cadastre</td><td><b>{{ dossier_ppe.cadastre }}</b></td></tr>
+                <tr><td>Bien-fonds</td><td><b>{{ dossier_ppe.nummai }}</b></td></tr>
+                </table>
+            </section>
+
+            <section>
+                <br><br>
+                <table width="100%">
+                <tr>
+                    <th class="fs-4" width="50%">Contacts</th>
+                    <th>{% if dossier_ppe.statut in 'S,C' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>{% else %}
+                        <a href="{% url 'ppe:edit_contacts' %}" class="btn btn-success">Modifier</a>{% endif %}</th>
+                </tr>
+                    <td colspan="2" class="fs-5 fw-bold">Personne de contact principal</td>
+                <tr>
+                    <td colspan="2">{{ dossier_ppe.contact_principal.nom}} {{ dossier_ppe.contact_principal.prenom }}</td>
+                </tr><tr>
+                        {%if dossier_ppe.contact_principal.raison_sociale %}
+                        <td colspan="2" >{{ dossier_ppe.contact_principal.raison_sociale }}</td>
+                        {% endif %}
+                </tr><tr>
+                        <td colspan="2" >{{ dossier_ppe.contact_principal.no_tel }}</td>
+                </tr><tr>
+                        <td colspan="2" >{{ dossier_ppe.contact_principal.email }}</td>
+                </tr>
+                </table>
+            </section>
+
+            <section>        
+                <p class="fs-5 fw-bold">Notaire</p>
+                <p>
+                    Me {{ dossier_ppe.notaire.nom}} {{ dossier_ppe.notaire.prenom }}</br>
+                    {%if dossier_ppe.notaire.raison_sociale %}
+                    {{ dossier_ppe.notaire.raison_sociale }}</br>
+                    {% endif %}
+                    {%if dossier_ppe.notaire.complement %}
+                    {{ dossier_ppe.notaire.complement }}</br>
+                    {% endif %}
+                    {{ dossier_ppe.notaire.rue }} {{ dossier_ppe.notaire.no_rue }}</br>
+                    {{ dossier_ppe.notaire.npa }} {{ dossier_ppe.notaire.localite }}</br>
+                </p>
+            </section>
+
+            <section>
+                <p class="fs-5 fw-bold">Signataire</p>
+                <p>
+                    {{ dossier_ppe.signataire.nom}} {{ dossier_ppe.signataire.prenom }}</br>
+                    {%if dossier_ppe.signataire.raison_sociale %}
+                    {{ dossier_ppe.signataire.raison_sociale }}</br>
+                    {% endif %}
+                    {%if dossier_ppe.signataire.complement %}
+                    {{ dossier_ppe.signataire.complement }}</br>
+                    {% endif %}
+                    {{ dossier_ppe.signataire.rue }} {{ dossier_ppe.signataire.no_rue }}</br>
+                    {{ dossier_ppe.signataire.npa }} {{ dossier_ppe.signataire.localite }}</br>
+                </p>
+            </section>
+
+            <section>
+                <p class="fs-5 fw-bold">Adresse de facturation</p>
+                <p>
+                    {{ dossier_ppe.adresse_facturation.nom_raison_sociale}} {{ dossier_ppe.adresse_facturation.prenom }}</br>
+                    {%if dossier_ppe.adresse_facturation.complement %}
+                    {{ dossier_ppe.adresse_facturation.complement }}</br>
+                    {% endif %}
+                    {{ dossier_ppe.adresse_facturation.rue }} {{ dossier_ppe.adresse_facturation.no_rue }}</br>
+                    {{ dossier_ppe.adresse_facturation.npa }} {{ dossier_ppe.adresse_facturation.localite }}</br>
+                    <i>Fichier actuel : {{ dossier_ppe.adresse_facturation.file.name }}</br></i>
+                </p>
+            </section>
+        </div>
+                
+        {%if dossier_ppe.type_dossier %}
+        <div class="col-6">
+            <section>
+            <br>
+            <table width="100%">
+            <tr>
+                <th class="fs-4" width="50%">Type de dossier</th>
+                    <th>{% if dossier_ppe.statut in 'S,C' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>{% else %}
+                        <a href="{% url 'ppe:edit_ppe_type' %}" class="btn btn-success">Modifier</a>{% endif %}</th>
+            </tr>
+                {% if dossier_ppe.type_dossier == 'C' %}
+            <tr>
+                <td>Type de dossier :</td><td>Constitution</td>
+            </tr>
+            <tr>
+                <td>Réf. géoshop:</td>
+                <td>{{ dossier_ppe.ref_geoshop }}</td>
+            </tr>
+                {% elif dossier_ppe.type_dossier == 'R' %}
+            <tr>
+                <td>Type de dossier :</td><td>Révision</td>
+            </tr>
+            <tr>
+                <td>La révision concerne uniquement des droits de jouissance</td>
+                <td>{{ dossier_ppe.revision_jouissances }}</td>
+            </tr>
+            <tr>
+                <td>Les éléments du plan de situation en vigueur restent identiques</td>
+                <td>{{ dossier_ppe.elements_rf_identiques }}</td>
+            </tr>
+                    {% if dossier_ppe.elements_rf_identiques == 'oui' %}
+            <tr>
+                <td colspan="2" class="alert alert-danger">Les fichiers «8_psit» contenant les objets du plan de situation ne sont pas nécessaires.</td>
+            </tr>
+                    {% elif dossier_ppe.elements_rf_identiques == 'non' %}
+            <tr>
+                <td>Réf. géoshop:</td>
+                <td>{{ dossier_ppe.ref_geoshop }}</td>
+            </tr>
+                    {% endif %}
+                {% elif dossier_ppe.type_dossier == 'M' %}
+            <tr>
+                <td class="pb-3">Type de dossier :</td><td>Modification</td>
+            </tr>
+            <tr>
+                <td colspan="2" class="alert alert-secondary">
+                <h6>Ancien dossier</h6>
+                    {% if dossier_initial.id %}
+                    <table width="100%">
+                        <tr>
+                            <td>Type de dossier :</td><td>{% if dossier_initial.type_dossier == 'C' %}Constitution{% else %}Révision{% endif %}</td>
+                        </tr>
+                        {% if dossier_initial.ref_geoshop %}
+                        <tr>
+                            <td>Référence geoshop :</td><td>{{ dossier_initial.ref_geoshop }}</td>
+                        </tr>
+                        {% endif %}
+                        {% if dossier_initial.type_dossier == 'R' %}
+                        <tr>
+                            <td>La révision concerne uniquement des droits de jouissance :</td><td>{{ dossier_ppe.revision_jouissances }}</td>
+                        <tr>
+                            <td>Les éléments du plan de situation en vigueur restent identiques :</td><td>{{ dossier_ppe.elements_rf_identiques }}</td>
+                        </tr>
+                        {% endif %}
+                    </p>
+                    </table>
+                    {% else %}
+                <p>Une erreur avec la référence du dossier d'origine est survenue.</p>
+                    {% endif%}
+                </td>
+            </tr>
+                {% endif %}
+            </table>
+            </section>
+            {% endif %}
+
+            <section>
+                <br><br>
+                {% for zip in dossier_ppe.zipfiles.all %}
+                <table width="100%">
+                {% if forloop.first %}
+                    <tr>
+                        <th class="fs-4" width="50%">Chargement des fichiers</th>
+                        <th>{% if not zip.file_statut in 'CAE, CME' %}
+                            <button type="button" disabled class="btn btn-secondary">Ajouter</button>{% else %}
+                            <a href="{% url 'ppe:edit_zipfile' %}" class="btn btn-success">Ajouter</a></th>{% endif %}
+                    </tr>
+                    </table>
+                    <table width="100%">
+                    <thead>
+                    <tr>
+                        <th width="30%" style="padding-top: 20px;">Date et heure</th><th style="padding-top: 20px;">Statut des fichiers</th>
+                    </tr>
+                    </thead>
+                    <tbody
+                        id="zip-status-block"
+                        hx-get="{% url 'ppe:zip_status' %}"
+                        hx-trigger="load, every 60s"
+                        hx-swap="innerHTML"
+                    >
+                        {% include "ppe/zip_status.html" %}
+                    </tbody>
+                    {% if dossier_ppe.zipfiles.all|length > 1 %}
+                    <tr>
+                        <th colspan="2" style="padding-top: 25px;">Historique des fichiers zip</th>
+                    </tr>
+                    {% endif %}
+                {% else %}
+                    <tr>
+                        <td width="30%" style="padding-left: 10px;">{{ zip.upload_date }}</td>
+                        <td style="text-align: left;">{{ zip.get_file_statut_display }}</td>
+                    </tr>
+                {% endif %}
+                </table>
+            </section>
+            {% empty %}
+        </div>
+            <div class="row m-0">
+                <form id="overview_form" class="form-horizontal" action="/ppe/soumission" method="post">
+                    {% csrf_token %}
+                    <input type="submit" value="Continuer" class="valider btn btn-success">
+                </form>
+            {% endfor %}
+    </div>
+
+    {% else %}
+    <p>Une erreur inconnue est survenue</p>
+    {% endif %}
+
+{% endblock content %}

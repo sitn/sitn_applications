@@ -56,6 +56,7 @@ else:
         path('ecap/', include('ecap.urls')),
         path('action_sociale/', include('action_sociale.urls')),
         path('health/', include('health.urls')),
+        path("ppe/", include("ppe.urls")),
         path('roads/', include('roads.urls')),
         path('stationnement/', include('stationnement.urls')),
         path('forest_forpriv/', include('forest_forpriv.urls')),
