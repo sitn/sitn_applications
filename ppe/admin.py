@@ -22,7 +22,7 @@ class DossierPPEAdmin(WMTSGISModelAdmin):
         'type_dossier',
         'date_creation'
     ]
-    list_display = (
+    list_display = [
         'id',
         'cadastre',
         'nummai',
@@ -30,9 +30,9 @@ class DossierPPEAdmin(WMTSGISModelAdmin):
         'type_dossier',
         'ref_dossier_initial',
         'latest_zipfile_statut',
-        'date_creation'
-        'aff_infolica',
-    )
+        'date_creation',
+        'aff_infolica'
+    ]
     inlines = [
          ZipfileInline
     ]
@@ -80,6 +80,22 @@ class ZipfileAdmin(admin.ModelAdmin):
         'zipfile',
         'upload_date'
     ]
+    def dossier_ppe_id(self, obj):
+        return obj.dossier_ppe.id
+
+    def dossier_ppe_cadastre(self, obj):
+        return obj.dossier_ppe.cadastre
+
+    def dossier_ppe_nummai(self, obj):
+        return obj.dossier_ppe.nummai
+
+    def dossier_ppe_type_dossier(self, obj):
+        return obj.dossier_ppe.get_type_dossier_display()
+
+    dossier_ppe_id.short_description = "Dossier PPE"
+    dossier_ppe_cadastre.short_description = "Cadastre"
+    dossier_ppe_nummai.short_description = "Nummai"
+
 
 class NotaireAdmin(admin.ModelAdmin):
     search_fields= [
