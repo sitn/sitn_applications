@@ -176,7 +176,7 @@ Dépôt d'un dossier - Récapitulatif
                 {% if forloop.first %}
                     <tr>
                         <th class="fs-4" width="50%">Chargement des fichiers</th>
-                        <th>{% if dossier_ppe.statut == 'S' and not dossier_ppe.zipfiles.0.file_statut in 'CAE, CME' %}
+                        <th>{% if not zip.file_statut in 'CAE, CME' %}
                             <button type="button" disabled class="btn btn-secondary">Ajouter</button>{% else %}
                             <a href="{% url 'ppe:edit_zipfile' %}" class="btn btn-success">Ajouter</a></th>{% endif %}
                     </tr>

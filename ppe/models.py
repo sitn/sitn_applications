@@ -55,6 +55,8 @@ class AdresseFacturation(models.Model):
     class Meta:
         ordering = ["nom_raison_sociale"]
         db_table = 'ppe\".\"adresse_facturation'
+        verbose_name = "Adresse facturation"
+        verbose_name_plural = "Adresses facturation"
 
 
 class ContactPrincipal(models.Model):
@@ -70,6 +72,8 @@ class ContactPrincipal(models.Model):
     class Meta:
         ordering = ["nom"]
         db_table = 'ppe\".\"contact_principal'
+        verbose_name = "Contact principal"
+        verbose_name_plural = "Contacts principaux"
 
 
 class Notaire(models.Model):
@@ -87,6 +91,8 @@ class Notaire(models.Model):
     class Meta:
         ordering = ["nom"]
         db_table = 'ppe\".\"notaire'
+        verbose_name = "Notaire"
+        verbose_name_plural = "Notaires"
 
 
 class Signataire(models.Model):
@@ -104,6 +110,8 @@ class Signataire(models.Model):
     class Meta:
         ordering = ["nom"]
         db_table = 'ppe\".\"signataire'
+        verbose_name = "Signataire"
+        verbose_name_plural = "Signataires"
 
 
 class DossierPPE(models.Model):
@@ -148,6 +156,8 @@ class DossierPPE(models.Model):
     
     class Meta:
         db_table = 'ppe\".\"dossier_ppe'
+        verbose_name = "Dossier PPE"
+        verbose_name_plural = "Dossiers PPE"
 
 class Zipfile(models.Model):
     class FileStatut(models.TextChoices):

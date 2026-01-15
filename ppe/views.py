@@ -292,7 +292,7 @@ def soumission(request, doc):
 
     # First, render the plain text content.
     text_content = f"Vous venez de créer un nouveau dossier PPE sur l'application PETITNOMJOLIATROUVER \
-        \nCadastre {doc.cadastre} \nBien-fonds : {doc.nummai} \nType de dossier : {doc.type_dossier}\n \
+        \nCadastre {doc.cadastre} \nBien-fonds : {doc.nummai} \nType de dossier : {doc.get_type_dossier_display}\n \
         Son identifiant unique est : {doc.login_code} \
         \nAttention : Gardez bien ce code, vous en avez besoin pour tout changement.\
         \nRendez-vous sur https://sitn.ne.ch/apps/ppe pour modifier votre \
@@ -302,7 +302,7 @@ def soumission(request, doc):
     html_content = f"<p>Vous venez de créer un nouveau dossier PPE sur l'application PETITNOMJOLIATROUVER</p> \
         <p>Cadastre : {doc.cadastre}<br> \
             Bien-fonds : {doc.nummai}<br> \
-            Type de dossier : {doc.type_dossier}</p> \
+            Type de dossier : {doc.get_type_dossier_display}</p> \
         <p>Son identifiant unique est :</p> <h2 id=\"login_code\">{doc.login_code}</h2> <p><b>Attention :</b> \
         Gardez bien ce code, vous en avez besoin pour tout changement.</p> \
         <p>Rendez-vous sur <a href=\"https://sitn.ne.ch/apps/ppe\" target=\"_blank\">https://sitn.ne.ch/apps/ppe</a> \
@@ -435,7 +435,7 @@ def submit_for_validation(request, doc):
         base_url = settings.VCRON_TASK_URL
     else:
         raise HttpResponseNotFound('Il manque l\'URL vers le scheduler')
-    vc_url = f"{base_url}ppe_numerique_controle_manuel?variables=id_dossier={doc.id}"
+    vc_url = f"{base_url}ppe_numerique_controle_manuel?variables=id_dossier={doc.id}|aff_infolica={doc.aff_infolica}"
     logger.debug('VCRON trigger url is: %s', vc_url)
     with urlopen(vc_url) as response:
         status = response.getcode()
