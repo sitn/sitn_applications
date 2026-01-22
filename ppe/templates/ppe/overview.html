@@ -176,7 +176,7 @@ Dépôt d'un dossier - Récapitulatif
                 {% if forloop.first %}
                     <tr>
                         <th class="fs-4" width="50%">Chargement des fichiers</th>
-                        <th>{% if not zip.file_statut in 'CAE, CME' %}
+                        <th>{% if not zip.file_statut in 'CAC, CAE, CME' %}
                             <button type="button" disabled class="btn btn-secondary">Ajouter</button>{% else %}
                             <a href="{% url 'ppe:edit_zipfile' %}" class="btn btn-success">Ajouter</a></th>{% endif %}
                     </tr>
@@ -211,7 +211,7 @@ Dépôt d'un dossier - Récapitulatif
             {% empty %}
         </div>
             <div class="row m-0">
-                <form id="overview_form" class="form-horizontal" action="/ppe/soumission" method="post">
+                <form id="overview_form" class="form-horizontal" action="soumission" method="post">
                     {% csrf_token %}
                     <input type="submit" value="Continuer" class="valider btn btn-success">
                 </form>

@@ -46,7 +46,7 @@ django-computedfields==0.3.5
     # via -r requirements.in
 django-cors-headers==4.9.0
     # via -r requirements.in
-django-extended-ol==1.2.2
+django-extended-ol==1.2.1
     # via -r requirements.in
 django-fast-update==0.3.0
     # via

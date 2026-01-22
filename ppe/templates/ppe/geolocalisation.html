@@ -16,7 +16,7 @@ Dépôt d'un dossier:
     <a href="mailto:sgrf.mutation@ne.ch?Subject=Contrôle dossier PPE">sgrf.mutation@ne.ch</a>.
     </p>
 
-    <form id="localisation_form" class="form-horizontal" action="/ppe/{{ form_action }}" method="post">
+    <form id="localisation_form" class="form-horizontal" action="{{ form_action }}" method="post">
         {% csrf_token %}
         {% if doc %}
         <input type="hidden" id="login_code" name="login_code" value="{{ doc.login_code }}">

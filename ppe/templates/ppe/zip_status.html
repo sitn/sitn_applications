@@ -52,8 +52,7 @@
 <tr>
     <td colspan="2">
         <br>
-        <button id="go_champagne" type="button" onclick="openBottle()" class="btn btn-success">Télécharger mes documents</button>
-        <img width="600px" height="*" id="champagne" src="https://newdaywine.com/wp-content/uploads/2022/02/Champagne_opening.jpg" alt="Champagne" style="display: none;">
+        <a href="/ppe_download/{{ dossier_ppe.id }}/dossier_final.zip" class="btn btn-success">Télécharger mes documents</a>
     </td>
 
     {% elif zip.file_statut == 'DPV' %}

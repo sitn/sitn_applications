@@ -31,7 +31,7 @@ def login_required(func):
             except Exception as e:
                 logger.warning(f"Exception : {repr(e)}")
                 pass
-        return redirect('/ppe/login')
+        return redirect('ppe:login')
     return wrapper
 
 def get_localisation(localisation):
@@ -117,8 +117,9 @@ def check_geoshop_ref(ref, pt_geom):
 
     # Check if the given reference respects the supposed format
     if GEOSHOP_ORDER_REGEX.search(ref):
-        order_date, order_ref = ref.split('_')
+        order_date, order_ref = ref.split('_')  
         order_date = datetime.datetime.strptime(order_date, '%Y%m%d').date()
+        logger.info("date_commande: %s et no_ref: %s", order_date, order_ref)
     else:
         logger.info('Geoshop reference: %s does not exist', ref)
         return False, 'La référence de commande indiquée n\'existe pas.'

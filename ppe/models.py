@@ -50,7 +50,7 @@ class AdresseFacturation(models.Model):
         return self.nom_raison_sociale
 
     def filename(self):
-        return os.path.basename(self.zipfile.name)
+        return os.path.basename(self.file.name)
 
     class Meta:
         ordering = ["nom_raison_sociale"]
@@ -148,7 +148,7 @@ class DossierPPE(models.Model):
     signataire = models.ForeignKey(Signataire, on_delete=models.CASCADE)
     notaire = models.ForeignKey(Notaire, on_delete=models.CASCADE)
     adresse_facturation = models.ForeignKey(AdresseFacturation, on_delete=models.CASCADE)
-    aff_infolica = models.IntegerField(null=True)
+    aff_infolica = models.IntegerField(default=0,null=True)
     date_creation = models.DateTimeField("Date de création", auto_now=True)
     date_soumission = models.DateTimeField("Date de soumission", auto_now=True, blank=True)
     date_validation = models.DateTimeField("Date de validation", auto_now=True, blank=True)

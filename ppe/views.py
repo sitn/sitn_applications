@@ -1,6 +1,6 @@
 import datetime, random, string, json, logging, ast
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, HttpResponseNotFound
+from django.http import HttpResponse
 from django.template import loader
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.gis.geos import Point
@@ -155,7 +155,7 @@ def modification(request, doc):
                     dossier_ppe.adresse_facturation = AdresseFacturation(pk=facturation_form.instance.id)
                     dossier_ppe.save()
 
-                    return redirect(f'/ppe/definition_type_dossier', dossier_ppe)
+                    return redirect('ppe:definition_type_dossier')
                 else:
                     error_message = "Une valeur modifiée ne semble pas avoir été conforme."
 
@@ -247,11 +247,12 @@ def contact_principal(request):
     new_dossier_ppe.adresse_facturation = AdresseFacturation(pk=facturation_form.instance.id)
     new_dossier_ppe.statut = 'P'
     new_dossier_ppe.type_dossier = 'I'
+    new_dossier_ppe.aff_infolica = 0
     new_dossier_ppe.date_creation = datetime.datetime.now()
     new_dossier_ppe.geom = Point(geolocalisation_ppe["coordinates"])
     new_dossier_ppe.save()
     request.session['login_code'] = login_code
-    return redirect(f'/ppe/definition_type_dossier', new_dossier_ppe)
+    return redirect('ppe:definition_type_dossier')
 
 
 def login(request):
@@ -259,7 +260,7 @@ def login(request):
         request.session['login_code'] = request.POST['login_code']
         try:
             doc = DossierPPE.objects.get(login_code=request.session['login_code'])
-            return redirect(f"/ppe/overview", {"dossier_ppe": doc})
+            return redirect("ppe:overview")
         except Exception as e:
             # Redisplay the geolocalisation form.
             logger.warning(f"Error fetching the file : {repr(e)}")
@@ -273,7 +274,6 @@ def detail(request, doc):
 def overview(request, doc):
     error_message = None
     dossier_initial = None
-
     # GET initial PPE Dossier data if type is modification
     if doc.type_dossier == 'M':
         try:
@@ -358,7 +358,7 @@ def definition_type_dossier(request, doc, type_dossier=None):
         dossier_ppe.revision_jouissances = None
         dossier_ppe.ref_geoshop = ref_geoshop
         dossier_ppe.save()
-        return redirect("/ppe/overview")
+        return redirect('ppe:overview')
 
     elif type_dossier == 'M' and code_initial is not None:
         # GET the inital DossierPPE to be replaced or return an error
@@ -373,7 +373,7 @@ def definition_type_dossier(request, doc, type_dossier=None):
             dossier_ppe.type_dossier = type_dossier
             dossier_ppe.ref_dossier_initial = dossier_ppe_initial.id
             dossier_ppe.save()
-            return redirect(f"/ppe/overview")
+            return redirect("ppe:overview")
         else:
             error_message = "Le numéro de bien-fonds n'est pas le même que dans le dossier d'origine."    
 
@@ -387,7 +387,7 @@ def definition_type_dossier(request, doc, type_dossier=None):
         if elements_rf_identiques == 'non' and ref_exists == True:
             dossier_ppe.ref_geoshop = ref_geoshop
         dossier_ppe.save()
-        return redirect(f"/ppe/overview")
+        return redirect("ppe:overview")
     
     else:
         error_message = 'Le type de dossier PPE ne semble pas encore défini.'
@@ -408,11 +408,10 @@ def load_zipfile(request, doc):
     zip_form = ZipfileForm(request.POST, request.FILES or None)
     doc = DossierPPE.objects.get(login_code=doc.login_code)
     init_data = {"dossier_ppe": DossierPPE(pk=doc.id)}
-
     if zip_form.is_valid():
         zip_form.save()
         Zipfile(pk=zip_form.instance.id)
-        return render(f"/ppe/submited.html")
+        return render(request, "ppe/submited.html", {"dossier_ppe" : doc})
     # TODO VCRON ajouter un trigger sur statut CAC
     # TODO: zip_form.errors probablement intéressant pour l'utilisateur
     zip_form = ZipfileForm(initial=init_data)
@@ -436,7 +435,7 @@ def submit_for_validation(request, doc):
     doc.statut = 'S'
     doc.date_soumission = datetime.datetime.now()
     doc.save()
-    return redirect(f"/ppe/overview")
+    return redirect("ppe:overview")
 
 @login_required
 def edit_geolocalisation(request, doc):
@@ -476,7 +475,7 @@ def edit_geolocalisation(request, doc):
                 dossier_ppe.date_creation = datetime.datetime.now()
                 dossier_ppe.geom = Point(localisation_ppe["coordinates"])
                 dossier_ppe.save()
-                return redirect(f"/ppe/overview")
+                return redirect("ppe:overview")
         else:
             return render(request, "ppe/geolocalisation.html", {
                 "error_message": error_message,
@@ -550,7 +549,7 @@ def edit_contacts(request, doc):
                     dossier_ppe.adresse_facturation = AdresseFacturation(pk=facturation_form.instance.id)
                     dossier_ppe.save()
 
-                return redirect(f'/ppe/overview', dossier_ppe)
+                return redirect('ppe:overview', dossier_ppe)
 
         return render(request, "ppe/modification.html", {
             "error_message": error_message,
@@ -609,7 +608,7 @@ def edit_ppe_type(request, doc):
         dossier_ppe.type_dossier = type_dossier
         dossier_ppe.ref_geoshop = ref_geoshop
         dossier_ppe.save()
-        return redirect("/ppe/overview")
+        return redirect("ppe:overview")
 
     if type_dossier == 'R':
         # Be sure to set back the different values on changes
@@ -629,7 +628,7 @@ def edit_ppe_type(request, doc):
         if elements_rf_identiques == 'non' and ref_exists == True:
             dossier_ppe.ref_geoshop = ref_geoshop
         dossier_ppe.save()
-        return redirect(f"/ppe/overview")
+        return redirect("ppe:overview")
 
     if type_dossier == 'M' and code_initial is not None:
         # GET the inital DossierPPE to be replaced or return an error
@@ -653,7 +652,7 @@ def edit_ppe_type(request, doc):
                 dossier_ppe.type_dossier = type_dossier
                 dossier_ppe.ref_dossier_initial = dossier_ppe_initial.id
                 dossier_ppe.save()
-                return redirect(f"/ppe/overview")
+                return redirect("ppe:overview")
             else:
                 error_message = "Le numéro de bien-fonds n'est pas le même que dans le dossier d'origine." 
 
@@ -679,7 +678,7 @@ def edit_zipfile(request, doc):
     if zip_form.is_valid():
         zip_form.save()
         Zipfile(pk=zip_form.instance.id)
-        return render(f"/ppe/submited.html")
+        return render(request, "ppe/submited.html", {"dossier_ppe" : doc})
     
     # TODO zip_form.errors?
 

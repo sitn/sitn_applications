@@ -1,1 +1,46 @@
-ok
+{% extends 'ppe/base.html' %}
+
+{% block titre %}
+Étape 4 : chargement du dossier zip
+{% endblock titre %}
+
+{% block content %}
+
+    {% if error_message %}<p class="alert alert-danger"><strong>{{ error_message }}</strong></p>{% endif %}
+
+    <h3>Étape 4 : chargement du dossier zip</h3>
+
+    {% if dossier_ppe %}
+    <p class="fs-5">PPE sur le bien-fonds <b>{{ dossier_ppe.nummai }}</b> du cadastre 
+        de <b>{{ dossier_ppe.cadastre }}</b>
+    </p>
+    {% endif %}
+    {% if dossier_ppe.zipfiles %}
+    <div id="zip_confirmation" name="zip_confirmation">
+        <p>La saisie de votre dossier est maintenant terminée.</p>
+        {% for zipfile in dossier_ppe.zipfiles.all %}
+        {% if forloop.first %}
+        <p>Le ZIP {{ zipfile.path }} a été déposé pour vérification ({{ zipfile.id }})</p>
+        {% endif %}
+        {% endfor %}
+        <p>
+            Une vérification automatique de vos données est actuellement en cours, 
+            un compte-rendu vous sera envoyé par e-mail à l'adresse 
+            <a href="mailto:{{ dossier_ppe.contact_principal.email }}?Subject=Dossier PPE" target="blank">{{ dossier_ppe.contact_principal.email }}</a> d'ici xx minutes.
+        </p>
+        <p>
+            Toutes les erreurs bloquantes découvertes devront être corrigées, 
+            et les fichiers soumis à nouveau.
+        </p>
+        <p>Une fois toutes les erreurs bloquantes corrigées, votre dossier poursuivra 
+            automatiquement sa route chez l'un de nos collaborateurs.</p>
+  
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <div>
+            <a href="{% url 'ppe:overview' %}" class="btn btn-success">Retour au récapitulatif</a>
+        </div>
+    </form>
+    {% endif %}
+
+{% endblock content %}
