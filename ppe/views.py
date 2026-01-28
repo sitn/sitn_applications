@@ -6,7 +6,8 @@ from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.gis.geos import Point
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, BadRequest
-from django.core.mail import EmailMultiAlternatives
+#from django.core.mail import EmailMultiAlternatives
+from sitn.tools.emailer import send_email
 
 # INDIVIDUAL ELEMENTS
 from .models import DossierPPE, ContactPrincipal, Notaire, Signataire, AdresseFacturation, Zipfile
@@ -22,6 +23,7 @@ ZIP_STATUS_LABELS = {
     "CAE": "Contrôle automatique : erreurs à corriger",
     "ERR": "Contrôle automatique : erreur interne",
     "CAV": "Contrôle automatique : validé",
+    "CMS": "Contrôle manuel : en cours (S)",
     "CMC": "Contrôle manuel : en cours",
     "CME": "Contrôle manuel : erreurs à corriger",
     "CMV": "Contrôle manuel : validé",
@@ -318,6 +320,12 @@ def soumission(request, doc):
     # Lastly, attach the HTML content to the email instance and send.
     msg.attach_alternative(html_content, "text/html")
     msg.send()
+    send_email(
+        mail_subject, 
+        message=text_content, 
+        to=[doc.contact_principal.email, "francois.voisard@ne.ch"],
+        template_name=None,
+        template_data=html_content)
 
     return render(request, "ppe/soumission.html", {"dossier_ppe": doc})
 
@@ -411,7 +419,7 @@ def load_zipfile(request, doc):
     if zip_form.is_valid():
         zip_form.save()
         Zipfile(pk=zip_form.instance.id)
-        return render(request, "ppe/submited.html", {"dossier_ppe" : doc})
+        return render(request, "ppe/overview.html", {"dossier_ppe" : doc})
     # TODO VCRON ajouter un trigger sur statut CAC
     # TODO: zip_form.errors probablement intéressant pour l'utilisateur
     zip_form = ZipfileForm(initial=init_data)
@@ -428,7 +436,7 @@ def submit_for_validation(request, doc):
     except Exception as e:
         logger.warning(f"Error finding a zip : {repr(e)}")
 
-    zip.file_statut = 'CMC'
+    zip.file_statut = 'CMS'
     zip.save()
 
     # Set the application's status to submitted for manual validation 'S'
