@@ -1,6 +1,7 @@
 Django==5.2.7
 django-computedfields
 django-cors-headers
+django-extended-ol
 django-fast-update
 django-geojson
 django-revproxy
@@ -9,9 +10,11 @@ djangorestframework-gis
 drf-spectacular
 drf-spectacular-sidecar
 oracledb
+phonenumbers
 python-dotenv
 psycopg[binary]
 pip-tools
+python-dotenv
 whitenoise
 openpyxl
 requests

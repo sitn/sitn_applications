@@ -1,4 +1,4 @@
-FROM ghcr.io/osgeo/gdal:ubuntu-small-3.11.4
+FROM ghcr.io/osgeo/gdal:ubuntu-small-3.12.1
 
 RUN apt-get update --fix-missing && apt-get upgrade --assume-yes \
     && apt-get install --assume-yes --no-install-recommends gettext python3-pip python3-venv
