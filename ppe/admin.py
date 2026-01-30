@@ -38,7 +38,8 @@ class DossierPPEAdmin(WMTSGISModelAdmin):
     ]
 
     def latest_zipfile_statut(self, obj):
-        return obj.zipfiles.order_by('-upload_date').first().get_file_statut_display() if latest_zip else "—"
+            latest_zip = obj.zipfiles.order_by('-upload_date').first()
+            return latest_zip.get_file_statut_display() if latest_zip else "—"
 
     latest_zipfile_statut.short_description = "Dernier statut ZIP"
 

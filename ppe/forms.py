@@ -33,7 +33,8 @@ def validate_npa(npa):
         raise ValidationError(_("Le NPA doit être un entier à quatre chiffres"))
     if npa < 1000 or npa > 9999:
         raise ValidationError(_("Le NPA doit faire partie de l'intervalle 1000 à 9999."))
-    
+
+
 class AdminLoginForm(AuthenticationForm):
     username = forms.CharField(
         label="Nom d'utilisateur",
