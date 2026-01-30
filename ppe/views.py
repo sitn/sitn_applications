@@ -22,6 +22,7 @@ ZIP_STATUS_LABELS = {
     "CAE": "Contrôle automatique : erreurs à corriger",
     "ERR": "Contrôle automatique : erreur interne",
     "CAV": "Contrôle automatique : validé",
+    "CMS": "Contrôle manuel : en cours (S)",
     "CMC": "Contrôle manuel : en cours",
     "CME": "Contrôle manuel : erreurs à corriger",
     "CMV": "Contrôle manuel : validé",
@@ -104,6 +105,7 @@ def set_geolocalisation(request):
     )
 
 def check_geolocalisation(request):
+    # TODO: Validate that the selected point is inside the cantonal border
     return
 
 @login_required
@@ -428,7 +430,7 @@ def submit_for_validation(request, doc):
     except Exception as e:
         logger.warning(f"Error finding a zip : {repr(e)}")
 
-    zip.file_statut = 'CMC'
+    zip.file_statut = 'CMS'
     zip.save()
 
     # Set the application's status to submitted for manual validation 'S'

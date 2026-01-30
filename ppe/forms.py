@@ -19,11 +19,9 @@ def validate_phone_number(phone):
     for country_code in country_codes:
         try:
             # Parse the phone number for each country code
-            parsed_number = phonenumbers.parse(phone, country_code)
-            
+            parsed_number = phonenumbers.parse(phone, country_code)    
             if phonenumbers.is_valid_number(parsed_number):
                 return  # If valid, return and stop further checks
-            
         except phonenumbers.phonenumberutil.NumberParseException:
             continue  # If parsing fails for this country code, try the next one
     
