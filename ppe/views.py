@@ -106,6 +106,7 @@ def set_geolocalisation(request):
     )
 
 def check_geolocalisation(request):
+    # TODO: Validate that the selected point is inside the cantonal border
     return
 
 @login_required

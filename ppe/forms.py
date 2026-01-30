@@ -19,11 +19,9 @@ def validate_phone_number(phone):
     for country_code in country_codes:
         try:
             # Parse the phone number for each country code
-            parsed_number = phonenumbers.parse(phone, country_code)
-            
+            parsed_number = phonenumbers.parse(phone, country_code)    
             if phonenumbers.is_valid_number(parsed_number):
                 return  # If valid, return and stop further checks
-            
         except phonenumbers.phonenumberutil.NumberParseException:
             continue  # If parsing fails for this country code, try the next one
     
@@ -35,7 +33,8 @@ def validate_npa(npa):
         raise ValidationError(_("Le NPA doit être un entier à quatre chiffres"))
     if npa < 1000 or npa > 9999:
         raise ValidationError(_("Le NPA doit faire partie de l'intervalle 1000 à 9999."))
-    
+
+
 class AdminLoginForm(AuthenticationForm):
     username = forms.CharField(
         label="Nom d'utilisateur",
