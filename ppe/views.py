@@ -1,3 +1,4 @@
+import os
 import datetime, random, string, json, logging, ast
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse
@@ -6,11 +7,11 @@ from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.gis.geos import Point
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, BadRequest
-#from django.core.mail import EmailMultiAlternatives
-from sitn.tools.emailer import send_email
+from django.core.files.storage import default_storage
+from django.core.mail import EmailMultiAlternatives
 
 # INDIVIDUAL ELEMENTS
-from .models import DossierPPE, ContactPrincipal, Notaire, Signataire, AdresseFacturation, Zipfile
+from .models import DossierPPE, ContactPrincipal, Notaire, Signataire, AdresseFacturation, Zipfile, rename_pdf_accord
 from .forms import AdminLoginForm, AdresseFacturationForm, NotaireForm, SignataireForm, GeolocalisationForm, ContactPrincipalForm, ZipfileForm
 from urllib.request import urlopen
 from .util import get_localisation, login_required, check_geoshop_ref
@@ -254,6 +255,19 @@ def contact_principal(request):
     new_dossier_ppe.date_creation = datetime.datetime.now()
     new_dossier_ppe.geom = Point(geolocalisation_ppe["coordinates"])
     new_dossier_ppe.save()
+
+    # Get the original accord de prise en charge filename
+    #current_accord = AdresseFacturation.objects.get(pk=new_dossier_ppe.adresse_facturation.id)
+    filename = os.path.basename(facturation_form.instance.file.name)
+    new_accord_facturation_path = f"ppe/{new_dossier_ppe.id}/{filename}"
+    default_storage.save(new_accord_facturation_path, default_storage.open(f"{facturation_form.instance.file}"))
+    default_storage.delete(f"{facturation_form.instance.file}")
+
+    # Update DB reference without re-uploading
+    accord_actuel = new_dossier_ppe.adresse_facturation
+    accord_actuel.file.name = new_accord_facturation_path
+    accord_actuel.save(update_fields=["file"])
+
     request.session['login_code'] = login_code
     return redirect('ppe:definition_type_dossier')
 
@@ -316,17 +330,11 @@ def soumission(request, doc):
         mail_subject,
         text_content,
         default_sender,
-        [doc.contact_principal.email, "francois.voisard@ne.ch"],    )
+        [doc.contact_principal.email],    )
     print(msg)
     # Lastly, attach the HTML content to the email instance and send.
     msg.attach_alternative(html_content, "text/html")
     msg.send()
-    send_email(
-        mail_subject, 
-        message=text_content, 
-        to=[doc.contact_principal.email, "francois.voisard@ne.ch"],
-        template_name=None,
-        template_data=html_content)
 
     return render(request, "ppe/soumission.html", {"dossier_ppe": doc})
 

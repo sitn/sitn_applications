@@ -233,9 +233,14 @@ MEDIA_URL = os.environ.get('MEDIA_URL', 'data/')
 
 DEFAULT_FROM_EMAIL = 'no-reply@ne.ch'
 
+ACTIVATE_MAILING_IN_DEV_MODE = os.environ.get('DEV_MAIL_ON', False)
 if DEVELOPMENT_MODE:
-    EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
-    EMAIL_FILE_PATH = BASE_DIR / "emails_sent"
+    if ACTIVATE_MAILING_IN_DEV_MODE:
+        DEFAULT_FROM_EMAIL='no-reply-ppe@ne.ch'
+        EMAIL_HOST='smtp.ne.ch'
+    else: 
+        EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
+        EMAIL_FILE_PATH = BASE_DIR / "emails_sent"
 else:
     EMAIL_HOST = os.environ["EMAIL_HOST"]
 
