@@ -11,7 +11,7 @@ from django.core.files.storage import default_storage
 from django.core.mail import EmailMultiAlternatives
 
 # INDIVIDUAL ELEMENTS
-from .models import DossierPPE, ContactPrincipal, Notaire, Signataire, AdresseFacturation, Zipfile, rename_pdf_accord
+from .models import DossierPPE, ContactPrincipal, Notaire, Signataire, AdresseFacturation, Zipfile
 from .forms import AdminLoginForm, AdresseFacturationForm, NotaireForm, SignataireForm, GeolocalisationForm, ContactPrincipalForm, ZipfileForm
 from urllib.request import urlopen
 from .util import get_localisation, login_required, check_geoshop_ref
@@ -691,16 +691,12 @@ def edit_zipfile(request, doc):
     zip_form = ZipfileForm(request.POST, request.FILES or None)
     doc = DossierPPE.objects.get(login_code=doc.login_code)
     init_data = {"dossier_ppe": DossierPPE(pk=doc.id)}
-
     if zip_form.is_valid():
         zip_form.save()
         Zipfile(pk=zip_form.instance.id)
-        return render(request, "ppe/submited.html", {"dossier_ppe" : doc})
-    
-    # TODO zip_form.errors?
-
+        return render(request, "ppe/overview.html", {"dossier_ppe" : doc})
+    # TODO: zip_form.errors probablement intéressant pour l'utilisateur
     zip_form = ZipfileForm(initial=init_data)
-
     return render(request, "ppe/load_zipfile.html", {"dossier_ppe" : doc, "zip_form": zip_form})
 
 

@@ -203,3 +203,11 @@ class GeoshopCadastreOrder(models.Model):
     class Meta:
         managed = False
         db_table = 'ppe_static\".\"geoshop_order'
+
+class MunicipalityBorder(models.Model):
+    date_updated = models.DateTimeField()
+    geom = models.MultiPolygonField(srid=settings.DEFAULT_SRID)
+
+    class Meta:
+        managed = False
+        db_table = 'general\".\"la3_limites_communales'
