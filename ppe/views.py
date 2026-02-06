@@ -13,7 +13,6 @@ from django.core.mail import EmailMultiAlternatives
 # INDIVIDUAL ELEMENTS
 from .models import DossierPPE, ContactPrincipal, Notaire, Signataire, AdresseFacturation, Zipfile
 from .forms import AdminLoginForm, AdresseFacturationForm, NotaireForm, SignataireForm, GeolocalisationForm, ContactPrincipalForm, ZipfileForm
-from urllib.request import urlopen
 from .util import get_localisation, login_required, check_geoshop_ref
 
 logger = logging.getLogger(__name__)
@@ -24,7 +23,7 @@ ZIP_STATUS_LABELS = {
     "CAE": "Contrôle automatique : erreurs à corriger",
     "ERR": "Contrôle automatique : erreur interne",
     "CAV": "Contrôle automatique : validé",
-    "CMS": "Contrôle manuel : en cours (S)",
+    "CMS": "Contrôle manuel : en cours ",
     "CMC": "Contrôle manuel : en cours",
     "CME": "Contrôle manuel : erreurs à corriger",
     "CMV": "Contrôle manuel : validé",
@@ -715,7 +714,6 @@ def get_final_documents(request, doc):
         str(doc.id),
         "dossier_final.zip"
     )
-    print(file_path)
     if not os.path.exists(file_path):
         raise Http404("File not found")
 
