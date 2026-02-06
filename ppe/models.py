@@ -115,6 +115,20 @@ class Signataire(models.Model):
 
 
 class DossierPPE(models.Model):
+    class DossierStatut(models.TextChoices):
+        P = "P", "En préparation"
+        S = "S", "Soumis"
+        T = "T", "En traitement"
+        C = "C", "Corrections requises"
+        R = "R", "Rejeté"
+        V = "V", "Dossier papier validé"
+
+    class TypeDossier(models.TextChoices):
+        C = "C", "Constitution"
+        R = "R", "Révision"
+        M = "M", "Modification"
+        I = "I", "Indéfini"
+             
     login_code = models.CharField(max_length=16)
     cadastre = models.CharField(max_length=50)
     numcad = models.IntegerField()
@@ -122,23 +136,13 @@ class DossierPPE(models.Model):
     coord_E = models.IntegerField()
     coord_N = models.IntegerField()
     statut = models.CharField(
-        choices=(
-            ("P", "En préparation"),
-            ("S", "Soumis"),
-            ("T", "En traitement"),
-            ("C", "Corrections requises"),
-            ("R", "Rejeté"),
-            ("V", "Dossier papier validé"),
-        ),
-        default="P", max_length=20)
+        max_length=20,
+        choices=DossierStatut.choices,
+        default=DossierStatut.P)
     type_dossier = models.CharField(
-        choices=(
-            ("C", "Constitution"),
-            ("R", "Révision"),
-            ("M", "Modification"),
-            ("I", "Indéfini")
-        ),
-        max_length=20)
+        max_length=20,
+        choices=TypeDossier.choices,
+        default=TypeDossier.I)
     revision_jouissances = models.CharField(max_length=3, default=None, blank=True, null=True)
     elements_rf_identiques = models.CharField(max_length=3, default=None, blank=True, null=True)
     nouveaux_droits = models.CharField(max_length=3, default=None, blank=True, null=True)
@@ -166,7 +170,7 @@ class Zipfile(models.Model):
         CAE = "CAE", "Contrôle automatique : erreurs à corriger"
         ERR = "ERR", "Contrôle automatique : erreur interne"
         CAV = "CAV", "Contrôle automatique : validé"
-        CMS = "CMS", "Contrôle manuel : en cours (S)"
+        CMS = "CMS", "Contrôle manuel : en cours "
         CMC = "CMC", "Contrôle manuel : en cours"
         CME = "CME", "Contrôle manuel : erreurs à corriger"
         CMV = "CMV", "Contrôle manuel : validé"

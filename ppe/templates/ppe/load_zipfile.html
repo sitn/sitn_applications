@@ -40,17 +40,19 @@
             {% elif zip.file_statut == 'CAE' %}
                 <b>Contrôle automatique : erreurs à corriger
             {% elif zip.file_statut == 'CAP' %}
-                <b>En attente du contrôle automatique
+                <b>En attente du contrôle automatique</b>
             {% elif zip.file_statut == 'CAV' %}
-                <b>Contrôle automatique : validé
+                <b>Contrôle automatique : validé</b>
+            {% elif zip.file_statut == 'CMS' %}
+                <b>Contrôle manuel : en cours</b>
             {% elif zip.file_statut == 'CMC' %}
-                <b>Contrôle manuel : en cours
+                <b>Contrôle manuel : en cours</b>
             {% elif zip.file_statut == 'CME' %}
-                <b>Contrôle manuel : erreurs à corriger
+                <b>Contrôle manuel : erreurs à corriger</b>
             {% elif zip.file_statut == 'CMP' %}
-                <b>En attente du contrôle manuel
+                <b>En attente du contrôle manuel</b>
             {% elif zip.file_statut == 'CMV' %}
-                <b>Contrôle manuel : validé
+                <b>Contrôle manuel : validé</b>
             {% else %}
                 <span class="alert alert-danger">Il y a une erreur inconnue sur le statut des fichiers zip</span>
         {% endif %}

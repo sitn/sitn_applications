@@ -1,0 +1,97 @@
+{% autoescape off %}
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+  <meta name="viewport" content="width=device-width" />
+  <style>
+    body {
+      width: 100% !important;
+      min-width: 100%;
+      margin: 0;
+      padding: 0;
+    }
+
+    table {
+      width: 100% !important;
+      border-spacing: 0;
+      border-collapse: collapse;
+    }
+
+
+    td {
+      padding: 0;
+      text-align: left;
+      word-break: break-word;
+      -webkit-hyphens: auto;
+      -moz-hyphens: auto;
+      hyphens: auto;
+      border-collapse: collapse !important;
+    }
+
+    table,
+    td {
+      mso-table-lspace: 0pt;
+      mso-table-rspace: 0pt;
+    }
+
+    body,
+    table,
+    td,
+    p,
+    a,
+    li,
+    blockquote {
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+
+    body {
+      color: #212121;
+      font-family: "Helvetica Neue", Helvetica, Arial, Verdana, "Trebuchet MS";
+      font-weight: 400;
+      font-size: 18px;
+      line-height: 1.429;
+      letter-spacing: 0.001em;
+      background-color: #FFF;
+    }
+
+    .header {
+      background: #26a59a;
+      color: #fff;
+      font-weight: bold;
+    }
+
+    td {
+      padding: 25px;
+    }
+
+    .footer {
+      font-size: 12px;
+      background: #eee;
+    }
+
+    .footer td {
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body>
+    <p>Vous venez de créer un nouveau dossier PPE sur l'application de gestion des PPE numériques</p>
+        <p>Cadastre : {doc.cadastre}<br>
+            Bien-fonds : {doc.nummai}<br>
+            Type de dossier : {doc.get_type_dossier_display}</p>
+        <p>Son code unique de connexion est  :</p> <h2 id="login_code">{doc.login_code}</h2> <p><b>Attention :</b>
+            Gardez bien ce code, vous en avez besoin pour tout changement.</p>
+        <p>Rendez-vous sur <a href="https://sitn.ne.ch/apps/ppe" target="_blank ">https://sitn.ne.ch/apps/ppe</a>
+        pour modifier votre dossier.
+        <p>
+          Ceci est un mail automatique, prière de ne pas y répondre. Pour toute question n'hésitez pas à nous contacter
+          à l'adresse <a href="mailto:sgrf.ppe@ne.ch">sitn@ne.ch</a>.
+        </p>
+</body>
+
+</html>
+{% endautoescape %}

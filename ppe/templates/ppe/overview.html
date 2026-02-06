@@ -178,7 +178,7 @@ Dépôt d'un dossier - Récapitulatif
                         <th class="fs-4" width="50%">Chargement des fichiers</th>
                         <th>{% if not zip.file_statut in 'CAC, CAE, CME' %}
                             <button type="button" disabled class="btn btn-secondary">Ajouter</button>{% else %}
-                            <a href="{% url 'ppe:edit_zipfile' %}" class="btn btn-success">Ajouter</a></th>{% endif %}
+                            <a href="{% url 'ppe:load_zipfile' %}" class="btn btn-success">Ajouter</a></th>{% endif %}
                     </tr>
                     </table>
                     <table width="100%">
