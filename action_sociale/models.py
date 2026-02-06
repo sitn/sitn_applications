@@ -30,6 +30,7 @@ class Gsr002GuichetSocialRegional(models.Model):
     email = models.CharField(max_length=50)
     form_prise_contact = models.CharField(max_length=100)
     adresse = models.CharField(max_length=60)
+    informations = models.CharField(max_length=200)
     google_maps = models.CharField(max_length=100)
     geom = models.PointField(srid=settings.DEFAULT_SRID)
 

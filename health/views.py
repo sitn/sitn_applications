@@ -63,9 +63,6 @@ class St20AvailableDoctorsViewSet(
 
         # If email not found, send email to explain
         obj.guid_requested_when = timezone.now()
-        print(obj.login_email.lower() != serializer.data.get('login_email').lower())
-        print(serializer.data.get('login_email').lower())
-        print(obj.login_email.lower())
         if obj.login_email.lower() != serializer.data.get('login_email').lower():
             obj.save()
             send_email(

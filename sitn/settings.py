@@ -47,11 +47,12 @@ INTRANET_ONLY_APPS = [
 ]
 
 INTERNET_ONLY_APPS = [
-    'stationnement',
+    'action_sociale',
+    'ecap',
     'forest_forpriv',
     'health',
-    'ecap',
-    'action_sociale',
+    'stationnement',
+    'ppe',
 ]
 
 INSTALLED_APPS = [
@@ -65,6 +66,9 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "django.contrib.gis",
+    "django_extended_ol",
+    'registre_foncier',
     'rest_framework',
     'rest_framework_gis',
     'drf_spectacular',
@@ -115,6 +119,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'django.template.context_processors.media',
             ],
         },
     },
@@ -135,11 +140,24 @@ DATABASES = {
         'PORT': os.environ["PGPORT"],
         'PASSWORD': os.environ["PGPASSWORD"],
         'OPTIONS': {
-            'options': '-c search_path=' + os.environ["PGSCHEMA"] + ',public'
+            'options': '-c search_path=' + os.environ["PGSCHEMA"] + ',ppe,public'
         },
-    }
+    },
+    'terris': {
+        'ENGINE': 'django.db.backends.oracle',
+        'NAME': os.environ["TERRIS_HOST"] + ':' + os.environ["TERRIS_PORT"] + '/' + os.environ["TERRIS_SERVICE"],
+        'USER': os.environ["TERRIS_USER"],
+        'PASSWORD': os.environ["TERRIS_PASSWORD"],
+        'TEST': {
+            # prevents the creation of a test database
+            'MIRROR': 'terris',
+        },
+    },
 }
 
+DATABASE_ROUTERS = [
+    "sitn.database_router.TerrisRouter",
+]
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -209,6 +227,9 @@ STATICFILES_DIRS = [
 ]
 
 WHITENOISE_STATIC_PREFIX = "/assets/"
+
+MEDIA_ROOT = "/data/"
+MEDIA_URL = os.environ.get('MEDIA_URL', 'data/')
 
 DEFAULT_FROM_EMAIL = 'no-reply@ne.ch'
 
@@ -294,3 +315,26 @@ SPECTACULAR_SETTINGS = {
 
 DEFAULT_SRID = 2056
 
+
+OLWIDGET = {
+    "globals": {
+        "srid": 2056,
+        "default_center": [2551470, 1211190], # optional
+        "default_resolution": 18, # optional
+        "extent": [2420000, 1030000, 2900000, 1360000],
+        "resolutions": [250, 100, 50, 20, 10, 5, 2.5, 2, 1.5, 1, 0.5, 0.25, 0.125, 0.0625]
+    },
+    "wmts": {
+        "layer_name": 'plan_cadastral',
+        "style": 'default',
+        "matrix_set": 'EPSG2056',
+        "attributions": '<a target="new" href="https://sitn.ne.ch/web/conditions_utilisation/contrat_SITN_MO.htm'
+            + '">© SITN</a>', # optional
+        "url_template": 'https://sitn.ne.ch/mapproxy95/wmts/1.0.0/{layer}/{style}/{TileMatrixSet}/{TileMatrix}/{TileRow}/{TileCol}.png',
+        "request_encoding": 'REST', # optional
+        "format": 'image/png' # optional
+    },
+    "search": {
+        "url_template": 'https://sitn.ne.ch/search?limit=10&partitionlimit=2&interface=desktop&query={search_term}'
+    }
+}

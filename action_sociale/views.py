@@ -85,6 +85,7 @@ def gsr_intersection(request):
         "email",
         "form_prise_contact",
         "adresse",
+        "informations",
         "google_maps",
     ]
     serializer = GeoJSONSerializer()
