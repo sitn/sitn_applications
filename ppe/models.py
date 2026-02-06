@@ -140,9 +140,9 @@ class DossierPPE(models.Model):
         choices=DossierStatut.choices,
         default=DossierStatut.P)
     type_dossier = models.CharField(
+        max_length=20,
         choices=TypeDossier.choices,
-        default=TypeDossier.I,
-        max_length=20)
+        default=TypeDossier.I)
     revision_jouissances = models.CharField(max_length=3, default=None, blank=True, null=True)
     elements_rf_identiques = models.CharField(max_length=3, default=None, blank=True, null=True)
     nouveaux_droits = models.CharField(max_length=3, default=None, blank=True, null=True)
@@ -170,7 +170,7 @@ class Zipfile(models.Model):
         CAE = "CAE", "Contrôle automatique : erreurs à corriger"
         ERR = "ERR", "Contrôle automatique : erreur interne"
         CAV = "CAV", "Contrôle automatique : validé"
-        CMS = "CMS", "Contrôle manuel : en cours (S)"
+        CMS = "CMS", "Contrôle manuel : en cours "
         CMC = "CMC", "Contrôle manuel : en cours"
         CME = "CME", "Contrôle manuel : erreurs à corriger"
         CMV = "CMV", "Contrôle manuel : validé"
@@ -203,11 +203,3 @@ class GeoshopCadastreOrder(models.Model):
     class Meta:
         managed = False
         db_table = 'ppe_static\".\"geoshop_order'
-
-class MunicipalityBorder(models.Model):
-    date_updated = models.DateTimeField()
-    geom = models.MultiPolygonField(srid=settings.DEFAULT_SRID)
-
-    class Meta:
-        managed = False
-        db_table = 'general\".\"la3_limites_communales'

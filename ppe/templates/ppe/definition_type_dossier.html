@@ -42,10 +42,10 @@ Etape 3 : type de dossier
         <section name="modification" id="modification" {% if dossier_ppe.type_dossier != 'M' %}style="display:none;"{% endif %}>
           <div id="type_modification" class="row">
             <div class="col-lg-6">
-              <label for="initial_code">Numéro du dossier d'origine*
+              <label for="initial_code">Code du dossier d'origine*
                 <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
                 <div id="info_dossier_origin">
-                  Il s'agit du numéro unique associé au dossier de constitution ou de révision d'origine
+                  Il s'agit du code unique associé au dossier de constitution ou de révision d'origine
                 </div>
               </label>
               <input class="form-control" type="text" name="initial_code" id="initial_code" oninput="showValidateButton()"><br>
@@ -75,8 +75,8 @@ Etape 3 : type de dossier
           <div class="row" id="elements_rf" {% if mode == 'edit' and dossier_ppe.type_dossier == 'R' and dossier_ppe.revision_jouissances == 'non' %}style="display:block"{% else %}style="display:none"{% endif %}>
             <div class="col-lg-8 col-8">
               <p class="alert alert-success">
-                Les éléments du plan de situation actuellement en vigueur (celui inscrit au registre foncier),
-                autres que des servitudes, restent identiques (bâtiments, places de parc, accès, murs, etc.)
+                La situation cadastrale figurant actuellement sur le plan du registre foncier, hormis d'éventuelles servitudes, 
+                reste identique (pas d'ajout/suppression de bâtiment, souterrain, couvert, mur, escalier, etc.) 
               </p>
             </div>
             <div class="col-lg-4 col-8">
@@ -92,7 +92,10 @@ Etape 3 : type de dossier
             {% else %}style="display:none"{% endif %}>
             <div class="col-lg-8">
             <p class="alert alert-danger">
-              Les fichiers «8_psit» ne sont pas nécessaires.
+              Il n’est pas nécessaire de fournir les couches/calque 101 à 106 (voir 
+              <a href="https://www.ne.ch/autorites/DDTE/SGRF/mensuration/Documents/Annexe1_Preparation_fichiers_vectoriels_PROVISOIRE.pdf" target="_new">
+                annexe 1
+              </a>).
             </p>
             </div>
           </div>
