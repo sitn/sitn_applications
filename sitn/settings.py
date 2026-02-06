@@ -228,8 +228,9 @@ STATICFILES_DIRS = [
 
 WHITENOISE_STATIC_PREFIX = "/assets/"
 
-MEDIA_ROOT = "/data/"
-MEDIA_URL = os.environ.get('MEDIA_URL', 'data/')
+DOWNLOAD_ROOT = "/data/"
+MEDIA_ROOT = "/upload/"
+MEDIA_URL = os.environ.get('MEDIA_URL', 'upload/')
 
 DEFAULT_FROM_EMAIL = 'no-reply@ne.ch'
 
