@@ -313,22 +313,15 @@ def soumission(request, doc):
     # First, render the plain text content.
     text_content = f"Vous venez de créer un nouveau dossier PPE sur le site internet mis en place par le SGRF.\n \
         Cadastre {doc.cadastre} \nBien-fonds : {doc.nummai} \n \
-        Type de dossier : {doc.type_dossier}\n \
+        Type de dossier : {doc.get_type_dossier_display}\n \
         Son code unique de connexion est  : {doc.login_code} \
         \nAttention : Gardez bien ce code, vous en avez besoin pour vous connecter à votre dossier ultérieurement. \
         \nRendez-vous sur https://sitn.ne.ch/apps/ppe pour gérer votre \
         dossier."
 
     # Secondly, render the HTML content.
-    html_content = f"<p>Vous venez de créer un nouveau dossier PPE sur le site internet mis en place par le SGRF.</p> \
-            <p>Cadastre : {doc.cadastre}<br> \
-            Bien-fonds : {doc.nummai}<br> \
-            Type de dossier : {doc.get_type_dossier_display}</p> \
-        <p>Son code unique de connexion est  :</p> <h2 id=\"login_code\">{doc.login_code}</h2> <p><b>Attention :</b> \
-        Gardez bien ce code, vous en avez besoin pour vous connecter à votre dossier ultérieurement.</p> \
-        <p>Rendez-vous sur <a href=\"https://sitn.ne.ch/apps/ppe\" target=\"_blank\">https://sitn.ne.ch/apps/ppe</a> \
-        pour gérer votre dossier."
-
+    html_content = loader.render_to_string("ppe/email_new_case_creation.html", context={"doc": doc})
+    
     # Then, create a multipart email instance.
     msg = EmailMultiAlternatives(
         mail_subject,
@@ -366,7 +359,7 @@ def definition_type_dossier(request, doc, type_dossier=None):
     if ref_geoshop is not None:
         # Check geoshop_ref is existing
         logger.debug('CHECK if given geoshop ref %s exists and is valid for this real estate')
-        ref_exists, ref_error = check_geoshop_ref(ref_geoshop, doc.geom)
+        ref_exists, ref_error = check_geoshop_ref(ref_geoshop, doc)
         if ref_exists == False:
             error_message = ref_error
     else:

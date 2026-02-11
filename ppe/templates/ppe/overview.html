@@ -105,7 +105,7 @@ Dépôt d'un dossier - Récapitulatif
             </tr>
                 {% if dossier_ppe.type_dossier == 'C' %}
             <tr>
-                <td>Type de dossier :</td><td>Constitution</td>
+                <td>Type de dossier :</td><td>{{ dossier_ppe.get_type_dossier_display }}</td>
             </tr>
             <tr>
                 <td>Réf. géoshop:</td>
