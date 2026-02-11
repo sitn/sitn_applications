@@ -13,7 +13,6 @@ from django.core.mail import EmailMultiAlternatives
 # INDIVIDUAL ELEMENTS
 from .models import DossierPPE, ContactPrincipal, Notaire, Signataire, AdresseFacturation, Zipfile
 from .forms import AdminLoginForm, AdresseFacturationForm, NotaireForm, SignataireForm, GeolocalisationForm, ContactPrincipalForm, ZipfileForm
-from urllib.request import urlopen
 from .util import get_localisation, login_required, check_geoshop_ref
 
 logger = logging.getLogger(__name__)
@@ -24,7 +23,7 @@ ZIP_STATUS_LABELS = {
     "CAE": "Contrôle automatique : erreurs à corriger",
     "ERR": "Contrôle automatique : erreur interne",
     "CAV": "Contrôle automatique : validé",
-    "CMS": "Contrôle manuel : en cours (S)",
+    "CMS": "Contrôle manuel : en cours ",
     "CMC": "Contrôle manuel : en cours",
     "CME": "Contrôle manuel : erreurs à corriger",
     "CMV": "Contrôle manuel : validé",
@@ -312,23 +311,17 @@ def soumission(request, doc):
     default_sender = settings.DEFAULT_FROM_EMAIL if settings.DEFAULT_FROM_EMAIL else 'no-reply-ppe@ne.ch'
 
     # First, render the plain text content.
-    text_content = f"Vous venez de créer un nouveau dossier PPE sur l'application PETITNOMJOLIATROUVER \
-        \nCadastre {doc.cadastre} \nBien-fonds : {doc.nummai} \nType de dossier : {doc.get_type_dossier_display}\n \
+    text_content = f"Vous venez de créer un nouveau dossier PPE sur le site internet mis en place par le SGRF.\n \
+        Cadastre {doc.cadastre} \nBien-fonds : {doc.nummai} \n \
+        Type de dossier : {doc.get_type_dossier_display}\n \
         Son code unique de connexion est  : {doc.login_code} \
-        \nAttention : Gardez bien ce code, vous en avez besoin pour tout changement.\
-        \nRendez-vous sur https://sitn.ne.ch/apps/ppe pour modifier votre \
+        \nAttention : Gardez bien ce code, vous en avez besoin pour vous connecter à votre dossier ultérieurement. \
+        \nRendez-vous sur https://sitn.ne.ch/apps/ppe pour gérer votre \
         dossier."
 
     # Secondly, render the HTML content.
-    html_content = f"<p>Vous venez de créer un nouveau dossier PPE sur l'application PETITNOMJOLIATROUVER</p> \
-        <p>Cadastre : {doc.cadastre}<br> \
-            Bien-fonds : {doc.nummai}<br> \
-            Type de dossier : {doc.get_type_dossier_display}</p> \
-        <p>Son code unique de connexion est  :</p> <h2 id=\"login_code\">{doc.login_code}</h2> <p><b>Attention :</b> \
-        Gardez bien ce code, vous en avez besoin pour tout changement.</p> \
-        <p>Rendez-vous sur <a href=\"https://sitn.ne.ch/apps/ppe\" target=\"_blank\">https://sitn.ne.ch/apps/ppe</a> \
-        pour modifier votre dossier."
-
+    html_content = loader.render_to_string("ppe/email_new_case_creation.html", context={"doc": doc})
+    
     # Then, create a multipart email instance.
     msg = EmailMultiAlternatives(
         mail_subject,
@@ -366,7 +359,7 @@ def definition_type_dossier(request, doc, type_dossier=None):
     if ref_geoshop is not None:
         # Check geoshop_ref is existing
         logger.debug('CHECK if given geoshop ref %s exists and is valid for this real estate')
-        ref_exists, ref_error = check_geoshop_ref(ref_geoshop, doc.geom)
+        ref_exists, ref_error = check_geoshop_ref(ref_geoshop, doc)
         if ref_exists == False:
             error_message = ref_error
     else:
@@ -409,9 +402,10 @@ def definition_type_dossier(request, doc, type_dossier=None):
             dossier_ppe.ref_geoshop = ref_geoshop
         dossier_ppe.save()
         return redirect("ppe:overview")
-    
+    elif type_dossier == 'I':
+        error_message = None
     else:
-        error_message = 'Le type de dossier PPE ne semble pas encore défini.'
+        error_message = 'Le type de dossier PPE ne semble pas encore défini.' 
 
     return render(
         request,
@@ -611,7 +605,7 @@ def edit_ppe_type(request, doc):
     if ref_geoshop:
         ref_error = None
         logger.info('> CHECK REF GEOSHOP: %s', ref_geoshop)
-        ref_exists, ref_error = check_geoshop_ref(ref_geoshop, doc.geom)
+        ref_exists, ref_error = check_geoshop_ref(ref_geoshop, doc)
         if ref_error:
             error_message = ref_error
             logger.debug("GEOSHOP_REF check failed with error %s", error_message)
@@ -715,7 +709,6 @@ def get_final_documents(request, doc):
         str(doc.id),
         "dossier_final.zip"
     )
-    print(file_path)
     if not os.path.exists(file_path):
         raise Http404("File not found")
 

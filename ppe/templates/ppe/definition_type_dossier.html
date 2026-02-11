@@ -62,7 +62,7 @@ Etape 3 : type de dossier
             <div class="col-lg-8 col-8">
             <p class="alert alert-success">La révision concerne uniquement des droits de jouissance.</p>
             <p class="alert alert-danger" id="droits_remark" name="droits_remark" style="display: none;">
-              Le contrôle du dossier par le SGRF n’est pas nécessaire.
+              Le contrôle du dossier par le SGRF n'est pas nécessaire.
             </p>
             </div>
             <div class="col-lg-4 col-8">
@@ -92,7 +92,7 @@ Etape 3 : type de dossier
             {% else %}style="display:none"{% endif %}>
             <div class="col-lg-8">
             <p class="alert alert-danger">
-              Il n’est pas nécessaire de fournir les couches/calque 101 à 106 (voir 
+              Il n'est pas nécessaire de fournir les couches/calque 101 à 106 (voir 
               <a href="https://www.ne.ch/autorites/DDTE/SGRF/mensuration/Documents/Annexe1_Preparation_fichiers_vectoriels_PROVISOIRE.pdf" target="_new">
                 annexe 1
               </a>).
@@ -127,9 +127,25 @@ Etape 3 : type de dossier
           </div>
         </section>
 
-      
-      {% if error_message %}<p id="form_error" class="alert alert-danger col-lg-6"><strong>{{ error_message }}</strong></p>{% endif %}
-
+         <section>
+            <div class="col-lg-6 alert alert-primary">
+          <p>Note : pendant la phase de test, vous pouvez commander des données gratuitement en indiquant :<br>
+            <ol>
+              <li><b>Détails du mandat</b><br>
+                  Type de mandat : « Cantonal »<br>
+                  Titre du mandat : « Test PPE »<br>
+                  Description du mandat : « Test PPE »
+              </li>
+              <li><b>Facturation / Tiers</b><br>
+                  Prénom : PPE<br>
+                  Nom : SGRF<br>
+                  Courriel mandant : sgrf.ppe@ne.ch
+              </li>
+            </ol>
+            </p>
+            </div>
+        </section>     
+      {% if error_message and dossier_ppe.type_dossier != 'I' %}<p id="form_error" class="alert alert-danger col-lg-6"><strong>{{ error_message }}</strong></p>{% endif %}
         {% if mode == 'edit' and dossier_ppe.type_dossier != 'M' %}
         <input id="submit_btn" type="submit" value="Modifier" class="valider btn btn-success" {% if dossier_ppe.revision_jouissances == 'oui' %}style="display:none;"{% endif %}>
         {% else %}

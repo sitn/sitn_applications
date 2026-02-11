@@ -80,13 +80,13 @@
 
 <body>
     <p>Vous venez de créer un nouveau dossier PPE sur l'application de gestion des PPE numériques</p>
-        <p>Cadastre : {doc.cadastre}<br>
-            Bien-fonds : {doc.nummai}<br>
-            Type de dossier : {doc.get_type_dossier_display}</p>
-        <p>Son code unique de connexion est  :</p> <h2 id="login_code">{doc.login_code}</h2> <p><b>Attention :</b>
+        <p>Cadastre : {{ doc.cadastre}}<br>
+            Bien-fonds : {{ doc.nummai }}<br>
+            Type de dossier : {{ doc.get_type_dossier_display }}</p>
+        <p>Son code unique de connexion est  :</p> <h2 id="login_code">{{ doc.login_code }}</h2> <p><b>Attention :</b>
             Gardez bien ce code, vous en avez besoin pour tout changement.</p>
         <p>Rendez-vous sur <a href="https://sitn.ne.ch/apps/ppe" target="_blank ">https://sitn.ne.ch/apps/ppe</a>
-        pour modifier votre dossier.
+        pour gérer votre dossier.
         <p>
           Ceci est un mail automatique, prière de ne pas y répondre. Pour toute question n'hésitez pas à nous contacter
           à l'adresse <a href="mailto:sgrf.ppe@ne.ch">sitn@ne.ch</a>.

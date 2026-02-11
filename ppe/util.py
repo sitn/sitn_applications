@@ -99,7 +99,7 @@ def get_localisation(localisation):
 
     return(geoloc)
 
-def check_geoshop_ref(ref, pt_geom):
+def check_geoshop_ref(ref, doc):
     """ Validation of the provided geoshop reference:
         Does an order with the provided id exist where
         the PPE coordinates lay within the order perimeter
@@ -109,6 +109,7 @@ def check_geoshop_ref(ref, pt_geom):
     """
     current = datetime.date.today()
     check_date = current-datetime.timedelta(days=365)
+    pt_geom = doc.geom
 
     # Change representation of PPE geolocalisation point
     if ref is None:
@@ -138,7 +139,7 @@ def check_geoshop_ref(ref, pt_geom):
 
     # Check if there is a result and both order and processing date exist
     if not geoshop_order:
-        return False, "Les données commandées ne comprennent pas le bien-fonds sélectionné."
+        return False, f"Les données commandées ne comprennent pas le bien-fonds {doc.nummai} du cadastre de {doc.cadastre}."
     # Check if the result has an existing order date
     if geoshop_order.date_ordered == '' or geoshop_order.date_ordered is None:
         return False, 'La commande référencée n\'a pas de date de commande valide.'
