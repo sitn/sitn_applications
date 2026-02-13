@@ -137,11 +137,7 @@ python deploy intranet local
 
 ## Deploying on production
 
-First, create a copy of the `env.sample` file called `env.<context>.<instance>`, example:
-
-```
-cp .env.sample .env.intranet.prod
-```
+Deployments are based on shared .env files. If your project requires migrations, the default user will not be able to create tables, you have to momentary switch to a more priviledged user.
 
 Then you'll be able to deploy your instance with `python deploy <context> <instance>`
 
