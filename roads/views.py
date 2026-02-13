@@ -32,6 +32,16 @@ class VmDeportExportView(APIView):
         f_ecart_d=0.0
         f_ecart_f=0.0
         f_usaneg=True
+
+        Let's represent an Axis composed of 4 segments:
+        [38]----d-----[39]-------[40]  [50]----[51]  [120]----f---[121]  [150]----[151]
+
+        [##] Are the PR with their number
+        d is the depart and f the finish points of extraction
+
+        This method will extract the geometry between d and f, in this case we will end up with:
+        d-----[39]-------[40]  [50]----[51]  [120]----f
+        A MULTILINESTRING with 3 parts
         """
         serializer = VmDeportExportSerializer(data=request.GET)
         serializer.is_valid(raise_exception=True)
@@ -49,23 +59,50 @@ class VmDeportExportView(APIView):
 
         f_usaneg = params["f_usaneg"]
 
+        # Point geometry of starting PR and ending PR
         start_geom_subquery = Subquery(
             Sector.objects
             .filter(sec_name=f_pr_d, sec_asg=OuterRef("asg_iliid"))
             .values("sec_geom")[:1]
         )
-
         finish_geom_subquery = Subquery(
             Sector.objects
             .filter(sec_name=f_pr_f, sec_asg=OuterRef("asg_iliid"))
             .values("sec_geom")[:1]
         )
 
-        # We need to calculate the fractions where to cut the segments
+        # AxiSegments are ordered by asg_sequence, we need that range of sequence to filter
+        # only the segments that intersect with the starting and ending PR, including the segments between
+        start_sequence_subquery = Subquery(
+            AxisSegment.objects.filter(
+                asg_axe__axe_owner=f_prop,
+                asg_axe__axe_name=f_axe,
+                asg_axe__axe_positioncode=f_sens,
+                asg_geom__intersects=start_geom_subquery,
+            )
+            .values("asg_sequence")[:1]
+        )
+        finish_sequence_subquery = Subquery(
+            AxisSegment.objects.filter(
+                asg_axe__axe_owner=f_prop,
+                asg_axe__axe_name=f_axe,
+                asg_axe__axe_positioncode=f_sens,
+                asg_geom__intersects=finish_geom_subquery,
+            )
+            .values("asg_sequence")[:1]
+        )
+
+        # We need to calculate the fractions of the segment where we will cut them
         segments = AxisSegment.objects.filter(
             asg_axe__axe_owner=f_prop,
             asg_axe__axe_name=f_axe,
             asg_axe__axe_positioncode=f_sens,
+        ).annotate(
+            start_seq=start_sequence_subquery,
+            finish_seq=finish_sequence_subquery,
+        ).filter(
+            asg_sequence__gte=F("start_seq"),
+            asg_sequence__lte=F("finish_seq"),
         ).distinct().annotate(
             seg_length=Length("asg_geom"),
             start_geom=start_geom_subquery,
@@ -86,13 +123,13 @@ class VmDeportExportView(APIView):
 
         segments = segments.annotate(
             cut_geom=Case(
-                # Start and finish are on the same segment?
+                # Start and finish are on the same segment? A substring is sufficient
                 When(
                     start_geom__isnull=False,
                     finish_geom__isnull=False,
                     then=LineSubstring(F("asg_geom"), F("start_frac"), F("end_frac"))
                 ),
-                # Starting segment must be cut from cutting point until its ending extremity
+                # Otherwise starting segment must be cut from cutting point until its ending extremity
                 When(
                     start_geom__isnull=False,
                     then=LineSubstring(F("asg_geom"), F("start_frac"), Value(1.0))
@@ -102,12 +139,12 @@ class VmDeportExportView(APIView):
                     finish_geom__isnull=False,
                     then=LineSubstring(F("asg_geom"), Value(0.0), F("end_frac"))
                 ),
-                # Intermediate segments are swallowed like they are
+                # Intermediate segments are kept like they are
                 default=F("asg_geom"),
             )
         )
 
-        # Apply an offset if needed
+        # Apply an offset if requested
         if f_ecart_d != 0.0:
             segments = segments.annotate(
                 cut_geom=OffsetCurve(
@@ -117,7 +154,7 @@ class VmDeportExportView(APIView):
                 )
             )
 
-        # Reverse geometry if needed
+        # Reverse geometry if requested
         if f_usaneg:
             segments = segments.annotate(
                 cut_geom=Reverse("cut_geom")
@@ -133,7 +170,6 @@ class VmDeportExportView(APIView):
                 )
             )
         )["merged"]
-
         return Response(final_wkt, status=200)
 
 
