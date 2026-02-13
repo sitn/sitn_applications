@@ -12,5 +12,5 @@ urlpatterns = [
         views.SectorViewSet.as_view({"get": "list"}),
         name="axis-sectors",
     ),
-    path("vmdeport_export/", views.vmdeport_export, name="vmdeport-export"),
+    path("vmdeport_export/", views.VmDeportExportView.as_view(), name="vmdeport-export"),
 ]
