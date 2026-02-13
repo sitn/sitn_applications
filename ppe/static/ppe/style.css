@@ -6,6 +6,25 @@ body {
   background: white;
 }
 
+  /* Bandeau prototype */
+  body:after {
+    content: "Prototype";
+    position: fixed;
+    width: 300px;
+    height: 40px;
+    background: #d62f2f;
+    top: 50px;
+    right: -80px;
+    text-align: center;
+    font-size: 1.2em;
+    font-family: "Gill Sans", sans-serif;
+    text-transform: uppercase;
+    font-weight: bold;
+    color: #fff;
+    line-height: 41px;
+    transform:rotate(45deg);
+  }
+
 /* DEBUG STYLES */
 /*div {
   border: 1px solid #990000;

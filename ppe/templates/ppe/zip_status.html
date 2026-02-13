@@ -37,10 +37,10 @@
         </div>
     </td>
 
-    {% elif zip.file_statut == 'CMC' %}
+    {% elif zip.file_statut in 'CMS,CMC' %}
     <td colspan="2" class="alert alert-danger">
         Votre dossier est en cours de contrôle par l'un de nos collaborateurs, qui prendra contact avec vous 
-        dans un délai de 10 jours ouvrables.
+        dans un délai de 10 jours ouvrables. Vous ne pouvez plus modifier votre dossier pour le moment.
     </td>
 
     {% elif zip.file_statut == "CMV" %}
@@ -52,7 +52,7 @@
 <tr>
     <td colspan="2">
         <br>
-        <a href="/ppe_download/{{ dossier_ppe.id }}/dossier_final.zip" class="btn btn-success">Télécharger mes documents</a>
+        <a href="{% url 'ppe:get_final_documents' %}" class="btn btn-success">Télécharger mes documents</a>
     </td>
 
     {% elif zip.file_statut == 'DPV' %}

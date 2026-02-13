@@ -11,4 +11,5 @@ services:
     ports:
       - "${DOCKER_PORT}:8000"
     volumes:
-      - ${UPLOAD_DATA_PATH}:/data:rw #remplacer par ppe dans l'app
+      - ${UPLOAD_DATA_PATH}:/upload:rw
+      - ${DATA_PATH}:/data:ro

@@ -52,14 +52,14 @@
         <div class="collapse d-md-block" id="sidebarLinks">
           <nav class="nav flex-column sidebar-nav position-fixed bottom-0 start-0">
             <h6 class="fw-bold ps-3 mb-2">Liens utiles</h6>
-            <a class="nav-link nav-item" href="#">PPE | Page internet</a>
-            <a class="nav-link nav-item" href="#">PPE | Directive</a>
-            <a class="nav-link nav-item" href="#">PPE | Annexe 1 : préparation<br> des fichiers numériques</a>
-            <a class="nav-link nav-item" href="#">PPE | Modèle : accord de prise<br> en charge des frais</a>
-            <a class="nav-link nav-item" href="#">PPE | Exemples</a>
+            <a class="nav-link nav-item" href="https://www.ne.ch/autorites/DDTE/SGRF/mensuration/Pages/propriete_par_etages.aspx" target="_new">PPE | Page internet</a>
+            <a class="nav-link nav-item" href="https://www.ne.ch/autorites/DDTE/SGRF/mensuration/Documents/Directive_PPE_PROVISOIRE.pdf" target="_new">PPE | Directive</a>
+            <a class="nav-link nav-item" href="https://www.ne.ch/autorites/DDTE/SGRF/mensuration/Documents/Annexe1_Preparation_fichiers_vectoriels_PROVISOIRE.pdf" target="_new">PPE | Annexe 1 : préparation<br> des fichiers vectoriels</a>
+            <a class="nav-link nav-item" href="https://www.ne.ch/autorites/DDTE/SGRF/mensuration/Documents/PPE%202020/PPE_Lettre_Type.docx"  target="_new">PPE | Modèle : accord de prise<br> en charge des frais</a>
+            <a class="nav-link nav-item" href="https://www.ne.ch/autorites/DDTE/SGRF/mensuration/Pages/propriete_par_etages.aspx" target="_new">PPE | Exemples</a>
             <a class="nav-link nav-item" href="https://sitn.ne.ch/geoshop" target="shop">Géoshop</a>
-            <a class="nav-link nav-item" href="#">Registre des architectes<br> et ingénieurs</a>
-            <a class="nav-link nav-item" href="#">Nous contacter</a>
+            <!-- a class="nav-link nav-item" href="#">Registre des architectes<br> et ingénieurs</a //-->
+            <a class="nav-link nav-item" href="mailto:sgrf.ppe@ne.ch?Subject=Dossier PPE">Nous contacter</a>
             <a class="nav-link nav-item" href="{% url 'ppe:admin_login' %}">Login</a>
           </nav>
         </div>
@@ -72,7 +72,7 @@
 
         {% block footer %}
         <footer class="mt-4 pt-2 text-muted">
-            {% if user.is_authenticated %}<a class="nav-item" href="{% url 'ppe:admin_logout' %}">Logout</a> -{% endif %} PPE NUMERIQE v0.8
+            {% if user.is_authenticated %}<a class="nav-item" href="{% url 'ppe:admin_logout' %}">Logout</a> -{% endif %} PPE NUMERIQE v0.9b
         </footer>
         {% endblock footer %}
       </main>

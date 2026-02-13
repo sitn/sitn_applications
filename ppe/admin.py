@@ -67,11 +67,11 @@ class ZipfileAdmin(admin.ModelAdmin):
         'upload_date'
     ]
     list_display = [
+        'id',
         'dossier_ppe_id',
         'dossier_ppe_cadastre',
         'dossier_ppe_nummai',
         'dossier_ppe_type_dossier',
-        'id',
         'file_statut',
         'zipfile',
         'upload_date'

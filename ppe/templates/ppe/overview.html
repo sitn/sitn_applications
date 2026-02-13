@@ -34,7 +34,7 @@ Dépôt d'un dossier - Récapitulatif
                     <th>{% if dossier_ppe.statut in 'S,C' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>{% else %}
                         <a href="{% url 'ppe:edit_contacts' %}" class="btn btn-success">Modifier</a>{% endif %}</th>
                 </tr>
-                    <td colspan="2" class="fs-5 fw-bold">Personne de contact principal</td>
+                    <td colspan="2" class="fs-5 fw-bold">Personne de contact</td>
                 <tr>
                     <td colspan="2">{{ dossier_ppe.contact_principal.nom}} {{ dossier_ppe.contact_principal.prenom }}</td>
                 </tr><tr>
@@ -105,7 +105,7 @@ Dépôt d'un dossier - Récapitulatif
             </tr>
                 {% if dossier_ppe.type_dossier == 'C' %}
             <tr>
-                <td>Type de dossier :</td><td>Constitution</td>
+                <td>Type de dossier :</td><td>{{ dossier_ppe.get_type_dossier_display }}</td>
             </tr>
             <tr>
                 <td>Réf. géoshop:</td>
@@ -120,12 +120,15 @@ Dépôt d'un dossier - Récapitulatif
                 <td>{{ dossier_ppe.revision_jouissances }}</td>
             </tr>
             <tr>
-                <td>Les éléments du plan de situation en vigueur restent identiques</td>
+                <td>La situation cadastrale reste identique</td>
                 <td>{{ dossier_ppe.elements_rf_identiques }}</td>
             </tr>
                     {% if dossier_ppe.elements_rf_identiques == 'oui' %}
             <tr>
-                <td colspan="2" class="alert alert-danger">Les fichiers «8_psit» contenant les objets du plan de situation ne sont pas nécessaires.</td>
+                <td colspan="2" class="alert alert-danger">Il n'est pas nécessaire de fournir les couches/calque 101 à 106 (voir 
+              <a href="https://www.ne.ch/autorites/DDTE/SGRF/mensuration/Documents/Annexe1_Preparation_fichiers_vectoriels_PROVISOIRE.pdf" target="_new">
+                annexe 1
+              </a>).</td>
             </tr>
                     {% elif dossier_ppe.elements_rf_identiques == 'non' %}
             <tr>
@@ -139,7 +142,7 @@ Dépôt d'un dossier - Récapitulatif
             </tr>
             <tr>
                 <td colspan="2" class="alert alert-secondary">
-                <h6>Ancien dossier</h6>
+                <h6>Dossier d'origine</h6>
                     {% if dossier_initial.id %}
                     <table width="100%">
                         <tr>
@@ -154,7 +157,7 @@ Dépôt d'un dossier - Récapitulatif
                         <tr>
                             <td>La révision concerne uniquement des droits de jouissance :</td><td>{{ dossier_ppe.revision_jouissances }}</td>
                         <tr>
-                            <td>Les éléments du plan de situation en vigueur restent identiques :</td><td>{{ dossier_ppe.elements_rf_identiques }}</td>
+                            <td>La situation cadastrale reste identique :</td><td>{{ dossier_ppe.elements_rf_identiques }}</td>
                         </tr>
                         {% endif %}
                     </p>
@@ -178,13 +181,13 @@ Dépôt d'un dossier - Récapitulatif
                         <th class="fs-4" width="50%">Chargement des fichiers</th>
                         <th>{% if not zip.file_statut in 'CAC, CAE, CME' %}
                             <button type="button" disabled class="btn btn-secondary">Ajouter</button>{% else %}
-                            <a href="{% url 'ppe:edit_zipfile' %}" class="btn btn-success">Ajouter</a></th>{% endif %}
+                            <a href="{% url 'ppe:load_zipfile' %}" class="btn btn-success">Ajouter</a></th>{% endif %}
                     </tr>
                     </table>
                     <table width="100%">
                     <thead>
                     <tr>
-                        <th width="30%" style="padding-top: 20px;">Date et heure</th><th style="padding-top: 20px;">Statut des fichiers</th>
+                        <th width="30%" style="padding-top: 20px;">Date et heure</th><th style="padding-top: 20px;">Statut</th>
                     </tr>
                     </thead>
                     <tbody
@@ -197,7 +200,7 @@ Dépôt d'un dossier - Récapitulatif
                     </tbody>
                     {% if dossier_ppe.zipfiles.all|length > 1 %}
                     <tr>
-                        <th colspan="2" style="padding-top: 25px;">Historique des fichiers zip</th>
+                        <th colspan="2" style="padding-top: 25px;">Historique</th>
                     </tr>
                     {% endif %}
                 {% else %}

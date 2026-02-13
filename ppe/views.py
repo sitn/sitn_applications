@@ -1,17 +1,18 @@
+import os
 import datetime, random, string, json, logging, ast
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse
+from django.http import HttpResponse, FileResponse, Http404
 from django.template import loader
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.gis.geos import Point
 from django.conf import settings
 from django.core.exceptions import ObjectDoesNotExist, BadRequest
+from django.core.files.storage import default_storage
 from django.core.mail import EmailMultiAlternatives
 
 # INDIVIDUAL ELEMENTS
 from .models import DossierPPE, ContactPrincipal, Notaire, Signataire, AdresseFacturation, Zipfile
 from .forms import AdminLoginForm, AdresseFacturationForm, NotaireForm, SignataireForm, GeolocalisationForm, ContactPrincipalForm, ZipfileForm
-from urllib.request import urlopen
 from .util import get_localisation, login_required, check_geoshop_ref
 
 logger = logging.getLogger(__name__)
@@ -22,7 +23,7 @@ ZIP_STATUS_LABELS = {
     "CAE": "Contrôle automatique : erreurs à corriger",
     "ERR": "Contrôle automatique : erreur interne",
     "CAV": "Contrôle automatique : validé",
-    "CMS": "Contrôle manuel : en cours (S)",
+    "CMS": "Contrôle manuel : en cours ",
     "CMC": "Contrôle manuel : en cours",
     "CME": "Contrôle manuel : erreurs à corriger",
     "CMV": "Contrôle manuel : validé",
@@ -85,10 +86,14 @@ def set_geolocalisation(request):
         if isinstance(localisation, str) and localisation != '':
             localisation = json.loads(localisation)
             localisation_ppe = get_localisation(localisation)
-        check_geolocalisation(request)
+        check_geolocalisation(request, localisation_ppe)
         if request.POST['geom'] == '':
             form_action = 'set_geolocalisation'
             mode = 'reset'
+        elif localisation_ppe is None:
+            form_action = 'set_geolocalisation'
+            mode = 'init'
+            error_message = "La localisation semble se situer en dehors du canton."
         else:
             form_action = 'contact_principal'
 
@@ -104,7 +109,7 @@ def set_geolocalisation(request):
         }
     )
 
-def check_geolocalisation(request):
+def check_geolocalisation(request, localisation_ppe=None):
     # TODO: Validate that the selected point is inside the cantonal border
     return
 
@@ -253,6 +258,19 @@ def contact_principal(request):
     new_dossier_ppe.date_creation = datetime.datetime.now()
     new_dossier_ppe.geom = Point(geolocalisation_ppe["coordinates"])
     new_dossier_ppe.save()
+
+    # Get the original accord de prise en charge filename
+    #current_accord = AdresseFacturation.objects.get(pk=new_dossier_ppe.adresse_facturation.id)
+    filename = os.path.basename(facturation_form.instance.file.name)
+    new_accord_facturation_path = f"ppe/{new_dossier_ppe.id}/{filename}"
+    default_storage.save(new_accord_facturation_path, default_storage.open(f"{facturation_form.instance.file}"))
+    default_storage.delete(f"{facturation_form.instance.file}")
+
+    # Update DB reference without re-uploading
+    accord_actuel = new_dossier_ppe.adresse_facturation
+    accord_actuel.file.name = new_accord_facturation_path
+    accord_actuel.save(update_fields=["file"])
+
     request.session['login_code'] = login_code
     return redirect('ppe:definition_type_dossier')
 
@@ -293,30 +311,24 @@ def soumission(request, doc):
     default_sender = settings.DEFAULT_FROM_EMAIL if settings.DEFAULT_FROM_EMAIL else 'no-reply-ppe@ne.ch'
 
     # First, render the plain text content.
-    text_content = f"Vous venez de créer un nouveau dossier PPE sur l'application PETITNOMJOLIATROUVER \
-        \nCadastre {doc.cadastre} \nBien-fonds : {doc.nummai} \nType de dossier : {doc.get_type_dossier_display}\n \
-        Son identifiant unique est : {doc.login_code} \
-        \nAttention : Gardez bien ce code, vous en avez besoin pour tout changement.\
-        \nRendez-vous sur https://sitn.ne.ch/apps/ppe pour modifier votre \
+    text_content = f"Vous venez de créer un nouveau dossier PPE sur le site internet mis en place par le SGRF.\n \
+        Cadastre {doc.cadastre} \nBien-fonds : {doc.nummai} \n \
+        Type de dossier : {doc.get_type_dossier_display}\n \
+        Son code unique de connexion est  : {doc.login_code} \
+        \nAttention : Gardez bien ce code, vous en avez besoin pour vous connecter à votre dossier ultérieurement. \
+        \nRendez-vous sur https://sitn.ne.ch/apps/ppe pour gérer votre \
         dossier."
 
     # Secondly, render the HTML content.
-    html_content = f"<p>Vous venez de créer un nouveau dossier PPE sur l'application PETITNOMJOLIATROUVER</p> \
-        <p>Cadastre : {doc.cadastre}<br> \
-            Bien-fonds : {doc.nummai}<br> \
-            Type de dossier : {doc.get_type_dossier_display}</p> \
-        <p>Son identifiant unique est :</p> <h2 id=\"login_code\">{doc.login_code}</h2> <p><b>Attention :</b> \
-        Gardez bien ce code, vous en avez besoin pour tout changement.</p> \
-        <p>Rendez-vous sur <a href=\"https://sitn.ne.ch/apps/ppe\" target=\"_blank\">https://sitn.ne.ch/apps/ppe</a> \
-        pour modifier votre dossier."
-
+    html_content = loader.render_to_string("ppe/email_new_case_creation.html", context={"doc": doc})
+    
     # Then, create a multipart email instance.
     msg = EmailMultiAlternatives(
         mail_subject,
         text_content,
         default_sender,
-        [doc.contact_principal.email, "francois.voisard@ne.ch"],    )
-    print(msg)
+        [doc.contact_principal.email],    )
+    #print(msg)
     # Lastly, attach the HTML content to the email instance and send.
     msg.attach_alternative(html_content, "text/html")
     msg.send()
@@ -347,7 +359,7 @@ def definition_type_dossier(request, doc, type_dossier=None):
     if ref_geoshop is not None:
         # Check geoshop_ref is existing
         logger.debug('CHECK if given geoshop ref %s exists and is valid for this real estate')
-        ref_exists, ref_error = check_geoshop_ref(ref_geoshop, doc.geom)
+        ref_exists, ref_error = check_geoshop_ref(ref_geoshop, doc)
         if ref_exists == False:
             error_message = ref_error
     else:
@@ -390,9 +402,10 @@ def definition_type_dossier(request, doc, type_dossier=None):
             dossier_ppe.ref_geoshop = ref_geoshop
         dossier_ppe.save()
         return redirect("ppe:overview")
-    
+    elif type_dossier == 'I':
+        error_message = None
     else:
-        error_message = 'Le type de dossier PPE ne semble pas encore défini.'
+        error_message = 'Le type de dossier PPE ne semble pas encore défini.' 
 
     return render(
         request,
@@ -413,7 +426,7 @@ def load_zipfile(request, doc):
     if zip_form.is_valid():
         zip_form.save()
         Zipfile(pk=zip_form.instance.id)
-        return render(request, "ppe/submited.html", {"dossier_ppe" : doc})
+        return render(request, "ppe/overview.html", {"dossier_ppe" : doc})
     # TODO VCRON ajouter un trigger sur statut CAC
     # TODO: zip_form.errors probablement intéressant pour l'utilisateur
     zip_form = ZipfileForm(initial=init_data)
@@ -592,7 +605,7 @@ def edit_ppe_type(request, doc):
     if ref_geoshop:
         ref_error = None
         logger.info('> CHECK REF GEOSHOP: %s', ref_geoshop)
-        ref_exists, ref_error = check_geoshop_ref(ref_geoshop, doc.geom)
+        ref_exists, ref_error = check_geoshop_ref(ref_geoshop, doc)
         if ref_error:
             error_message = ref_error
             logger.debug("GEOSHOP_REF check failed with error %s", error_message)
@@ -659,7 +672,7 @@ def edit_ppe_type(request, doc):
                 error_message = "Le numéro de bien-fonds n'est pas le même que dans le dossier d'origine." 
 
         except ObjectDoesNotExist:
-            error_message = "Ce numéro de dossier n\'existe pas."
+            error_message = "Ce code de dossier n\'existe pas."
 
     if not error_message is None:
         doc.type_dossier = request.session['type_dossier']
@@ -669,26 +682,6 @@ def edit_ppe_type(request, doc):
         {"dossier_ppe": doc, "mode": 'edit', "error_message" : error_message}
     )
     
-
-@login_required
-def edit_zipfile(request, doc):
-    """ Replace the zip file with PPE documents by a newer version """
-    zip_form = ZipfileForm(request.POST, request.FILES or None)
-    doc = DossierPPE.objects.get(login_code=doc.login_code)
-    init_data = {"dossier_ppe": DossierPPE(pk=doc.id)}
-
-    if zip_form.is_valid():
-        zip_form.save()
-        Zipfile(pk=zip_form.instance.id)
-        return render(request, "ppe/submited.html", {"dossier_ppe" : doc})
-    
-    # TODO zip_form.errors?
-
-    zip_form = ZipfileForm(initial=init_data)
-
-    return render(request, "ppe/load_zipfile.html", {"dossier_ppe" : doc, "zip_form": zip_form})
-
-
 @login_required
 def zip_status(request, doc):
     dossier_ppe = get_object_or_404(DossierPPE, pk=doc.id)
@@ -706,4 +699,22 @@ def zip_status(request, doc):
             "dossier_ppe": dossier_ppe,
             "refreshed_at": datetime.datetime.now(),
         },
+    )
+
+@login_required
+def get_final_documents(request, doc):
+    file_path = os.path.join(
+        settings.DOWNLOAD_ROOT,
+        "ppe",
+        str(doc.id),
+        "dossier_final.zip"
+    )
+    if not os.path.exists(file_path):
+        raise Http404("File not found")
+
+    return FileResponse(
+        open(file_path, "rb"),
+        as_attachment=True,
+        filename="dossier_final.zip",
+        content_type="application/zip",
     )
