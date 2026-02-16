@@ -28,7 +28,7 @@ class SitnRouter(DefaultRouter):
         Will register a link to a sub app
         """
         if url_prefix is None:
-            url_prefix = f'/{app_name}/'
+            url_prefix = f'{app_name}/'
         self.registered_apps.append({
             'name': app_name,
             'url_prefix': url_prefix
@@ -56,7 +56,7 @@ class SitnRouter(DefaultRouter):
                 ret[key] = reverse(url_name, request=request, format=format)
             
             for app in registered_apps:
-                ret[app['name']] = request.build_absolute_uri(app['url_prefix'])
+                ret[app['name']] = request.build_absolute_uri() + app['url_prefix']
             
             return Response(ret)
         
