@@ -1,0 +1,98 @@
+{% extends 'ppe/base.html' %}
+
+{% block titre %}
+Étape 4 : chargement du dossier zip
+{% endblock titre %}
+
+
+{% block content %}
+
+    {% if error_message %}<p class="alert alert-danger"><strong>{{ error_message }}</strong></p>{% endif %}
+
+    <h3>Étape 4 : chargement du dossier zip</h3>
+    <p class="fs-5">PPE sur le bien-fonds <b>{{ dossier_ppe.nummai }}</b> du cadastre 
+        de <b>{{ dossier_ppe.cadastre }}</b>
+    </p>
+    {% if zipfile %}
+    <div id="zip_confirmation" name="zip_confirmation">
+        <p>La saisie de votre dossier est maintenant terminée.</p>
+        <p>Le ZIP {{ zipfile.path }} a été déposé pour vérification ({{ zipfile.id }})</p>
+        <p>
+            Une vérification automatique de vos données est actuellement en cours, 
+            un compte-rendu vous sera envoyé par e-mail à l'adresse 
+            <a href="mailto:{{ dossier_ppe.contact_principal.email }}?Subject=Dossier PPE" target="blank">{{ dossier_ppe.contact_principal.email }}</a> d'ici xx minutes.
+        </p>
+        <p>
+            Toutes les erreurs bloquantes découvertes devront être corrigées, 
+            et les fichiers soumis à nouveau.
+        </p>
+        <p>Une fois toutes les erreurs bloquantes corrigées, votre dossier poursuivra 
+            automatiquement sa route chez l'un de nos collaborateurs.</p>
+        {% if "CAA" in zipfile.file_statut or "'CAC" in zipfile.file_statut or "CAE" in zipfile.file_statut %}
+        <p>Si vous souhaitez modifier votre dossier, cliquer sur «Modifier».
+        {% endif %}
+        </p>
+        <p>Le statut de votre dossier est actuellement : 
+            {% if zip.file_statut == 'CAA' %}
+                <b>Contrôle automatique : dossier archivé></b>
+            {% elif zip.file_statut == 'CAC' %}
+                <b>Contrôle automatique : en cours</b>
+            {% elif zip.file_statut == 'CAE' %}
+                <b>Contrôle automatique : erreurs à corriger
+            {% elif zip.file_statut == 'CAP' %}
+                <b>En attente du contrôle automatique</b>
+            {% elif zip.file_statut == 'CAV' %}
+                <b>Contrôle automatique : validé</b>
+            {% elif zip.file_statut == 'CMS' %}
+                <b>Contrôle manuel : en cours</b>
+            {% elif zip.file_statut == 'CMC' %}
+                <b>Contrôle manuel : en cours</b>
+            {% elif zip.file_statut == 'CME' %}
+                <b>Contrôle manuel : erreurs à corriger</b>
+            {% elif zip.file_statut == 'CMP' %}
+                <b>En attente du contrôle manuel</b>
+            {% elif zip.file_statut == 'CMV' %}
+                <b>Contrôle manuel : validé</b>
+            {% else %}
+                <span class="alert alert-danger">Il y a une erreur inconnue sur le statut des fichiers zip</span>
+        {% endif %}
+        </p>
+        {% if zipfile.file_statut in 'CAA,CAC,CAE' %}
+            <div>
+                <a href="{% url 'ppe:overview' %}" class="btn btn-success">Récapitulatif</a>
+            </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <form method="POST" enctype="multipart/form-data">
+        {% csrf_token %}
+        <fieldset>
+            {% for field in zip_form %}
+                {% if field.errors %}
+                <div class="alert alert-danger">{{ field.errors }}</div>
+                {% endif %}
+                {% if 'zipfile' in field.label_tag %}
+                    <div>{{ field.label_tag }}
+                        <i class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+                        <div id="info_zip">
+                            Le dossier .zip doit contenir tous les fichiers nécessaires, <br>
+                            structurés selon les directives consultables.<br>
+                            Voir lien dans la navigation à gauche.
+                        </div>
+                    </div>
+                    <div><input onchange="showSubmitButton()" type="file" name="zipfile" accept=".zip,application/zip" placeholder="Choisir un dossier .zip" class="form-control" required id="id_zipfile"></div>
+                {% else %}
+                    <div>{{ field }}</div>
+                {% endif %}
+            {% endfor %}
+            <br><br>
+            <div>
+                <a href="{% url 'ppe:overview' %}" class="btn btn-success">Récapitulatif</a>
+                <input id="submit_btn" type="submit" value="Soumettre le dossier pour contrôle" class="btn btn-success" style="display: none;">
+            </div>
+        </fieldset>
+    </form>
+    {% endif %}
+    <p class="red"><br>* Les champs marqués d'un astérisque sont obligatoires</p>
+
+{% endblock content %}

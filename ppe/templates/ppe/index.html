@@ -1,0 +1,66 @@
+{% extends 'ppe/base.html' %}
+
+{% block titre %}
+Application de gestion des PPE
+{% endblock titre %}
+
+{% block content %}
+      
+        <h3>Bienvenue sur l’application de contrôle des dossiers PPE par le SGRF</h3>
+
+        <p><br></p>
+        <h5>Que souhaitez-vous faire?</h5>
+        <br>
+        <div>
+                <a href="{% url 'ppe:geolocalisation' %}" class="button-lg btn btn-success">Nouvelle soumission</a>
+                <i id="info2" class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+                <div id="info_soumission">Soumettre un dossier de constitution,<br> de modification 
+                    ou de révision de PPE<br> pour la première fois.</div>
+
+                <a href="{% url 'ppe:overview' %}" class="button-lg btn btn-success">Modifier une soumission</a>
+                <i id="info1" class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
+                <div id="info_modification">Modifier les informations<br> d'un dossier déjà soumis.</div>
+        </div>
+        {% if user.is_authenticated %}
+            {% if latest_dossiers_list %}
+            <div id="admin_list">
+                <br>
+
+                <table width="100%" class="table table-striped caption-top">
+                    <caption>Admin: Liste des dossiers PPE en cours</caption>
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Cadastre</th>
+                        <th>No. bien-fonds</th>
+                        <th>Date création</th>
+                        <th>Type dossier</th>
+                        <th>Statut dernier zip</th>
+                        <th>Code</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                {% for dossierppe in latest_dossiers_list %}
+                    <tr>
+                        <td>{{ dossierppe.id }}</td>
+                        <td>{{ dossierppe.cadastre }}</td>
+                        <td>{{ dossierppe.nummai }}</td>
+                        <td>{{ dossierppe.date_creation }}</td>
+                        <td>{{ dossierppe.get_type_dossier_display }}
+                            {% if dossierppe.get_type_dossier_display == 'Modification' %}
+                            (Réf. initiale: <a href="{% url 'admin:index' %}ppe/dossierppe/{{ dossierppe.ref_dossier_initial }}" target="_new">{{ dossierppe.ref_dossier_initial }}</a>)
+                            {% endif %}
+                        </td>
+                        <td>{{ dossierppe.zipfiles.first.get_file_statut_display }}</td>
+                        <td><a href="{% url 'ppe:modification' %}">{{ dossierppe.login_code }}</a></td>
+                    </tr>
+                {% empty %}
+                    <p>Aucun dossier n'a été trouvé.</p>
+                {% endfor %}
+                    </tbody>
+                </table>
+            {% endif %}
+        {% endif %}
+        </div>
+
+{% endblock content %}
