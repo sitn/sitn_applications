@@ -29,7 +29,7 @@ urlpatterns = [
     path('schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
     path('admin/', admin.site.urls),
     path('', router.get_api_root_view(), name='api-root'),
-    path('cadastre/', include('cadastre.urls'),
+    path('cadastre/', include('cadastre.urls')),
     path('registre_foncier/', include('registre_foncier.urls')),
 ]
 
