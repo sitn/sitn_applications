@@ -3,14 +3,9 @@ from sitn import router
 from . import views
 
 router = router.SitnRouter()
-router.register(r"axis", views.AxisViewSet, basename="axis")
+router.register_additional_view('vmdeport-export', 'vmdeport-export')
 
 urlpatterns = [
     path("", include(router.urls)),
-    path(
-        "axis/<str:asg_iliid>/sectors/",
-        views.SectorViewSet.as_view({"get": "list"}),
-        name="axis-sectors",
-    ),
     path("vmdeport_export/", views.VmDeportExportView.as_view(), name="vmdeport-export"),
 ]

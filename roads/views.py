@@ -1,16 +1,13 @@
 import logging
 from .models import AxisSegment, Sector
-from .serializers import AxisSegmentSerializer, SectorSerializer, VmDeportExportSerializer
+from .serializers import VmDeportExportSerializer
 from sitn.functions import LineSubstring, LineMerge, OffsetCurve
 
 from django.db.models import Subquery, OuterRef, Case, When, Value, F, ExpressionWrapper, FloatField
 from django.contrib.gis.db.models.aggregates import Union
 from django.contrib.gis.db.models.functions import LineLocatePoint, Length, AsWKT, Reverse
-from django.shortcuts import get_object_or_404
 
-from rest_framework import filters, viewsets
 from rest_framework.response import Response
-from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 
 
@@ -18,31 +15,26 @@ LOGGER = logging.getLogger(__name__)
 
 
 class VmDeportExportView(APIView):
-
-    def get(self, request):
-        """
-        test avec NE 1161 = 5+200 7+300
-        f_prop="NE"
-        f_axe="1161"
-        f_sens="="
-        f_pr_d="5"
-        f_pr_f="7"
-        f_dist_d=200.0
-        f_dist_f=300.0
-        f_ecart_d=0.0
-        f_ecart_f=0.0
-        f_usaneg=True
+    """
+        Transforms SRB based coordinates into geometries.
 
         Let's represent an Axis composed of 4 segments:
         [38]----d-----[39]-------[40]  [50]----[51]  [120]----f---[121]  [150]----[151]
 
-        [##] Are the PR with their number
+        Legend:
+        [##] Sectors (also called PR) with their numbers
         d is the depart and f the finish points of extraction
 
         This method will extract the geometry between d and f, in this case we will end up with:
         d-----[39]-------[40]  [50]----[51]  [120]----f
         A MULTILINESTRING with 3 parts
-        """
+        
+        Example: ?f_prop=NE&f_axe=H10&f_sens=%3D&f_pr_d=38&f_pr_f=120&f_dist_d=20&f_dist_f=50
+    """
+    def get_serializer(self):
+        return VmDeportExportSerializer()
+    
+    def get(self, request):
         serializer = VmDeportExportSerializer(data=request.GET)
         serializer.is_valid(raise_exception=True)
         params = serializer.validated_data
@@ -171,42 +163,3 @@ class VmDeportExportView(APIView):
             )
         )["merged"]
         return Response(final_wkt, status=200)
-
-
-class AxisViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = AxisSegmentSerializer
-    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ["asg_name"]
-    ordering_fields = ["asg_name"]
-    lookup_field = "asg_iliid"
-
-    def get_queryset(self):
-        return AxisSegment.objects.all()
-
-    def list(self, request, *args, **kwargs):
-        queryset = self.filter_queryset(self.get_queryset())
-        result = []
-        for axis in queryset:
-            result.append(
-                {
-                    "asg_iliid": axis.asg_iliid,
-                    "asg_name": axis.asg_name,
-                    "sectors": reverse(
-                        "axis-sectors",
-                        kwargs={"asg_iliid": axis.asg_iliid},
-                        request=request,
-                    ),
-                }
-            )
-        return Response(result)
-
-
-class SectorViewSet(viewsets.ReadOnlyModelViewSet):
-    serializer_class = SectorSerializer
-
-    def get_queryset(self):
-        asg_iliid = self.kwargs.get("asg_iliid")
-        axis_segment = get_object_or_404(AxisSegment, asg_iliid=asg_iliid)
-        return Sector.objects.filter(sec_asg_iliid=axis_segment.asg_iliid).order_by(
-            "sec_name"
-        )

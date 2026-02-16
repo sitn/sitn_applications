@@ -1,70 +1,84 @@
-from rest_framework import status
+import json
+
 from rest_framework.test import APITestCase
+
+from django.conf import settings
+from django.contrib.gis.geos import GEOSGeometry, MultiLineString
 
 
 class RoadsApiTest(APITestCase):
-    def setUp(self) -> None:
-        super().setUp()
-
-        # TODO: get existing
-
 
     def test_vmdeport_export_basic(self):
         """
-        Test de base de l'API vmdeport_export avec géométrie simple
+        Extract linestring from a single segment and verify distances.
+        Depart and finish are on the same AxisSegment:
+
+        [38]----d-----[39]---f---[40]
         """
+
+        f_dist_d = 705
+        f_dist_f = 753
+
+        # Line to extract
         url = (
-            "/roads/vmdeport_export/?f_prop=PROP1&f_axe=AXE_TEST&f_sens=="
-            "&f_pr_d=PR_D&f_pr_f=PR_F&f_dist_d=0&f_dist_f=0"
+            "/roads/vmdeport_export/?f_prop=NE&f_axe=H10&f_sens=="
+            "&f_pr_d=38&f_pr_f=39"
+            f"&f_dist_d={f_dist_d}&f_dist_f={f_dist_f}"
         )
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
-        data = response.json()
-        self.assertIn("geometry", data)
-        self.assertTrue(data["geometry"].startswith("LINESTRING"))
-
-    def test_axis_list(self):
-        """
-        /roads/axis/ returns a list of axis objects
-        """
-        url = "/roads/axis/"
+        wkt = json.loads(response.content)
+        line = GEOSGeometry(wkt, srid=settings.DEFAULT_SRID)
+        
+        # Distance from point d to Sector 39
+        url = (
+            "/roads/vmdeport_export/?f_prop=NE&f_axe=H10&f_sens=="
+            "&f_pr_d=38&f_pr_f=39"
+            f"&f_dist_d={f_dist_d}&f_dist_f=0"
+        )
         response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        data = response.json()
-        self.assertIsInstance(data, list)
-        if data:
-            self.assertIn("asg_iliid", data[0])
-            self.assertIn("asg_name", data[0])
-            self.assertIn("sectors", data[0])
+        self.assertEqual(response.status_code, 200)
+        wkt = json.loads(response.content)
+        line_from_pr_d = GEOSGeometry(wkt, srid=settings.DEFAULT_SRID)
 
-    def test_axis_filter(self):
-        """
-        /roads/axis/?search=... filters axis by asg_name
-        """
-        url = "/roads/axis/?search=Test"
+        # Distance from Sector 39 to point f
+        url = (
+            "/roads/vmdeport_export/?f_prop=NE&f_axe=H10&f_sens=="
+            "&f_pr_d=39&f_pr_f=39"
+            f"&f_dist_d=0&f_dist_f={f_dist_f}"
+        )
         response = self.client.get(url)
-        self.assertEqual(response.status_code, status.HTTP_200_OK)
-        data = response.json()
-        for axis in data:
-            self.assertIn("Test", axis["asg_name"])
+        self.assertEqual(response.status_code, 200)
+        wkt = json.loads(response.content)
+        line_from_pr_f = GEOSGeometry(wkt, srid=settings.DEFAULT_SRID)
+        self.assertAlmostEqual(
+            line_from_pr_f.length,
+            f_dist_f,
+            places=3,
+            msg="Extract from 0 to f_dist is equal to geometry length"
+        )
+        
+        # Check sums of distances equals to overall extraction
+        self.assertAlmostEqual(
+            line_from_pr_d.length + line_from_pr_f.length,
+            line.length,
+            places=3,
+            msg="Distances from 3 different extractions are matching"
+        )
 
-    def test_sectors_list(self):
+    def test_vmdeport_export_multi(self):
         """
-        /roads/axis/<asg_iliid>/sectors/ returns sectors for axis
+        Extract multilinestring from a 3 segments
+        
+        [38]----d-----[39]-------[40]  [50]----[51]  [120]----f---[121]  [150]----[151]
         """
-        # Get an axis iliid from the list
-        axis_url = "/roads/axis/"
-        axis_response = self.client.get(axis_url)
-        self.assertEqual(axis_response.status_code, status.HTTP_200_OK)
-        axis_data = axis_response.json()
-        if axis_data:
-            asg_iliid = axis_data[0]["asg_iliid"]
-            url = f"/roads/axis/{asg_iliid}/sectors/"
-            response = self.client.get(url)
-            self.assertEqual(response.status_code, status.HTTP_200_OK)
-            sectors = response.json()["results"]
-            self.assertIsInstance(sectors, list)
-            for sector in sectors:
-                self.assertIn("sec_name", sector)
-                self.assertIn("sec_length", sector)
-                self.assertIn("sec_km", sector)
+        url = (
+            "/roads/vmdeport_export/?f_prop=NE&f_axe=H10&f_sens=="
+            "&f_pr_d=38&f_pr_f=120&f_dist_d=20&f_dist_f=50"
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        wkt = json.loads(response.content)
+        multi_line = GEOSGeometry(wkt, srid=settings.DEFAULT_SRID)
+        self.assertIsInstance(multi_line, MultiLineString, "Must be a MULTILINESTRING")
+        self.assertEqual(multi_line.num_geom, 3, "Must have 3 parts")
