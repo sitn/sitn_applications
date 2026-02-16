@@ -47,7 +47,7 @@ def parcel_dependencies(request):
     if len(parcel_s) > 1:
         parcel += '/' + parcel_s[1]
 
-    # Check that it is a vlid parcel
+    # Check that it is a valid parcel
     check = Recht.objects.filter(lst_typ='E', esta_last=cadastre, gdk_last=parcel, loesch_status__isnull=True).all()
 
     if len(check) == 0:
