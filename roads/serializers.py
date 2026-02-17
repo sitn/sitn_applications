@@ -6,9 +6,14 @@ class FloatZeroAsFalseField(serializers.Field):
     Legacy support of 0.0 value as False
     """
     def to_internal_value(self, data):
+        if isinstance(data, str):
+            lower = data.lower().strip()
+            if lower in ("false", "0", ""):
+                return False
+            return True
         if isinstance(data, bool):
             return data
-
+        
         try:
             value = float(data)
         except (TypeError, ValueError):
