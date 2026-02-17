@@ -134,3 +134,14 @@ class RoadsApiTest(APITestCase):
             places=3,
             msg="Extraction must have the same length as the original AxisSegment"
         )
+
+    def test_vmdeport_export_unknown_axis(self):
+        """
+        An unknown axis should return a 404.
+        """
+        url = (
+            "/roads/vmdeport_export/?f_prop=6401&f_axe=500&f_sens=="
+            "&f_pr_d=0&f_pr_f=8&f_dist_d=0.0&f_dist_f=676.2"
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 404)

@@ -3,6 +3,7 @@ from .models import AxisSegment, Sector
 from .serializers import VmDeportExportSerializer
 from sitn.functions import LineSubstring, LineMerge, OffsetCurve
 
+from django.http import Http404
 from django.db.models import Subquery, OuterRef, Case, When, Value, F, ExpressionWrapper, FloatField
 from django.db.models.functions import Least
 from django.contrib.gis.db.models.aggregates import Union
@@ -163,4 +164,7 @@ class VmDeportExportView(APIView):
                 )
             )
         )["merged"]
+        
+        if not final_wkt:
+            raise Http404("No geometry found.")
         return Response(final_wkt, status=200)
