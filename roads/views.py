@@ -147,7 +147,7 @@ class VmDeportExportView(APIView):
             )
 
         # Reverse geometry if requested
-        if f_usaneg and not f_usaneg == 0.0:
+        if f_usaneg:
             segments = segments.annotate(
                 cut_geom=Reverse("cut_geom")
             )

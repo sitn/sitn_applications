@@ -1,6 +1,27 @@
 from rest_framework import serializers
 
 
+class FloatZeroAsFalseField(serializers.Field):
+    """
+    Legacy support of 0.0 value as False
+    """
+    def to_internal_value(self, data):
+        if isinstance(data, bool):
+            return data
+
+        try:
+            value = float(data)
+        except (TypeError, ValueError):
+            raise serializers.ValidationError(
+                "Must be a float or boolean."
+            )
+
+        if value == 0.0:
+            return False
+
+        return True
+
+
 class VmDeportExportSerializer(serializers.Serializer):
     f_prop = serializers.CharField(max_length=12, label="Owner of the axis (ie. NE)")
     f_axe = serializers.CharField(max_length=64, label="Name of the axis (ie. 1161)")
@@ -12,7 +33,7 @@ class VmDeportExportSerializer(serializers.Serializer):
 
     f_ecart_d = serializers.FloatField(required=False, default=0.0, label="Offset at the starting point perpendicular from line (ie. 0)")
     f_ecart_f = serializers.FloatField(required=False, default=0.0, label="Offset at the ending point perpendicular from line (ie. 0)")
-    f_usaneg = serializers.FloatField(required=False, default=0.0, label="Offset at the ending point perpendicular from line (ie. 0)")
+    f_usaneg = FloatZeroAsFalseField(required=False, default=False, label="Should the geometry be reversed? Defaults to false.")
 
     def validate(self, data):
         if data["f_ecart_d"] != data["f_ecart_f"]:
