@@ -12,7 +12,7 @@ class VmDeportExportSerializer(serializers.Serializer):
 
     f_ecart_d = serializers.FloatField(required=False, default=0.0, label="Offset at the starting point perpendicular from line (ie. 0)")
     f_ecart_f = serializers.FloatField(required=False, default=0.0, label="Offset at the ending point perpendicular from line (ie. 0)")
-    f_usaneg = serializers.BooleanField(required=False, default=False, label="Offset at the ending point perpendicular from line (ie. 0)")
+    f_usaneg = serializers.FloatField(required=False, default=0.0, label="Offset at the ending point perpendicular from line (ie. 0)")
 
     def validate(self, data):
         if data["f_ecart_d"] != data["f_ecart_f"]:
