@@ -4,6 +4,7 @@ from .serializers import VmDeportExportSerializer
 from sitn.functions import LineSubstring, LineMerge, OffsetCurve
 
 from django.db.models import Subquery, OuterRef, Case, When, Value, F, ExpressionWrapper, FloatField
+from django.db.models.functions import Least
 from django.contrib.gis.db.models.aggregates import Union
 from django.contrib.gis.db.models.functions import LineLocatePoint, Length, AsWKT, Reverse
 
@@ -119,7 +120,7 @@ class VmDeportExportView(APIView):
                 When(
                     start_geom__isnull=False,
                     finish_geom__isnull=False,
-                    then=LineSubstring(F("asg_geom"), F("start_frac"), F("end_frac"))
+                    then=LineSubstring(F("asg_geom"), F("start_frac"), Least(F("end_frac"), Value(1.0)))
                 ),
                 # Otherwise starting segment must be cut from cutting point until its ending extremity
                 When(
@@ -129,7 +130,7 @@ class VmDeportExportView(APIView):
                 # Ending segment must be cut from its starting extremity until cutting point
                 When(
                     finish_geom__isnull=False,
-                    then=LineSubstring(F("asg_geom"), Value(0.0), F("end_frac"))
+                    then=LineSubstring(F("asg_geom"), Value(0.0), Least(F("end_frac"), Value(1.0)))
                 ),
                 # Intermediate segments are kept like they are
                 default=F("asg_geom"),

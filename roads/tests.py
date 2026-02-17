@@ -85,8 +85,7 @@ class RoadsApiTest(APITestCase):
         self.assertIsInstance(multi_line, MultiLineString, "Must be a MULTILINESTRING")
         self.assertEqual(multi_line.num_geom, 3, "Must have 3 parts")
 
-
-    def test_vmdeport_export_whole(self):
+    def test_vmdeport_export_whole_segment(self):
         """
         This extracts the whole AxisSegment.
         Also, this particuliar AxisSegment doesn't have asg_sequence value.
@@ -107,5 +106,31 @@ class RoadsApiTest(APITestCase):
         self.assertAlmostEqual(
             line.length,
             segment.asg_geom.length,
-            "Extraction must have the same length as the original AxisSegment"
+            places=3,
+            msg="Extraction must have the same length as the original AxisSegment"
+        )
+
+    def test_vmdeport_export_too_long(self):
+        """
+        If the distance from Sector is too long, the resulting line will be truncated 
+        to the length of the axis segment.
+        
+         d                f
+        [1]----------[2]
+        """
+        url = (
+            "/roads/vmdeport_export/?f_prop=NE&f_axe=1162&f_sens=="
+            "&f_pr_d=0&f_pr_f=8&f_dist_d=0.0&f_dist_f=676.2"
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        wkt = json.loads(response.content)
+        line = GEOSGeometry(wkt, srid=settings.DEFAULT_SRID)
+        
+        segment = AxisSegment.objects.get(asg_name='NE:1162=:0')
+        self.assertAlmostEqual(
+            line.length,
+            segment.asg_geom.length,
+            places=3,
+            msg="Extraction must have the same length as the original AxisSegment"
         )
