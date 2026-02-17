@@ -1,9 +1,11 @@
 import json
 
-from rest_framework.test import APITestCase
-
 from django.conf import settings
 from django.contrib.gis.geos import GEOSGeometry, MultiLineString
+
+from rest_framework.test import APITestCase
+
+from roads.models import AxisSegment
 
 
 class RoadsApiTest(APITestCase):
@@ -82,3 +84,28 @@ class RoadsApiTest(APITestCase):
         multi_line = GEOSGeometry(wkt, srid=settings.DEFAULT_SRID)
         self.assertIsInstance(multi_line, MultiLineString, "Must be a MULTILINESTRING")
         self.assertEqual(multi_line.num_geom, 3, "Must have 3 parts")
+
+
+    def test_vmdeport_export_whole(self):
+        """
+        This extracts the whole AxisSegment.
+        Also, this particuliar AxisSegment doesn't have asg_sequence value.
+        
+         d            f
+        [1]----------[2]
+        """
+        url = (
+            "/roads/vmdeport_export/?f_prop=6458&f_axe=9048&f_sens=="
+            "&f_pr_d=1&f_pr_f=2&f_dist_d=0.0&f_dist_f=0.0&f_ecart_d=0.0&f_ecart_f=0.0&f_usaneg=0.0"
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        wkt = json.loads(response.content)
+        line = GEOSGeometry(wkt, srid=settings.DEFAULT_SRID)
+        
+        segment = AxisSegment.objects.get(asg_name='6458:9048=:1')
+        self.assertAlmostEqual(
+            line.length,
+            segment.asg_geom.length,
+            "Extraction must have the same length as the original AxisSegment"
+        )

@@ -70,7 +70,7 @@ class VmDeportExportView(APIView):
                 asg_axe__axe_owner=f_prop,
                 asg_axe__axe_name=f_axe,
                 asg_axe__axe_positioncode=f_sens,
-                asg_geom__intersects=start_geom_subquery,
+                sectors__sec_name=f_pr_d,
             )
             .values("asg_sequence")[:1]
         )
@@ -79,7 +79,7 @@ class VmDeportExportView(APIView):
                 asg_axe__axe_owner=f_prop,
                 asg_axe__axe_name=f_axe,
                 asg_axe__axe_positioncode=f_sens,
-                asg_geom__intersects=finish_geom_subquery,
+                sectors__sec_name=f_pr_f,
             )
             .values("asg_sequence")[:1]
         )
