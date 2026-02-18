@@ -1,13 +1,15 @@
 import logging
 from .models import AxisSegment, Sector
 from .serializers import VmDeportExportSerializer
-from sitn.functions import LineSubstring, LineMerge, OffsetCurve
+from sitn.functions import LineSubstring, LineMerge, OffsetCurve, LineInterpolatePoint
 
 from django.http import Http404
-from django.db.models import Subquery, OuterRef, Case, When, Value, F, ExpressionWrapper, FloatField
+from django.db.models import (
+    Subquery, OuterRef, Case, When, Value, F, ExpressionWrapper, FloatField, BooleanField, Q, Func
+)
 from django.db.models.functions import Least
 from django.contrib.gis.db.models.aggregates import Union
-from django.contrib.gis.db.models.functions import LineLocatePoint, Length, AsWKT, Reverse
+from django.contrib.gis.db.models.functions import LineLocatePoint, Length, AsWKT, Reverse, Azimuth, Translate
 
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -115,6 +117,42 @@ class VmDeportExportView(APIView):
             ),
         )
 
+        is_point_case = (
+            f_pr_d == f_pr_f and
+            f_dist_d == f_dist_f
+        )
+
+        if is_point_case:
+            segments = segments.annotate(
+                interpolated_point=LineInterpolatePoint(
+                    F("asg_geom"),
+                    F("start_frac")
+                )
+            )
+            print(segments)
+
+            # Apply an offset if requested
+            if f_ecart_d != 0.0:
+                segments = segments.annotate(
+                    pt=LineInterpolatePoint(F("asg_geom"), F("start_frac")),
+                    pt2=LineInterpolatePoint(F("asg_geom"), F("start_frac") + Value(0.1)),
+                ).annotate(
+                    az=Azimuth(F("pt"), F("pt2"))
+                ).annotate(
+                    interpolated_point=Translate(
+                        F("pt"),
+                        Value(-f_ecart_d) * Func(F("az") + Value(1.57079632679), function="cos"),
+                        Value(-f_ecart_d) * Func(F("az") + Value(1.57079632679), function="sin"),
+                    )
+                )
+            final_wkt = segments.annotate(
+                    point_wkt=AsWKT(F("interpolated_point"))
+                ).values_list("point_wkt", flat=True).first()
+
+            if not final_wkt:
+                raise Http404("No geometry found.")
+            return Response(final_wkt, status=200)
+
         segments = segments.annotate(
             cut_geom=Case(
                 # Start and finish are on the same segment? A substring is sufficient
@@ -138,6 +176,12 @@ class VmDeportExportView(APIView):
             )
         )
 
+        # Reverse geometry if requested
+        if f_usaneg:
+            segments = segments.annotate(
+                cut_geom=Reverse("cut_geom")
+            )
+
         # Apply an offset if requested
         if f_ecart_d != 0.0:
             segments = segments.annotate(
@@ -148,15 +192,8 @@ class VmDeportExportView(APIView):
                 )
             )
 
-        # Reverse geometry if requested
-        if f_usaneg:
-            segments = segments.annotate(
-                cut_geom=Reverse("cut_geom")
-            )
-
         final_wkt = (
-            segments
-            .aggregate(
+            segments.aggregate(
                 merged=AsWKT(
                     LineMerge(
                         Union("cut_geom")
@@ -164,7 +201,7 @@ class VmDeportExportView(APIView):
                 )
             )
         )["merged"]
-        
+
         if not final_wkt:
             raise Http404("No geometry found.")
         return Response(final_wkt, status=200)

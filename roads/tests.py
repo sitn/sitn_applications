@@ -1,7 +1,7 @@
 import json
 
 from django.conf import settings
-from django.contrib.gis.geos import GEOSGeometry, MultiLineString
+from django.contrib.gis.geos import GEOSGeometry, MultiLineString, Point
 
 from rest_framework.test import APITestCase
 
@@ -145,3 +145,18 @@ class RoadsApiTest(APITestCase):
         )
         response = self.client.get(url)
         self.assertEqual(response.status_code, 404)
+
+    def test_vmdeport_export_point(self):
+        """
+        When depart and finish are the same, we want a Point.
+         
+        """
+        url = (
+            "/roads/vmdeport_export/?f_prop=6458&f_axe=642&f_sens=%3D"
+            "&f_pr_d=1&f_pr_f=1&f_dist_d=23.0&f_dist_f=23.0&f_ecart_d=-1.0&f_ecart_f=-1.0"
+        )
+        response = self.client.get(url)
+        self.assertEqual(response.status_code, 200)
+        wkt = json.loads(response.content)
+        point = GEOSGeometry(wkt, srid=settings.DEFAULT_SRID)
+        self.assertIsInstance(point, Point, "Must be a POINT")
