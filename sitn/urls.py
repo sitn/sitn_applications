@@ -23,6 +23,8 @@ router = SitnRouter()
 
 router.register_app('cadastre', 'cadastre/')
 router.register_app('registre_foncier', 'registre_foncier/')
+router.register_app('roads', 'roads/')
+
 urlpatterns = [
     path('schema/', SpectacularAPIView.as_view(), name='schema'),
     path('schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
@@ -31,6 +33,7 @@ urlpatterns = [
     path('', router.get_api_root_view(), name='api-root'),
     path('cadastre/', include('cadastre.urls')),
     path('registre_foncier/', include('registre_foncier.urls')),
+    path('roads/', include('roads.urls')),
 ]
 
 if settings.IS_INTRANET:
@@ -48,7 +51,6 @@ else:
     router.register_app('ecap', 'ecap/')
     router.register_app('action_sociale', 'action_sociale/')
     router.register_app('health', 'health/')
-    router.register_app('roads', 'roads/')
     router.register_app('stationnement', 'stationnement/')
     router.register_app('forest_forpriv', 'forest_forpriv/')
     urlpatterns.extend([
@@ -56,7 +58,6 @@ else:
         path('action_sociale/', include('action_sociale.urls')),
         path('health/', include('health.urls')),
         path("ppe/", include("ppe.urls")),
-        path('roads/', include('roads.urls')),
         path('stationnement/', include('stationnement.urls')),
         path('forest_forpriv/', include('forest_forpriv.urls')),
     ])
