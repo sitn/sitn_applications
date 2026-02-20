@@ -12,6 +12,14 @@ def index(request):
     return JsonResponse(ttt, safe=False)
 
 def parcel_dependencies(request):
+    """
+    Retrieves the first parent of a proprety (if exists)
+    It does not retrive all the hierarchy, only the first level
+
+    params:
+    - cadastre: cadastre number (integer)
+    - parcel: parcel number (without the # or the cadastre number)
+    """
 
     if "cadastre" not in request.GET:
         return HttpResponseBadRequest("No cadastre")
@@ -41,8 +49,7 @@ def parcel_dependencies(request):
     }
 
     parcel_s = parcel.split('/')
-    white_spaces = " " * (8 - len(parcel_s[0]))
-    parcel = '#' + white_spaces + parcel_s[0]
+    parcel = '#' + parcel_s[0].rjust(8, ' ')
 
     if len(parcel_s) > 1:
         parcel += '/' + parcel_s[1]

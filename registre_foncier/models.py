@@ -25,7 +25,7 @@ class Recht(models.Model):
     Global table containing all needed information concerning
     owners and people referenced in the RF DB.
     akt_ase_typ enables to check if it is a moral or physcial
-    person or even some kind of wonership group (hoirie, société simple,
+    person or even some kind of ownership group (hoirie, société simple,
     indivision familiale).
     """
 
