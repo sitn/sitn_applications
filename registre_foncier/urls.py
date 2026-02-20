@@ -11,6 +11,7 @@ urlpatterns = [
 #     path('api/', include(router.urls)),
 
     path('', views.index, name='index'),
+    path('parcel/dependencies', views.parcel_dependencies, name='parcel_dependencies'),
 #     path('get_docs_list', views.get_docs_list, name='get_docs_list'),
 #     path('get_download_path', views.get_download_path, name='get_download_path'),
 #     path('download/<path:name>', views.file_download),
