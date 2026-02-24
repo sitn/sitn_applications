@@ -1,5 +1,5 @@
 from django.db.models import Func, JSONField
-from django.contrib.gis.db.models import MultiLineStringField, PointField
+from django.contrib.gis.db.models import MultiLineStringField, LineStringField, PointField
 
 
 class JsonBuildObject(Func):
@@ -9,7 +9,7 @@ class JsonBuildObject(Func):
 
 class LineSubstring(Func):
     function = "ST_LineSubstring"
-    output_field = MultiLineStringField()
+    output_field = LineStringField()
 
 
 class LineMerge(Func):

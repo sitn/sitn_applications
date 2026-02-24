@@ -32,7 +32,7 @@ class AxisSegment(models.Model):
     )
     asg_name = models.CharField(max_length=64, unique=True)
     asg_sequence = models.IntegerField()
-    asg_geom = models.MultiLineStringField(srid=settings.DEFAULT_SRID)
+    asg_geom = models.LineStringField(srid=settings.DEFAULT_SRID)
 
     class Meta:
         managed = False

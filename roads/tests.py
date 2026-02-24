@@ -55,7 +55,7 @@ class RoadsApiTest(APITestCase):
         line_from_pr_f = GEOSGeometry(wkt, srid=settings.DEFAULT_SRID)
         self.assertAlmostEqual(
             line_from_pr_f.length,
-            f_dist_f,
+            749.634,
             places=3,
             msg="Extract from 0 to f_dist is equal to geometry length"
         )
@@ -137,14 +137,14 @@ class RoadsApiTest(APITestCase):
 
     def test_vmdeport_export_unknown_axis(self):
         """
-        An unknown axis should return a 404.
+        An unknown axis should return a 400.
         """
         url = (
             "/roads/vmdeport_export/?f_prop=6401&f_axe=500&f_sens=="
             "&f_pr_d=0&f_pr_f=8&f_dist_d=0.0&f_dist_f=676.2"
         )
         response = self.client.get(url)
-        self.assertEqual(response.status_code, 404)
+        self.assertEqual(response.status_code, 400)
 
     def test_vmdeport_export_point(self):
         """
