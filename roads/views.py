@@ -62,7 +62,6 @@ class VmDeportExportView(APIView):
                 F("start_proj"),
                 F("end_proj")
             ),
-            #real_length=Length("subgeom", spheroid=False),
         )
         segment = segment.first()
         if not segment or not segment.subgeom.length:
