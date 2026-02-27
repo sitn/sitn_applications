@@ -1,14 +1,17 @@
 import logging
 
 from .models import AxisSegment, Sector
-from .serializers import VmDeportExportSerializer
+from .serializers import VmDeportExportSerializer, AxisSegmentSerializer, SectorSerializer
 from sitn.functions import OffsetCurve, LineSubstring, LineInterpolatePoint
 
 from django.db.models import FloatField, ExpressionWrapper, F, Value, Func
 from django.contrib.gis.db.models.functions import Reverse, LineLocatePoint, Length, Azimuth, Translate, AsWKT
 from django.contrib.gis.geos import MultiLineString
+from django.shortcuts import get_object_or_404
 
+from rest_framework import viewsets, filters
 from rest_framework.response import Response
+from rest_framework.reverse import reverse
 from rest_framework.views import APIView
 
 LOGGER = logging.getLogger(__name__)
@@ -220,3 +223,38 @@ class VmDeportExportView(APIView):
         final_geom = MultiLineString(cut_geoms)
 
         return Response(final_geom.wkt, status=200)
+
+class AxisViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = AxisSegmentSerializer
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ["asg_name"]
+    ordering_fields = ["asg_name"]
+    lookup_field = "asg_iliid"
+
+    def get_queryset(self):
+        return AxisSegment.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        result = []
+        for axis in queryset:
+            result.append(
+                {
+                    "asg_iliid": axis.asg_iliid,
+                    "asg_name": axis.asg_name,
+                    "sectors": reverse(
+                        "axis-sectors",
+                        kwargs={"asg_iliid": axis.asg_iliid},
+                        request=request,
+                    ),
+                }
+            )
+        return Response(result)
+
+
+class SectorViewSet(viewsets.ReadOnlyModelViewSet):
+    serializer_class = SectorSerializer
+    def get_queryset(self):
+        asg_iliid = self.kwargs.get("asg_iliid")
+        axis_segment = get_object_or_404(AxisSegment, asg_iliid=asg_iliid)
+        return Sector.objects.filter(sec_asg__pk=axis_segment.asg_iliid).order_by("sec_name")
