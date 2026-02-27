@@ -163,11 +163,11 @@ class RoadsApiTest(APITestCase):
 
     def test_axis_list(self):
         """
-        /roads/axis/ returns a list of axis objects
+        /roads/axissegments/ returns a list of axis objects
         Used in MACADAM
         """
         
-        url = "/roads/axis/"
+        url = "/roads/axissegments/"
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         data = response.json()
