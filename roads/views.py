@@ -224,7 +224,11 @@ class VmDeportExportView(APIView):
 
         return Response(final_geom.wkt, status=200)
 
-class AxisViewSet(viewsets.ReadOnlyModelViewSet):
+class AxisSegmentsViewSet(viewsets.ReadOnlyModelViewSet):
+    """
+    Each axis is composed of segments (AxisSegment).
+    You can search by axis name, for instance `?search=H10`
+    """
     serializer_class = AxisSegmentSerializer
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
     search_fields = ["asg_name"]

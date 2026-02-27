@@ -179,27 +179,27 @@ class RoadsApiTest(APITestCase):
 
     def test_axis_filter(self):
         """
-        /roads/axis/?search=... filters axis by asg_name
+        /roads/axissegments/?search=... filters axis by asg_name
         """
-        url = "/roads/axis/?search=Test"
+        url = "/roads/axissegments/?search=H10"
         response = self.client.get(url)
         self.assertEqual(response.status_code, 200)
         data = response.json()
         for axis in data:
-            self.assertIn("Test", axis["asg_name"])
+            self.assertIn("H10", axis["asg_name"])
             
     def test_sectors_list(self):
         """
-        /roads/axis/<asg_iliid>/sectors/ returns sectors for axis
+        /roads/axissegments/<asg_iliid>/sectors/ returns sectors for axis
         """
         # Get an axis iliid from the list
-        axis_url = "/roads/axis/"
+        axis_url = "/roads/axissegments/"
         axis_response = self.client.get(axis_url)
         self.assertEqual(axis_response.status_code, 200)
         axis_data = axis_response.json()
         if axis_data:
             asg_iliid = axis_data[0]["asg_iliid"]
-            url = f"/roads/axis/{asg_iliid}/sectors/"
+            url = f"/roads/axissegments/{asg_iliid}/sectors/"
             response = self.client.get(url)
             self.assertEqual(response.status_code, 200)
             sectors = response.json()["results"]
