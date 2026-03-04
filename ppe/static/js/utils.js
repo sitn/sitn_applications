@@ -13,8 +13,8 @@ function showMap() {
     // Get the checkbox status
     const checkBox = document.getElementById("check_mutation");
     // If the checkbox is checked, display the output text
-    mapwidget.style.display =  checkBox.checked ? "block" : "none";
-    validation.style.display =  checkBox.checked ? "inline" : "none";
+    document.getElementById("mapwidget").style.display =  checkBox.checked ? "block" : "none";
+    document.getElementById("validation").style.display =  checkBox.checked ? "inline" : "none";
 }
 
 function validateRealEstateNb() {
@@ -24,11 +24,11 @@ function validateRealEstateNb() {
     if (selected_nummai != "") {
         document.getElementById("select_bf_info").classList.remove('alert-warning');
         document.getElementById("select_bf_info").classList.add('alert-info');
-        multi_bf.style.display = "inline";
+        document.getElementById("multi_bf").style.display = "inline";
     } else {
         document.getElementById("select_bf_info").classList.remove('alert-info');
         document.getElementById("select_bf_info").classList.add('alert-warning');
-        multi_bf.style.display = "none";
+        document.getElementById("multi_bf.style").display = "none";
     }
 }
 
@@ -48,13 +48,14 @@ function changeSectionDisplay() {
 
     if (dossier_type == "C"){
         document.getElementById("constitution").style.display = "block";
-        document.getElementById("ref_geoshop").style.display =  "block";
+        document.getElementById("ref_geoshop").style.display = "block";
     }
     else if (dossier_type == "R"){
         document.getElementById("revision").style.display = "block";
     }
     else if (dossier_type == "M"){
         document.getElementById("modification").style.display = "block";
+        document.getElementById("ref_geoshop").style.display = "none";
     } 
 }
 
@@ -69,49 +70,68 @@ function showJouissanceRemark() {
             if (droits_jouissance[i].checked) {
                 choix_droits_jouissance = droits_jouissance[i].value;
                 if (choix_droits_jouissance == 'non'){
-                    droits_remark.style.display = "none";
-                    elements_rf.style.display = "block";
-                    constitution.style.display = "none";
+                    document.getElementById("droits_remark").style.display = "none";
+                    document.getElementById("situation_cadastrale").style.display = "inline";
+                    document.getElementById("constitution").style.display = "none";
                     var ele = document.getElementsByName("elements_rf");
                     for(var j=0;j<ele.length;j++)
                         ele[j].checked = false;
                     }
                 else {
-                    droits_remark.style.display = "block";
-                    constitution.style.display = "none";
-                    new_jouissance.style.display = "none";
-                    elements_rf.style.display = "none";
-                    submit_btn.style.display = "none";
+                    document.getElementById("droits_remark").style.display = "block";
+                    document.getElementById("constitution").style.display = "none";
+                    document.getElementById("new_jouissance").style.display = "none";
+                    document.getElementById("situation_cadastrale").style.display = "none";
+                    document.getElementById("submit_btn").style.display = "none";
                 }
             }
 
         }
     }
 
-function showElementsRFQuestions() {
-        // Get the selected radio button
-        const elements_rf = document.getElementsByName("elements_rf");
-    
-        for (let i=0;i < elements_rf.length; i++) {
-                if (elements_rf[i].checked) {
-                    choix_elements_rf = elements_rf[i].value;
-                    var ele = document.getElementsByName("new_jouissance");
-                    for(var k=0;k<ele.length;k++)
-                        ele[k].checked = false;
-                    if (choix_elements_rf == 'non') {
-                        constitution.style.display = "block";
-                        ref_geoshop.style.display = "inline";
-                        new_jouissance.style.display = "none";
-                    } else {
-                        new_jouissance.style.display = "block";
-                        constitution.style.display = "none";
-                        ref_geoshop.style.display = "none";
-                    }
-                    submit_btn.style.display = "block";
-                }
-    
+function showLayersInfo() {
+    // Get the selected radio button
+    const situation_plan = document.getElementsByName("situation_plan_rf");
+
+    for (let i=0;i < situation_plan.length; i++) {
+        if (situation_plan[i].checked) {
+            choix_situation_plan = situation_plan[i].value;
+            var ele = document.getElementsByName("layer_info");
+            for(var k=0;k<ele.length;k++)
+                ele[k].checked = false;
+            if (choix_situation_plan == 'non') {
+                document.getElementById("constitution").style.display = "block";
+                document.getElementById("layer_info").style.display = "none";
+            } else {
+                document.getElementById("layer_info").style.display = "block";
             }
+            document.getElementById("submit_btn").style.display = "block";
         }
+    }
+}
+
+function showElementsRFQuestions() {
+    // Get the selected radio button
+    const elements_rf = document.getElementsByName("elements_rf");
+
+    for (let i=0;i < elements_rf.length; i++) {
+            if (elements_rf[i].checked) {
+                choix_elements_rf = elements_rf[i].value;
+                var ele = document.getElementsByName("new_jouissance");
+                for(var j=0;j<ele.length;j++)
+                    ele[j].checked = false;
+                if (choix_elements_rf == 'non') {
+                    document.getElementById("ref_geoshop").style.display = "block";
+                    document.getElementById("new_jouissance").style.display = "none";
+                } else {
+                    document.getElementById("ref_geoshop").style.display = "block";
+                    document.getElementById("new_jouissance").style.display = "block";
+                }
+                document.getElementById("submit_btn").style.display = "block";
+            }
+
+        }
+    }
 
 function showSubmitButton() {
     submit_btn.style.display = "inline";

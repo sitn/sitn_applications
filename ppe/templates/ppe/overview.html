@@ -18,7 +18,7 @@ Dépôt d'un dossier - Récapitulatif
                 <table width="100%">
                 <tr>
                     <th class="fs-4" width="50%">Localisation</th>
-                    <th>{% if dossier_ppe.statut in 'S,C' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>{% else %}
+                    <th>{% if dossier_ppe.statut in 'T,C' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>{% else %}
                         <a href="{% url 'ppe:edit_geolocalisation' %}" class="btn btn-success">Modifier</a>{% endif %}</th>
                 </tr>
                 <tr><td>Cadastre</td><td><b>{{ dossier_ppe.cadastre }}</b></td></tr>
@@ -31,7 +31,7 @@ Dépôt d'un dossier - Récapitulatif
                 <table width="100%">
                 <tr>
                     <th class="fs-4" width="50%">Contacts</th>
-                    <th>{% if dossier_ppe.statut in 'S,C' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>{% else %}
+                    <th>{% if dossier_ppe.statut in 'T,C' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>{% else %}
                         <a href="{% url 'ppe:edit_contacts' %}" class="btn btn-success">Modifier</a>{% endif %}</th>
                 </tr>
                     <td colspan="2" class="fs-5 fw-bold">Personne de contact</td>
@@ -100,7 +100,7 @@ Dépôt d'un dossier - Récapitulatif
             <table width="100%">
             <tr>
                 <th class="fs-4" width="50%">Type de dossier</th>
-                    <th>{% if dossier_ppe.statut in 'S,C' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>{% else %}
+                    <th>{% if dossier_ppe.statut in 'T,C' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>{% else %}
                         <a href="{% url 'ppe:edit_ppe_type' %}" class="btn btn-success">Modifier</a>{% endif %}</th>
             </tr>
                 {% if dossier_ppe.type_dossier == 'C' %}
@@ -127,8 +127,7 @@ Dépôt d'un dossier - Récapitulatif
             <tr>
                 <td colspan="2" class="alert alert-danger">Il n'est pas nécessaire de fournir les couches/calque 101 à 106 (voir 
               <a href="https://www.ne.ch/autorites/DDTE/SGRF/mensuration/Documents/Annexe1_Preparation_fichiers_vectoriels_PROVISOIRE.pdf" target="_new">
-                annexe 1
-              </a>).</td>
+                annexe 1</a>).</td>
             </tr>
                     {% elif dossier_ppe.elements_rf_identiques == 'non' %}
             <tr>

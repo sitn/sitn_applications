@@ -116,12 +116,12 @@ class Signataire(models.Model):
 
 class DossierPPE(models.Model):
     class DossierStatut(models.TextChoices):
+        A = "A", "Abandonné"
+        C = "C", "En correction"
+        E = "E", "Envoyé"
         P = "P", "En préparation"
-        S = "S", "Soumis"
         T = "T", "En traitement"
-        C = "C", "Corrections requises"
-        R = "R", "Rejeté"
-        V = "V", "Dossier papier validé"
+        V = "V", "Validé"
 
     class TypeDossier(models.TextChoices):
         C = "C", "Constitution"

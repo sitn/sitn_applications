@@ -262,7 +262,7 @@ def contact_principal(request):
     # Get the original accord de prise en charge filename
     #current_accord = AdresseFacturation.objects.get(pk=new_dossier_ppe.adresse_facturation.id)
     filename = os.path.basename(facturation_form.instance.file.name)
-    new_accord_facturation_path = f"ppe/{new_dossier_ppe.id}/{filename}"
+    new_accord_facturation_path = f"ppe/{new_dossier_ppe.id}/accord_frais/{filename}"
     default_storage.save(new_accord_facturation_path, default_storage.open(f"{facturation_form.instance.file}"))
     default_storage.delete(f"{facturation_form.instance.file}")
 
@@ -280,10 +280,12 @@ def login(request):
         request.session['login_code'] = request.POST['login_code']
         try:
             doc = DossierPPE.objects.get(login_code=request.session['login_code'])
+            logger.info("=> INFO: OK pour le dossier avec code %s.", doc.login_code)
             return redirect("ppe:overview")
         except Exception as e:
             # Redisplay the geolocalisation form.
-            logger.warning(f"Error fetching the file : {repr(e)}")
+            logger.info("=> INFO: Le dossier avec le code %s n'existe pas", doc.login_code)
+            logger.warning(f"!! WARNING: Error fetching the file : {repr(e)}")
     return render(request, "ppe/login.html")
 
 @login_required
@@ -346,19 +348,22 @@ def definition_type_dossier(request, doc, type_dossier=None):
     elements_rf_identiques = request.POST["elements_rf"] if 'elements_rf' in request.POST else None
     nouveaux_droits = request.POST["new_jouissance"] if 'new_jouissance' in request.POST else None
 
+    logger.info("=> INFO: Déf. type dossier. Type is %s ; ref_geoshop is: %s", type_dossier, ref_geoshop)
+    logger.info("=> INFO: rév. jouissance is %s ; elements_rf_identique is: %s; nouveaux droits is %s", revision_jouissances, elements_rf_identiques, nouveaux_droits)
+
     try:
         # We get the current entry of the dossier ppe if it exists
         dossier_ppe = DossierPPE.objects.get(login_code=doc.login_code)
-        logger.debug('CHECK for existing dossier ppe %s', doc.login_code)
+        logger.debug('>> DEBUG: CHECK for existing dossier ppe %s', doc.login_code)
     except:
         # ELSE we return an error
         error_message = "Aucun dossier avec ce code n'a pu être trouvé."
-        logger.debug('DID NOT FIND a dossier ppe with code: %s. Error was: %s', doc.login_code, error_message)
+        logger.debug('>> DEBUG: DID NOT FIND a dossier ppe with code: %s.', doc.login_code)
         return render(request, "ppe/definition_type_dossier.html", {"error_message": error_message})  
 
     if ref_geoshop is not None:
         # Check geoshop_ref is existing
-        logger.debug('CHECK if given geoshop ref %s exists and is valid for this real estate')
+        logger.debug('>> DEBUG: CHECK if given geoshop ref %s exists and is valid for this real estate')
         ref_exists, ref_error = check_geoshop_ref(ref_geoshop, doc)
         if ref_exists == False:
             error_message = ref_error
@@ -582,6 +587,7 @@ def edit_contacts(request, doc):
 
 @login_required
 def edit_ppe_type(request, doc):
+    logger.info("=> INFO: START edit_ppe_type")
     error_message = None
     ref_exists = False
     ref_error = None
@@ -608,11 +614,11 @@ def edit_ppe_type(request, doc):
         ref_exists, ref_error = check_geoshop_ref(ref_geoshop, doc)
         if ref_error:
             error_message = ref_error
-            logger.debug("GEOSHOP_REF check failed with error %s", error_message)
+            logger.debug(">> DEBUG: GEOSHOP_REF check failed with error %s", error_message)
 
-    logger.info("GEOSHOP_REF %s exists: %s", ref_geoshop, ref_exists)
+    logger.info("=> INFO: GEOSHOP_REF %s exists: %s", ref_geoshop, ref_exists)
 
-    logger.info("> Submission type is %s, ref_exists is %s, elements_rf_identiques is %s",
+    logger.info("=> INFO: Submission type is %s, ref_exists is %s, elements_rf_identiques is %s",
                  type_dossier, ref_exists, elements_rf_identiques
                  )
     
