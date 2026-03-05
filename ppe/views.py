@@ -522,11 +522,12 @@ def edit_geolocalisation(request, doc):
 
 @login_required
 def edit_contacts(request, doc):
+    logger.info("=> INFO: START edit_contacts with dossier %s", doc.id)
     error_message = None
     notaire_form = NotaireForm(request.POST, prefix='notaire')
     contact_form = ContactPrincipalForm(request.POST, prefix='contact')
     signataire_form = SignataireForm(request.POST, prefix='signataire')
-    facturation_form = AdresseFacturationForm(request.POST, request.FILES or None, prefix='facturation')
+    facturation_form = AdresseFacturationForm(request.POST, request.FILES, prefix='facturation')
 
     try:
         if isinstance(doc, object):
@@ -543,7 +544,8 @@ def edit_contacts(request, doc):
                     prefix='notaire'
                     )
                 signataire_form = SignataireForm(
-                    request.POST, dossier_ppe.signataire,
+                    request.POST, 
+                    instance=dossier_ppe.signataire,
                     prefix='signataire'
                     )
                 facturation_form = AdresseFacturationForm(
@@ -553,27 +555,26 @@ def edit_contacts(request, doc):
                     prefix='facturation'
                     )
 
-                if (contact_form.is_valid() and
-                    notaire_form.is_valid() and
-                    signataire_form.is_valid() and
-                    facturation_form.is_valid()):
-
+                if contact_form.has_changed and contact_form.is_valid():
+                    logger.info("=> INFO: Le contact principal a changé")
                     contact_form.save()
+                if notaire_form.has_changed() and notaire_form.is_valid():
+                    logger.info("=> INFO: Le notaire a changé")
                     notaire_form.save()
+                if signataire_form.has_changed() and signataire_form.is_valid():
+                    logger.info("=> INFO: Le signataire a changé")
                     signataire_form.save()
+                if facturation_form.has_changed() and facturation_form.is_valid():
+                    logger.info("=> INFO: La facturation a changée")
                     facturation_form.save()
+                else:
+                    error_message = f"Un problème est survenu lors du changement de l'adresse de facturation."
 
-                    dossier_ppe.contact_principal = ContactPrincipal(pk=contact_form.instance.id)
-                    dossier_ppe.notaire = Notaire(pk=notaire_form.instance.id)
-                    dossier_ppe.signataire = Signataire(pk=signataire_form.instance.id)
-                    dossier_ppe.adresse_facturation = AdresseFacturation(pk=facturation_form.instance.id)
-                    dossier_ppe.save()
-
-                return redirect('ppe:overview', dossier_ppe)
+                return redirect('ppe:overview')
 
         return render(request, "ppe/modification.html", {
             "error_message": error_message,
-            "dossier": doc,
+            "dossier_ppe": doc,
             "contact_form": ContactPrincipalForm(instance=doc.contact_principal, prefix='contact'),
             "notaire_form": NotaireForm(instance=doc.notaire, prefix='notaire'),
             "signataire_form": SignataireForm(instance=doc.signataire, prefix='signataire'),

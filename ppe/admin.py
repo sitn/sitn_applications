@@ -50,6 +50,7 @@ class ContactPrincipalAdmin(admin.ModelAdmin):
          'email'
     ]
     list_display = [
+        'id',
         'nom',
         'prenom',
         'raison_sociale',
