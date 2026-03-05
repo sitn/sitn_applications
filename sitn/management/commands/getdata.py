@@ -117,8 +117,11 @@ class Command(BaseCommand):
         models = apps.get_models()
         for model in models:
             if not model._meta.managed and model._meta.app_label not in self.excluded_apps:
-                # typical model._meta.db_table is 'schema_name"."table_name'
-                schema_name, table_name = model._meta.db_table.replace('"','').split(".")
+                try:
+                    # typical model._meta.db_table is 'schema_name"."table_name'
+                    schema_name, table_name = model._meta.db_table.replace('"','').split(".")
+                except ValueError:
+                    print(f'Skipping {model._meta.db_table} of {model._meta.app_label}')
                 if not schema_name in unmanaged_tables:
                     unmanaged_tables[schema_name] = []
                 unmanaged_tables[schema_name].append(table_name)

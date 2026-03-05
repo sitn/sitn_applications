@@ -9,7 +9,7 @@ djangorestframework==3.16.1
 djangorestframework-gis
 drf-spectacular
 drf-spectacular-sidecar
-oracledb
+oracledb==3.2.0
 phonenumbers
 python-dotenv
 psycopg[binary]
