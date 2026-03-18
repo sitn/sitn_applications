@@ -68,6 +68,7 @@ class St22DoctorChangeSuggestionAdmin(admin.ModelAdmin):
         'pk',
         'doctor',
         'requested_when',
+        'requestor',
         'is_done',
     ]
     ordering = ['is_done']
