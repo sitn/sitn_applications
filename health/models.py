@@ -169,6 +169,7 @@ class St22DoctorChangeSuggestion(models.Model):
         default=AbstractDoctors.Avalability.UNKNOWN)
     comments = models.TextField(_("comments"), blank=True)
     requested_when = models.DateTimeField(_("requested_when"), default=timezone.now)
+    requestor = models.EmailField(_("email_address"), blank=True)
     is_done = models.BooleanField(_("is_done"), default=False)
 
     class Meta:

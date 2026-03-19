@@ -167,7 +167,7 @@ python manage.py test --keepdb
 Prepare translation files
 
 ```sh
-django-admin makemessages -l fr
+django-admin makemessages -l fr --no-location --ignore venv
 ```
 
 then compile them
