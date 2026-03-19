@@ -52,7 +52,7 @@ Application de gestion des PPE
                             {% endif %}
                         </td>
                         <td>{{ dossierppe.zipfiles.first.get_file_statut_display }}</td>
-                        <td><a href="{% url 'ppe:modification' %}">{{ dossierppe.login_code }}</a></td>
+                        <td><a href="{% url 'ppe:overview' %}">{{ dossierppe.login_code }}</a></td>
                     </tr>
                 {% empty %}
                     <p>Aucun dossier n'a été trouvé.</p>

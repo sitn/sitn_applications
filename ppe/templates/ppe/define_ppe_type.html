@@ -105,7 +105,7 @@ Etape 3 : type de dossier
 
         <section name="constitution" id="constitution" 
           {% if mode == 'edit' and dossier_ppe.type_dossier == 'C' %}style="display:block;"
-          {% elif dossier_ppe.elements_rf_identiques == 'non' %}style="display:block;"
+          {% elif dossier_ppe.situation_plan_rf == 'non' %}style="display:block;"
           {% else %}style="display:none"{% endif %}>
           <div class="row" id="situation_plan">
             <div class="col-lg-6 col-6">

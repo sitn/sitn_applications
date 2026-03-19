@@ -76,7 +76,7 @@ function showJouissanceRemark() {
                     var ele = document.getElementsByName("elements_rf");
                     for(var j=0;j<ele.length;j++)
                         ele[j].checked = false;
-                    }
+                        }
                 else {
                     document.getElementById("droits_remark").style.display = "block";
                     document.getElementById("constitution").style.display = "none";
@@ -92,20 +92,15 @@ function showJouissanceRemark() {
 function showLayersInfo() {
     // Get the selected radio button
     const situation_plan = document.getElementsByName("situation_plan_rf");
-
     for (let i=0;i < situation_plan.length; i++) {
         if (situation_plan[i].checked) {
             choix_situation_plan = situation_plan[i].value;
-            var ele = document.getElementsByName("layer_info");
-            for(var k=0;k<ele.length;k++)
-                ele[k].checked = false;
             if (choix_situation_plan == 'non') {
                 document.getElementById("constitution").style.display = "block";
                 document.getElementById("layer_info").style.display = "none";
             } else {
                 document.getElementById("layer_info").style.display = "block";
             }
-            document.getElementById("submit_btn").style.display = "block";
         }
     }
 }
@@ -118,8 +113,8 @@ function showElementsRFQuestions() {
             if (elements_rf[i].checked) {
                 choix_elements_rf = elements_rf[i].value;
                 var ele = document.getElementsByName("new_jouissance");
-                for(var j=0;j<ele.length;j++)
-                    ele[j].checked = false;
+                for(var j=0;j<ele.length;j++) {
+                    ele[j].checked = false; }
                 if (choix_elements_rf == 'non') {
                     document.getElementById("ref_geoshop").style.display = "block";
                     document.getElementById("new_jouissance").style.display = "none";

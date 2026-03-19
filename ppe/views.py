@@ -162,7 +162,7 @@ def modification(request, doc):
                     dossier_ppe.adresse_facturation = AdresseFacturation(pk=facturation_form.instance.id)
                     dossier_ppe.save()
 
-                    return redirect('ppe:definition_type_dossier')
+                    return redirect('ppe:define_ppe_type')
                 else:
                     error_message = "Une valeur modifiée ne semble pas avoir été conforme."
 
@@ -272,7 +272,7 @@ def contact_principal(request):
     accord_actuel.save(update_fields=["file"])
 
     request.session['login_code'] = login_code
-    return redirect('ppe:definition_type_dossier')
+    return redirect('ppe:define_ppe_type')
 
 
 def login(request):
@@ -338,14 +338,19 @@ def soumission(request, doc):
     return render(request, "ppe/soumission.html", {"dossier_ppe": doc})
 
 @login_required
-def definition_type_dossier(request, doc, type_dossier=None):
+def define_ppe_type(request, doc, type_dossier=None):
     """ Definition of the PPE submission type """
     error_message = None
     type_dossier = request.POST["type_dossier"] if 'type_dossier' in request.POST else None
     code_initial = request.POST["initial_code"] if 'initial_code' in request.POST else None
     ref_geoshop = request.POST["ref_geoshop"] if 'ref_geoshop' in request.POST else None
-    revision_jouissances = request.POST["droits_jouissance"] if 'droits_jouissance' in request.POST else None 
-    elements_rf_identiques = request.POST["elements_rf"] if 'elements_rf' in request.POST else None
+    revision_jouissances = request.POST["droits_jouissance"] if 'droits_jouissance' in request.POST else None
+    if type_dossier == 'R':
+        elements_rf_identiques = request.POST["elements_rf"] if 'elements_rf' in request.POST else None
+    if type_dossier == 'C':
+        elements_rf_identiques = request.POST["situation_plan_rf"] if 'situation_plan_rf' in request.POST else None
+    else:
+        elements_rf_identiques = None
     nouveaux_droits = request.POST["new_jouissance"] if 'new_jouissance' in request.POST else None
 
     logger.info("=> INFO: Déf. type dossier. Type is %s ; ref_geoshop is: %s", type_dossier, ref_geoshop)
@@ -359,7 +364,7 @@ def definition_type_dossier(request, doc, type_dossier=None):
         # ELSE we return an error
         error_message = "Aucun dossier avec ce code n'a pu être trouvé."
         logger.debug('>> DEBUG: DID NOT FIND a dossier ppe with code: %s.', doc.login_code)
-        return render(request, "ppe/definition_type_dossier.html", {"error_message": error_message})  
+        return render(request, "ppe/define_ppe_type.html", {"error_message": error_message})  
 
     if ref_geoshop is not None:
         # Check geoshop_ref is existing
@@ -372,7 +377,7 @@ def definition_type_dossier(request, doc, type_dossier=None):
 
     if type_dossier == 'C' and ref_exists == True:
         dossier_ppe.type_dossier = type_dossier
-        dossier_ppe.elements_rf_identiques = None
+        dossier_ppe.elements_rf_identiques = elements_rf_identiques
         dossier_ppe.nouveaux_droits = None
         dossier_ppe.revision_jouissances = None
         dossier_ppe.ref_geoshop = ref_geoshop
@@ -414,7 +419,7 @@ def definition_type_dossier(request, doc, type_dossier=None):
 
     return render(
         request,
-        "ppe/definition_type_dossier.html", 
+        "ppe/define_ppe_type.html", 
         {
             "dossier_ppe": doc, 
             "type_dossier": type_dossier, 
@@ -431,8 +436,8 @@ def load_zipfile(request, doc):
     if zip_form.is_valid():
         zip_form.save()
         Zipfile(pk=zip_form.instance.id)
-        return render(request, "ppe/overview.html", {"dossier_ppe" : doc})
-    # TODO VCRON ajouter un trigger sur statut CAC
+        return redirect("ppe:overview")
+        #return render(request, "ppe/overview.html", {"dossier_ppe" : doc})
     # TODO: zip_form.errors probablement intéressant pour l'utilisateur
     zip_form = ZipfileForm(initial=init_data)
     return render(request, "ppe/load_zipfile.html", {"dossier_ppe" : doc, "zip_form": zip_form})
@@ -588,7 +593,6 @@ def edit_contacts(request, doc):
 
 @login_required
 def edit_ppe_type(request, doc):
-    logger.info("=> INFO: START edit_ppe_type")
     error_message = None
     ref_exists = False
     ref_error = None
@@ -601,11 +605,15 @@ def edit_ppe_type(request, doc):
         ref_geoshop = request.POST["ref_geoshop"] if 'ref_geoshop' in request.POST else None
         revision_jouissances = request.POST["droits_jouissance"] if 'droits_jouissance' in request.POST else None 
         elements_rf_identiques = request.POST["elements_rf"] if 'elements_rf' in request.POST else None
+        situation_plan_rf = request.POST["situation_plan_rf"] if 'situation_plan_rf' in request.POST else None
         nouveaux_droits = request.POST["new_jouissance"] if 'new_jouissance' in request.POST else None
     except:
         # ELSE we return an error
         error_message = "Aucun dossier avec ce code n'a pu être trouvé."
-        return render(request, "ppe/definition_type_dossier.html", {"error_message": error_message})
+        return render(request, "ppe/define_ppe_type.html", {"error_message": error_message})
+
+    logger.info("=> INFO: START edit_ppe_type. Type is %s ; ref_geoshop is: %s", type_dossier, ref_geoshop)
+    logger.info("=> INFO: rév. jouissance is %s ; elements_rf_identique is: %s; nouveaux droits is %s", revision_jouissances, elements_rf_identiques, nouveaux_droits)
 
     request.session['type_dossier'] = type_dossier
 
@@ -624,7 +632,8 @@ def edit_ppe_type(request, doc):
                  )
     
     if type_dossier == 'C' and ref_exists == True:
-        dossier_ppe.elements_rf_identiques = None
+        print(situation_plan_rf)
+        dossier_ppe.elements_rf_identiques = situation_plan_rf
         dossier_ppe.nouveaux_droits = None
         dossier_ppe.revision_jouissances = None
         dossier_ppe.type_dossier = type_dossier
@@ -660,7 +669,7 @@ def edit_ppe_type(request, doc):
                 error_message = "Le dossier actuel et le dossier initial ne peuvent pas être identiques."
                 return render(
                     request, 
-                    "ppe/definition_type_dossier.html", 
+                    "ppe/define_ppe_type.html", 
                     {"dossier_ppe": doc, "mode": 'edit', "error_message" : error_message}
                     )
 
@@ -685,7 +694,7 @@ def edit_ppe_type(request, doc):
         doc.type_dossier = request.session['type_dossier']
     return render(
         request, 
-        "ppe/definition_type_dossier.html", 
+        "ppe/define_ppe_type.html", 
         {"dossier_ppe": doc, "mode": 'edit', "error_message" : error_message}
     )
     
@@ -698,6 +707,11 @@ def zip_status(request, doc):
         "Erreur inconnue sur le statut des fichiers zip"
     )
 
+    if zip.file_statut in ["CAE", "CME"]:
+        response = HttpResponse("")
+        response["HX-Refresh"] = "true"
+        return response
+    
     return render(
         request,
         "ppe/zip_status.html",
