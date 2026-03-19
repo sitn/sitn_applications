@@ -55,7 +55,7 @@ class St22DoctorChangeSuggestionSerializer(serializers.ModelSerializer):
     class Meta:
         model = St22DoctorChangeSuggestion
         fields = [
-            'doctor', 'availability', 'comments'
+            'doctor', 'availability', 'comments', 'requestor'
         ]
 
 
