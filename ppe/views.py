@@ -437,7 +437,6 @@ def load_zipfile(request, doc):
         zip_form.save()
         Zipfile(pk=zip_form.instance.id)
         return redirect("ppe:overview")
-        #return render(request, "ppe/overview.html", {"dossier_ppe" : doc})
     # TODO: zip_form.errors probablement intéressant pour l'utilisateur
     zip_form = ZipfileForm(initial=init_data)
     return render(request, "ppe/load_zipfile.html", {"dossier_ppe" : doc, "zip_form": zip_form})
