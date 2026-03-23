@@ -18,8 +18,8 @@ Dépôt d'un dossier - Récapitulatif
                 <table width="100%">
                 <tr>
                     <th class="fs-4" width="50%">Localisation</th>
-                    <th>{% if dossier_ppe.statut in 'A,T,C' or dossier_ppe.zipfiles.first.file_statut != 'CAE' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>{% else %}
-                        <a href="{% url 'ppe:edit_geolocalisation' %}" class="btn btn-success">Modifier</a>{% endif %}</th>
+                    <th>{% if dossier_ppe.zipfiles.first and dossier_ppe.zipfiles.first.file_statut != 'CAE' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>
+                        {% else %}<a href="{% url 'ppe:edit_geolocalisation' %}" class="btn btn-success">Modifier</a>{% endif %}</th>
                 </tr>
                 <tr><td>Cadastre</td><td><b>{{ dossier_ppe.cadastre }}</b></td></tr>
                 <tr><td>Bien-fonds</td><td><b>{{ dossier_ppe.nummai }}</b></td></tr>
@@ -31,8 +31,8 @@ Dépôt d'un dossier - Récapitulatif
                 <table width="100%">
                 <tr>
                     <th class="fs-4" width="50%">Contacts</th>
-                    <th>{% if dossier_ppe.statut in 'A,T,C' or dossier_ppe.zipfiles.first.file_statut == 'CAC' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>{% else %}
-                        <a href="{% url 'ppe:edit_contacts' %}" class="btn btn-success">Modifier</a>{% endif %}</th>
+                    <th>{% if dossier_ppe.zipfiles.first and dossier_ppe.zipfiles.first.file_statut != 'CAE' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>
+                       {% else %}<a href="{% url 'ppe:edit_contacts' %}" class="btn btn-success">Modifier</a>{% endif %}</th>
                 </tr>
                     <td colspan="2" class="fs-5 fw-bold">Personne de contact</td>
                 <tr>
@@ -100,8 +100,8 @@ Dépôt d'un dossier - Récapitulatif
             <table width="100%">
             <tr>
                 <th class="fs-4" width="50%">Type de dossier</th>
-                    <th>{% if dossier_ppe.statut in 'A,T,C' or dossier_ppe.zipfiles.first.file_statut == 'CAC' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>{% else %}
-                        <a href="{% url 'ppe:edit_ppe_type' %}" class="btn btn-success">Modifier</a>{% endif %}</th>
+                    <th>{% if dossier_ppe.zipfiles.first and dossier_ppe.zipfiles.first.file_statut != 'CAE' %}<button type="button" disabled class="btn btn-secondary">Modifier</button>
+                       {% else %}<a href="{% url 'ppe:edit_ppe_type' %}" class="btn btn-success">Modifier</a>{% endif %}</th>
             </tr>
             {% if dossier_ppe.type_dossier in 'C,R' %}
             <tr>
@@ -172,7 +172,7 @@ Dépôt d'un dossier - Récapitulatif
                 {% if forloop.first %}
                     <tr>
                         <th class="fs-4" width="50%">Chargement des fichiers</th>
-                        <th>{% if dossier_ppe.statut in 'A' or zip.file_statut in 'CAC,CMS' %}
+                        <th>{% if dossier_ppe.statut in 'A,T,V' %}
                             <button type="button" disabled class="btn btn-secondary">Ajouter</button>{% else %}
                             <a href="{% url 'ppe:load_zipfile' %}" class="btn btn-success">Ajouter</a></th>{% endif %}
                     </tr>

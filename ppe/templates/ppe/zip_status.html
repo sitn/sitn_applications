@@ -55,7 +55,7 @@
         <a href="{% url 'ppe:get_final_documents' %}" class="btn btn-success">Télécharger mes documents</a>
     </td>
 
-    {% elif zip.file_statut == 'DPV' %}
+    {% elif zip.file_statut == 'CPV' %}
     <td colspan="2" class="alert alert-danger">
     Votre dossier papier est validé. Il sera signé par le géomètre cantonal puis envoyé au notaire 
     dans un délai de deux jours ouvrables à partir du xx.xx.xxxx (date de changement de statut 6>7).
