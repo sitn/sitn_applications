@@ -28,7 +28,7 @@ function validateRealEstateNb() {
     } else {
         document.getElementById("select_bf_info").classList.remove('alert-info');
         document.getElementById("select_bf_info").classList.add('alert-warning');
-        document.getElementById("multi_bf.style").display = "none";
+        document.getElementById("multi_bf").style.display = "none";
     }
 }
 
@@ -110,23 +110,22 @@ function showElementsRFQuestions() {
     const elements_rf = document.getElementsByName("elements_rf");
 
     for (let i=0;i < elements_rf.length; i++) {
-            if (elements_rf[i].checked) {
-                choix_elements_rf = elements_rf[i].value;
-                var ele = document.getElementsByName("new_jouissance");
-                for(var j=0;j<ele.length;j++) {
-                    ele[j].checked = false; }
-                if (choix_elements_rf == 'non') {
-                    document.getElementById("ref_geoshop").style.display = "block";
-                    document.getElementById("new_jouissance").style.display = "none";
-                } else {
-                    document.getElementById("ref_geoshop").style.display = "block";
-                    document.getElementById("new_jouissance").style.display = "block";
-                }
-                document.getElementById("submit_btn").style.display = "block";
+        if (elements_rf[i].checked) {
+            choix_elements_rf = elements_rf[i].value;
+            var ele = document.getElementsByName("new_jouissance");
+            for(var j=0;j<ele.length;j++) {
+                ele[j].checked = false; }
+            if (choix_elements_rf == 'non') {
+                document.getElementById("ref_geoshop").style.display = "block";
+                document.getElementById("new_jouissance").style.display = "none";
+            } else {
+                document.getElementById("ref_geoshop").style.display = "block";
+                document.getElementById("new_jouissance").style.display = "block";
             }
-
+            document.getElementById("submit_btn").style.display = "block";
         }
     }
+}
 
 function showSubmitButton() {
     submit_btn.style.display = "inline";

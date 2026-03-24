@@ -330,7 +330,6 @@ def soumission(request, doc):
         text_content,
         default_sender,
         [doc.contact_principal.email],    )
-    #print(msg)
     # Lastly, attach the HTML content to the email instance and send.
     msg.attach_alternative(html_content, "text/html")
     msg.send()
@@ -631,7 +630,7 @@ def edit_ppe_type(request, doc):
                  )
     
     if type_dossier == 'C' and ref_exists == True:
-        print(situation_plan_rf)
+        logger.debug(">> DEBUG: situation_plan_rf is %s", situation_plan_rf)
         dossier_ppe.elements_rf_identiques = situation_plan_rf
         dossier_ppe.nouveaux_droits = None
         dossier_ppe.revision_jouissances = None
