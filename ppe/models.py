@@ -147,7 +147,7 @@ class DossierPPE(models.Model):
     elements_rf_identiques = models.CharField(max_length=3, default=None, blank=True, null=True)
     nouveaux_droits = models.CharField(max_length=3, default=None, blank=True, null=True)
     ref_geoshop = models.CharField(max_length=20, default=None, blank=True, null=True)
-    ref_dossier_initial = models.IntegerField(null=True)
+    ref_dossier_initial = models.IntegerField(blank=True, null=True)
     contact_principal = models.ForeignKey(ContactPrincipal, on_delete=models.CASCADE)
     signataire = models.ForeignKey(Signataire, on_delete=models.CASCADE)
     notaire = models.ForeignKey(Notaire, on_delete=models.CASCADE)
