@@ -42,3 +42,20 @@ class Recht(models.Model):
     class Meta:
         db_table = 'RF_SITN\".\"RECHT'
         managed = False
+
+
+class VJouGrundstTotal(models.Model):
+    """
+    View regrouping all 6 journals
+    If a property is affected by a mutation, it will be retrieved
+    in the journal
+    """
+
+    jou_id = models.CharField(max_length=2, primary_key=True)
+    no_immeuble = models.CharField(max_length=12)
+    no_cadastre = models.CharField(max_length=4)
+    type_immeuble = models.CharField(max_length=29)
+
+    class Meta:
+        db_table = 'RF_SITN\".\"V_JOU_GRUNDST_TOTAL'
+        managed = False

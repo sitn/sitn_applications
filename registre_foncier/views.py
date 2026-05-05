@@ -1,6 +1,8 @@
 from django.http import JsonResponse, HttpResponseBadRequest
+from django.views.decorators.csrf import csrf_exempt
 
 from registre_foncier.models import RfcenAdresse, Recht
+from registre_foncier.lib import get_provisory_state
 
 # Create your views here.
 def index(request):
@@ -11,6 +13,7 @@ def index(request):
 
     return JsonResponse(ttt, safe=False)
 
+@csrf_exempt
 def parcel_dependencies(request):
     """
     Retrieves the first parent of a proprety (if exists)
