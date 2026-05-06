@@ -113,7 +113,7 @@ def check_geoshop_ref(ref, doc):
 
     # Change representation of PPE geolocalisation point
     if ref is None:
-        return False, 'La référence de commande indiquée n\'existe pas.'
+        return False, 'La référence de commande indiquée est vide ou n\'existe pas.'
     logger.info('CHECKING geoshop reference: %s', ref)
 
     # Check if the given reference respects the supposed format

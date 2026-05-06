@@ -346,7 +346,7 @@ def define_ppe_type(request, doc, type_dossier=None):
     revision_jouissances = request.POST["droits_jouissance"] if 'droits_jouissance' in request.POST else None
     if type_dossier == 'R':
         elements_rf_identiques = request.POST["elements_rf"] if 'elements_rf' in request.POST else None
-    if type_dossier == 'C':
+    elif type_dossier == 'C':
         elements_rf_identiques = request.POST["situation_plan_rf"] if 'situation_plan_rf' in request.POST else None
     else:
         elements_rf_identiques = None
@@ -405,14 +405,14 @@ def define_ppe_type(request, doc, type_dossier=None):
         dossier_ppe.elements_rf_identiques = elements_rf_identiques
         dossier_ppe.nouveaux_droits = nouveaux_droits
         dossier_ppe.revision_jouissances = revision_jouissances
-        if ref_exists == False:
-            error_message = "La référence de commande indiquée n\'existe pas."
-        if elements_rf_identiques == 'non' and ref_exists == True:
+        if ref_exists == True:
             dossier_ppe.ref_geoshop = ref_geoshop
-        dossier_ppe.save()
-        return redirect("ppe:overview")
+            dossier_ppe.save()
+            return redirect("ppe:overview")
+        else:
+            error_message = "La définition du type de dossier a échouée. {}".format(ref_error)
     elif type_dossier == 'I':
-        error_message = None
+        error_message = 'Veuillez définir le type de dossier.'
     else:
         error_message = 'Le type de dossier PPE ne semble pas encore défini.' 
 
@@ -454,8 +454,8 @@ def submit_for_validation(request, doc):
     zip.file_statut = 'CMS'
     zip.save()
 
-    # Set the application's status to submitted for manual validation 'S'
-    doc.statut = 'S'
+    # Set the application's status to submitted for manual validation 'T'
+    doc.statut = 'T'
     doc.date_soumission = datetime.datetime.now()
     doc.save()
     return redirect("ppe:overview")
@@ -615,13 +615,14 @@ def edit_ppe_type(request, doc):
 
     request.session['type_dossier'] = type_dossier
 
-    if ref_geoshop:
-        ref_error = None
-        logger.info('> CHECK REF GEOSHOP: %s', ref_geoshop)
+    if ref_geoshop is not None:
+        # Check geoshop_ref is existing
+        logger.debug('>> DEBUG: CHECK if given geoshop ref %s exists and is valid for this real estate')
         ref_exists, ref_error = check_geoshop_ref(ref_geoshop, doc)
-        if ref_error:
+        if ref_exists == False:
             error_message = ref_error
-            logger.debug(">> DEBUG: GEOSHOP_REF check failed with error %s", error_message)
+    else:
+        ref_exists = False
 
     logger.info("=> INFO: GEOSHOP_REF %s exists: %s", ref_geoshop, ref_exists)
 
@@ -651,13 +652,13 @@ def edit_ppe_type(request, doc):
         dossier_ppe.elements_rf_identiques = elements_rf_identiques
         dossier_ppe.nouveaux_droits = nouveaux_droits
         dossier_ppe.revision_jouissances = revision_jouissances
-
-        if ref_exists == False and not ref_error is None :
-            error_message = ref_error
-        if elements_rf_identiques == 'non' and ref_exists == True:
+        if ref_exists == True:
             dossier_ppe.ref_geoshop = ref_geoshop
-        dossier_ppe.save()
-        return redirect("ppe:overview")
+            dossier_ppe.save()
+            return redirect("ppe:overview")
+        else:
+            ref_geoshop = None
+            error_message = ref_error
 
     if type_dossier == 'M' and code_initial is not None:
         # GET the inital DossierPPE to be replaced or return an error

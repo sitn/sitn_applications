@@ -117,16 +117,15 @@ Dépôt d'un dossier - Récapitulatif
                 <td>La situation cadastrale reste identique</td>
                 <td>{{ dossier_ppe.elements_rf_identiques }}</td>
             </tr>
+            <tr>
+                <td>Réf. géoshop:</td>
+                <td>{{ dossier_ppe.ref_geoshop }}</td>
+            </tr>
                 {% if dossier_ppe.elements_rf_identiques == 'oui' %}
             <tr>
                 <td colspan="2" class="alert alert-danger">Il n'est pas nécessaire de fournir les couches/calque 101 à 106 (voir 
               <a href="https://www.ne.ch/autorites/DDTE/SGRF/mensuration/Documents/Annexe1_Preparation_fichiers_vectoriels_PROVISOIRE.pdf" target="_new">
                 annexe 1</a>).</td>
-            </tr>
-                {% elif dossier_ppe.elements_rf_identiques == 'non' %}
-            <tr>
-                <td>Réf. géoshop:</td>
-                <td>{{ dossier_ppe.ref_geoshop }}</td>
             </tr>
                 {% endif %}
             {% elif dossier_ppe.type_dossier == 'M' %}

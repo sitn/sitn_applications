@@ -178,7 +178,8 @@ Etape 3 : type de dossier
           </div>
         </section>
       
-        {% if error_message and dossier_ppe.type_dossier != 'I' %}<p id="form_error" class="alert alert-danger col-lg-6"><strong>{{ error_message }}</strong></p>{% endif %}
+        {% if error_message %}<p id="form_error" class="alert alert-danger col-lg-6"><strong>{{ error_message }}</strong></p>
+        {% endif %}
         {% if mode == 'edit' and dossier_ppe.type_dossier != 'M' %}
         <input id="submit_btn" type="submit" value="Modifier" class="valider btn btn-success" {% if dossier_ppe.revision_jouissances == 'oui' or dossier_ppe.type_dossier == 'I' %}style="display:none;"{% endif %}>
         {% else %}
