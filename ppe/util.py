@@ -4,7 +4,7 @@ from functools import wraps
 from .forms import GeolocalisationForm
 from .models import DossierPPE, GeoshopCadastreOrder
 from django.shortcuts import render, redirect
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponseBadRequest, Http404
 
 logger = logging.getLogger(__name__)
 
@@ -28,20 +28,22 @@ def login_required(func):
             logger.debug('== Trying to log in with code')
             try:
                 return func(request, DossierPPE.objects.get(login_code=request.session['login_code']), *args, **kwargs)
+            except Http404 as e:
+                raise Http404('File not found.')
             except Exception as e:
                 logger.warning(f"Exception : {repr(e)}")
                 pass
         return redirect('ppe:login')
     return wrapper
 
-def get_localisation(localisation):
+def get_localisation(request, localisation):
 
     try:
         coords = localisation['coordinates']
         coord_est = round(coords[0],1)
         coord_nord = round(coords[1],1)
     except KeyError:
-        return render(
+        return render(request,
             "ppe/geolocalisation.html",
             {
                 "error_message": "Les coordonnées n'ont pas pu être récupérées.",

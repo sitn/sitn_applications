@@ -85,7 +85,7 @@ def set_geolocalisation(request):
         # Convert an existing localisation to a JSON dict
         if isinstance(localisation, str) and localisation != '':
             localisation = json.loads(localisation)
-            localisation_ppe = get_localisation(localisation)
+            localisation_ppe = get_localisation(request, localisation)
         check_geolocalisation(request, localisation_ppe)
         if request.POST['geom'] == '':
             form_action = 'set_geolocalisation'
@@ -277,14 +277,14 @@ def contact_principal(request):
 
 def login(request):
     if 'login_code' in request.POST:
-        request.session['login_code'] = request.POST['login_code']
         try:
-            doc = DossierPPE.objects.get(login_code=request.session['login_code'])
+            doc = DossierPPE.objects.get(login_code=request.POST['login_code'])
+            request.session['login_code'] = request.POST['login_code']
             logger.info("=> INFO: OK pour le dossier avec code %s.", doc.login_code)
             return redirect("ppe:overview")
         except Exception as e:
             # Redisplay the geolocalisation form.
-            logger.info("=> INFO: Le dossier avec le code %s n'existe pas", doc.login_code)
+            logger.warning("=> INFO: Le dossier avec le code %s n'existe pas", request.POST['login_code'])
             logger.warning(f"!! WARNING: Error fetching the file : {repr(e)}")
     return render(request, "ppe/login.html")
 

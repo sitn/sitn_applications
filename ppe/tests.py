@@ -33,11 +33,10 @@ import datetime
 from unittest.mock import patch, MagicMock
 
 from django.contrib.auth.models import User
-from django.contrib.gis.geos import Point, Polygon
+from django.contrib.gis.geos import Point
 from django.core.exceptions import ValidationError
-from django.test import TestCase, Client, RequestFactory
+from django.test import TestCase, Client
 from django.urls import reverse
-from django.utils import timezone
 
 from ppe.forms import (
     validate_phone_number,
@@ -45,14 +44,11 @@ from ppe.forms import (
     ContactPrincipalForm,
     NotaireForm,
     SignataireForm,
-    AdresseFacturationForm,
-    AdminLoginForm,
 )
 from ppe.models import (
     AdresseFacturation,
     ContactPrincipal,
     DossierPPE,
-    GeoshopCadastreOrder,
     Notaire,
     Signataire,
     Zipfile,
@@ -399,7 +395,7 @@ class CheckGeoshopRefTest(TestCase):
     """
 
     def _make_doc(self):
-        return make_dossier()
+        return DossierPPE.objects.first()
 
     def test_none_ref_returns_false(self):
         doc = self._make_doc()
@@ -505,15 +501,25 @@ class CheckGeoshopRefTest(TestCase):
 class GetLocalisationTest(TestCase):
     """Tests pour get_localisation(localisation)."""
 
-    def test_coords_outside_canton_returns_bad_request(self):
+    @patch("ppe.util.requests.request")    
+    def test_coords_outside_canton_returns_bad_request(self, mock_request):
         localisation = {"coordinates": [1000000, 500000]}  # hors canton
-        result = get_localisation(localisation)
+        result = get_localisation(mock_request, localisation)
         # Doit retourner un HttpResponseBadRequest
         self.assertEqual(result.status_code, 400)
 
-    def test_missing_coordinates_key_returns_error(self):
+    @patch("ppe.util.requests.request")
+    def test_missing_coordinates_key_returns_error(self, mock_request):
+        mock_response = MagicMock()
+        mock_response.json.return_value = {
+            "bien_fonds": {"type": "bien_fonds"},
+            "nummai": "1234",
+            "numcad": 100,
+            "nomcad": "Neuchâtel",
+        }
+        mock_request.return_value = mock_response
         localisation = {"wrong_key": [2530000, 1205000]}
-        result = get_localisation(localisation)
+        result = get_localisation(mock_request, localisation)
         # KeyError → render d'erreur (pas de status_code standard), on vérifie juste que ça ne plante pas
         # La fonction retourne un render() sans request, ce qui est un bug connu dans le code source.
         # On teste simplement que la fonction ne lève pas d'exception non gérée.
@@ -531,7 +537,7 @@ class GetLocalisationTest(TestCase):
         mock_request.return_value = mock_response
 
         localisation = {"coordinates": [2530000, 1205000]}
-        result = get_localisation(localisation)
+        result = get_localisation(mock_request, localisation)
 
         mock_request.assert_called_once()
         self.assertIsInstance(result, dict)
@@ -553,7 +559,7 @@ class GetLocalisationTest(TestCase):
         mock_request.return_value = mock_response
 
         localisation = {"coordinates": [2530000, 1205000]}
-        result = get_localisation(localisation)
+        result = get_localisation(mock_request, localisation)
 
         self.assertIsInstance(result, dict)
         self.assertIsNotNone(result["bf_list"])
@@ -661,7 +667,7 @@ class LoginViewTest(TestCase):
 
     def test_invalid_login_code_stays_on_login_page(self):
         response = self.client.post(reverse("ppe:login"), {
-            "login_code": "INVALIDE________",
+            "login_code": "INVALIDE___LOGIN",
         })
         self.assertEqual(response.status_code, 200)
 
@@ -875,9 +881,10 @@ class GetFinalDocumentsViewTest(TestCase):
 
     def setUp(self):
         self.client = Client()
-        self.dossier = make_dossier()
+        self.doc = make_dossier(login_code="AAAABBBB11112222")
+        self.doc.save()
         session = self.client.session
-        session["login_code"] = self.dossier.login_code
+        session["login_code"] = self.doc.login_code
         session.save()
 
     def test_file_not_found_raises_404(self):
