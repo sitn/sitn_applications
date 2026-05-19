@@ -194,5 +194,5 @@ Then:
 In your venv:
 
 1. Update the versions manually in requirements.in
-2. `pip-compile requirements.in --output-file=requirements-lock.txt`
+2. `pip-compile requirements.in --upgrade --output-file=requirements-lock.txt`
 3. `pip install -r requirements-lock.txt`
