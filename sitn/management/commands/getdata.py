@@ -12,7 +12,7 @@ class Command(BaseCommand):
     """
 
     # Schemas that need to be restored before
-    dependent_schemas = ['edition', 'main_prepub', 'general', 'mensuration', 'mistra_complet']
+    dependent_schemas = ['edition', 'main_prepub', 'general', 'searchtables', 'registre_foncier', 'mensuration', 'mistra_complet']
     excluded_apps = ['registre_foncier']
 
 
