@@ -6,7 +6,6 @@ from django.conf import settings
 from django.contrib.gis.db import models
 from django.contrib.postgres.fields import ArrayField
 from django.core.exceptions import ValidationError
-from django.db import connection
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 
@@ -32,6 +31,7 @@ class AbstractDoctors(models.Model):
     is_rsn_member = models.BooleanField(_("is_rsn_member"), null=True)
     public_phone = models.CharField(_("public_phone"), blank=True, null=True, max_length=30)
     public_first_name = models.CharField(_("public_first_name"), blank=True, null=True, max_length=30)
+    appointment_link = models.CharField(_("appointment_link"), blank=True, null=True, max_length=2000)
 
     class Meta:
         abstract = True
@@ -57,6 +57,7 @@ class St21AvailableDoctorsWithGeom(AbstractDoctors, GeoJSONModelMixin):
         'compl_formation',
         'public_phone',
         'public_first_name',
+        'appointment_link',
         'address',
         'nopostal',
         'localite',
