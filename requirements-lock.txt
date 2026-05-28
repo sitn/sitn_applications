@@ -15,13 +15,13 @@ attrs==26.1.0
     #   referencing
 build==1.5.0
     # via pip-tools
-certifi==2026.4.22
+certifi==2026.5.20
     # via requests
 cffi==2.0.0
     # via cryptography
 charset-normalizer==3.4.7
     # via requests
-click==8.4.0
+click==8.4.1
     # via pip-tools
 colorama==0.4.6
     # via
@@ -47,13 +47,13 @@ django==5.2.7
     #   djangorestframework-gis
     #   drf-spectacular
     #   drf-spectacular-sidecar
-django-allauth==65.16.1
+django-allauth==65.17.0
     # via django-dotnetid
 django-computedfields==0.3.6
     # via -r requirements.in
 django-cors-headers==4.9.0
     # via -r requirements.in
-django-dotnetid==1.1.0
+django-dotnetid==1.1.1
     # via -r requirements.in
 django-extended-ol==1.2.2
     # via -r requirements.in
@@ -80,7 +80,7 @@ drf-spectacular-sidecar==2026.5.1
     # via -r requirements.in
 et-xmlfile==2.0.0
     # via openpyxl
-idna==3.15
+idna==3.16
     # via requests
 inflection==0.5.1
     # via drf-spectacular
@@ -96,7 +96,7 @@ packaging==26.2
     # via
     #   build
     #   wheel
-phonenumbers==9.0.30
+phonenumbers==9.0.31
     # via -r requirements.in
 pip-tools==7.5.3
     # via -r requirements.in
@@ -106,7 +106,7 @@ psycopg-binary==3.3.4
     # via psycopg
 pycparser==3.0
     # via cffi
-pyjwt==2.12.1
+pyjwt==2.13.0
     # via django-dotnetid
 pyproject-hooks==1.2.0
     # via
