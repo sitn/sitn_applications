@@ -12,7 +12,6 @@ class Command(BaseCommand):
     """
 
     # Schemas that need to be restored before
-    dependent_schemas = ['edition', 'main_prepub', 'general', 'mensuration', 'mistra_complet']
     excluded_apps = ['registre_foncier']
 
 
@@ -32,21 +31,20 @@ class Command(BaseCommand):
         temp_env["PGPASSWORD"] = os.environ["DEV_REMOTE_PGPASSWORD"]
         return temp_env
 
-    def dump_schemas(self, schemas):
+    def dump_schemas(self):
         print(f'🔽 Dumping from {os.environ["DEV_REMOTE_PGHOST"]}...')
-        for schema in schemas:
-            cmd = [
-                f"{self.pg_binaries_path}pg_dump.exe",
-                "--schema-only",
-                "--no-privileges",
-                "--no-owner",
-                "-n", schema,
-                "--format=c",
-                f"--file=db/{schema}.backup"
-            ]
-            print(cmd)
-            temp_env = self.get_remote_pg_env()
-            subprocess.check_call(cmd, env=temp_env)
+        cmd = [
+            f"{self.pg_binaries_path}pg_dump.exe",
+            "--schema-only",
+            "--no-privileges",
+            "--exclude-schema=public",
+            "--no-owner",
+            "--format=c",
+            f"--file=db/schemas.backup"
+        ]
+        print(cmd)
+        temp_env = self.get_remote_pg_env()
+        subprocess.check_call(cmd, env=temp_env)
 
     def dump_tables(self, unmanaged_tables):
         print(f'🔽 Dumping from {os.environ["DEV_REMOTE_PGHOST"]}...')
@@ -64,45 +62,30 @@ class Command(BaseCommand):
             temp_env = self.get_remote_pg_env()
             subprocess.check_call(cmd, env=temp_env)
 
-    def restore_schemas(self, unmanaged_tables):
+    def restore_schemas(self):
         temp_env = os.environ.copy()
         temp_env['PGOPTIONS'] = '--client-min-messages=warning'
         print(f'🔼 Restoring to {os.environ["PGHOST"]}...')
-        for schema in unmanaged_tables:
-            create_schema_cmd = [
-                f'{self.pg_binaries_path}psql.exe',
-                "-d", os.environ["PGDATABASE"],
-                "-c",
-                f"\"DROP SCHEMA IF EXISTS {schema} CASCADE; CREATE SCHEMA {schema};\""
-            ]
-            print(create_schema_cmd)
-            subprocess.check_call(" ".join(create_schema_cmd), env=temp_env)
-
-            pg_restore_cmd = [
-                f'"{self.pg_binaries_path}pg_restore.exe"',
-                "--dbname",
-                os.environ['PGDATABASE'],
-                "--no-owner",
-                "--clean",
-                "--if-exists",
-                "--format=c",
-                f"db/{schema}.backup"
-            ]
-            print(pg_restore_cmd)
-            subprocess.check_call(" ".join(pg_restore_cmd))
+        pg_restore_cmd = [
+            f'"{self.pg_binaries_path}pg_restore.exe"',
+            "--dbname",
+            os.environ['PGDATABASE'],
+            "--no-owner",
+            "--format=c",
+            f"db/schemas.backup"
+        ]
+        print(pg_restore_cmd)
+        subprocess.check_call(" ".join(pg_restore_cmd))
 
     def restore_tables(self, unmanaged_tables):
         print(f'🔼 Restoring to {os.environ["PGHOST"]}...')
         for schema in unmanaged_tables:
-            exists = "--if-exists --clean"
-            if schema in self.dependent_schemas:
-                exists = "--data-only"
             pg_restore_cmd = [
                 f'"{self.pg_binaries_path}pg_restore.exe"',
                 "--dbname",
                 os.environ['PGDATABASE'],
                 "--no-owner",
-                exists,
+                "--data-only",
                 "--format=c",
                 f"db/{schema}.backup"
             ]
@@ -125,9 +108,7 @@ class Command(BaseCommand):
                 if not schema_name in unmanaged_tables:
                     unmanaged_tables[schema_name] = []
                 unmanaged_tables[schema_name].append(table_name)
-        self.dump_schemas(self.dependent_schemas)
-        self.restore_schemas(self.dependent_schemas)
-        self.dump_schemas(unmanaged_tables)
-        self.restore_schemas(unmanaged_tables)
+        self.dump_schemas()
+        self.restore_schemas()
         self.dump_tables(unmanaged_tables)
         self.restore_tables(unmanaged_tables)
