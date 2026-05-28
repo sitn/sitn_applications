@@ -38,6 +38,7 @@ class Command(BaseCommand):
             "--schema-only",
             "--no-privileges",
             "--exclude-schema=public",
+            f"--exclude-schema={os.environ["PGSCHEMA"]}",
             "--no-owner",
             "--format=c",
             f"--file=db/schemas.backup"
@@ -92,6 +93,32 @@ class Command(BaseCommand):
             print(pg_restore_cmd)
             subprocess.check_call(" ".join(pg_restore_cmd))
 
+    def dump_restore_sitn_apps(self):
+        print(f'🔽 Dumping from {os.environ["DEV_REMOTE_PGHOST"]}...')
+        cmd = [
+            f"{self.pg_binaries_path}pg_dump.exe",
+            "--no-privileges",
+            f"--schema={os.environ["PGSCHEMA"]}",
+            "--no-owner",
+            "--format=c",
+            f"--file=db/{os.environ["PGSCHEMA"]}.backup"
+        ]
+        print(cmd)
+        temp_env = self.get_remote_pg_env()
+        subprocess.check_call(cmd, env=temp_env)
+        print(f'🔼 Restoring to {os.environ["PGHOST"]}...')
+        cmd = [
+            f'"{self.pg_binaries_path}pg_restore.exe"',
+            "--dbname",
+            os.environ['PGDATABASE'],
+            "--no-privileges",
+            "--no-owner",
+            "--format=c",
+            f"db/{os.environ["PGSCHEMA"]}.backup"
+        ]  
+        print(cmd)
+        subprocess.check_call(" ".join(cmd))
+
     def handle(self, *args, **options):
         """
         Entry point of the script when called by Django manage.py
@@ -112,3 +139,4 @@ class Command(BaseCommand):
         self.restore_schemas()
         self.dump_tables(unmanaged_tables)
         self.restore_tables(unmanaged_tables)
+        self.dump_restore_sitn_apps()
