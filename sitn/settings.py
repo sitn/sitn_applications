@@ -25,11 +25,13 @@ if 'DEVELOPMENT_MODE' in os.environ and os.environ['DEVELOPMENT_MODE'] == "True"
     GDAL_LIBRARY_PATH = os.environ.get('GDAL_LIBRARY_PATH')
     GEOS_LIBRARY_PATH = os.environ.get('GEOS_LIBRARY_PATH')
 else:
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SAMESITE = 'Lax'
+    SESSION_COOKIE_SAMESITE = 'Lax'
     if IS_INTRANET:
         # Allows cross origin cookies for PEGGI trying to reach secured sitnintra endpoints
         # Only in production otherwise cookies will not be set on localhost because not HTTPS
-        CSRF_COOKIE_SECURE = True
-        SESSION_COOKIE_SECURE = True
         CSRF_COOKIE_SAMESITE = 'None'
         SESSION_COOKIE_SAMESITE = 'None'
         CORS_ALLOW_CREDENTIALS = True
@@ -379,7 +381,7 @@ ACCOUNT_EMAIL_VERIFICATION = 'none'
 SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
 SOCIALACCOUNT_ADAPTER  = 'django_dotnetid.adapter.DotnetIdAccountAdapter'
 SOCIALACCOUNT_ONLY = True
-LOGIN_URL = f"{FORCE_SCRIPT_NAME}/accounts/login/"
-LOGIN_REDIRECT_URL = f"{FORCE_SCRIPT_NAME}"
-ACCOUNT_LOGOUT_REDIRECT = 'index'
+LOGIN_URL = f"{FORCE_SCRIPT_NAME}/accounts/login/" if FORCE_SCRIPT_NAME else "index"
+LOGIN_REDIRECT_URL = FORCE_SCRIPT_NAME if FORCE_SCRIPT_NAME else "index"
+LOGOUT_REDIRECT_URL = FORCE_SCRIPT_NAME if FORCE_SCRIPT_NAME else "index"
 SITE_ID = 1
