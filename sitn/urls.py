@@ -4,6 +4,7 @@ from django.conf import settings
 from allauth.account.decorators import secure_admin_login
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
 from sitn.router import SitnRouter
+from . import views
 
 # Enable allauth for admin
 admin.autodiscover()
@@ -25,6 +26,7 @@ urlpatterns = [
     path('cadastre/', include('cadastre.urls')),
     path('registre_foncier/', include('registre_foncier.urls')),
     path('roads/', include('roads.urls')),
+    path("test-auth/", views.index, name="index"),
 ]
 
 if settings.IS_INTRANET:
