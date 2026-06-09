@@ -499,7 +499,7 @@ class CheckGeoshopRefTest(TestCase):
 
 
 class GetLocalisationTest(TestCase):
-    """Tests pour get_localisation(localisation)."""
+    """Tests pour get_localisation(request,localisation)."""
 
     @patch("ppe.util.requests.request")    
     def test_coords_outside_canton_returns_bad_request(self, mock_request):

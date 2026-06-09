@@ -199,7 +199,7 @@ def contact_principal(request):
             localisation = json.loads(localisation)
         # Fetch geolocalisation calling the satac service
         if (localisation is not None) and ('coordinates' in localisation):
-            localisation_ppe = get_localisation(localisation)
+            localisation_ppe = get_localisation(request, localisation)
             localisation_ppe['nummai'] = nummai
             return render(
                 request, 
@@ -414,7 +414,7 @@ def define_ppe_type(request, doc, type_dossier=None):
     elif type_dossier == 'I':
         error_message = 'Veuillez définir le type de dossier.'
     else:
-        error_message = 'Le type de dossier PPE ne semble pas encore défini.' 
+        error_message = "Le type de dossier PPE ne semble pas encore défini. {}".format(ref_error)
 
     return render(
         request,
@@ -483,7 +483,7 @@ def edit_geolocalisation(request, doc):
         geo_form = GeolocalisationForm(request.POST)
         if isinstance(localisation, str) and localisation != '':
             localisation = json.loads(localisation)
-            localisation_ppe = get_localisation(localisation)
+            localisation_ppe = get_localisation(request, localisation)
 
         if 'nummai' in request.POST and localisation != '':
             localisation_ppe["nummai"] = request.POST['nummai']
