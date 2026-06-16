@@ -55,12 +55,13 @@ class Command(BaseCommand):
         print(" ".join(cmd))
         subprocess.check_call(" ".join(cmd))
 
-        sql = f"""CREATE schema {schema_name};
-            CREATE EXTENSION unaccent;
+        sql = f"""CREATE EXTENSION unaccent;
             CREATE EXTENSION postgis;
             CREATE EXTENSION pg_trgm;
             CREATE EXTENSION \\"uuid-ossp\\";
             CREATE EXTENSION hstore;
+            CREATE TEXT SEARCH CONFIGURATION fr (COPY=simple);
+            ALTER TEXT SEARCH CONFIGURATION fr ALTER MAPPING FOR hword, hword_part, word WITH public.unaccent, simple;
             """
         cmd = [
                 f'{self.pg_binaries_path}psql.exe',

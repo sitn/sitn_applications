@@ -86,22 +86,16 @@ Create a local database:
 python manage.py createdb
 ```
 
-Run migrations
-
-```shell
-python manage.py migrate
-```
-
 Dump some fresh data from prod database
 
 ```shell
 python manage.py getdata
 ```
 
-You might want to create an admin user:
+Run migrations
 
 ```shell
-python manage.py createsuperuser
+python manage.py migrate
 ```
 
 You're now ready to go:
