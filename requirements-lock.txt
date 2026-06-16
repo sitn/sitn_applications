@@ -47,13 +47,13 @@ django==5.2.7
     #   djangorestframework-gis
     #   drf-spectacular
     #   drf-spectacular-sidecar
-django-allauth==65.17.0
+django-allauth==65.18.0
     # via django-dotnetid
 django-computedfields==0.3.6
     # via -r requirements.in
 django-cors-headers==4.9.0
     # via -r requirements.in
-django-dotnetid==1.1.2
+django-dotnetid==1.2.0
     # via -r requirements.in
 django-extended-ol==1.2.2
     # via -r requirements.in
@@ -76,11 +76,11 @@ djangorestframework-gis==1.2.1
     # via -r requirements.in
 drf-spectacular==0.29.0
     # via -r requirements.in
-drf-spectacular-sidecar==2026.5.1
+drf-spectacular-sidecar==2026.6.1
     # via -r requirements.in
 et-xmlfile==2.0.0
     # via openpyxl
-idna==3.16
+idna==3.18
     # via requests
 inflection==0.5.1
     # via drf-spectacular
@@ -96,7 +96,7 @@ packaging==26.2
     # via
     #   build
     #   wheel
-phonenumbers==9.0.31
+phonenumbers==9.0.32
     # via -r requirements.in
 pip-tools==7.5.3
     # via -r requirements.in
