@@ -1,0 +1,14 @@
+{% load static allauth socialaccount %}
+<div class="ne-login">
+  <div>
+    <img src="{% static 'images/logo_ne.png' %}" alt="République et canton de Neuchâtel">
+    <div class="login-form">
+      <form action="{% provider_login_url 'dotnetid' process=login %}" method="POST">
+        {% csrf_token %}
+        <button type="submit" href="{% provider_login_url 'dotnetid' %}">
+          Me connecter
+        </button>
+      </form>
+    </div>
+  </div>
+</div>
