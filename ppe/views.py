@@ -85,7 +85,7 @@ def set_geolocalisation(request):
         # Convert an existing localisation to a JSON dict
         if isinstance(localisation, str) and localisation != '':
             localisation = json.loads(localisation)
-            localisation_ppe = get_localisation(localisation)
+            localisation_ppe = get_localisation(request, localisation)
         check_geolocalisation(request, localisation_ppe)
         if request.POST['geom'] == '':
             form_action = 'set_geolocalisation'
@@ -199,7 +199,7 @@ def contact_principal(request):
             localisation = json.loads(localisation)
         # Fetch geolocalisation calling the satac service
         if (localisation is not None) and ('coordinates' in localisation):
-            localisation_ppe = get_localisation(localisation)
+            localisation_ppe = get_localisation(request, localisation)
             localisation_ppe['nummai'] = nummai
             return render(
                 request, 
@@ -277,14 +277,14 @@ def contact_principal(request):
 
 def login(request):
     if 'login_code' in request.POST:
-        request.session['login_code'] = request.POST['login_code']
         try:
-            doc = DossierPPE.objects.get(login_code=request.session['login_code'])
+            doc = DossierPPE.objects.get(login_code=request.POST['login_code'])
+            request.session['login_code'] = request.POST['login_code']
             logger.info("=> INFO: OK pour le dossier avec code %s.", doc.login_code)
             return redirect("ppe:overview")
         except Exception as e:
             # Redisplay the geolocalisation form.
-            logger.info("=> INFO: Le dossier avec le code %s n'existe pas", doc.login_code)
+            logger.warning("=> INFO: Le dossier avec le code %s n'existe pas", request.POST['login_code'])
             logger.warning(f"!! WARNING: Error fetching the file : {repr(e)}")
     return render(request, "ppe/login.html")
 
@@ -346,7 +346,7 @@ def define_ppe_type(request, doc, type_dossier=None):
     revision_jouissances = request.POST["droits_jouissance"] if 'droits_jouissance' in request.POST else None
     if type_dossier == 'R':
         elements_rf_identiques = request.POST["elements_rf"] if 'elements_rf' in request.POST else None
-    if type_dossier == 'C':
+    elif type_dossier == 'C':
         elements_rf_identiques = request.POST["situation_plan_rf"] if 'situation_plan_rf' in request.POST else None
     else:
         elements_rf_identiques = None
@@ -405,16 +405,16 @@ def define_ppe_type(request, doc, type_dossier=None):
         dossier_ppe.elements_rf_identiques = elements_rf_identiques
         dossier_ppe.nouveaux_droits = nouveaux_droits
         dossier_ppe.revision_jouissances = revision_jouissances
-        if ref_exists == False:
-            error_message = "La référence de commande indiquée n\'existe pas."
-        if elements_rf_identiques == 'non' and ref_exists == True:
+        if ref_exists == True:
             dossier_ppe.ref_geoshop = ref_geoshop
-        dossier_ppe.save()
-        return redirect("ppe:overview")
+            dossier_ppe.save()
+            return redirect("ppe:overview")
+        else:
+            error_message = "La définition du type de dossier a échouée. {}".format(ref_error)
     elif type_dossier == 'I':
-        error_message = None
+        error_message = 'Veuillez définir le type de dossier.'
     else:
-        error_message = 'Le type de dossier PPE ne semble pas encore défini.' 
+        error_message = "Le type de dossier PPE ne semble pas encore défini. {}".format(ref_error)
 
     return render(
         request,
@@ -454,8 +454,8 @@ def submit_for_validation(request, doc):
     zip.file_statut = 'CMS'
     zip.save()
 
-    # Set the application's status to submitted for manual validation 'S'
-    doc.statut = 'S'
+    # Set the application's status to submitted for manual validation 'T'
+    doc.statut = 'T'
     doc.date_soumission = datetime.datetime.now()
     doc.save()
     return redirect("ppe:overview")
@@ -483,7 +483,7 @@ def edit_geolocalisation(request, doc):
         geo_form = GeolocalisationForm(request.POST)
         if isinstance(localisation, str) and localisation != '':
             localisation = json.loads(localisation)
-            localisation_ppe = get_localisation(localisation)
+            localisation_ppe = get_localisation(request, localisation)
 
         if 'nummai' in request.POST and localisation != '':
             localisation_ppe["nummai"] = request.POST['nummai']
@@ -615,13 +615,14 @@ def edit_ppe_type(request, doc):
 
     request.session['type_dossier'] = type_dossier
 
-    if ref_geoshop:
-        ref_error = None
-        logger.info('> CHECK REF GEOSHOP: %s', ref_geoshop)
+    if ref_geoshop is not None:
+        # Check geoshop_ref is existing
+        logger.debug('>> DEBUG: CHECK if given geoshop ref %s exists and is valid for this real estate')
         ref_exists, ref_error = check_geoshop_ref(ref_geoshop, doc)
-        if ref_error:
+        if ref_exists == False:
             error_message = ref_error
-            logger.debug(">> DEBUG: GEOSHOP_REF check failed with error %s", error_message)
+    else:
+        ref_exists = False
 
     logger.info("=> INFO: GEOSHOP_REF %s exists: %s", ref_geoshop, ref_exists)
 
@@ -651,13 +652,13 @@ def edit_ppe_type(request, doc):
         dossier_ppe.elements_rf_identiques = elements_rf_identiques
         dossier_ppe.nouveaux_droits = nouveaux_droits
         dossier_ppe.revision_jouissances = revision_jouissances
-
-        if ref_exists == False and not ref_error is None :
-            error_message = ref_error
-        if elements_rf_identiques == 'non' and ref_exists == True:
+        if ref_exists == True:
             dossier_ppe.ref_geoshop = ref_geoshop
-        dossier_ppe.save()
-        return redirect("ppe:overview")
+            dossier_ppe.save()
+            return redirect("ppe:overview")
+        else:
+            ref_geoshop = None
+            error_message = ref_error
 
     if type_dossier == 'M' and code_initial is not None:
         # GET the inital DossierPPE to be replaced or return an error
