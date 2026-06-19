@@ -15,14 +15,16 @@ def _get_current_username(request):
     return request.user.username.split('@')[0].lower()
 
 def index(request):
-    
-    username = _get_current_username(request)
     now = datetime.datetime.now()
     current_year = now.year
 
     years = []
     for i in range(current_year-3, current_year+1):
         years.append(i)
+
+    username = None
+    if request.user.is_authenticated:
+        username = request.user.username.split('@')[0].lower()
 
     template = loader.get_template('cats/index.html')
     context = {

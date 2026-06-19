@@ -1,6 +1,7 @@
 from django.conf import settings
 from django.contrib.auth.decorators import permission_required
 from django.forms.models import model_to_dict
+from django.core.exceptions import PermissionDenied
 from django.http import FileResponse, HttpResponse, JsonResponse
 from django.template import loader
 from rest_framework import viewsets, filters
@@ -41,13 +42,18 @@ class PlanViewSet(viewsets.ReadOnlyModelViewSet):
         return queryset
 
 
-@permission_required("parcel_historisation.view_designation", raise_exception=True)
 def index(request):
     """
     Serving the base template.
     """
 
     template = loader.get_template("parcel_historisation/index.html")
+
+    if not request.user.is_authenticated:
+        return HttpResponse(template.render({}, request))
+
+    if not request.user.has_perm("parcel_historisation.view_designation"):
+        raise PermissionDenied
 
     context = {"infolica_api_url": settings.INTRANET_PROXY.get("infolica_api_url")}
 
