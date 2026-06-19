@@ -94,7 +94,7 @@ Etape 3 : type de dossier
             {% else %}style="display:none"{% endif %}>
             <div class="col-lg-6 col-6">
             <p class="alert alert-danger">
-              Il n'est pas nécessaire de fournir les couches/calque 101 à 106 (voir 
+              Il n'est pas nécessaire de fournir les couches/calque 104 à 106 (voir 
               <a href="https://www.ne.ch/autorites/DDTE/SGRF/mensuration/Documents/Annexe1_Preparation_fichiers_vectoriels_PROVISOIRE.pdf" target="_new">
                 annexe 1</a>).
             </p>
@@ -127,7 +127,7 @@ Etape 3 : type de dossier
             {% else %}style="display:none"{% endif %}>
             <div class="col-lg-6 col-6">
             <p class="alert alert-danger">
-              Il n'est pas nécessaire de fournir les couches/calque 101 à 106 (voir 
+              Il n'est pas nécessaire de fournir les couches/calque 104 à 106 (voir 
               <a href="https://www.ne.ch/autorites/DDTE/SGRF/mensuration/Documents/Annexe1_Preparation_fichiers_vectoriels_PROVISOIRE.pdf" target="_new">
                 annexe 1</a>).
             </p>
@@ -178,7 +178,8 @@ Etape 3 : type de dossier
           </div>
         </section>
       
-        {% if error_message and dossier_ppe.type_dossier != 'I' %}<p id="form_error" class="alert alert-danger col-lg-6"><strong>{{ error_message }}</strong></p>{% endif %}
+        {% if error_message %}<p id="form_error" class="alert alert-danger col-lg-6"><strong>{{ error_message }}</strong></p>
+        {% endif %}
         {% if mode == 'edit' and dossier_ppe.type_dossier != 'M' %}
         <input id="submit_btn" type="submit" value="Modifier" class="valider btn btn-success" {% if dossier_ppe.revision_jouissances == 'oui' or dossier_ppe.type_dossier == 'I' %}style="display:none;"{% endif %}>
         {% else %}

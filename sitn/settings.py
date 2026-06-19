@@ -25,11 +25,13 @@ if 'DEVELOPMENT_MODE' in os.environ and os.environ['DEVELOPMENT_MODE'] == "True"
     GDAL_LIBRARY_PATH = os.environ.get('GDAL_LIBRARY_PATH')
     GEOS_LIBRARY_PATH = os.environ.get('GEOS_LIBRARY_PATH')
 else:
+    CSRF_COOKIE_SECURE = True
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SAMESITE = 'Lax'
+    SESSION_COOKIE_SAMESITE = 'Lax'
     if IS_INTRANET:
         # Allows cross origin cookies for PEGGI trying to reach secured sitnintra endpoints
         # Only in production otherwise cookies will not be set on localhost because not HTTPS
-        CSRF_COOKIE_SECURE = True
-        SESSION_COOKIE_SECURE = True
         CSRF_COOKIE_SAMESITE = 'None'
         SESSION_COOKIE_SAMESITE = 'None'
         CORS_ALLOW_CREDENTIALS = True
@@ -72,7 +74,12 @@ INSTALLED_APPS = [
     'rest_framework',
     'rest_framework_gis',
     'drf_spectacular',
-    'drf_spectacular_sidecar'
+    'drf_spectacular_sidecar',
+    'django_dotnetid',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.openid_connect',
 ]
 
 if IS_INTRANET:
@@ -90,14 +97,14 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware'
 ]
 
 if IS_INTRANET:
     MIDDLEWARE.append('sitn.middleware.RemoteSitnMiddleware')
 
 AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-    'django.contrib.auth.backends.RemoteUserBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
 SERIALIZATION_MODULES = {
@@ -344,3 +351,37 @@ OLWIDGET = {
         "url_template": 'https://sitn.ne.ch/search?limit=10&partitionlimit=2&interface=desktop&query={search_term}'
     }
 }
+
+SOCIALACCOUNT_PROVIDERS = {
+    'dotnetidprovider': {
+        'APP': {
+            'provider_id': 'dotnetid',
+            'name': 'Etat de Neuchâtel',
+            'client_id': os.environ['DOTNETID_CLIENT_ID'],
+            'secret': os.environ['DOTNETID_CLIENT_SECRET'],
+            'settings': {
+                'server_url': os.environ['DOTNETID_SERVER_URL'],
+            },
+        },
+        'SCOPE': [
+            'profile',
+            'openid',
+            'glados',
+        ],
+        'EXTRA_ATTRIBUTES_PREFIX': os.environ['DOTNETID_EXTRA_ATTRIBUTES_PREFIX'],
+        'EXTRA_ATTRIBUTES_NAMES': [
+            'groups',
+            'admin',
+        ],
+        'OAUTH_PKCE_ENABLED': True,
+        'ID_TOKEN_ISSUER': os.environ['DOTNETID_SERVER_URL'],
+    }
+}
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
+SOCIALACCOUNT_ADAPTER  = 'django_dotnetid.adapter.DotnetIdAccountAdapter'
+SOCIALACCOUNT_ONLY = True
+LOGIN_URL = f"{FORCE_SCRIPT_NAME}/accounts/login/" if FORCE_SCRIPT_NAME else "index"
+LOGIN_REDIRECT_URL = FORCE_SCRIPT_NAME if FORCE_SCRIPT_NAME else "index"
+LOGOUT_REDIRECT_URL = FORCE_SCRIPT_NAME if FORCE_SCRIPT_NAME else "index"
+SITE_ID = 1

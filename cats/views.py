@@ -1,6 +1,5 @@
-from dataclasses import asdict
-from django.shortcuts import render
 from django.http import HttpResponse
+from django.core.exceptions import PermissionDenied
 from django.template import loader
 from django.db.models import Sum, CharField, Value
 from django.db.models.functions import Trunc, Concat
@@ -10,12 +9,12 @@ from cats.models import CATSAllYears
 
 import datetime
 
+def _get_current_username(request):
+    if not request.user.is_authenticated:
+        raise PermissionDenied
+    return request.user.username.split('@')[0].lower()
+
 def index(request):
-
-    user = request.META['HTTP_REMOTE_USER']
-    user = user.split('\\')[1]
-    user = user.lower()
-
     now = datetime.datetime.now()
     current_year = now.year
 
@@ -23,9 +22,13 @@ def index(request):
     for i in range(current_year-3, current_year+1):
         years.append(i)
 
+    username = None
+    if request.user.is_authenticated:
+        username = request.user.username.split('@')[0].lower()
+
     template = loader.get_template('cats/index.html')
     context = {
-        'user': user,
+        'user': username,
         'years': years
     }
     return HttpResponse(template.render(context, request))
@@ -33,9 +36,7 @@ def index(request):
 
 def get_activity(request):
     
-    user = request.META['HTTP_REMOTE_USER']
-    user = user.split('\\')[1]
-    user = user.lower()
+    username = _get_current_username(request)
 
     now = datetime.datetime.now()
 
@@ -46,7 +47,7 @@ def get_activity(request):
         years[i] = 0
     
     cats = (CATSAllYears.objects.values('texte_imputation', 'imputation_multiple')
-        .filter(username__contains=user)
+        .filter(username__contains=username)
         .filter(date__gte=str(current_year-3)+'-01-01')
         .annotate(
             year=Trunc('date', 'year'),

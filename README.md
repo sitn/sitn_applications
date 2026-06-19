@@ -86,22 +86,16 @@ Create a local database:
 python manage.py createdb
 ```
 
-Run migrations
-
-```shell
-python manage.py migrate
-```
-
 Dump some fresh data from prod database
 
 ```shell
 python manage.py getdata
 ```
 
-You might want to create an admin user:
+Run migrations
 
 ```shell
-python manage.py createsuperuser
+python manage.py migrate
 ```
 
 You're now ready to go:
@@ -193,6 +187,6 @@ Then:
 
 In your venv:
 
-1. Update the versions manually in requirements.in
-2. `pip-compile requirements.in --output-file=requirements-lock.txt`
+1. Update the versions manually in requirements.in if necessary
+2. `pip-compile requirements.in --upgrade --output-file=requirements-lock.txt`
 3. `pip install -r requirements-lock.txt`
