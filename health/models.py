@@ -68,6 +68,7 @@ class St21AvailableDoctorsWithGeom(AbstractDoctors, GeoJSONModelMixin):
         'has_lift',
         'spoken_languages',
         'is_rsn_member',
+        'appointment_link',
         'geom',
     ]
     geom = models.PointField(srid=settings.DEFAULT_SRID)
