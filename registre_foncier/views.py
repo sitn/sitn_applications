@@ -90,6 +90,7 @@ def parcel_dependencies(request):
 
             base_art = parent.art_recht
 
+            # Indicates if the extract for an BF is mandatory or not. This is RF business
             mandatory = True
 
             if base_art == '1':
