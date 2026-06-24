@@ -37,6 +37,7 @@ class Recht(models.Model):
     art_last = models.CharField(max_length=1)
     gdk_recht = models.CharField(max_length=12)
     esta_recht = models.CharField(max_length=4)
+    art_recht = models.CharField(max_length=1)
     loesch_status = models.CharField(max_length=1)
 
     class Meta:
