@@ -29,4 +29,7 @@ class RegistreFoncierTest(APITransactionTestCase):
         if data:
             self.assertIn("valid", data)
             self.assertTrue(data["valid"])
+            self.assertFalse(data["data"]["op_en_cours"])
             self.assertEqual(len(data["data"]["parents"]), 1)
+            parent = data["data"]["parents"][0]
+            self.assertTrue(parent["mandatory"])
