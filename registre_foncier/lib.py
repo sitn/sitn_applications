@@ -10,9 +10,4 @@ def get_provisory_state(numcad, nummai):
 
     nummai = nummai.replace('#', '').strip()
 
-    sql = VJouGrundstTotal.objects.filter(no_immeuble=nummai, no_cadastre=numcad).count()
-
-    if sql == 0:
-        return False
-    else:
-        return True
+    return VJouGrundstTotal.objects.filter(no_immeuble=nummai, no_cadastre=numcad).exists()
