@@ -595,7 +595,7 @@ def edit_ppe_type(request, doc):
         # We get the current entry of the dossier ppe if it exists
         dossier_ppe = DossierPPE.objects.get(login_code=doc.login_code)
         code_initial = request.POST["initial_code"].strip() if 'initial_code' in request.POST else None
-        type_dossier = request.POST["type_dossier"] if 'type_dossier' in request.POST else None
+        type_dossier = request.POST["type_dossier"] if 'type_dossier' in request.POST else 'I'
         ref_geoshop = request.POST["ref_geoshop"] if 'ref_geoshop' in request.POST else None
         revision_jouissances = request.POST["droits_jouissance"] if 'droits_jouissance' in request.POST else None 
         elements_rf_identiques = request.POST["elements_rf"] if 'elements_rf' in request.POST else None
@@ -633,8 +633,12 @@ def edit_ppe_type(request, doc):
         dossier_ppe.revision_jouissances = None
         dossier_ppe.type_dossier = type_dossier
         dossier_ppe.ref_geoshop = ref_geoshop
-        dossier_ppe.save()
-        return redirect("ppe:overview")
+        if dossier_ppe.elements_rf_identiques  in ['oui','non']:
+            dossier_ppe.save()
+            return redirect("ppe:overview")
+        else:
+            ref_geoshop = None
+            error_message = 'ref_error'
 
     if type_dossier == 'R':
         # Be sure to set back the different values on changes
@@ -648,7 +652,7 @@ def edit_ppe_type(request, doc):
         dossier_ppe.elements_rf_identiques = elements_rf_identiques
         dossier_ppe.nouveaux_droits = nouveaux_droits
         dossier_ppe.revision_jouissances = revision_jouissances
-        if ref_exists == True:
+        if ref_exists == True and elements_rf_identiques in ['oui','non']:
             dossier_ppe.ref_geoshop = ref_geoshop
             dossier_ppe.save()
             return redirect("ppe:overview")
