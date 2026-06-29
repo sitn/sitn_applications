@@ -1,6 +1,8 @@
 from django.http import JsonResponse, HttpResponseBadRequest
+from django.views.decorators.csrf import csrf_exempt
 
 from registre_foncier.models import RfcenAdresse, Recht
+from registre_foncier.lib import get_provisory_state
 
 # Create your views here.
 def index(request):
@@ -11,6 +13,7 @@ def index(request):
 
     return JsonResponse(ttt, safe=False)
 
+@csrf_exempt
 def parcel_dependencies(request):
     """
     Retrieves the first parent of a proprety (if exists)
@@ -26,7 +29,7 @@ def parcel_dependencies(request):
 
     if "parcel" not in request.GET:
         return HttpResponseBadRequest("No parcel number")
-    
+
     typ_imm = {
         '1': 'BF',
         '2': 'DDP',
@@ -34,7 +37,7 @@ def parcel_dependencies(request):
         '4': 'PPE',
         '5': 'COP',
     }
-    
+
     cadastre = request.GET['cadastre']
     parcel = request.GET['parcel']
     parcel = parcel.strip()
@@ -57,36 +60,95 @@ def parcel_dependencies(request):
     # Check that it is a valid parcel
     check = Recht.objects.filter(lst_typ='E', esta_last=cadastre, gdk_last=parcel, loesch_status__isnull=True).all()
 
+    state = get_provisory_state(cadastre, parcel)
+    result['data']['op_en_cours'] = state
+
     if len(check) == 0:
         result['valid'] = False
         return JsonResponse({'data':result}, safe=False)
 
     base = check[0]
-    result['data']['type'] = typ_imm[base.art_last]
+    base_art = base.art_last
+    result['data']['type'] = typ_imm[base_art]
 
-    # PPE
-    parents  = Recht.objects.filter(lst_typ='E', esta_recht=cadastre, gdk_recht=parcel, loesch_status__isnull=True).all()
+    parents_to_loop = [{'cadastre': cadastre, 'parcel': parcel}]
 
-    if len(parents) > 0:
-        parent = parents[0]
-        parent_s = parents[0].gdk_last.replace('#', '').strip()
+    break_counter = 0
+    was_broken = False
 
-        result['data']['parents'].append({
-            'parcel': parent_s,
-            'cadastre': parent.esta_last,
-            'type': typ_imm[parent.art_last],
-        })
+    while len(parents_to_loop) > 0:
 
-    # COP
-    parents  = Recht.objects.filter(lst_typ='D', art_last='1', esta_recht=cadastre, gdk_recht=parcel, loesch_status__isnull=True).all()
+        cadastre = parents_to_loop[0]['cadastre']
+        parcel = parents_to_loop[0]['parcel']
 
-    for parent in parents:
-        parent_s = parent.gdk_last.replace('#', '').strip()
+        # PPE / BF / DDP
+        parents  = Recht.objects.filter(lst_typ='E', esta_recht=cadastre, gdk_recht=parcel, loesch_status__isnull=True).all()
 
-        result['data']['parents'].append({
-            'parcel': parent_s,
-            'cadastre': parent.esta_last,
-            'type': typ_imm[parent.art_last],
-        })
+        for parent in parents:
+
+            parent_s = parent.gdk_last.replace('#', '').strip()
+
+            base_art = parent.art_recht
+
+            # Indicates if the extract for an BF is mandatory or not. This is RF business
+            mandatory = True
+
+            if base_art == '1':
+                mandatory = False
+
+            state = get_provisory_state(parent.esta_last, parent.gdk_last)
+
+            result['data']['parents'].append({
+                'parcel': parent_s,
+                'cadastre': parent.esta_last,
+                'type': typ_imm[parent.art_last],
+                'mandatory': mandatory,
+                'op_en_cours': state,
+            })
+
+            if base_art != '1':
+                parents_to_loop.append({
+                    'cadastre': parent.esta_last, 
+                    'parcel': parent.gdk_last,
+                })
+
+        # COP
+        parents  = Recht.objects.filter(lst_typ='D', art_last__in=['1', '2'], esta_recht=cadastre, gdk_recht=parcel, loesch_status__isnull=True).all()
+
+        for parent in parents:
+
+            base_art = parent.art_recht
+            parent_s = parent.gdk_last.replace('#', '').strip()
+
+            mandatory = True
+
+            if base_art == '1':
+                mandatory = False
+
+            state = get_provisory_state(parent.esta_last, parent.gdk_last)
+
+            result['data']['parents'].append({
+                'parcel': parent_s,
+                'cadastre': parent.esta_last,
+                'type': typ_imm[parent.art_last],
+                'mandatory': mandatory,
+                'op_en_cours': state,
+            })
+            if parent.art_last != '1':
+                if base_art != '1':
+                    parents_to_loop.append({
+                        'cadastre': parent.esta_last, 
+                        'parcel': parent.gdk_last,
+                    })
+
+        parents_to_loop.pop(0)
+
+        break_counter += 1
+
+        if break_counter == 50:
+            was_broken = True
+            break
+
+        result['was_broken'] = was_broken
 
     return JsonResponse({'data':result}, safe=False)

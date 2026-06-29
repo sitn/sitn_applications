@@ -1,4 +1,5 @@
 {% load static %}
+{% load allauth socialaccount %}
 <!doctype html>
 <html lang="fr">
     <head>
@@ -23,9 +24,10 @@
     <img src="{% static 'images/logo_ne.png' %}" alt="My image">
     <div class="container">
         <h2>CATS - Heures travaillées</h2>
+        {% if request.user.is_authenticated %}
         <p>Bonjour {{ user }}, voici vos heures CATS pour les 4 dernières années :</p>
         <table id="catsTable" class="display" style="width:100%">
-            <thead>    
+            <thead>
                 <tr>
                     <th scope="col" rowspan="2">Imputation</th>
                     <th scope="col" colspan="4">Année</th>
@@ -33,18 +35,27 @@
                 <tr>
                     {% for year in years %}
                     <th>{{year}}</th>
-                    {% endfor %}                    
+                    {% endfor %}
                 </tr>
             </thead>
             <tbody>
             </tbody>
         </table>
+        {% else %}
+        <p>Veuillez vous connecter pour accéder à vos heures CATS.</p>
+        <form action="{% provider_login_url 'dotnetid' process='login' next=request.path %}" method="POST">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-primary">Me connecter</button>
+        </form>
+        {% endif %}
     </div>
+    {% if request.user.is_authenticated %}
     <script>
         cats.get_activity_url = '{% url 'cats-get-activity' %}';
         $(function() {
             init();
         });
     </script>
+    {% endif %}
     </body>
 </html>
