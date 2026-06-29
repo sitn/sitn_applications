@@ -240,7 +240,6 @@ def contact_principal(request):
     notaire_form.save()
     signataire_form.save()
     facturation_form.save()
-
     new_dossier_ppe = DossierPPE()
     new_dossier_ppe.login_code = login_code
     new_dossier_ppe.cadastre = geolocalisation_ppe["cadastre"]
@@ -258,7 +257,6 @@ def contact_principal(request):
     new_dossier_ppe.date_creation = datetime.datetime.now()
     new_dossier_ppe.geom = Point(geolocalisation_ppe["coordinates"])
     new_dossier_ppe.save()
-
     # Get the original accord de prise en charge filename
     #current_accord = AdresseFacturation.objects.get(pk=new_dossier_ppe.adresse_facturation.id)
     filename = os.path.basename(facturation_form.instance.file.name)
@@ -340,7 +338,7 @@ def soumission(request, doc):
 def define_ppe_type(request, doc, type_dossier=None):
     """ Definition of the PPE submission type """
     error_message = None
-    type_dossier = request.POST["type_dossier"] if 'type_dossier' in request.POST else None
+    type_dossier = request.POST["type_dossier"] if 'type_dossier' in request.POST else 'I'
     code_initial = request.POST["initial_code"] if 'initial_code' in request.POST else None
     ref_geoshop = request.POST["ref_geoshop"] if 'ref_geoshop' in request.POST else None
     revision_jouissances = request.POST["droits_jouissance"] if 'droits_jouissance' in request.POST else None
@@ -364,7 +362,6 @@ def define_ppe_type(request, doc, type_dossier=None):
         error_message = "Aucun dossier avec ce code n'a pu être trouvé."
         logger.debug('>> DEBUG: DID NOT FIND a dossier ppe with code: %s.', doc.login_code)
         return render(request, "ppe/define_ppe_type.html", {"error_message": error_message})  
-
     if ref_geoshop is not None:
         # Check geoshop_ref is existing
         logger.debug('>> DEBUG: CHECK if given geoshop ref %s exists and is valid for this real estate')
@@ -415,7 +412,6 @@ def define_ppe_type(request, doc, type_dossier=None):
         error_message = 'Veuillez définir le type de dossier.'
     else:
         error_message = "Le type de dossier PPE ne semble pas encore défini. {}".format(ref_error)
-
     return render(
         request,
         "ppe/define_ppe_type.html", 
