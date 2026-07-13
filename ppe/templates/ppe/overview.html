@@ -9,7 +9,7 @@ Dépôt d'un dossier - Récapitulatif
     {% if error_message %}<p class="alert alert-danger"><strong>{{ error_message }}</strong></p>{% endif %}
 
     {% if dossier_ppe %}
-    <h3>Récapitulatif</h3>
+    <h3>Récapitulatif {% if user.is_authenticated %}- No. dossier: {{ dossier_ppe.id }} {% endif %}</h3>
 
     <div class="row m-0">
         <div class="col-6">
@@ -179,6 +179,7 @@ Dépôt d'un dossier - Récapitulatif
                     <table width="100%">
                     <thead>
                     <tr>
+                        {% if user.is_authenticated %}<th width="10%" style="padding-top: 20px;">No. ZIP</th> {% endif %}
                         <th width="30%" style="padding-top: 20px;">Date et heure</th><th style="padding-top: 20px;">Statut</th>
                     </tr>
                     </thead>
