@@ -1,5 +1,6 @@
 <tr>
-    {% if user.is_authenticated %} <td width="10%" style="padding-left: 10px;padding-bottom: 20px;">{{ zip.id }}</td> {% endif %}
+    {% if user.is_authenticated %} <td width="10%" style="padding-left: 10px;padding-bottom: 20px;">
+        <a href="{% url 'admin:index' %}ppe/zipfile/{{ zip.id }}" target="_admin">{{ zip.id }}</a></td> {% endif %}
     <td width="30%" style="padding-left: 10px;padding-bottom: 20px;">
         {{ zip.upload_date }}
     </td>

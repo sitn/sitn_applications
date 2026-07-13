@@ -1,7 +1,7 @@
 import os
 import datetime, random, string, json, logging, ast
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, FileResponse, Http404
+from django.http import HttpResponse, FileResponse, Http404, HttpResponseForbidden
 from django.template import loader
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.gis.geos import Point
@@ -252,16 +252,22 @@ def contact_principal(request):
     return redirect('ppe:define_ppe_type')
 
 
-def login(request):
-    if 'login_code' in request.POST:
+def login(request, login_code=None):
+    code = request.POST.get('login_code') or login_code
+
+    # Vérifier que l'appel vient d'un utilisateur autorisé (admin)
+    if login_code and not (request.user.is_authenticated):
+        logger.warning("=> WARNING: Tentative de connection directe sans être connecté : (code %s).", login_code)
+        return HttpResponseForbidden("L'accès directe n'est pas possible sans être connecté.")
+    
+    if code:
         try:
-            doc = DossierPPE.objects.get(login_code=request.POST['login_code'])
-            request.session['login_code'] = request.POST['login_code']
+            doc = DossierPPE.objects.get(login_code=code)
+            request.session['login_code'] = code
             logger.info("=> INFO: OK pour le dossier avec code %s.", doc.login_code)
             return redirect("ppe:overview")
         except Exception as e:
-            # Redisplay the geolocalisation form.
-            logger.warning("=> INFO: Le dossier avec le code %s n'existe pas", request.POST['login_code'])
+            logger.warning("=> INFO: Le dossier avec le code %s n'existe pas", code)
             logger.warning(f"!! WARNING: Error fetching the file : {repr(e)}")
     return render(request, "ppe/login.html")
 

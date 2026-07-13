@@ -193,11 +193,13 @@ Dépôt d'un dossier - Récapitulatif
                     </tbody>
                     {% if dossier_ppe.zipfiles.all|length > 1 %}
                     <tr>
-                        <th colspan="2" style="padding-top: 25px;">Historique</th>
+                        <th {% if user.is_authenticated %} colspan="3" {% else %} colspan="2" {% endif %} style="padding-top: 25px;">Historique</th>
                     </tr>
                     {% endif %}
                 {% else %}
                     <tr>
+                    {% if user.is_authenticated %} <td width="10%" style="padding-left: 10px;">
+                        <a href="{% url 'admin:index' %}ppe/zipfile/{{ zip.id }}" target="_admin">{{ zip.id }}</a></td> {% endif %}
                         <td width="30%" style="padding-left: 10px;">{{ zip.upload_date }}</td>
                         <td style="text-align: left;">{{ zip.get_file_statut_display }}</td>
                     </tr>
