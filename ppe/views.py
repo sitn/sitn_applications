@@ -1,7 +1,7 @@
 import os
 import datetime, random, string, json, logging, ast
 from django.shortcuts import render, redirect, get_object_or_404
-from django.http import HttpResponse, FileResponse, Http404
+from django.http import HttpResponse, FileResponse, Http404, HttpResponseForbidden
 from django.template import loader
 from django.contrib.auth import login as auth_login, logout as auth_logout
 from django.contrib.gis.geos import Point
@@ -219,7 +219,6 @@ def contact_principal(request):
     notaire_form.save()
     signataire_form.save()
     facturation_form.save()
-
     new_dossier_ppe = DossierPPE()
     new_dossier_ppe.login_code = login_code
     new_dossier_ppe.cadastre = geolocalisation_ppe["cadastre"]
@@ -237,7 +236,6 @@ def contact_principal(request):
     new_dossier_ppe.date_creation = datetime.datetime.now()
     new_dossier_ppe.geom = Point(geolocalisation_ppe["coordinates"])
     new_dossier_ppe.save()
-
     # Get the original accord de prise en charge filename
     #current_accord = AdresseFacturation.objects.get(pk=new_dossier_ppe.adresse_facturation.id)
     filename = os.path.basename(facturation_form.instance.file.name)
@@ -254,16 +252,22 @@ def contact_principal(request):
     return redirect('ppe:define_ppe_type')
 
 
-def login(request):
-    if 'login_code' in request.POST:
+def login(request, login_code=None):
+    code = request.POST.get('login_code') or login_code
+
+    # Vérifier que l'appel vient d'un utilisateur autorisé (admin)
+    if login_code and not (request.user.is_authenticated):
+        logger.warning("=> WARNING: Tentative de connection directe sans être connecté : (code %s).", login_code)
+        return HttpResponseForbidden("L'accès directe n'est pas possible sans être connecté.")
+    
+    if code:
         try:
-            doc = DossierPPE.objects.get(login_code=request.POST['login_code'])
-            request.session['login_code'] = request.POST['login_code']
+            doc = DossierPPE.objects.get(login_code=code)
+            request.session['login_code'] = code
             logger.info("=> INFO: OK pour le dossier avec code %s.", doc.login_code)
             return redirect("ppe:overview")
         except Exception as e:
-            # Redisplay the geolocalisation form.
-            logger.warning("=> INFO: Le dossier avec le code %s n'existe pas", request.POST['login_code'])
+            logger.warning("=> INFO: Le dossier avec le code %s n'existe pas", code)
             logger.warning(f"!! WARNING: Error fetching the file : {repr(e)}")
     return render(request, "ppe/login.html")
 
@@ -319,7 +323,7 @@ def soumission(request, doc):
 def define_ppe_type(request, doc, type_dossier=None):
     """ Definition of the PPE submission type """
     error_message = None
-    type_dossier = request.POST["type_dossier"] if 'type_dossier' in request.POST else None
+    type_dossier = request.POST["type_dossier"] if 'type_dossier' in request.POST else 'I'
     code_initial = request.POST["initial_code"] if 'initial_code' in request.POST else None
     ref_geoshop = request.POST["ref_geoshop"] if 'ref_geoshop' in request.POST else None
     revision_jouissances = request.POST["droits_jouissance"] if 'droits_jouissance' in request.POST else None
@@ -343,7 +347,6 @@ def define_ppe_type(request, doc, type_dossier=None):
         error_message = "Aucun dossier avec ce code n'a pu être trouvé."
         logger.debug('>> DEBUG: DID NOT FIND a dossier ppe with code: %s.', doc.login_code)
         return render(request, "ppe/define_ppe_type.html", {"error_message": error_message})  
-
     if ref_geoshop is not None:
         # Check geoshop_ref is existing
         logger.debug('>> DEBUG: CHECK if given geoshop ref %s exists and is valid for this real estate')
@@ -394,7 +397,6 @@ def define_ppe_type(request, doc, type_dossier=None):
         error_message = 'Veuillez définir le type de dossier.'
     else:
         error_message = "Le type de dossier PPE ne semble pas encore défini. {}".format(ref_error)
-
     return render(
         request,
         "ppe/define_ppe_type.html", 
@@ -578,7 +580,7 @@ def edit_ppe_type(request, doc):
         # We get the current entry of the dossier ppe if it exists
         dossier_ppe = DossierPPE.objects.get(login_code=doc.login_code)
         code_initial = request.POST["initial_code"].strip() if 'initial_code' in request.POST else None
-        type_dossier = request.POST["type_dossier"] if 'type_dossier' in request.POST else None
+        type_dossier = request.POST["type_dossier"] if 'type_dossier' in request.POST else 'I'
         ref_geoshop = request.POST["ref_geoshop"] if 'ref_geoshop' in request.POST else None
         revision_jouissances = request.POST["droits_jouissance"] if 'droits_jouissance' in request.POST else None 
         elements_rf_identiques = request.POST["elements_rf"] if 'elements_rf' in request.POST else None
@@ -616,8 +618,12 @@ def edit_ppe_type(request, doc):
         dossier_ppe.revision_jouissances = None
         dossier_ppe.type_dossier = type_dossier
         dossier_ppe.ref_geoshop = ref_geoshop
-        dossier_ppe.save()
-        return redirect("ppe:overview")
+        if dossier_ppe.elements_rf_identiques  in ['oui','non']:
+            dossier_ppe.save()
+            return redirect("ppe:overview")
+        else:
+            ref_geoshop = None
+            error_message = 'ref_error'
 
     if type_dossier == 'R':
         # Be sure to set back the different values on changes
@@ -631,7 +637,7 @@ def edit_ppe_type(request, doc):
         dossier_ppe.elements_rf_identiques = elements_rf_identiques
         dossier_ppe.nouveaux_droits = nouveaux_droits
         dossier_ppe.revision_jouissances = revision_jouissances
-        if ref_exists == True:
+        if ref_exists == True and elements_rf_identiques in ['oui','non']:
             dossier_ppe.ref_geoshop = ref_geoshop
             dossier_ppe.save()
             return redirect("ppe:overview")
