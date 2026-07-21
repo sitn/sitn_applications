@@ -15,8 +15,9 @@ class Sequence(models.Model):
     description = models.TextField(blank=True)
 
     class Meta:
-        db_table = "panoview_sequence"
         ordering = ["id"]
+        managed = False
+        db_table = 'routes\".\"rt201_panoview_sequence'
 
     def __str__(self):
         return self.id
@@ -43,11 +44,12 @@ class PanoramaItem(models.Model):
     image_height = models.PositiveIntegerField(null=True, blank=True)
 
     class Meta:
-        db_table = "panoview_item"
         ordering = ["sequence_id", "rank"]
         constraints = [
             models.UniqueConstraint(fields=["sequence", "rank"], name="panoview_item_unique_sequence_rank"),
         ]
+        db_table = 'routes\".\"rt202_panoview_item'
+        managed = False
 
     def __str__(self):
         return self.id
