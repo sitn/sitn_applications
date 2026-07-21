@@ -13,6 +13,7 @@ class Sequence(models.Model):
     version = models.CharField(max_length=32)
     title = models.CharField(max_length=255, blank=True)
     description = models.TextField(blank=True)
+    base_image_url = models.URLField(max_length=500)
 
     class Meta:
         ordering = ["id"]

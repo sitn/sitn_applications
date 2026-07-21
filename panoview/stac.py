@@ -8,7 +8,6 @@ is not used: each request builds a standalone Catalog/Collection/Item and every
 link (root, parent, self, collection, prev, next) is set explicitly with a plain
 href, computed for the current request.
 """
-from django.conf import settings
 from django.contrib.gis.db.models import Extent
 from django.contrib.gis.db.models.functions import Transform
 from django.db.models import Max, Min
@@ -48,8 +47,7 @@ def _search_url(request):
 
 
 def _asset_href(item):
-    images_base_url = settings.PANOVIEW["images_base_url"].rstrip("/")
-    return f"{images_base_url}/{item.sequence.version}/{item.image_name}"
+    return f"{item.sequence.base_image_url.rstrip('/')}/{item.image_name}"
 
 
 def _spatial_extent(queryset):
@@ -65,7 +63,7 @@ def _temporal_extent(queryset):
 
 def build_catalog(request):
     """The STAC Catalog: the viewer's single entrypoint ("endpoint" attribute)."""
-    title = settings.PANOVIEW["title"]
+    title = "SITN Panoramas STAC catalog"
     self_href = catalog_url(request)
 
     items = PanoramaItem.objects.all()
