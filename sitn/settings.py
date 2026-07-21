@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'sitn',
     'roads',
     'cadastre',
+    'panoview',
     "corsheaders",
     'django.contrib.admin',
     'django.contrib.auth',
@@ -305,6 +306,16 @@ INTRANET_PROXY = {
 
 HEALTH = {
     'front_url': os.getenv('DOCTORS_URL', 'http://localhost:5173/edit/')
+}
+
+PANOVIEW = {
+    'title': os.getenv('PANOVIEW_TITLE', 'SITN - Panoramas routiers'),
+    # Base URL where the actual jpg panorama files are served from; the final
+    # asset href is "{images_base_url}/{sequence.version}/{item.image_name}".
+    'images_base_url': os.getenv(
+        'PANOVIEW_IMAGES_BASE_URL',
+        'https://sitn.ne.ch/geodata/pointclouds/Mobilelidar/streetlidar2026/04_360/images_pano',
+    ),
 }
 
 # Be aware that by changing the PAGE_SIZE parameter, you will have to
