@@ -14,6 +14,16 @@ def catalog_view(request):
     return _json(stac.build_catalog(request))
 
 
+def configuration_view(request):
+    """
+    The viewer always probes "{endpoint}/configuration" for auth capabilities
+    (see @panoramax/web-viewer's API.getAuthURL()), even though our STAC endpoint
+    is a static catalog.json with no such concept. There is no auth here, so an
+    empty object is a valid "no capabilities" response.
+    """
+    return _json({})
+
+
 def collections_view(request):
     return _json(stac.build_collections(request))
 

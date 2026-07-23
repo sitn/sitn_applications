@@ -151,6 +151,10 @@ def _item_properties(item):
         # The viewer's PictureMetadata panel unconditionally does
         # Object.entries(properties.exif), crashing if it's missing entirely.
         "exif": {},
+        # The semantic-tagging widget unconditionally does properties.semantics.find(...)
+        # (SemanticsList._onPicChange -> PresetsManager.getPresets), crashing if it's
+        # missing entirely. No semantic tags are managed here, so this just stays empty.
+        "semantics": [],
     }
     if item.image_width and item.image_height:
         properties["pers:interior_orientation"]["sensor_array_dimensions"] = [item.image_width, item.image_height]
