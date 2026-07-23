@@ -46,10 +46,6 @@ def _search_url(request):
     return _abs_url(request, "panoview-search")
 
 
-def _asset_href(item):
-    return f"{item.sequence.base_image_url.rstrip('/')}/{item.image_name}"
-
-
 def _spatial_extent(queryset):
     """2D [minx, miny, maxx, maxy] bbox in WGS84 for the given PanoramaItem queryset."""
     bbox = queryset.annotate(geom_wgs84=Transform("geom", 4326)).aggregate(bbox=Extent("geom_wgs84"))["bbox"]
@@ -62,7 +58,6 @@ def _temporal_extent(queryset):
 
 
 def build_catalog(request):
-    """The STAC Catalog: the viewer's single entrypoint ("endpoint" attribute)."""
     title = "SITN Panoramas STAC catalog"
     self_href = catalog_url(request)
 
@@ -206,7 +201,7 @@ def build_item(request, item):
     )
     stac_item.set_self_href(_item_url(request, item.sequence_id, item.id))
     stac_item.add_asset("image", pystac.Asset(
-        href=_asset_href(item),
+        href=f"{item.sequence.base_image_url.rstrip('/')}/{item.image_name}",
         media_type="image/jpeg",
         roles=["data", "visual"],
     ))
