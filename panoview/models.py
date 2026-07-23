@@ -26,7 +26,7 @@ class Sequence(models.Model):
 
 class PanoramaItem(models.Model):
     """
-    A STAC Item: a single 360 panorama picture, geolocated in LV95 (EPSG:2056).
+    A STAC Item: a single 360 panorama picture
     """
 
     id = models.CharField(max_length=128, primary_key=True)
