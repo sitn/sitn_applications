@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'sitn',
     'roads',
     'cadastre',
+    'panoview',
     "corsheaders",
     'django.contrib.admin',
     'django.contrib.auth',
