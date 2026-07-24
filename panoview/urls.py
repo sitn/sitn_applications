@@ -10,6 +10,6 @@ urlpatterns = [
     path("collections/<str:seq_id>", views.collection_view, name="panoview-collection-alias"),
     path("collections/<str:seq_id>/items/<str:item_id>", views.item_view, name="panoview-item"),
     path("search", views.search_view, name="panoview-search"),
-    # matches the picture id in "/panoview/<item_id>?pic=...".
     path("<str:item_id>", views.panorama_view, name="panoview-panorama"),
+    path("", views.panoview_base_view, name="panoview-base"),
 ]
