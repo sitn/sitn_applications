@@ -101,9 +101,6 @@ MIDDLEWARE = [
     'allauth.account.middleware.AccountMiddleware'
 ]
 
-if IS_INTRANET:
-    MIDDLEWARE.append('sitn.middleware.RemoteSitnMiddleware')
-
 AUTHENTICATION_BACKENDS = [
     'allauth.account.auth_backends.AuthenticationBackend',
 ]
