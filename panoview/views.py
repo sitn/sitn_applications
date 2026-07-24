@@ -1,9 +1,14 @@
-from django.contrib.gis.db.models.functions import Transform
-from django.http import JsonResponse, HttpResponseBadRequest
+from django.conf import settings
+from django.contrib.gis.db.models.functions import Distance, Transform
+from django.contrib.gis.geos import Point
+from django.http import HttpResponseBadRequest, HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, render
+from django.urls import reverse
 
 from . import stac
 from .models import PanoramaItem, Sequence
+
+ROADVIEW_MAX_DISTANCE_M = 100
 
 
 def _json(data):
@@ -54,3 +59,31 @@ def panorama_view(request, item_id):
         "sequence_id": item.sequence_id,
         "stac_endpoint": stac.catalog_url(request),
     })
+
+
+def panoview_base_view(request):
+    """
+    Redirects to the closest picture to the given coordinates, provided it's
+    within ROADVIEW_MAX_DISTANCE_M meters.
+    """
+    try:
+        east = float(request.GET["east"])
+        north = float(request.GET["north"])
+    except KeyError:
+        return HttpResponseBadRequest('Parameters "east" and "north" are required')
+    except ValueError:
+        return HttpResponseBadRequest('Parameters "east" and "north" are not numbers')
+
+    point = Point(east, north, srid=settings.DEFAULT_SRID)
+    closest = (
+        PanoramaItem.objects
+        .annotate(distance=Distance("geom", point))
+        .order_by("-captured_at", "distance")
+        .first()
+    )
+
+    if closest is None or closest.distance.m > ROADVIEW_MAX_DISTANCE_M:
+        return render(request, "panoview/panorama_not_found.html", {"max_distance": ROADVIEW_MAX_DISTANCE_M})
+
+    redirect_url = reverse("panoview-panorama", kwargs={"item_id": closest.id})
+    return HttpResponseRedirect(f"{redirect_url}?x=-1&z=0")
