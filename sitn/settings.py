@@ -55,6 +55,7 @@ INTERNET_ONLY_APPS = [
     'health',
     'stationnement',
     'ppe',
+    'sene_chantiers',
 ]
 
 INSTALLED_APPS = [
@@ -77,6 +78,7 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'drf_spectacular_sidecar',
     'django_dotnetid',
+    'simple_history',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
@@ -98,7 +100,11 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'allauth.account.middleware.AccountMiddleware'
+    'allauth.account.middleware.AccountMiddleware',
+    # Records who made each change on history-tracked models. Must come after
+    # AuthenticationMiddleware, since it reads request.user. Without it
+    # history rows written outside the admin carry a NULL history_user.
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 AUTHENTICATION_BACKENDS = [
@@ -124,6 +130,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'sene_chantiers.context_processors.deadline_banner',
                 'django.template.context_processors.media',
             ],
         },
@@ -145,7 +152,7 @@ DATABASES = {
         'PORT': os.environ["PGPORT"],
         'PASSWORD': os.environ["PGPASSWORD"],
         'OPTIONS': {
-            'options': '-c search_path=' + os.environ["PGSCHEMA"] + ',ppe,public'
+            'options': '-c search_path=' + os.environ["PGSCHEMA"] + ',ppe,sene_chantiers,public'
         },
     },
     'terris': {
@@ -233,8 +240,10 @@ STATICFILES_DIRS = [
 
 WHITENOISE_STATIC_PREFIX = "/assets/"
 
-DOWNLOAD_ROOT = "/data/"
-MEDIA_ROOT = "/upload/"
+# Overridable so local (non-Docker) development can point these at real
+# folders; the defaults are the Docker mount points and stay unchanged.
+DOWNLOAD_ROOT = os.environ.get('DOWNLOAD_ROOT', "/data/")
+MEDIA_ROOT = os.environ.get('MEDIA_ROOT', "/upload/")
 MEDIA_URL = os.environ.get('MEDIA_URL', 'upload/')
 
 DEFAULT_FROM_EMAIL = 'no-reply@ne.ch'
@@ -252,6 +261,32 @@ else:
 
 
 NEARCH2_CONSULTATION = os.environ.get('NEARCH2_CONSULTATION')
+
+# --- sene_chantiers ---------------------------------------------------
+# Advisory total for a single notification email (PDF + selected photos).
+SENE_CHANTIERS_EMAIL_ATTACHMENTS_MAX_SIZE_MB = int(
+    os.environ.get('SENE_CHANTIERS_EMAIL_ATTACHMENTS_MAX_SIZE_MB', 5)
+)
+# Hard per-photo upload limit, rejected server-side.
+SENE_CHANTIERS_PHOTO_MAX_SIZE_MB = int(
+    os.environ.get('SENE_CHANTIERS_PHOTO_MAX_SIZE_MB', 10)
+)
+# Weekly deadline digest schedule, checked by the worker loop.
+SENE_CHANTIERS_DEADLINE_DIGEST_DAY_OF_WEEK = int(
+    os.environ.get('SENE_CHANTIERS_DEADLINE_DIGEST_DAY_OF_WEEK', 0)  # Monday
+)
+SENE_CHANTIERS_DEADLINE_DIGEST_HOUR = int(
+    os.environ.get('SENE_CHANTIERS_DEADLINE_DIGEST_HOUR', 8)
+)
+# Group whose members may use the application (created manually in admin).
+# Configurable per instance: the group is administered by hand, and its
+# name has already changed once.
+SENE_CHANTIERS_ADMIN_GROUP = os.environ.get(
+    'SENE_CHANTIERS_ADMIN_GROUP', 'sene_chantiers_gestion'
+)
+SENE_CHANTIERS_WEASYPRINT_URL = os.environ.get(
+    'SENE_CHANTIERS_WEASYPRINT_URL', 'http://localhost:5001'
+)
 
 # Default primary key field type
 # https://docs.djangoproject.com/en/4.0/ref/settings/#default-auto-field
