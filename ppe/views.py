@@ -34,7 +34,7 @@ def index(request):
     # A list for the PPE admins to see the latest demands
     request.session['login_code'] = None
 
-    if request.user.is_authenticated:
+    if request.user.has_perm("ppe.view_dossierppe"):
         latest_dossiers_list = DossierPPE.objects.order_by("-date_creation")[:15]
     else:
         latest_dossiers_list = None
@@ -256,9 +256,9 @@ def login(request, login_code=None):
     code = request.POST.get('login_code') or login_code
 
     # Vérifier que l'appel vient d'un utilisateur autorisé (admin)
-    if login_code and not (request.user.is_authenticated):
-        logger.warning("=> WARNING: Tentative de connection directe sans être connecté : (code %s).", login_code)
-        return HttpResponseForbidden("L'accès directe n'est pas possible sans être connecté.")
+    if login_code and not request.user.has_perm("ppe.view_dossierppe"):
+        logger.warning("=> WARNING: Tentative de connexion directe sans les droits nécessaires : (code %s).", login_code)
+        return HttpResponseForbidden("L'accès direct n'est pas possible sans les droits nécessaires.")
     
     if code:
         try:

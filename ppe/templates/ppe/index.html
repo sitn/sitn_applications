@@ -21,7 +21,7 @@ Application de gestion des PPE
                 <i id="info1" class="bi bi-info-circle-fill" style="color: cornflowerblue;"></i>
                 <div id="info_modification">Modifier les informations<br> d'un dossier déjà soumis.</div>
         </div>
-        {% if user.is_authenticated %}
+        {% if perms.ppe.view_dossierppe %}
             {% if latest_dossiers_list %}
             <div id="admin_list">
                 <br>
