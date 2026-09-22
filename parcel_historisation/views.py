@@ -270,8 +270,8 @@ class BalanceViewSet(viewsets.ViewSet):
     API endpoint to handle balances.
     """
 
-    serializer_class = BalanceSerializer
     queryset = Balance.objects.all()
+    serializer_class = BalanceSerializer
 
     def retrieve(self, request, pk):
         instances = Balance.objects.filter(division=pk)
@@ -440,8 +440,18 @@ class OperationViewSet(viewsets.ModelViewSet):
     API endpoint that exposes operation in order to continue the edition mode
     """
 
-    queryset = Operation.objects.all()
     serializer_class = OperationSerializer
+
+    def get_queryset(self):
+        queryset = Operation.objects
+
+        cadastre_id = self.request.query_params.get("cadastre_id")
+        plan_link = self.request.query_params.get("plan_link")
+
+        if plan_link and cadastre_id:
+            queryset = queryset.filter(plan__link=plan_link, plan__cadastre=cadastre_id)
+
+        return queryset
 
 
 @permission_required("parcel_historisation.view_designation", raise_exception=True)
