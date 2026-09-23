@@ -236,6 +236,7 @@ def submit_saisie(request):
             "submitted": True,
             "has_div": has_div,
             "operation_id": op.id,
+            "plan_link": plan.link,
         }
     )
 
