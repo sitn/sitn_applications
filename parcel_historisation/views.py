@@ -70,7 +70,7 @@ def get_docs_list(request):
     # TODO: parameter validation (try int(numcad) except BadRequest)
     numcad = request.GET["numcad"]
 
-    results = Plan.objects.filter(state__id=1).filter(cadastre=int(numcad)).order_by("-date_plan", "link").all()
+    results = Plan.objects.filter(state__id=1).filter(cadastre=int(numcad)).order_by("-plan_number", "index", "-scale").all()
 
     load = []
     for result in results:
