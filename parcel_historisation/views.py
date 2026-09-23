@@ -92,6 +92,33 @@ def get_docs_list(request):
 
 
 @permission_required("parcel_historisation.view_designation", raise_exception=True)
+def search_plans_by_term(request):
+    """
+    Gets the list of documents which have to be analysed, thus having a state
+    equal to one. The list is generated regarding a specified cadastre
+    """
+
+    # TODO: parameter validation (try int(numcad) except BadRequest)
+    data = json.loads(request.body)
+    numcad = data["numcad"]
+    searchterm = data["searchterm"]
+
+    results = Plan.objects.filter(cadastre=int(numcad)).filter(link__startswith=searchterm).order_by("-plan_number", "index", "-scale").all()
+
+    load = []
+    for i, result in enumerate(results):
+
+        if i >= 10:
+            break
+
+        load.append(
+            result.link,
+        )
+
+    return JsonResponse(load, safe=False)
+
+
+@permission_required("parcel_historisation.view_designation", raise_exception=True)
 def file_download(request, name):
     """
     Data download view

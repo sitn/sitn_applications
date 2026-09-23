@@ -78,9 +78,10 @@
                 <div class="col">
                   <div class="input-group">
                     <div class="input-group-prepend">
-                      <span class="input-group-text" id="basic-addon1">Numéro de plan' : </span>
+                      <span class="input-group-text" id="basic-addon1">Numéro de plan : </span>
                     </div>
-                    <input id="plan-link-continue" type="text" pattern="[0-9]{3,}_[0-9]{1,2}_[0-9]{3,4}" class="form-control" aria-describedby="basic-addon1" placeholder="00000_0_0000"></input>
+                    <input id="plan-link-continue" type="text" list="plan-link-continue-results" pattern="[0-9]{3,}_[0-9]{1,2}_[0-9]{3,4}" class="form-control" aria-describedby="basic-addon1" placeholder="00000_0_0000"></input>
+                    <datalist id="plan-link-continue-results" style="width: 100%;"></datalist>
                   </div>
                 </div>
                 <div class="col d-flex align-items-end" style="padding-left: 20px;">

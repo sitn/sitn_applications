@@ -303,8 +303,44 @@ document.getElementById("load-operation").onclick = () => {
 document.getElementById("plan-link-continue").addEventListener("keypress", e => {
   if (e.key === 'Enter') {
     document.getElementById("load-operation").click();
+    document.getElementById("plan-link-continue-results").innerHTML = "";
   }
 });
+
+document.getElementById("plan-link-continue").addEventListener("change", e => {
+  document.getElementById("load-operation").click();
+  document.getElementById("plan-link-continue-results").innerHTML = "";
+});
+
+
+document.getElementById("plan-link-continue").addEventListener("keyup", e => {
+  if (e.key) {
+
+    let params = {
+      searchterm: document.getElementById("plan-link-continue").value,
+      numcad: ph.activecadastre,
+    }
+
+    return fetch('search_plans_by_term', {
+      method: 'POST',
+      headers: {
+        'X-CSRFToken': ph.csrftoken
+      },
+      body: JSON.stringify(params)
+    }).then((response) => response.json())
+      .then((data) => {
+
+        options_html = "";
+        data.forEach(x => {options_html += `<option>${x}</option>`});
+        document.getElementById("plan-link-continue-results").innerHTML = options_html;
+
+      }).catch((err) => {
+        alert('Une erreur s\'est produite. Veuillez contacter l\'administrateur\n\n \
+        Détail de l\'erreur:\n' + String(err));
+      });
+  }
+});
+
 
 
 // Fonction pour vérifier et mettre à jour la visibilité de la div container
