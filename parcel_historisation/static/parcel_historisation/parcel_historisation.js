@@ -748,7 +748,7 @@ ph.load_table = () => {
     },
     search: {
       server: {
-        url: (prev, keyword) => `${prev}?search=${keyword}`
+        url: (prev, keyword) => `${prev}&search=${encodeURIComponent(keyword)}`
       }
     },
     language: {

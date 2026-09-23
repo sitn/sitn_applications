@@ -27,17 +27,18 @@ class PlanViewSet(viewsets.ReadOnlyModelViewSet):
 
     serializer_class = PlanSerializer
     filter_backends = [filters.SearchFilter, filters.OrderingFilter]
-    search_fields = ["plan", "designation", "state", "date_plan"]
+    search_fields = ["plan_number", "designation__name", "state__name", "date_plan"]
 
-    ordering_fields = ["plan", "designation", "state", "date_plan"]
+    ordering_fields = ["plan_number", "designation__name", "state__name", "date_plan"]
     ordering = ["date_plan"]
 
     def get_queryset(self):
-        if self.request.query_params.get("numcad"):
-            numcad = int(self.request.query_params.get("numcad"))
-            queryset = Plan.objects.filter(cadastre=numcad).all()
-        else:
-            queryset = Plan.objects.all()
+        queryset = Plan.objects.all()
+
+        numcad = self.request.query_params.get("numcad")
+
+        if numcad:
+            queryset = queryset.filter(cadastre=numcad)
 
         return queryset
 
