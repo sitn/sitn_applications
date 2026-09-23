@@ -196,41 +196,31 @@ def submit_saisie(request):
                 for tmp in div:
                     tmp.delete()
 
+    # delete all other operations to update with incoming request
+    op_type = OtherOperation.objects.filter(operation=op).all()
+    for tmp in op_type:
+        tmp.delete()
+
+
     if data["cad_check"] is True:
         other = OtherOperation(operation=op, type=1)
         if not OtherOperation.objects.filter(operation=other.operation, type=other.type).exists():
             other.save()
-    else:
-        op_type = OtherOperation.objects.filter(operation=op).all()
-        for tmp in op_type:
-            tmp.delete()
 
     if data["serv_check"] is True:
         other = OtherOperation(operation=op, type=2)
         if not OtherOperation.objects.filter(operation=other.operation, type=other.type).exists():
             other.save()
-    else:
-        op_type = OtherOperation.objects.filter(operation=op).all()
-        for tmp in op_type:
-            tmp.delete()
 
     if data["art35_check"] is True:
         other = OtherOperation(operation=op, type=3)
         if not OtherOperation.objects.filter(operation=other.operation, type=other.type).exists():
             other.save()
-    else:
-        op_type = OtherOperation.objects.filter(operation=op).all()
-        for tmp in op_type:
-            tmp.delete()
 
     if data["other_check"] is True:
         other = OtherOperation(operation=op, type=4)
         if not OtherOperation.objects.filter(operation=other.operation, type=other.type).exists():
             other.save()
-    else:
-        op_type = OtherOperation.objects.filter(operation=op).all()
-        for tmp in op_type:
-            tmp.delete()
 
     if data["cad_check"] is True:
         state = State.objects.get(pk=4)
