@@ -31,6 +31,25 @@ Application de gestion des PPE
                     <caption>Admin: Liste des dossiers PPE</caption>
                     <thead>
                     <tr>
+                        <td colspan="{{ columns|length }}">
+                            <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+                                <div>
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary">Filtrer</button>
+                                    <a href="{% url 'ppe:index' %}" class="btn btn-sm btn-outline-secondary">Réinitialiser</a>
+                                </div>
+
+                                <div class="d-flex align-items-center gap-2">
+                                    <label for="id_per_page" class="mb-0">Résultats par page :</label>
+                                    <select name="per_page" id="id_per_page" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
+                                        {% for size in page_sizes %}
+                                        <option value="{{ size }}" {% if size == current_page_size %}selected{% endif %}>{{ size }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+                    <tr>
                         {% for col in columns %}
                         <th>
                             <a href="{% querystring ordering=col.next_ordering %}" class="text-reset text-decoration-none">
@@ -53,7 +72,7 @@ Application de gestion des PPE
                         <td>{{ filter.form.contact_principal__nom }}</td>
                         <td></td>
                         <td>{{ filter.form.dernier_zip_statut }}</td>
-                        <td></td>
+                        <td>{{ filter.form.aff_infolica }}</td>
                         <td>{{ filter.form.login_code }}</td>
                     </tr>
                     </thead>
@@ -81,22 +100,6 @@ Application de gestion des PPE
                 {% endfor %}
                     </tbody>
                 </table>
-
-                <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-                    <div>
-                        <button type="submit" class="btn btn-sm btn-outline-secondary">Filtrer</button>
-                        <a href="{% url 'ppe:index' %}" class="btn btn-sm btn-outline-secondary">Réinitialiser</a>
-                    </div>
-
-                    <div class="d-flex align-items-center gap-2">
-                        <label for="id_per_page" class="mb-0">Résultats par page :</label>
-                        <select name="per_page" id="id_per_page" class="form-select form-select-sm w-auto" onchange="this.form.submit()">
-                            {% for size in page_sizes %}
-                            <option value="{{ size }}" {% if size == current_page_size %}selected{% endif %}>{{ size }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
-                </div>
             </form>
 
             {% if is_paginated %}

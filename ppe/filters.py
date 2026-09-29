@@ -41,6 +41,11 @@ class DossierPPEFilter(django_filters.FilterSet):
         method="filter_dernier_zip_statut",
         widget=forms.Select(attrs={"class": "form-select form-select-sm"}),
     )
+    aff_infolica = django_filters.NumberFilter(
+        lookup_expr="icontains",
+        label="No. Infolica",
+        widget=forms.TextInput(attrs={"class": "form-control form-control-sm"}),
+    )
     login_code = django_filters.CharFilter(
         lookup_expr="icontains",
         label="Code",
