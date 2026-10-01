@@ -1,10 +1,12 @@
 import requests, logging, re, datetime
 from functools import wraps
 
-from .forms import GeolocalisationForm
 from .models import DossierPPE, GeoshopCadastreOrder
-from django.shortcuts import render, redirect
-from django.http import HttpResponseBadRequest, Http404
+from django.conf import settings
+from django.shortcuts import redirect
+from django.http import Http404
+from django.core.mail import EmailMultiAlternatives
+from django.template import loader
 
 logger = logging.getLogger(__name__)
 
@@ -37,19 +39,17 @@ def login_required(func):
     return wrapper
 
 def get_localisation(request, localisation):
+    """ Retourne le dict de localisation, ou None en cas d'échec
+    (coordonnées manquantes, hors canton, ou erreur du service satac).
+    Les appelants doivent systématiquement vérifier ce None avant d'utiliser
+    le résultat comme un dict. """
 
     try:
         coords = localisation['coordinates']
         coord_est = round(coords[0],1)
         coord_nord = round(coords[1],1)
     except KeyError:
-        return render(request,
-            "ppe/geolocalisation.html",
-            {
-                "error_message": "Les coordonnées n'ont pas pu être récupérées.",
-                "form": GeolocalisationForm
-            },
-        )
+        return None
 
     if (NE_MIN_EST < coord_est < NE_MAX_EST) and (NE_MIN_NORD < coord_nord < NE_MAX_NORD):
         url = GEOLOC_SERVICE_URL+"X="+str(coord_est)+"&Y="+str(coord_nord)
@@ -83,10 +83,10 @@ def get_localisation(request, localisation):
             numcad = data["numcad"]
             cadastre = data["nomcad"]
         else:
-            return HttpResponseBadRequest("Une erreur inconnue s'est produite. La localisation a échouée.")
+            return None
 
     else:
-        return HttpResponseBadRequest("La localisation semble se situer en dehors du canton.")
+        return None
 
     geoloc = {
         "egrid": "ToDo",
@@ -153,3 +153,41 @@ def check_geoshop_ref(ref, doc):
         return True, None
     else:
         return False, 'La date de commande de la référence semble erronée.'
+
+def check_alerts(dossier_ref):
+
+    # Alert 1: There is a abandoned dossier with the same cadastre, property and type=C
+    dossier_list = DossierPPE.objects.all().filter(cadastre=dossier_ref.cadastre).filter(nummai=dossier_ref.nummai)
+    if dossier_list.filter(type_dossier="C").exclude(statut="A"):
+        mail_alert("Alerte 1", dossier_list, dossier_ref)
+    # Alert 2: There is a abandoned dossier with the same cadastre, property and type=R
+    if dossier_list.filter(type_dossier="R").exclude(statut="A"):
+        mail_alert("Alerte 2", dossier_list, dossier_ref)
+    if dossier_list.filter(type_dossier="M").exclude(statut="A"):
+        mail_alert("Alerte 3", dossier_list, dossier_ref)
+    return
+
+def mail_alert(alert_nb, dossier_list, doc):
+
+    # Set the mail subject
+    mail_subject = "Dossiers PPE : Alerte doublon"
+    default_sender = settings.DEFAULT_FROM_EMAIL if settings.DEFAULT_FROM_EMAIL else 'no-reply-ppe@ne.ch'
+
+    # First, render the plain text content.
+    text_content = f"Alerte à Malibu {alert_nb} : Un nouveau dossier PPE a été créer à un endroit où un autre est en cours.\n \
+        Cadastre {doc.cadastre} \nBien-fonds : {doc.nummai} \n \
+        Type de dossier : {doc.get_type_dossier_display}\n \
+        Dossier(s) existant(s): {dossier_list}"
+
+    # Secondly, render the HTML content.
+    html_content = loader.render_to_string("ppe/email_alertes.html", context={"doc": doc, "alert_nb": alert_nb, "dossier_list": dossier_list})
+    
+    # Then, create a multipart email instance.
+    msg = EmailMultiAlternatives(
+        mail_subject,
+        text_content,
+        default_sender,
+        ["francois.voisard@ne.ch"],    )
+    # Lastly, attach the HTML content to the email instance and send.
+    msg.attach_alternative(html_content, "text/html")
+    msg.send()
