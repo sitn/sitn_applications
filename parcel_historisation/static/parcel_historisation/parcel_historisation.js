@@ -424,7 +424,7 @@ async function postBalanceRelations(balance, ddp) {
   // let no_infolica = document.getElementById("no_infolica").value;
 
   let params = {
-    division_id: ph.active_plan_link,
+    division_id: ph.active_operation_id,
     no_infolica: no_infolica,
     cadastre_id: ph.activecadastre,
     balance: balance,
@@ -458,6 +458,7 @@ ph = {
   activecadastre: null,
   cadastres: {},
   active_plan_link: null,
+  active_operation_id: null,
   operationDetail: new bootstrap.Modal(document.getElementById('operationDetail')),
 
 };
@@ -635,7 +636,8 @@ document.getElementById("submit-form").onclick = () => {
   })
     .then(res => res.json())
     .then(res => {
-      ph.active_plan_link = res['operation_id'];
+      ph.active_operation_id = res['operation_id'];
+      ph.active_plan_link = res['plan_link'];
       ph.resetSubmitForm(res['has_div']);
     });
 };
@@ -748,7 +750,7 @@ ph.load_table = () => {
     },
     search: {
       server: {
-        url: (prev, keyword) => `${prev}?search=${keyword}`
+        url: (prev, keyword) => `${prev}&search=${encodeURIComponent(keyword)}`
       }
     },
     language: {
@@ -889,7 +891,7 @@ ph.showBalance = async (id) => {
   bootstrap.Tab.getInstance(triggerEl).show();
   // load operation
   await ph.loadOperation(id);
-  ph.active_plan_link = id;
+  ph.active_operation_id = id;
   // simulate click on OK button to open balance
   document.getElementById("submit-form").click();
   ph.loadBalance();
