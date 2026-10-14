@@ -140,20 +140,20 @@ WSGI_APPLICATION = 'wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': os.environ["PGDATABASE"],
-        'USER': os.environ["PGUSER"],
-        'HOST': os.environ["PGHOST"],
-        'PORT': os.environ["PGPORT"],
-        'PASSWORD': os.environ["PGPASSWORD"],
+        'NAME': os.environ.get("PGDATABASE"),
+        'USER': os.environ.get("PGUSER"),
+        'HOST': os.environ.get("PGHOST"),
+        'PORT': os.environ.get("PGPORT"),
+        'PASSWORD': os.environ.get("PGPASSWORD"),
         'OPTIONS': {
-            'options': '-c search_path=' + os.environ["PGSCHEMA"] + ',ppe,public'
+            'options': '-c search_path=' + os.environ.get("PGSCHEMA", "public") + ',ppe,public'
         },
     },
     'terris': {
         'ENGINE': 'django.db.backends.oracle',
-        'NAME': os.environ["TERRIS_HOST"] + ':' + os.environ["TERRIS_PORT"] + '/' + os.environ["TERRIS_SERVICE"],
-        'USER': os.environ["TERRIS_USER"],
-        'PASSWORD': os.environ["TERRIS_PASSWORD"],
+        'NAME': os.environ.get("TERRIS_HOST", "") + ':' + os.environ.get("TERRIS_PORT", "") + '/' + os.environ.get("TERRIS_SERVICE", ""),
+        'USER': os.environ.get("TERRIS_USER"),
+        'PASSWORD': os.environ.get("TERRIS_PASSWORD"),
         'TEST': {
             # prevents the creation of a test database
             'MIRROR': 'terris',
@@ -197,7 +197,7 @@ USE_TZ = True
 
 # CORS, CSRF AND SSL
 
-ALLOWED_HOSTS = os.environ["ALLOWED_HOSTS"].split(",")
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",")
 
 CORS_DEV_ORIGINS = [
     "http://localhost:4200",
@@ -207,11 +207,11 @@ CORS_DEV_ORIGINS = [
     "http://localhost:5173"
 ]
 
-CORS_ALLOWED_ORIGINS = CORS_DEV_ORIGINS + list(map(str.rstrip, os.environ["CORS_ALLOWED_ORIGINS"].split(",")))
+CORS_ALLOWED_ORIGINS = CORS_DEV_ORIGINS + list(map(str.rstrip, os.environ.get("CORS_ALLOWED_ORIGINS", 'https://app.localhost').split(",")))
 
 CSRF_USE_SESSIONS = True
 CSRF_COOKIE_SECURE = True
-CSRF_COOKIE_DOMAIN = os.environ["CSRF_COOKIE_DOMAIN"]
+CSRF_COOKIE_DOMAIN = os.environ.get("CSRF_COOKIE_DOMAIN")
 CSRF_TRUSTED_ORIGINS = []
 for host in CORS_ALLOWED_ORIGINS:
     CSRF_TRUSTED_ORIGINS.append(host)
@@ -241,15 +241,13 @@ MEDIA_URL = os.environ.get('MEDIA_URL', 'upload/')
 DEFAULT_FROM_EMAIL = 'no-reply@ne.ch'
 
 ACTIVATE_MAILING_IN_DEV_MODE = os.environ.get('DEV_MAIL_ON', False)
+EMAIL_HOST=os.environ.get("EMAIL_HOST", 'smtp.example.com')
 if DEVELOPMENT_MODE:
     if ACTIVATE_MAILING_IN_DEV_MODE:
         DEFAULT_FROM_EMAIL='no-reply-ppe@ne.ch'
-        EMAIL_HOST='smtp.ne.ch'
     else: 
         EMAIL_BACKEND = "django.core.mail.backends.filebased.EmailBackend"
         EMAIL_FILE_PATH = BASE_DIR / "emails_sent"
-else:
-    EMAIL_HOST = os.environ["EMAIL_HOST"]
 
 
 NEARCH2_CONSULTATION = os.environ.get('NEARCH2_CONSULTATION')
@@ -356,10 +354,10 @@ SOCIALACCOUNT_PROVIDERS = {
         'APP': {
             'provider_id': 'dotnetid',
             'name': 'Etat de Neuchâtel',
-            'client_id': os.environ['DOTNETID_CLIENT_ID'],
-            'secret': os.environ['DOTNETID_CLIENT_SECRET'],
+            'client_id': os.environ.get('DOTNETID_CLIENT_ID'),
+            'secret': os.environ.get('DOTNETID_CLIENT_SECRET'),
             'settings': {
-                'server_url': os.environ['DOTNETID_SERVER_URL'],
+                'server_url': os.environ.get('DOTNETID_SERVER_URL'),
             },
         },
         'SCOPE': [
@@ -367,13 +365,13 @@ SOCIALACCOUNT_PROVIDERS = {
             'openid',
             'glados',
         ],
-        'EXTRA_ATTRIBUTES_PREFIX': os.environ['DOTNETID_EXTRA_ATTRIBUTES_PREFIX'],
+        'EXTRA_ATTRIBUTES_PREFIX': os.environ.get('DOTNETID_EXTRA_ATTRIBUTES_PREFIX'),
         'EXTRA_ATTRIBUTES_NAMES': [
             'groups',
             'admin',
         ],
         'OAUTH_PKCE_ENABLED': True,
-        'ID_TOKEN_ISSUER': os.environ['DOTNETID_SERVER_URL'],
+        'ID_TOKEN_ISSUER': os.environ.get('DOTNETID_SERVER_URL'),
     }
 }
 ACCOUNT_EMAIL_VERIFICATION = 'none'
