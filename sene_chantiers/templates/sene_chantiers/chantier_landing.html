@@ -1,0 +1,228 @@
+{% extends "sene_chantiers/base.html" %}
+{% load static sene_chantiers_extras %}
+
+{% block title %}Suivi de chantier — {{ chantier.satac_number }}{% endblock %}
+
+{% block head %}
+  {# OpenLayers, same CDN build Django's own GIS widgets use. #}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@v7.2.2/ol.css">
+  <script src="https://cdn.jsdelivr.net/npm/ol@v7.2.2/dist/ol.js" defer></script>
+  <script src="{% static 'sene_chantiers/situation_map.js' %}" defer></script>
+{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-xl-10">
+
+    <nav aria-label="fil d'Ariane" class="mb-2">
+      <a href="{% url 'sene_chantiers:home' %}" class="text-decoration-none">
+        <i class="bi bi-arrow-left"></i> Retour à l'accueil
+      </a>
+    </nav>
+
+    <div class="d-flex flex-wrap align-items-center gap-3 mb-3">
+      <h1 class="sc-page-title">{{ chantier.site_name }}</h1>
+      <span class="sc-pill sc-pill--{{ chantier.appreciation|default:'vert' }}">
+        {{ chantier.appreciation_label }}
+      </span>
+    </div>
+
+    <section class="sc-section">
+      <header>
+        <div class="sc-section-head-left">
+          <span class="sc-badge">i</span>
+          <p class="mb-0">Informations générales</p>
+        </div>
+      </header>
+      <div class="sc-section-body">
+        <div class="row g-4 sc-info-split">
+        <div class="{% if chantier.geom %}col-lg-7{% else %}col-12{% endif %}">
+        <dl class="sc-meta">
+          <div>
+            <div class="label">N° SATAC</div>
+            <div class="value">{{ chantier.satac_number }}</div>
+          </div>
+          <div>
+            <div class="label">Adresse</div>
+            <div class="value">{{ chantier.adresse }}</div>
+          </div>
+          <div>
+            <div class="label">Commune</div>
+            <div class="value">{{ chantier.commune.comnom }}</div>
+          </div>
+          <div>
+            <div class="label">Maître d'ouvrage</div>
+            <div class="value">{{ chantier.maitre_ouvrage }}</div>
+          </div>
+          <div>
+            <div class="label">E-mail maître d'ouvrage</div>
+            <div class="value">{{ chantier.maitre_ouvrage_email }}</div>
+          </div>
+          <div>
+            <div class="label">Entreprise générale</div>
+            <div class="value">{{ chantier.entreprise_generale|default:"—" }}</div>
+          </div>
+          <div>
+            <div class="label">Date de création</div>
+            <div class="value">{{ chantier.created_at|date:"d.m.Y" }}</div>
+          </div>
+        </dl>
+        </div>
+        {% if chantier.geom %}
+          <div class="col-lg-5 order-first order-lg-last">
+            {% situation_map chantier.geom %}
+          </div>
+        {% endif %}
+        </div>
+      </div>
+    </section>
+
+    <section class="sc-section">
+      <header class="d-flex justify-content-between align-items-center">
+        <div class="sc-section-head-left">
+          <span class="sc-badge">01</span>
+          <p class="mb-0">Historique des rapports</p>
+        </div>
+        {% if is_closed %}
+          <span class="sc-pill sc-pill--vert"
+                title="Chantier conforme et courriel envoyé : le dossier est clos">
+            <i class="bi bi-check-circle-fill"></i> Dossier clos
+          </span>
+        {% elif is_compliant %}
+          <span class="sc-pill sc-pill--vert"
+                title="Aucun nouveau suivi n'est possible. Le rapport reste modifiable tant que le courriel n'est pas envoyé.">
+            <i class="bi bi-check-circle"></i> Chantier conforme — courriel à envoyer
+          </span>
+        {% elif reports %}
+          <form method="post"
+                action="{% url 'sene_chantiers:corrective_measure_report_create' satac_number=chantier.satac_number %}"
+                class="m-0">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-success">
+              <i class="bi bi-plus-lg"></i> Nouveau suivi (mesures correctives)
+            </button>
+          </form>
+        {% else %}
+          <form method="post"
+                action="{% url 'sene_chantiers:control_report_create' satac_number=chantier.satac_number %}"
+                class="m-0">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-success">
+              <i class="bi bi-plus-lg"></i> Nouveau contrôle environnemental
+            </button>
+          </form>
+        {% endif %}
+      </header>
+      <div class="sc-section-body p-0">
+        {% if reports %}
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th scope="col">Rapport</th>
+                  <th scope="col">Date</th>
+                  <th scope="col">Appréciation</th>
+                  <th scope="col" class="text-end">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for report in reports %}
+                  <tr>
+                    <td>{{ report.label }}</td>
+                    <td>{{ report.date|date:"d.m.Y" }}</td>
+                    <td>
+                      <span class="sc-pill sc-pill--{{ report.appreciation }}">
+                        {{ report.appreciation_label }}
+                      </span>
+                    </td>
+                    <td class="text-end text-nowrap"><div class="sc-icon-row">
+                      {% if report.kind == 'control' %}
+                        <a class="btn sc-icon-btn"
+                           href="{% url 'sene_chantiers:control_report_edit' satac_number=chantier.satac_number %}"
+                           title="{% if report.is_locked %}Consulter{% else %}Modifier{% endif %}">
+                          <i class="bi {% if report.is_locked %}bi-eye{% else %}bi-pencil{% endif %}"></i>
+                        </a>
+                      {% else %}
+                        <a class="btn sc-icon-btn"
+                           href="{% url 'sene_chantiers:corrective_measure_report_edit' pk=report.pk %}"
+                           title="{% if report.is_locked %}Consulter{% else %}Modifier{% endif %}">
+                          <i class="bi {% if report.is_locked %}bi-eye{% else %}bi-pencil{% endif %}"></i>
+                        </a>
+                      {% endif %}
+                      <a class="btn sc-icon-btn is-excel"
+                         href="{% url 'sene_chantiers:excel_export' kind=report.kind_slug pk=report.pk %}"
+                         title="Export Excel du dossier">
+                        <i class="bi bi-file-earmark-spreadsheet"></i>
+                      </a>
+                      <a class="btn sc-icon-btn is-pdf" target="_blank"
+                         href="{% url 'sene_chantiers:pdf_export' kind=report.kind_slug pk=report.pk %}"
+                         title="Export PDF du rapport">
+                        <i class="bi bi-file-earmark-pdf"></i>
+                      </a>
+                      <a class="btn sc-icon-btn is-mail"
+                         href="{% url 'sene_chantiers:email_manager' kind=report.kind_slug pk=report.pk %}"
+                         title="Courriel d'information">
+                        <i class="bi bi-envelope"></i>
+                      </a>
+                    </div></td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% else %}
+          <p class="text-muted mb-0 p-3">Aucun rapport pour ce chantier.</p>
+        {% endif %}
+      </div>
+    </section>
+
+    {% if emails %}
+      <section class="sc-section">
+        <header>
+          <div class="sc-section-head-left">
+            <span class="sc-badge">02</span>
+            <p class="mb-0">Courriels</p>
+          </div>
+        </header>
+        <div class="sc-section-body p-0">
+          <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+              <thead>
+                <tr>
+                  <th scope="col">Date courriel</th>
+                  <th scope="col">Statut</th>
+                  <th scope="col">Objet</th>
+                  <th scope="col" class="text-end">Action</th>
+                </tr>
+              </thead>
+              <tbody>
+                {% for email in emails %}
+                  <tr>
+                    <td>{{ email.date|date:"d.m.Y" }}</td>
+                    <td>
+                      <span class="sc-pill sc-pill--{{ email.appreciation }}">
+                        {{ email.status_label }}
+                      </span>
+                    </td>
+                    <td>{{ email.subject }}</td>
+                    <td class="text-end">
+                      {% if email.report_pk %}
+                        <a class="btn sc-icon-btn is-mail"
+                           href="{% url 'sene_chantiers:email_manager' kind=email.kind_slug pk=email.report_pk %}"
+                           title="{% if email.is_sent %}Consulter le courriel{% else %}Modifier le brouillon{% endif %}">
+                          <i class="bi {% if email.is_sent %}bi-eye{% else %}bi-pencil{% endif %}"></i>
+                        </a>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    {% endif %}
+
+  </div>
+</div>
+{% endblock %}
