@@ -615,7 +615,7 @@ document.getElementById("submit-form").onclick = () => {
 
 
   // A delayed plan can only be delayed, nothing else can be done
-  if (delayed_check === true) {
+  if (delayed_check === true && (params["div_check"] === true || params["cad_check"] === true || params["serv_check"] === true || params["art35_check"] === true || params["other_check"] === true || params["complement"].length > 0)) {
     let text = "Une désignation ou un plan retardé ne permet pas d'enregistrer d'autres informations";
     text += "\n\nSeul le retard est enregistré. De plus, il faudra procéder via l'interface de contrôle."
     if (confirm(text) == false) {
