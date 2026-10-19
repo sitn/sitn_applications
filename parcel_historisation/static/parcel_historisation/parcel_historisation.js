@@ -698,7 +698,7 @@ ph.load_table = () => {
         name: 'Détails',
         sort: false,
         formatter: (cell, row) => {
-          if (row.cells[2].data !== 'A faire') {
+          if (row.cells[2].data !== 'A faire' && row.cells[5].data) {
             return new gridjs.h('button', {
               className: 'btn btn-secondary',
               onClick: () => ph.showDetail(row.cells[5].data)
@@ -736,9 +736,9 @@ ph.load_table = () => {
         url: (prev, columns) => {
           if (!columns.length) return prev;
           const column_names = [
-            'plan',
-            'designation',
-            'state',
+            'plan_number',
+            'designation__name',
+            'state__name',
             'date_plan',
           ];
           const col = columns[0];
