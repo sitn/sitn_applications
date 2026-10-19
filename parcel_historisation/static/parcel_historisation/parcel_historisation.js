@@ -619,6 +619,7 @@ document.getElementById("submit-form").onclick = () => {
     let text = "Une désignation ou un plan retardé ne permet pas d'enregistrer d'autres informations";
     text += "\n\nSeul le retard est enregistré. De plus, il faudra procéder via l'interface de contrôle."
     if (confirm(text) == false) {
+      document.getElementById("overlay").style.display = "none";
       return;
     }
   }
