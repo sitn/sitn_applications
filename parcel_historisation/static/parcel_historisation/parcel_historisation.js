@@ -647,6 +647,7 @@ ph.resetSubmitForm = async (div) => {
   // Open div panel (if div)
   document.getElementById("step1").style.display = "none";
   if (div === true) {
+    ph.reset_step2();
     document.getElementById("step2").style.display = "block";
     document.getElementById("overlay").style.display = "none";
     document.getElementById("operation_id_title").innerText = ph.active_plan_link;
@@ -698,10 +699,10 @@ ph.load_table = () => {
         name: 'Détails',
         sort: false,
         formatter: (cell, row) => {
-          if (row.cells[2].data !== 'A faire' && row.cells[5].data) {
+          if (row.cells[2].data !== 'A faire' && row.cells[5].data[0]) {
             return new gridjs.h('button', {
               className: 'btn btn-secondary',
-              onClick: () => ph.showDetail(row.cells[5].data)
+              onClick: () => ph.showDetail(row.cells[5].data[0], row.cells[5].data[1])
             }, 'Détails');
           }
         },
@@ -716,7 +717,7 @@ ph.load_table = () => {
           plan.state,
           plan.date_plan,
           plan.id,
-          plan.operation_id
+          [plan.operation_id, plan.link]
         ]
       ),
       total: data => data.count,
@@ -887,21 +888,21 @@ balance_removeBF = (bf, bf_status) => {
   }
 }
 
-ph.showBalance = async (id) => {
+ph.showBalance = async (plan_link) => {
   // close modal
   ph.operationDetail.hide();
   // change panel
   const triggerEl = document.querySelector('#nav-saisie-tab');
   bootstrap.Tab.getInstance(triggerEl).show();
   // load operation
-  await ph.loadOperation(id);
-  ph.active_operation_id = id;
+  await ph.loadOperation(plan_link);
+  ph.active_plan_link = plan_link;
   // simulate click on OK button to open balance
   document.getElementById("submit-form").click();
   ph.loadBalance();
 }
 
-ph.showDetail = (id) => {
+ph.showDetail = (id, plan_link) => {
 
   fetch(`api/operations/${id}`)
     .then(res => res.json())
@@ -916,8 +917,8 @@ ph.showDetail = (id) => {
       const ret = (data.plan_retarde === true) ? "icon-check" : "icon-cross";
       const compl = (data.complement === null) ? "-" : data.complement;
       let compl_div = "";
-      if (operations.div_check === true) {
-        compl_div = `<button class="btn btn-secondary" onClick="ph.showBalance(${data.id});">Lien vers la balance</button>`;
+      if (operations.div_check === true && !data.plan_retarde) {
+        compl_div = `<button class="btn btn-secondary" onClick="ph.showBalance('${plan_link}');">Lien vers la balance</button>`;
       }
       // create details
       const tmpl = `
@@ -1067,8 +1068,28 @@ ph.reset_step1 = () => {
   return;
 }
 
+ph.reset_step2 = () => {
+  document.getElementById("tableau-balance").innerHTML = "";
+  document.getElementById("operation_id_title").value = "";
+  document.getElementById("no_infolica").value = "";
+  document.getElementById("balance-old-bf").value = "";
+  document.getElementById("balance-old-bf-serie").value = "";
+  document.getElementById("balance-new-bf").value = "";
+  document.getElementById("balance-new-bf-serie").value = "";
+  document.getElementById("input-balance-from-file").value = "";
+  document.getElementById("ddp-number").value = "";
+  document.getElementById("ddp-base-number").value = "";
+  document.getElementById("ddp-section").innerHTML = "";
+  document.getElementById("tableau-balance").innerHTML = "";
+}
+
 
 ph.loadBalance = () => {
+  if (!ph.active_operation_id) {
+    ph.reset_step2();
+    return;
+  }
+
   fetch(`api/balance/${ph.active_operation_id}`)
     .then((response) => response.json())
     .then((data) => {
@@ -1084,7 +1105,7 @@ ph.loadBalance = () => {
       }
     })
     .catch((err) => {
-      alert("Une erreur est survenue dans le chargement de la balance.\nVeuillez contacter l'administrateur.\n\n" + String(err))
+      alert(`Une erreur est survenue dans le chargement de la balance.\nVeuillez contacter l'administrateur.\n\nOperation_id = ${ph.active_operation_id}\n\n` + String(err))
 
     })
 }
@@ -1248,19 +1269,18 @@ ph.create_control_tables = (data) => {
 
 ph.loadOperation = async (plan_link) => {
   ph.reset_step1();
+  ph.reset_step2();
 
   await fetch(`api/operations/?plan_link=${plan_link}&cadastre_id=${ph.activecadastre}`)
     .then((response) => response.json())
     .then((data) => {
 
       if (data.count == 0) {
-        ph.showErrorMessage();
-        alert(`Aucune saisie n'a été enregistrée pour le plan ${plan_link} sur le cadastre ${ph.cadastres[ph.activecadastre]}.`);
+        ph.showErrorMessage(title="Erreur !", body=`❌ Aucune saisie n'a été enregistrée pour le plan ${plan_link} sur le cadastre ${ph.cadastres[ph.activecadastre]}.`);
         return;
       }
       if (data.count > 1) {
-        ph.showErrorMessage();
-        alert(`Il existe plusieurs saisies pour le plan ${plan_link} sur le cadastre ${ph.cadastres[ph.activecadastre]}.\nContacter l'administrateur.`);
+        ph.showErrorMessage(title="Erreur !", body=`Il existe plusieurs saisies pour le plan ${plan_link} sur le cadastre ${ph.cadastres[ph.activecadastre]}.\nContacter l'administrateur.`);
         return;
       }
 
