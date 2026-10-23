@@ -1130,7 +1130,10 @@ ph.check_relations = () => {
           errors.push(error)
         }
       }
-      if (sum_row === 1 && sum_col === 1 && balance.rows[row_id].cells[col_id].firstChild.checked === true) {
+
+      old_bf_is_DP = balance.rows[1].cells[0].innerText.toLocaleLowerCase().startsWith('dp');
+      new_bf_is_DP = balance.rows[0].cells[1].innerText.toLocaleLowerCase().startsWith('dp');
+      if (sum_row === 1 && sum_col === 1 && balance.rows[row_id].cells[col_id].firstChild.checked === true && old_bf_is_DP === false && new_bf_is_DP === false) {
         // Un ancien bien-fonds est uniquement balancé dans un nouveau bien-fonds (pas divisé, pas réuni)
         error = `Le bien-fonds ${balance.rows[row_id].cells[0].innerText.split(' ')[0]} n'est pas divisé/réuni.`;
         if (!errors.includes(error)) {
