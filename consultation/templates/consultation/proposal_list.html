@@ -11,14 +11,13 @@
 {% endblock breadcrumb %}
 
 {% block banner %}
-{% if consultation.measures_html %}
-  <div class="measures-embed">{{ consultation.measures_html|safe }}</div>
-{% endif %}
 {% endblock banner %}
 
 {% block content %}
 <h1>Mesures</h1>
-
+{% if consultation.measures_html %}
+  <div class="measures-embed">{{ consultation.measures_html|safe }}</div>
+{% endif %}
 <form method="get" class="mb-3" role="search">
   {% for group, taxonomies in groups %}{% for taxonomy in taxonomies %}{% if taxonomy.active %}
     <input type="hidden" name="tag" value="{{ taxonomy.pk }}">
