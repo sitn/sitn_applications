@@ -250,7 +250,10 @@ document.getElementById("submit-relations").onclick = async () => {
   const relations = getBalanceRelations();
   const ddp = getDDPRelations();
 
-  const check = ph.check_relations();
+  let check = true;
+  if (relations !== null) {
+    check = ph.check_relations();
+  }
   if (check === true) {
     // post relations
     await postBalanceRelations(relations, ddp);
@@ -800,7 +803,7 @@ ph.buildHTMLTable = (balance) => {
 }
 
 ph.createNewHTMLddp = (ddp, base) => {
-  const ddp_span_id = `${ddp}-${base}`;
+  const ddp_span_id = `${base}-${ddp}`;
   let ddp_section = document.getElementById("ddp-section");
 
   for (const elem of ddp_section.children) {
