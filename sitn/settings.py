@@ -78,6 +78,8 @@ INSTALLED_APPS = [
     'drf_spectacular',
     'drf_spectacular_sidecar',
     'django_dotnetid',
+    'django_prose_editor',
+    'consultation',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',

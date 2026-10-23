@@ -16,6 +16,7 @@ router.register_app('cadastre', 'cadastre/')
 router.register_app('registre_foncier', 'registre_foncier/')
 router.register_app('roads', 'roads/')
 router.register_app('panoview', 'panoview/')
+router.register_app('consultation', 'consultation/')
 
 urlpatterns = [
     path('schema/', SpectacularAPIView.as_view(), name='schema'),
@@ -28,6 +29,7 @@ urlpatterns = [
     path('registre_foncier/', include('registre_foncier.urls')),
     path('roads/', include('roads.urls')),
     path('panoview/', include('panoview.urls')),
+    path('consultation/', include('consultation.urls')),
     path("test-auth/", views.index, name="index"),
 ]
 
