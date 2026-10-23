@@ -1,13 +1,23 @@
 services:
+  migrate:
+    image: ${DOCKER_BASE}:${IMAGE_TAG:-latest}
+    env_file:
+      - path: ${ENV_FILE}
+      - path: .env.migrate
+        required: false
+    command: ["python", "manage.py", "migrate", "--noinput"]
+    restart: "no"
+
   apps:
-    image: ${DOCKER_BASE}
+    image: ${DOCKER_BASE}:${IMAGE_TAG:-latest}
     build:
       context: .
-      args:
-        ENV_FILE: ${ENV_FILE}
     env_file: ${ENV_FILE}
     command: "./startup.sh"
     restart: unless-stopped
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
     ports:
       - "${DOCKER_PORT}:8000"
     volumes:
