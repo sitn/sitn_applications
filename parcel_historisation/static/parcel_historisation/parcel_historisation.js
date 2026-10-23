@@ -1040,6 +1040,9 @@ ph.initialize_form = () => {
     // Empty control tables
     document.getElementById("run-control").style.display = "block";
     document.getElementById("source-div").classList.add("d-none");
+
+    //reset saisie-2
+    ph.reset_step2();
   }
 }
 
