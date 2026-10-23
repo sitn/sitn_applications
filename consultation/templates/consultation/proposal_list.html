@@ -1,0 +1,81 @@
+{% extends "consultation/base.html" %}
+
+{% block title %}Mesures – {{ consultation.title }}{% endblock title %}
+
+{% block breadcrumb %}
+<nav aria-label="Fil d'Ariane"><ol class="breadcrumb">
+  <li class="breadcrumb-item"><a href="{% url 'consultation:list' %}">Consultations</a></li>
+  <li class="breadcrumb-item"><a href="{{ consultation.get_absolute_url }}">{{ consultation.title }}</a></li>
+  <li class="breadcrumb-item active" aria-current="page">Mesures</li>
+</ol></nav>
+{% endblock breadcrumb %}
+
+{% block banner %}
+{% if consultation.measures_html %}
+  <div class="measures-embed">{{ consultation.measures_html|safe }}</div>
+{% endif %}
+{% endblock banner %}
+
+{% block content %}
+<h1>Mesures</h1>
+
+<form method="get" class="mb-3" role="search">
+  {% for group, taxonomies in groups %}{% for taxonomy in taxonomies %}{% if taxonomy.active %}
+    <input type="hidden" name="tag" value="{{ taxonomy.pk }}">
+  {% endif %}{% endfor %}{% endfor %}
+  <div class="input-group">
+    <span class="input-group-text"><i class="bi bi-search"></i></span>
+    <input type="search" name="q" value="{{ query }}" class="form-control"
+           placeholder="Rechercher par titre, référence ou taxonomie" aria-label="Rechercher une mesure">
+    <button type="submit" class="btn btn-primary">Rechercher</button>
+  </div>
+</form>
+
+{% if groups %}
+  <div class="mb-3 taxonomy-filters">
+    {% for group, taxonomies in groups %}
+      <div class="d-flex flex-wrap align-items-center gap-2 mb-2">
+        <span class="small fw-semibold me-1">{{ group.name }}</span>
+        {% for taxonomy in taxonomies %}
+          <a href="{{ taxonomy.toggle_url }}"
+             class="btn btn-sm rounded-pill {% if taxonomy.active %}btn-primary{% else %}btn-outline-primary{% endif %}"
+             {% if taxonomy.active %}aria-pressed="true"{% endif %}>
+            {% if taxonomy.active %}<i class="bi bi-check"></i>{% endif %}{{ taxonomy.name }}
+          </a>
+        {% endfor %}
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+
+<p class="text-muted">
+  {{ proposals|length }} mesure{{ proposals|length|pluralize }}{% if is_filtered %} trouvée{{ proposals|length|pluralize }}
+  · <a href="?">Réinitialiser</a>{% else %}. Ouvrez une mesure pour donner votre avis.{% endif %}
+</p>
+
+<div class="row row-cols-1 row-cols-md-2 g-3">
+  {% for proposal in proposals %}
+    <div class="col">
+      <article class="card h-100">
+        <div class="card-body">
+          <h2 class="h5 card-title">
+            <a class="stretched-link" href="{{ proposal.get_absolute_url }}">
+              {% if proposal.reference %}<span class="badge text-bg-secondary me-1">{{ proposal.reference }}</span>{% endif %}{{ proposal.title }}
+            </a>
+          </h2>
+          <p class="card-text small">{{ proposal.summary|striptags|truncatewords:30 }}</p>
+          {% if proposal.taxonomies.all %}
+            <div class="d-flex flex-wrap gap-1">
+              {% for taxonomy in proposal.taxonomies.all %}
+                <span class="badge rounded-pill text-bg-light border" title="{{ taxonomy.group.name }}">{{ taxonomy.name }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      </article>
+    </div>
+  {% empty %}
+    <p>{% if is_filtered %}Aucune mesure ne correspond à votre recherche.{% else %}Aucune mesure pour l'instant.{% endif %}</p>
+  {% endfor %}
+</div>
+{% endblock content %}

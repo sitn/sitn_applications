@@ -1,0 +1,98 @@
+{% extends "consultation/base.html" %}
+{% load socialaccount %}
+
+{% block title %}{{ proposal }} – {{ consultation.title }}{% endblock title %}
+
+{% block head %}{% if form %}{{ form.media }}{% endif %}{% endblock head %}
+
+{% block breadcrumb %}
+<nav aria-label="Fil d'Ariane"><ol class="breadcrumb">
+  <li class="breadcrumb-item"><a href="{% url 'consultation:list' %}">Consultations</a></li>
+  <li class="breadcrumb-item"><a href="{{ consultation.get_absolute_url }}">{{ consultation.title }}</a></li>
+  <li class="breadcrumb-item"><a href="{% url 'consultation:proposals' consultation.slug %}">Mesures</a></li>
+  <li class="breadcrumb-item active" aria-current="page">{{ proposal.reference|default:proposal.title }}</li>
+</ol></nav>
+{% endblock breadcrumb %}
+
+{% block content %}
+<h1>{% if proposal.reference %}<span class="badge text-bg-secondary me-2">{{ proposal.reference }}</span>{% endif %}{{ proposal.title }}</h1>
+
+{% if proposal.summary %}<div class="rich-text mb-4">{{ proposal.summary|safe }}</div>{% endif %}
+
+{% if proposal.file %}
+  {% url 'consultation:proposal_file' consultation.slug proposal.pk as file_url %}
+  <section class="mb-4">
+    {% if proposal.file_is_pdf %}
+      <iframe class="proposal-pdf" src="{{ file_url }}" title="Document de la mesure"></iframe>
+      <p class="small"><a href="{{ file_url }}" target="_blank" rel="noopener"><i class="bi bi-box-arrow-up-right"></i> Ouvrir le PDF</a></p>
+    {% else %}
+      <img class="img-fluid rounded border" src="{{ file_url }}" alt="{{ proposal.title }}">
+    {% endif %}
+  </section>
+{% endif %}
+
+<section class="mt-5" id="avis">
+  <h2><i class="bi bi-lock"></i> Votre avis</h2>
+  <p class="text-muted">Votre avis est transmis au service et n'est pas publié : il n'est visible que par vous.</p>
+
+  {% if not user.is_authenticated %}
+    <form method="post" action="{% provider_login_url 'dotnetid' process='login' next=request.get_full_path %}">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-primary">Se connecter pour donner son avis</button>
+    </form>
+  {% else %}
+    {% for feedback in feedbacks %}
+      <div class="feedback mb-3">
+        <p class="small text-muted mb-1">{{ feedback.created_at|date:"j F Y à H:i" }}{% if feedback.location %} · <i class="bi bi-geo-alt"></i> localisé{% endif %}</p>
+        {{ feedback.body|linebreaks }}
+      </div>
+    {% endfor %}
+
+    {% if form %}
+      <form method="post" class="mt-4">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label fw-bold" for="{{ form.body.id_for_label }}">{{ form.body.label }}</label>
+          {{ form.body }}
+          {% for error in form.body.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold">{{ form.location.label }}</label>
+          <div class="form-text mb-2">{{ form.location.help_text }} La mesure est affichée en vert.</div>
+          {{ form.location }}
+          {% for error in form.location.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+        </div>
+        <button type="submit" class="btn btn-primary">Envoyer mon avis</button>
+      </form>
+      {% if proposal_geojson %}
+        {{ proposal_geojson|json_script:"proposal-geom" }}
+        <script>
+          // Show the proposal geometry under the drawing layer of the location widget
+          (function () {
+            const widget = window.geodjango_location;
+            if (!widget) { return; }
+            const source = new ol.source.Vector({
+              features: new ol.format.GeoJSON().readFeatures(JSON.parse(document.getElementById("proposal-geom").textContent))
+            });
+            const stroke = new ol.style.Stroke({ color: "#2f6f3e", width: 4 });
+            const layer = new ol.layer.Vector({
+              source: source,
+              style: new ol.style.Style({
+                stroke: stroke,
+                fill: new ol.style.Fill({ color: "rgba(47, 111, 62, 0.15)" }),
+                image: new ol.style.Circle({ radius: 7, fill: new ol.style.Fill({ color: "#2f6f3e" }), stroke: new ol.style.Stroke({ color: "#fff", width: 2 }) })
+              })
+            });
+            widget.map.getLayers().insertAt(1, layer);
+            if (!widget.featureOverlay.getSource().getFeatures().length) {
+              widget.map.getView().fit(source.getExtent(), { padding: [40, 40, 40, 40], maxZoom: 9 });
+            }
+          })();
+        </script>
+      {% endif %}
+    {% else %}
+      <p class="text-muted">La participation à cette consultation est close.</p>
+    {% endif %}
+  {% endif %}
+</section>
+{% endblock content %}

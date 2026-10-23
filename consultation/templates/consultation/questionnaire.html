@@ -1,0 +1,92 @@
+{% extends "consultation/base.html" %}
+
+{% block title %}{{ questionnaire.title }}{% endblock title %}
+
+{% block breadcrumb %}
+<nav aria-label="Fil d'Ariane"><ol class="breadcrumb">
+  <li class="breadcrumb-item"><a href="{% url 'consultation:list' %}">Consultations</a></li>
+  <li class="breadcrumb-item"><a href="{{ consultation.get_absolute_url }}">{{ consultation.title }}</a></li>
+  <li class="breadcrumb-item active" aria-current="page">{{ questionnaire.title }}</li>
+</ol></nav>
+{% endblock breadcrumb %}
+
+{% block content %}
+<div class="d-flex align-items-start justify-content-between gap-3">
+  <h1>{{ questionnaire.title }}</h1>
+  <button type="button" class="btn btn-outline-secondary d-print-none" onclick="window.print()">
+    <i class="bi bi-printer"></i> Imprimer
+  </button>
+</div>
+<p class="d-none d-print-block">
+  {{ consultation.title }}{% if response %} – réponses de {{ user.get_full_name|default:user.username }}{% endif %}
+</p>
+{% if response %}
+  <div class="alert alert-info d-print-none">
+    {% if editable %}
+      Vous avez déjà répondu à ce questionnaire. Vous pouvez modifier vos réponses jusqu'à la clôture de la consultation.
+    {% else %}
+      La participation est close. Voici les réponses que vous avez données.
+    {% endif %}
+  </div>
+{% endif %}
+{% if questionnaire.description %}<div class="rich-text mb-4">{{ questionnaire.description|safe }}</div>{% endif %}
+
+<form method="post" novalidate>
+  {% csrf_token %}
+  {% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+
+  {% for question, fields in form.items %}
+    {% if question.question_type == "separator" %}
+      <hr class="my-4">
+    {% elif question.question_type == "title_and_description" %}
+      <div class="my-4">
+        {% if question.body %}<h2 class="h4">{{ question.body }}</h2>{% endif %}
+        {% if question.description %}<div class="rich-text">{{ question.description|safe }}</div>{% endif %}
+      </div>
+    {% else %}
+      <fieldset class="question mb-4">
+        <legend class="h6 fw-bold">{{ question.body }}{% if question.mandatory %} <span class="text-danger" title="obligatoire">*</span>{% endif %}</legend>
+        {% if question.description %}<div class="rich-text small text-muted">{{ question.description|safe }}</div>{% endif %}
+
+        {% if question.is_matrix %}
+          <div class="table-responsive">
+            <table class="table table-sm align-middle matrix">
+              <thead><tr><th></th>{% for choice in question.options.all %}<th class="text-center">{{ choice.body }}</th>{% endfor %}</tr></thead>
+              <tbody>
+                {% for field in fields %}
+                  <tr>
+                    <th scope="row">{{ field.label }}{% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}</th>
+                    {% for sub in field %}<td class="text-center">{{ sub.tag }}</td>{% endfor %}
+                  </tr>
+                {% endfor %}
+              </tbody>
+            </table>
+          </div>
+        {% elif question.question_type == "sorting" %}
+          <p class="small text-muted">Attribuez un rang à chaque option (1 = priorité la plus haute).</p>
+          {% for field in fields %}
+            <div class="d-flex align-items-center gap-2 mb-1">{{ field }} <label for="{{ field.id_for_label }}">{{ field.label }}</label></div>
+            {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+          {% endfor %}
+        {% else %}
+          {% for field in fields %}
+            {% if not forloop.first %}<label class="form-label small mt-2" for="{{ field.id_for_label }}">{{ field.label }}</label>{% endif %}
+            {{ field }}
+            {% if field.help_text %}<div class="form-text">{{ field.help_text }}</div>{% endif %}
+            {% for error in field.errors %}<div class="text-danger small">{{ error }}</div>{% endfor %}
+          {% endfor %}
+        {% endif %}
+      </fieldset>
+    {% endif %}
+  {% endfor %}
+
+  <div class="d-print-none">
+    {% if editable %}
+      <button type="submit" class="btn btn-primary">{% if response %}Enregistrer les modifications{% else %}Envoyer mes réponses{% endif %}</button>
+      <a class="btn btn-link" href="{{ consultation.get_absolute_url }}">Annuler</a>
+    {% else %}
+      <a class="btn btn-link" href="{{ consultation.get_absolute_url }}">Retour à la consultation</a>
+    {% endif %}
+  </div>
+</form>
+{% endblock content %}
