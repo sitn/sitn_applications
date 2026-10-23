@@ -1094,6 +1094,8 @@ ph.check_relations = () => {
 
   let error;
   let errors = [];
+
+  // ERROR - Contrôler que tous les biens-fonds ont au moins une relation
   let sum_row;
   let sum_col;
   for (let row_id = 1; row_id < balance.rows.length; row_id++) {
@@ -1138,6 +1140,47 @@ ph.check_relations = () => {
     }
   }
 
+  // WARNING - Contrôle que les numéros des nouveaux biens-fonds soient supérieurs aux anciens numéros, par cadastre
+  let old_bf = {}
+  let new_bf = {}
+  let candidat
+  //garder seulement le plus petit numéro par cadastre
+  //anciens biens-fonds
+  for (let row_id = 1; row_id < balance.rows.length; row_id++) {
+    candidat = balance.rows[row_id].cells[0].innerText;
+    if (candidat.includes('_')) {
+      candidat = candidat.split(' ')[0].split('_');
+      if (old_bf[candidat[0]] && Number(candidat[1]) < old_bf[candidat[0]]) continue
+      old_bf[candidat[0]] = Number(candidat[1]);
+    }
+  }
+
+  //nouveaux biens-fonds
+  for (let col_id = 1; col_id < balance.rows[0].cells.length; col_id++) {
+    candidat = balance.rows[0].cells[col_id].innerText;
+    if (candidat.includes('_')) {
+      candidat = candidat.split(' ')[0].split('_');
+      if (new_bf[candidat[0]] && Number(candidat[1]) > new_bf[candidat[0]]) continue
+      new_bf[candidat[0]] = Number(candidat[1]);
+    }
+  }
+
+  //comparaison des numéros de biens-fonds par cadastre (anciens vs nouveaux)
+  warnings = [];
+  for (numcad in old_bf) {
+    if (new_bf[numcad] < old_bf[numcad]) {
+      warnings.push(` - Cadastre ${numcad}: (nouveau BF) ${new_bf[numcad]} < ${old_bf[numcad]} (ancien BF)`);
+    }
+  }
+
+  //création du message warning
+  if (warnings.length > 0) {
+    warnings = warnings.join('\n');
+    warnings = `Attention, certains nouveaux biens-fonds ont un plus petit numéro que les anciens:\n${warnings}`;
+    if (!confirm(warnings)) return;
+  }
+
+  //création du message d'erreur et confirmation
   if (errors.length>0) {
     result = confirm(`Erreurs dans la balance:\n\n${errors.join('\n')}\n\nContinuer l'enregistrement de la balance ?`);
     return result;
