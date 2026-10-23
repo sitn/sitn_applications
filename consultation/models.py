@@ -57,6 +57,7 @@ class Consultation(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
+        db_table = 'consultation\".\"consultation'
         ordering = ["-opens_on", "title"]
         verbose_name = "consultation"
         verbose_name_plural = "consultations"
@@ -81,6 +82,7 @@ class Chapter(models.Model):
     intro = rich_text_field("introduction")
 
     class Meta:
+        db_table = 'consultation\".\"chapter'
         ordering = ["position", "id"]
         verbose_name = "chapitre"
         verbose_name_plural = "chapitres"
@@ -98,6 +100,7 @@ class ChapterDocument(models.Model):
     position = models.PositiveIntegerField("ordre", default=0)
 
     class Meta:
+        db_table = 'consultation\".\"chapter_document'
         ordering = ["position", "id"]
         verbose_name = "document"
         verbose_name_plural = "documents"
@@ -122,6 +125,7 @@ class Questionnaire(models.Model):
     description = rich_text_field("description")
 
     class Meta:
+        db_table = 'consultation\".\"questionnaire'
         verbose_name = "questionnaire"
         verbose_name_plural = "questionnaires"
 
@@ -169,6 +173,7 @@ class Question(models.Model):
         help_text="Réponses courtes et longues ; vide = illimité.")
 
     class Meta:
+        db_table = 'consultation\".\"question'
         ordering = ["position", "id"]
         verbose_name = "question"
         verbose_name_plural = "questions"
@@ -197,6 +202,7 @@ class ResponseOption(models.Model):
     position = models.PositiveIntegerField("ordre", default=0)
 
     class Meta:
+        db_table = 'consultation\".\"response_option'
         ordering = ["position", "id"]
         verbose_name = "option de réponse"
         verbose_name_plural = "options de réponse"
@@ -211,6 +217,7 @@ class MatrixRow(models.Model):
     position = models.PositiveIntegerField("ordre", default=0)
 
     class Meta:
+        db_table = 'consultation\".\"matrix_row'
         ordering = ["position", "id"]
         verbose_name = "ligne de matrice"
         verbose_name_plural = "lignes de matrice"
@@ -226,6 +233,7 @@ class QuestionnaireResponse(models.Model):
     created_at = models.DateTimeField("date", auto_now_add=True)
 
     class Meta:
+        db_table = 'consultation\".\"questionnaire_response'
         ordering = ["-created_at"]
         verbose_name = "réponse au questionnaire"
         verbose_name_plural = "réponses aux questionnaires"
@@ -248,6 +256,7 @@ class Answer(models.Model):
     choices = models.JSONField(default=list, blank=True)
 
     class Meta:
+        db_table = 'consultation\".\"answer'
         ordering = ["question__position", "question_id"]
         verbose_name = "réponse"
         verbose_name_plural = "réponses"
@@ -279,6 +288,7 @@ class TaxonomyGroup(models.Model):
     position = models.PositiveIntegerField("ordre", default=0)
 
     class Meta:
+        db_table = 'consultation\".\"taxonomy_group'
         ordering = ["position", "name"]
         verbose_name = "groupe de taxonomies"
         verbose_name_plural = "groupes de taxonomies"
@@ -294,6 +304,7 @@ class Taxonomy(models.Model):
     position = models.PositiveIntegerField("ordre", default=0)
 
     class Meta:
+        db_table = 'consultation\".\"taxonomy'
         ordering = ["group__position", "group__name", "position", "name"]
         verbose_name = "taxonomie"
         verbose_name_plural = "taxonomies"
@@ -314,10 +325,12 @@ class Proposal(models.Model):
         "document (PDF ou image)", upload_to="consultation/proposals/", blank=True,
         validators=[FileExtensionValidator(PROPOSAL_FILE_EXTENSIONS)])
     geom = models.GeometryField("géométrie", srid=settings.DEFAULT_SRID, null=True, blank=True)
-    taxonomies = models.ManyToManyField(Taxonomy, blank=True, related_name="proposals", verbose_name="taxonomies")
+    taxonomies = models.ManyToManyField(Taxonomy, blank=True, related_name="proposals", verbose_name="taxonomies",
+                                        db_table='consultation\".\"proposal_taxonomies')
     position = models.PositiveIntegerField("ordre", default=0)
 
     class Meta:
+        db_table = 'consultation\".\"proposal'
         ordering = ["position", "reference", "id"]
         verbose_name = "mesure"
         verbose_name_plural = "mesures"
@@ -343,6 +356,7 @@ class Feedback(models.Model):
     created_at = models.DateTimeField("date", auto_now_add=True)
 
     class Meta:
+        db_table = 'consultation\".\"feedback'
         ordering = ["-created_at"]
         verbose_name = "avis"
         verbose_name_plural = "avis"
