@@ -46,6 +46,10 @@ class ConsultationAdmin(admin.ModelAdmin):
     search_fields = ["title"]
     prepopulated_fields = {"slug": ["title"]}
     inlines = [ChapterInline]
+    fieldsets = [
+        (None, {"fields": ["title", "slug", "about", "banner", "is_published", ("opens_on", "closes_on")]}),
+        ("Mesures", {"fields": ["measures_position", "measures_html"]}),
+    ]
 
     @admin.display(description="Mesures")
     def proposals_link(self, obj):

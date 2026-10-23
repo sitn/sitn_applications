@@ -100,6 +100,17 @@ class PublicPagesTest(ConsultationTestCase):
         self.assertContains(response, "Se connecter pour donner son avis")
         self.assertNotIn("form", response.context)
 
+    def test_measures_section_position(self):
+        self.chapter.position = 1
+        self.chapter.save()
+        last = Chapter.objects.create(consultation=self.consultation, title="Mise en oeuvre", position=3)
+        chapters = self.consultation.chapters.all()
+        self.assertEqual(self.consultation.sections(chapters), [self.chapter, last, None])
+        self.consultation.measures_position = 2
+        self.assertEqual(self.consultation.sections(chapters), [self.chapter, None, last])
+        self.consultation.measures_position = 0
+        self.assertEqual(self.consultation.sections(chapters), [None, self.chapter, last])
+
     def test_proposal_search_and_taxonomy_filters(self):
         regions = TaxonomyGroup.objects.create(name="Régions")
         scope = TaxonomyGroup.objects.create(name="Portée")

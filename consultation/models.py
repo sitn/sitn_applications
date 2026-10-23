@@ -50,6 +50,10 @@ class Consultation(models.Model):
         "bloc HTML des mesures", blank=True,
         help_text="HTML brut (par exemple un iframe) affiché en haut de la page des mesures, "
                   "sur toute la largeur et sur 400px de hauteur au maximum.")
+    measures_position = models.PositiveIntegerField(
+        "ordre de la section Mesures", null=True, blank=True,
+        help_text="Même numérotation que l'ordre des chapitres : la section Mesures s'affiche après les chapitres "
+                  "dont l'ordre est inférieur ou égal à cette valeur. Vide = après tous les chapitres.")
     is_published = models.BooleanField("publiée", default=False)
     opens_on = models.DateField("ouverture de la participation", null=True, blank=True)
     closes_on = models.DateField("clôture de la participation", null=True, blank=True)
@@ -67,6 +71,15 @@ class Consultation(models.Model):
 
     def get_absolute_url(self):
         return reverse("consultation:detail", args=[self.slug])
+
+    def sections(self, chapters):
+        """``chapters`` (ordered by position) with None where the measures section goes."""
+        sections = list(chapters)
+        index = len(sections)
+        if self.measures_position is not None:
+            index = next((i for i, c in enumerate(sections) if c.position > self.measures_position), index)
+        sections.insert(index, None)
+        return sections
 
     @property
     def is_open(self):

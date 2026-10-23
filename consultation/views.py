@@ -37,7 +37,7 @@ def consultation_detail(request, slug):
         ).values_list("questionnaire_id", flat=True))
     return render(request, "consultation/consultation_detail.html", {
         "consultation": consultation,
-        "chapters": chapters,
+        "sections": consultation.sections(chapters),
         "answered": answered,
         "proposal_count": consultation.proposals.count(),
     })

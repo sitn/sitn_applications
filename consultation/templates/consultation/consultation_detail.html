@@ -45,7 +45,17 @@
   </script>
 {% endif %}
 
-{% for chapter in chapters %}
+{% for chapter in sections %}
+{% if chapter is None %}
+  <section class="mb-5" id="mesures">
+    <h2>Mesures</h2>
+    <p>
+      <a class="btn btn-outline-primary" href="{% url 'consultation:proposals' consultation.slug %}">
+        Voir les {{ proposal_count }} mesure{{ proposal_count|pluralize }} et donner votre avis
+      </a>
+    </p>
+  </section>
+{% else %}
   <section class="mb-5 chapter" id="chapitre-{{ chapter.pk }}">
     <h2>{{ chapter.title }}</h2>
     {% if chapter.intro %}<div class="rich-text">{{ chapter.intro|safe }}</div>{% endif %}
@@ -97,14 +107,6 @@
       {% endwith %}
     {% endif %}
   </section>
+{% endif %}
 {% endfor %}
-
-<section class="mb-5" id="mesures">
-  <h2>Mesures</h2>
-  <p>
-    <a class="btn btn-outline-primary" href="{% url 'consultation:proposals' consultation.slug %}">
-      Voir les {{ proposal_count }} mesure{{ proposal_count|pluralize }} et donner votre avis
-    </a>
-  </p>
-</section>
 {% endblock content %}
