@@ -16,7 +16,7 @@ class PlanSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Plan
-        fields = ["id", "plan_number", "designation", "state", "date_plan", "operation_id"]
+        fields = ["id", "plan_number", "designation", "state", "date_plan", "operation_id", "link"]
 
     def get_operation_id(self, obj):
         op = Operation.objects.filter(plan=obj.id).first()
