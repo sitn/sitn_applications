@@ -131,9 +131,12 @@ python deploy intranet local
 
 ## Deploying on production
 
-Deployments are based on shared .env files. If your project requires migrations, the default user will not be able to create tables, so you must temporarily switch to a more privileged user.
+Deployments are based on shared .env files. 
 
-Then you'll be able to deploy your instance with `python deploy <context> <instance>`
+A dedicated `migrate` service starts, runs `python manage.py migrate`
+and stops.
+
+Images are tagged with the version found in the `VERSION` file. So change the version there wheneve needed, commit and then deploy.
 
 Example:
 
