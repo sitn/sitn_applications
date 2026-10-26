@@ -1,5 +1,5 @@
 import os
-import datetime, random, string, json, logging
+import datetime, secrets, string, json, logging
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import HttpResponse, FileResponse, Http404, HttpResponseForbidden
 from django.template import loader
@@ -294,7 +294,7 @@ def contact_principal(request):
     if not coherent:
         raise BadRequest("Localisation incohérente, merci de recommencer.")
 
-    login_code = ''.join(random.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits + '._-') for _ in range(16))
+    login_code = ''.join(secrets.choice(string.ascii_uppercase + string.ascii_lowercase + string.digits + '._-') for _ in range(16))
 
     contact_form.save()
     notaire_form.save()
@@ -569,7 +569,6 @@ def edit_geolocalisation(request, doc):
                 dossier_ppe.nummai = localisation_ppe["nummai"]
                 dossier_ppe.coord_E = localisation_ppe["coord_est"]
                 dossier_ppe.coord_N = localisation_ppe["coord_nord"]
-                dossier_ppe.date_creation = datetime.datetime.now()
                 dossier_ppe.geom = Point(localisation_ppe["coordinates"])
                 dossier_ppe.save()
                 return redirect("ppe:overview")

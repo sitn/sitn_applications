@@ -145,3 +145,6 @@ db/*
 # Node (used only to rebuild vendored JS bundles, e.g. panoview/vendor_build/)
 node_modules/
 package-lock.json
+
+# exclude doc
+ged/doc/
