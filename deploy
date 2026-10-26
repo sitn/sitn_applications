@@ -12,6 +12,13 @@ import shutil
 CONTEXTS = ["internet", "intranet"]
 ALLOWED_INSTANCES = ["prepub", "prod", "dev", "local"]
 APP_NAME = "sitn_applications"
+VERSION_FILE = Path(__file__).resolve().parent / "VERSION"
+
+def read_version():
+    version = VERSION_FILE.read_text().strip()
+    if not re.fullmatch(r"\d+\.\d+\.\d+", version):
+        sys.exit(f"Version invalide dans {VERSION_FILE}: {version}")
+    return version
 
 def fetch_last_env(env_file_name):
     print(f"Mise à jour du fichier {env_file_name}")
@@ -20,12 +27,14 @@ def fetch_last_env(env_file_name):
         os.environ["SITN_ENV_PATH"] = input("Ou se trouve le dossier des environnements de déploiement?")
 
     env_file_path = f"{os.environ['SITN_ENV_PATH']}/{APP_NAME}/{env_file_name}"
+    migrate_env_file_path = f"{os.environ['SITN_ENV_PATH']}/{APP_NAME}/.env.migrate"
 
     if not os.path.isfile(env_file_path):
         print(f"💥 {env_file_path} n'existe pas.")
         sys.exit(f"ERREUR: {env_file_path} pas à jour!")
     
     shutil.copy(env_file_path, ".")
+    shutil.copy(migrate_env_file_path, ".")
 
 def check_settings_file(dest_instance):
     # Do not deploy to the internet with DEBUG set to True
@@ -62,6 +71,10 @@ def main():
 
     os.environ['ENV_FILE'] = env_file
     load_dotenv(Path(env_file), override=True)
+
+    version = read_version()
+    os.environ['IMAGE_TAG'] = version
+    print(f"Version de l'image: {version}")
 
     dest_docker_host = os.environ['DOCKER_HOST']
     os.environ['DOCKER_HOST'] = ""
