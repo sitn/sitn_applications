@@ -1,0 +1,9 @@
+{% if consultation.opens_on or consultation.closes_on %}
+  <p class="text-muted small mb-2">
+    <i class="bi bi-calendar-event"></i>
+    Participation
+    {% if consultation.opens_on %}du {{ consultation.opens_on|date:"j F Y" }}{% endif %}
+    {% if consultation.closes_on %}au {{ consultation.closes_on|date:"j F Y" }}{% endif %}
+    {% if not consultation.is_open %}<span class="badge text-bg-secondary ms-1">close</span>{% endif %}
+  </p>
+{% endif %}

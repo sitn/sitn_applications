@@ -1,0 +1,16 @@
+{% extends "consultation/base.html" %}
+
+{% block content %}
+<h1 class="mb-4">Consultations</h1>
+{% for consultation in consultations %}
+  <article class="card mb-3">
+    <div class="card-body">
+      <h2 class="h4 card-title"><a href="{{ consultation.get_absolute_url }}">{{ consultation.title }}</a></h2>
+      {% include "consultation/_dates.html" %}
+      <p class="card-text">{{ consultation.about|striptags|truncatewords:50 }}</p>
+    </div>
+  </article>
+{% empty %}
+  <p>Aucune consultation en cours.</p>
+{% endfor %}
+{% endblock content %}

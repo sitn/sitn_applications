@@ -1,0 +1,112 @@
+{% extends "consultation/base.html" %}
+
+{% block title %}{{ consultation.title }}{% endblock title %}
+
+{% block breadcrumb %}
+<nav aria-label="Fil d'Ariane"><ol class="breadcrumb">
+  <li class="breadcrumb-item"><a href="{% url 'consultation:list' %}">Consultations</a></li>
+  <li class="breadcrumb-item active" aria-current="page">{{ consultation.title }}</li>
+</ol></nav>
+{% endblock breadcrumb %}
+
+{% block banner %}
+{% if consultation.banner %}
+  <img class="consultation-banner" src="{% url 'consultation:banner_file' consultation.slug %}" alt="">
+{% endif %}
+{% endblock banner %}
+
+{% block content %}
+<h1>{{ consultation.title }}</h1>
+{% include "consultation/_dates.html" %}
+
+{% if consultation.about %}
+  <section class="mb-5" id="about">
+    <h2>À propos</h2>
+    <div class="rich-text collapsible" id="about-text">{{ consultation.about|safe }}</div>
+    <button type="button" class="btn btn-link px-0 d-none d-print-none" id="about-toggle"
+            aria-controls="about-text" aria-expanded="false">Voir plus</button>
+  </section>
+  <script>
+    (function () {
+      const text = document.getElementById("about-text");
+      const toggle = document.getElementById("about-toggle");
+      text.classList.add("is-collapsed");
+      if (text.scrollHeight <= text.clientHeight) {
+        text.classList.remove("is-collapsed");
+        return;
+      }
+      toggle.classList.remove("d-none");
+      toggle.addEventListener("click", function () {
+        const collapsed = text.classList.toggle("is-collapsed");
+        toggle.textContent = collapsed ? "Voir plus" : "Voir moins";
+        toggle.setAttribute("aria-expanded", String(!collapsed));
+      });
+    })();
+  </script>
+{% endif %}
+
+{% for chapter in sections %}
+{% if chapter is None %}
+  <section class="mb-5" id="mesures">
+    <h2>Mesures</h2>
+    <p>
+      <a class="btn btn-outline-primary" href="{% url 'consultation:proposals' consultation.slug %}">
+        Voir les {{ proposal_count }} mesure{{ proposal_count|pluralize }} et donner votre avis
+      </a>
+    </p>
+  </section>
+{% else %}
+  <section class="mb-5 chapter" id="chapitre-{{ chapter.pk }}">
+    <h2>{{ chapter.title }}</h2>
+    {% if chapter.intro %}<div class="rich-text">{{ chapter.intro|safe }}</div>{% endif %}
+
+    {% if chapter.documents.all %}
+      <h3 class="h5 mt-3">Documents</h3>
+      <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-3">
+        {% for document in chapter.documents.all %}
+          {% url 'consultation:document_file' consultation.slug document.pk as document_url %}
+          <div class="col">
+            <article class="card h-100 document-card">
+              <div class="card-body d-flex align-items-start gap-3">
+                <i class="bi {{ document.icon }} document-icon" aria-hidden="true"></i>
+                <div class="flex-grow-1">
+                  <h4 class="h6 card-title mb-1">
+                    <a href="{{ document_url }}" target="_blank" rel="noopener">{{ document.title }}</a>
+                  </h4>
+                  <span class="text-muted small">{{ document.extension }}</span>
+                </div>
+              </div>
+              <div class="card-footer bg-transparent border-0 pt-0">
+                <a class="btn btn-sm btn-outline-primary" href="{{ document_url }}?telecharger">
+                  <i class="bi bi-download"></i> Télécharger
+                </a>
+              </div>
+            </article>
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% if chapter.questionnaire %}
+      {% with questionnaire=chapter.questionnaire %}
+      <div class="card mt-3"><div class="card-body">
+        <h3 class="h5"><i class="bi bi-ui-checks"></i> {{ questionnaire.title }}</h3>
+        {% if questionnaire.description %}<div class="rich-text">{{ questionnaire.description|safe }}</div>{% endif %}
+        {% if questionnaire.pk in answered %}
+          <p class="text-success"><i class="bi bi-check-circle"></i> Vous avez répondu à ce questionnaire. Merci !</p>
+          <a class="btn btn-outline-primary" href="{% url 'consultation:questionnaire' consultation.slug chapter.pk %}">
+            {% if consultation.is_open %}Voir et modifier mes réponses{% else %}Voir mes réponses{% endif %}
+          </a>
+        {% elif not consultation.is_open %}
+          <p class="mb-0 text-muted">La participation est close.</p>
+        {% else %}
+          <a class="btn btn-primary" href="{% url 'consultation:questionnaire' consultation.slug chapter.pk %}">Répondre au questionnaire</a>
+          {% if not user.is_authenticated %}<span class="text-muted small ms-2">(connexion requise)</span>{% endif %}
+        {% endif %}
+      </div></div>
+      {% endwith %}
+    {% endif %}
+  </section>
+{% endif %}
+{% endfor %}
+{% endblock content %}
