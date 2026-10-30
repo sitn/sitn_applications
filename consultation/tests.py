@@ -188,11 +188,25 @@ class QuestionnaireTest(ConsultationTestCase):
         self.assertEqual(form[f"q{q['sorting'].pk}_o{self.sort[1].pk}"].value(), "1")
         self.assertEqual(form[f"q{q['matrix'].pk}_r{self.matrix_row.pk}"].value(), str(self.matrix_options[1].pk))
 
+        first_date = questionnaire.responses.get().created_at
         data = self.valid_answers(q)
         data[f"q{q['short'].pk}"] = "Boudry"
         self.client.post(url, data)
         self.assertEqual(questionnaire.responses.count(), 1)
         self.assertEqual(Answer.objects.get(question=q["short"]).text, "Boudry")
+        self.assertGreater(questionnaire.responses.get().created_at, first_date)
+
+    def test_double_submission_keeps_last_answers(self):
+        questionnaire, q = self.build_questionnaire()
+        url = reverse("consultation:questionnaire", args=["vtt", self.chapter.pk])
+        self.client.force_login(self.alice)
+        # Both submissions start from the same form, without an existing response
+        first, second = self.valid_answers(q), self.valid_answers(q)
+        second[f"q{q['short'].pk}"] = "Boudry"
+        self.client.post(url, first)
+        self.client.post(url, second)
+        self.assertEqual(questionnaire.responses.count(), 1)
+        self.assertEqual(Answer.objects.filter(question=q["short"]).get().text, "Boudry")
 
     def test_closed_consultation_shows_answers_read_only(self):
         _, q = self.build_questionnaire()

@@ -5,10 +5,11 @@ from urllib.parse import urlencode
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
-from django.db import IntegrityError, transaction
+from django.db import transaction
 from django.db.models import Q
 from django.http import FileResponse, Http404
 from django.shortcuts import get_object_or_404, redirect, render
+from django.utils import timezone
 from django.views.decorators.clickjacking import xframe_options_sameorigin
 
 from .forms import FeedbackForm, QuestionnaireForm
@@ -56,16 +57,13 @@ def questionnaire(request, slug, chapter_id):
     data = request.POST if editable and request.method == "POST" else None
     form = QuestionnaireForm(data, questionnaire=questionnaire, response=response, disabled=not editable)
     if data is not None and form.is_valid():
-        try:
-            with transaction.atomic():
-                if response is None:
-                    response = QuestionnaireResponse.objects.create(questionnaire=questionnaire, user=request.user)
-                else:
-                    response.answers.all().delete()
-                form.save(response)
-        except IntegrityError:
-            # Double submission: the unique constraint already holds a response
-            pass
+        with transaction.atomic():
+            response, _ = QuestionnaireResponse.objects.get_or_create(questionnaire=questionnaire, user=request.user)
+            response = QuestionnaireResponse.objects.select_for_update().get(pk=response.pk)
+            response.answers.all().delete()
+            form.save(response)
+            response.created_at = timezone.now()
+            response.save(update_fields=["created_at"])
         messages.success(request, "Merci, vos réponses ont été enregistrées.")
         return redirect(consultation)
     return render(request, "consultation/questionnaire.html", {
