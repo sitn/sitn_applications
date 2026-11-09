@@ -64,5 +64,6 @@ class St23HealthSiteSerializer(serializers.ModelSerializer):
     class Meta:
         model = St23HealthSite
         fields = [
-            'site_name', 'address', 'public_link'
+            'site_name', 'address', 'public_link',
+            'has_pediatrics', 'has_psychiatry', 'has_on_call_service'
         ]

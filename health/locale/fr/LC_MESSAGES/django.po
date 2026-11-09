@@ -104,3 +104,15 @@ msgstr "Adresse"
 
 msgid "St23HealthSite"
 msgstr "Site"
+
+msgid "has_pediatrics"
+msgstr "Pédiatrie?"
+
+msgid "has_psychiatry"
+msgstr "Psychiatrie?"
+
+msgid "has_on_call_service"
+msgstr "Permanence?"
+
+msgid "is_requested_by_email"
+msgstr "Rappel des médecins par email?"

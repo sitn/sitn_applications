@@ -188,6 +188,10 @@ class St23HealthSite(models.Model):
     public_link = models.URLField(_("public_link"), blank=True, max_length=255)
     address = models.CharField(_("address"), max_length=255)
     appointment_link = models.CharField(_("appointment_link"), blank=True, null=True, max_length=2000)
+    has_pediatrics = models.BooleanField(_("has_pediatrics"), default=False)
+    has_psychiatry = models.BooleanField(_("has_psychiatry"), default=False)
+    has_on_call_service = models.BooleanField(_("has_on_call_service"), default=False)
+    is_requested_by_email = models.BooleanField(_("is_requested_by_email"), default=False)
 
     class Meta:
         db_table = 'sante\".\"st23_health_site'

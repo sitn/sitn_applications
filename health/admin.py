@@ -1,9 +1,22 @@
+from urllib.parse import quote, urlencode
+
 from django.contrib import admin
+from django.utils.html import format_html
 from health.models import (
     St20AvailableDoctors,
     St21AvailableDoctorsWithGeom,
     St22DoctorChangeSuggestion,
     St23HealthSite
+)
+
+THANK_REQUESTOR_SUBJECT = 'Votre suggestion de modification'
+THANK_REQUESTOR_BODY = (
+    'Madame, Monsieur,\n\n'
+    'Nous vous remercions de votre message.\n\n'
+    'Les modifications ont été faites. La synchronisation avec la plateforme '
+    'de cartographie se fait de manière hebdomadaire en fin de semaine. '
+    'Les modifications seront donc visibles à ce moment-là.\n\n'
+    'Cordialement,\n'
 )
 
 
@@ -72,6 +85,25 @@ class St22DoctorChangeSuggestionAdmin(admin.ModelAdmin):
         'is_done',
     ]
     ordering = ['is_done']
+    readonly_fields = ['thank_requestor']
+
+    @admin.display(description='Remerciement')
+    def thank_requestor(self, instance):
+        if not instance.pk or not instance.requestor:
+            return format_html(
+                '<button type="button" class="button" disabled>{}</button>',
+                'Remercier le demandeur'
+            )
+        query = urlencode(
+            {'subject': THANK_REQUESTOR_SUBJECT, 'body': THANK_REQUESTOR_BODY},
+            quote_via=quote
+        )
+        return format_html(
+            '<a class="button" href="mailto:{}?{}">{}</a>',
+            instance.requestor,
+            query,
+            'Remercier le demandeur'
+        )
 
 
 class St23HealthSiteAdmin(admin.ModelAdmin):
@@ -79,7 +111,9 @@ class St23HealthSiteAdmin(admin.ModelAdmin):
     list_display = [
         'site_name',
         'address',
+        'is_requested_by_email',
     ]
+    list_filter = ['is_requested_by_email']
     ordering = ['site_name']
 
 admin.site.register(St22DoctorChangeSuggestion, St22DoctorChangeSuggestionAdmin)
