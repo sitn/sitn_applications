@@ -42,13 +42,13 @@
     {% elif zip.file_statut in 'CMS,CMC' %}
     <td {% if user.is_authenticated %} colspan="3" {% else %} colspan="2" {% endif %} class="alert alert-danger">
         Votre dossier est en cours de contrôle par l'un de nos collaborateurs, qui prendra contact avec vous 
-        dans un délai de 10 jours ouvrables. Vous ne pouvez plus modifier votre dossier pour le moment.
+        dans un délai de 15 jours ouvrables. Vous ne pouvez plus modifier votre dossier pour le moment.
     </td>
 
     {% elif zip.file_statut == "CMV" %}
     <td {% if user.is_authenticated %} colspan="3" {% else %} colspan="2" {% endif %} class="alert alert-danger">
         Votre dossier est validé. Vous pouvez désormais télécharger les documents définitifs, 
-        les imprimer en deux exemplaires et nous les transmettre par courrier.
+        les imprimer en un exemplaire et nous le transmettre par courrier.
     </td>
 </tr>
 <tr>
