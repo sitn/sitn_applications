@@ -289,7 +289,8 @@ document.getElementById("create-ddp").onclick = () => {
 
   const ddp = [ph.activecadastre, ddp_number].join("_");
   const base = [ph.activecadastre, ddp_base_number].join("_");
-  ph.createNewHTMLddp(ddp, base);
+  const immatriculation = document.getElementById("ddp-immatriculation").checked;
+  ph.createNewHTMLddp(ddp, base, immatriculation);
 }
 
 document.getElementById("load-operation").onclick = () => {
@@ -802,7 +803,7 @@ ph.buildHTMLTable = (balance) => {
   return tb_html;
 }
 
-ph.createNewHTMLddp = (ddp, base) => {
+ph.createNewHTMLddp = (ddp, base, immatriculation = true) => {
   const ddp_span_id = `${base}-${ddp}`;
   let ddp_section = document.getElementById("ddp-section");
 
@@ -813,8 +814,11 @@ ph.createNewHTMLddp = (ddp, base) => {
     }
   }
 
-  ddp_section.innerHTML += `<span id="${ddp_span_id}" class="badge rounded-pill bg-primary m-1"><span style="font-size: 1.5em">
-                              ${ddp}</span>/${base}
+  const mode_title = immatriculation ? "Immatriculation" : "Exmatriculation";
+  const mode_class = immatriculation ? "bg-primary": "bg-danger";
+  const mode_sign = immatriculation ? "+" : "-";
+  ddp_section.innerHTML += `<span id="${ddp_span_id}" data-immatriculation="${immatriculation}" title="${mode_title}" class="badge rounded-pill ${mode_class} m-1"><span style="font-size: 1.5em">
+                              ${mode_sign} ${ddp}</span>/${base}
                               <button id="close" onclick="this.parentElement.remove()" class="rounded-circle" style="border: 0px; margin-left: 5px;">X</button>
                             </span>`
 }
@@ -1086,6 +1090,7 @@ ph.reset_step2 = () => {
   document.getElementById("input-balance-from-file").value = "";
   document.getElementById("ddp-number").value = "";
   document.getElementById("ddp-base-number").value = "";
+  document.getElementById("ddp-immatriculation").checked = true;
   document.getElementById("ddp-section").innerHTML = "";
   document.getElementById("tableau-balance").innerHTML = "";
 }
