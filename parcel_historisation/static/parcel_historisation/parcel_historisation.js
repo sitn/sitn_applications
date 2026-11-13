@@ -739,6 +739,7 @@ ph.resetSubmitForm = async (div) => {
     if (ph.active_operation_id) {
       ph.loadBalance();
     }
+    ph.loadSavedPlansList();
   } else {
     document.getElementById("operation_id_title_section").hidden = true;
     document.getElementById("choose_cadastre").click();
@@ -1161,6 +1162,7 @@ ph.reset_step1 = () => {
   // Reset form div
   document.getElementById("operation_id_title_section").hidden = true;
   document.getElementById("operation_id_title").innerText = "";
+  document.getElementById("saved-plans-section").hidden = true;
   document.getElementById("step2").style.display = "none";
   document.getElementById("input-continuation-checkbox").checked = false;
   document.getElementById("operation-continue-section").hidden = true;
@@ -1185,6 +1187,78 @@ ph.reset_step2 = () => {
   document.getElementById("ddp-immatriculation").checked = true;
   document.getElementById("ddp-section").innerHTML = "";
   document.getElementById("tableau-balance").innerHTML = "";
+  document.getElementById("saved-plans-select").innerHTML = "";
+}
+
+
+// Fills the select with the plans having the same plan number as the current one
+// (other index / scale) which already have a balance / DDP.
+ph.loadSavedPlansList = () => {
+  const section = document.getElementById("saved-plans-section");
+  const select = document.getElementById("saved-plans-select");
+  select.innerHTML = "";
+  section.hidden = true;
+
+  if (!ph.active_operation_id) {
+    return;
+  }
+
+  fetch("saved_balances?" + new URLSearchParams({ operation_id: ph.active_operation_id }))
+    .then((response) => response.json())
+    .then((data) => {
+      if (!Array.isArray(data) || data.length === 0) {
+        return;
+      }
+
+      const placeholder = document.createElement("option");
+      placeholder.value = "";
+      placeholder.innerText = "— Choisir un plan —";
+      select.append(placeholder);
+
+      for (const item of data) {
+        const option = document.createElement("option");
+        option.value = item.operation_id;
+        option.innerText = item.plan_link;
+        select.append(option);
+      }
+
+      section.hidden = false;
+    })
+    .catch((err) => {
+      alert("Une erreur est survenue dans le chargement des plans déjà saisis.\nVeuillez contacter l'administrateur.\n\n" + String(err));
+    });
+}
+
+// Displays the balance + DDP of the selected plan in the current form (they are saved
+// for the current plan only when clicking on "Enregistrer")
+document.getElementById("saved-plans-select").onchange = (e) => {
+  const operation_id = e.target.value;
+  if (!operation_id) {
+    return;
+  }
+
+  const has_data = document.getElementById("tableau-balance").innerHTML.trim() !== ""
+    || document.getElementById("ddp-section").innerHTML.trim() !== "";
+  const plan_link = e.target.options[e.target.selectedIndex].innerText;
+  if (has_data && !confirm(`La balance et les DDP affichés vont être remplacés par ceux du plan ${plan_link}.\n\nContinuer ?`)) {
+    e.target.value = "";
+    return;
+  }
+
+  fetch(`api/balance/${operation_id}`)
+    .then((response) => response.json())
+    .then((data) => {
+      document.getElementById("tableau-balance").innerHTML = data.balance ? ph.buildHTMLTable(data.balance) : "";
+      document.getElementById("ddp-section").innerHTML = "";
+      let bf;
+      for (const elem of data.ddp) {
+        bf = elem.relation.split("-");
+        ph.createNewHTMLddp(bf[1], bf[0], elem.immatriculation);
+      }
+    })
+    .catch((err) => {
+      alert(`Une erreur est survenue dans le chargement de la balance du plan ${plan_link}.\nVeuillez contacter l'administrateur.\n\n` + String(err));
+    });
 }
 
 

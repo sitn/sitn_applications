@@ -605,6 +605,47 @@ class OperationViewSet(viewsets.ModelViewSet):
 
 
 @permission_required("parcel_historisation.view_designation", raise_exception=True)
+def saved_balances(request):
+    """
+    List the other operations of the same plan number (same cadastre, any index / scale)
+    which already have a balance and/or DDP, so that their balance can be copied
+    into the current operation
+    """
+    try:
+        operation = Operation.objects.select_related("plan").get(id=int(request.GET["operation_id"]))
+    except (KeyError, ValueError, Operation.DoesNotExist):
+        return JsonResponse({"error": "operation_id manquant ou invalide"}, status=400)
+
+    if operation.plan is None:
+        return JsonResponse([], safe=False)
+
+    # control rows (submit_control) have no division: only keep the balances of an operation
+    operations = (
+        Operation.objects.filter(
+            plan__cadastre=operation.plan.cadastre,
+            plan__plan_number=operation.plan.plan_number,
+            balance__division__isnull=False,
+        )
+        .exclude(id=operation.id)
+        .select_related("plan")
+        .distinct()
+        .order_by("plan__index", "plan__scale")
+    )
+
+    results = [
+        {
+            "operation_id": operation.id,
+            "plan_link": operation.plan.link,
+            "plan_number": operation.plan.plan_number,
+            "index": operation.plan.index,
+        }
+        for operation in operations
+    ]
+
+    return JsonResponse(results, safe=False)
+
+
+@permission_required("parcel_historisation.view_designation", raise_exception=True)
 def liberate(request):
     """
     Liberate an operation (give again access to it)
