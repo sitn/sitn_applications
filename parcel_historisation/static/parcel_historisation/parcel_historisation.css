@@ -2,6 +2,35 @@
   display: none;
 }
 
+/* Parcel / DDP entry fields (balance and DDP forms): fixed widths instead of the
+   Bootstrap input-group stretching. Numbers inputs have spin buttons (~1.5rem). */
+.input-group > .form-control.bf-number {
+  flex: 0 0 auto;
+  width: calc(10ch + 3rem); /* at least 10 characters */
+}
+
+.input-group > .form-control.bf-index {
+  flex: 0 0 auto;
+  width: calc(2ch + 1.5rem); /* about 2 characters */
+  text-align: center;
+}
+
+.input-group > .form-control.bf-serie {
+  flex: 0 0 auto;
+  width: calc(5ch + 3rem); /* about 5 characters */
+}
+
+/* same label width so that the old and new parcels fields are aligned */
+.input-group > .bf-label {
+  width: 13rem;
+}
+
+/* DDP form on one line: horizontal scroll instead of wrapping on narrow screens */
+.ddp-form-line {
+  overflow-x: auto;
+  padding-bottom: 2px; /* keeps the focus outline visible */
+}
+
 .pull-right {
   text-align: right;
 }

@@ -203,24 +203,24 @@
                   <div class="accordion-body">
 
                     <div class="row mt-3 mb-3 g-0" style="margin-bottom: 0px;">
-                      <div class="col">
+                      <div class="col-auto">
                         <div class="input-group">
-                            <span class="input-group-text" id="basic-addon1">Anciens biens-fonds : </span>
-                          <input id="balance-old-bf" type="number" min="1" step="1" class="form-control" aria-label="old_bf" aria-describedby="basic-addon1" placeholder=""></input>
+                            <span class="input-group-text bf-label" id="basic-addon1">Anciens biens-fonds : </span>
+                          <input id="balance-old-bf" type="number" min="1" step="1" class="form-control bf-number" aria-label="old_bf" aria-describedby="basic-addon1" placeholder=""></input>
                           <!-- optional index letter (A-Z): blocks the series -->
                           <span class="input-group-text">Index : </span>
-                          <input id="balance-old-bf-index" type="text" maxlength="1" pattern="[A-Za-z]" class="form-control bf-index" style="max-width: 4em; text-transform: uppercase;" aria-label="old_bf_index" title="Une seule lettre de A à Z (facultatif)" placeholder="-"></input>
+                          <input id="balance-old-bf-index" type="text" maxlength="1" pattern="[A-Za-z]" class="form-control bf-index" style="text-transform: uppercase;" aria-label="old_bf_index" title="Une seule lettre de A à Z (facultatif)" placeholder="-"></input>
                         <!-- </div>
                       </div>
 
                       <div class="col">
                         <div class="input-group"> -->
                             <span class="input-group-text" id="basic-addon1">Série : </span>
-                          <input id="balance-old-bf-serie" type="number" min="1" step="1" value="1" class="form-control" aria-label="old_bf_serie" aria-describedby="basic-addon1" placeholder=""></input>
+                          <input id="balance-old-bf-serie" type="number" min="1" step="1" value="1" class="form-control bf-serie" aria-label="old_bf_serie" aria-describedby="basic-addon1" placeholder=""></input>
                         </div>
                       </div>
 
-                      <div class="col">
+                      <div class="col ps-3">
                         <button id="balance-add-old-bf" type="button" style="margin-right: 2em;" class="btn btn-primary">OK</button>
                         /
                         <button id="balance-add-old-dp" type="button" style="margin-left: 2em;" class="btn btn-primary">dp</button>
@@ -228,24 +228,24 @@
                     </div>
 
                     <div class="row mt-3 mb-3 g-0" style="margin-bottom: 0px;">
-                      <div class="col">
+                      <div class="col-auto">
                         <div class="input-group">
-                            <span class="input-group-text" id="basic-addon1">Nouveaux biens-fonds : </span>
-                          <input id="balance-new-bf" type="number" min="1" step="1" class="form-control" aria-label="new_bf" aria-describedby="basic-addon1" placeholder=""></input>
+                            <span class="input-group-text bf-label" id="basic-addon1">Nouveaux biens-fonds : </span>
+                          <input id="balance-new-bf" type="number" min="1" step="1" class="form-control bf-number" aria-label="new_bf" aria-describedby="basic-addon1" placeholder=""></input>
                           <!-- optional index letter (A-Z): blocks the series -->
                           <span class="input-group-text">Index : </span>
-                          <input id="balance-new-bf-index" type="text" maxlength="1" pattern="[A-Za-z]" class="form-control bf-index" style="max-width: 4em; text-transform: uppercase;" aria-label="new_bf_index" title="Une seule lettre de A à Z (facultatif)" placeholder="-"></input>
+                          <input id="balance-new-bf-index" type="text" maxlength="1" pattern="[A-Za-z]" class="form-control bf-index" style="text-transform: uppercase;" aria-label="new_bf_index" title="Une seule lettre de A à Z (facultatif)" placeholder="-"></input>
                         <!-- </div>
                       </div>
 
                       <div class="col">
                         <div class="input-group"> -->
                             <span class="input-group-text" id="basic-addon1">Série : </span>
-                          <input id="balance-new-bf-serie" type="number" min="1" step="1" value="1" class="form-control" aria-label="new_bf_serie" aria-describedby="basic-addon1" placeholder=""></input>
+                          <input id="balance-new-bf-serie" type="number" min="1" step="1" value="1" class="form-control bf-serie" aria-label="new_bf_serie" aria-describedby="basic-addon1" placeholder=""></input>
                         </div>
                       </div>
 
-                      <div class="col">
+                      <div class="col ps-3">
                         <button id="balance-add-new-bf" type="button" style="margin-right: 2em;" class="btn btn-primary">OK</button>
                         /
                         <button id="balance-add-new-dp" type="button" style="margin-left: 2em;" class="btn btn-primary">dp</button>
@@ -279,34 +279,29 @@
                 </h2>
                 <div id="collapseDDP" class="accordion-collapse collapse" aria-labelledby="headingDDP" data-bs-parent="#accordionExample">
                   <div class="accordion-body">
-                    <div class="row">
-                      <div class="col">
-                        <div class="input-group mb-3">
+                    <!-- all DDP fields on one line (scrolls horizontally if the window is too narrow) -->
+                    <div class="d-flex flex-nowrap align-items-center gap-3 mb-3 ddp-form-line">
+                        <div class="input-group flex-nowrap w-auto">
                           <!-- DDP number -->
                             <span class="input-group-text" id="basic-addon1">DDP : </span>
-                          <input id="ddp-number" type="number" min="0" step="1" class="form-control" placeholder="Numéro de DDP">
+                          <input id="ddp-number" type="number" min="0" step="1" class="form-control bf-number" placeholder="Numéro de DDP">
                           <!-- optional index letter (A-Z) of the DDP -->
                           <span class="input-group-text">Index : </span>
-                          <input id="ddp-index" type="text" maxlength="1" pattern="[A-Za-z]" class="form-control bf-index" style="max-width: 4em; text-transform: uppercase;" aria-label="ddp_index" title="Une seule lettre de A à Z (facultatif)" placeholder="-">
+                          <input id="ddp-index" type="text" maxlength="1" pattern="[A-Za-z]" class="form-control bf-index" style="text-transform: uppercase;" aria-label="ddp_index" title="Une seule lettre de A à Z (facultatif)" placeholder="-">
                           <!-- Base parcel -->
                             <span class="input-group-text" id="basic-addon1">Bf de base : </span>
-                          <input id="ddp-base-number" type="number" min="0" step="1" class="form-control" placeholder="Bien-fonds de base">
+                          <input id="ddp-base-number" type="number" min="0" step="1" class="form-control bf-number" placeholder="Bien-fonds de base">
                           <!-- optional index letter (A-Z) of the base parcel -->
                           <span class="input-group-text">Index : </span>
-                          <input id="ddp-base-index" type="text" maxlength="1" pattern="[A-Za-z]" class="form-control bf-index" style="max-width: 4em; text-transform: uppercase;" aria-label="ddp_base_index" title="Une seule lettre de A à Z (facultatif)" placeholder="-">
+                          <input id="ddp-base-index" type="text" maxlength="1" pattern="[A-Za-z]" class="form-control bf-index" style="text-transform: uppercase;" aria-label="ddp_base_index" title="Une seule lettre de A à Z (facultatif)" placeholder="-">
                         </div>
-                      </div>
-                      <div class="col pl-2">
-                        <div class="d-flex align-items-start">
-                          <!-- Exmatriculation / immatriculation switch (checked = immatriculation) -->
-                          <div class="input-group-text form-switch ps-3 pe-3 me-3">
-                            <label class="form-check-label me-2" for="ddp-immatriculation">Exmatriculation</label>
-                            <input id="ddp-immatriculation" class="form-check-input m-0" type="checkbox" role="switch" checked>
-                            <label class="form-check-label ms-2" for="ddp-immatriculation">Immatriculation</label>
-                          </div>
-                          <button id="create-ddp" class="btn btn-primary">Ajouter</button>
+                        <!-- Exmatriculation / immatriculation switch (checked = immatriculation) -->
+                        <div class="input-group-text form-switch ps-3 pe-3 flex-shrink-0">
+                          <label class="form-check-label me-2" for="ddp-immatriculation">Exmatriculation</label>
+                          <input id="ddp-immatriculation" class="form-check-input m-0" type="checkbox" role="switch" checked>
+                          <label class="form-check-label ms-2" for="ddp-immatriculation">Immatriculation</label>
                         </div>
-                      </div>
+                        <button id="create-ddp" class="btn btn-primary flex-shrink-0">Ajouter</button>
                     </div>
                   </div>
                 </div>
