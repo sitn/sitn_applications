@@ -8,7 +8,9 @@ from rest_framework import viewsets, filters
 from rest_framework.decorators import api_view, parser_classes
 from rest_framework.parsers import MultiPartParser, FormParser
 from rest_framework.response import Response
-from openpyxl import load_workbook
+from openpyxl import Workbook, load_workbook
+from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
+from openpyxl.utils import get_column_letter
 from io import BytesIO
 
 import json
@@ -376,76 +378,198 @@ def submit_balance(request):
 
 
 @permission_required("parcel_historisation.view_designation", raise_exception=True)
+def export_balance_excel(request):
+    """
+    Export the balance displayed in the frontend (and its DDP) to an Excel file,
+    keeping the layout of the HTML table.
+    """
+    if request.method != "POST":
+        return HttpResponse(status=405)
+
+    data = json.loads(request.body)
+    balance = data.get("balance") or []
+    ddp = data.get("ddp") or []
+
+    thin = Side(style="thin", color="000000")
+    border = Border(left=thin, right=thin, top=thin, bottom=thin)
+    bold = Font(bold=True)
+
+    wb = Workbook()
+
+    # Balance sheet: old parcels in rows, new parcels in columns
+    ws = wb.active
+    ws.title = "Balance"
+    for i, row in enumerate(balance):
+        for j, value in enumerate(row):
+            cell = ws.cell(row=i + 1, column=j + 1, value=value or None)
+            if i == 0 and j == 0:
+                continue
+            cell.border = border
+            if i == 0:
+                # new parcels: vertical text, like the rotated header in the frontend
+                cell.alignment = Alignment(horizontal="center", vertical="bottom", text_rotation=90)
+                cell.font = bold
+            elif j == 0:
+                cell.alignment = Alignment(horizontal="right", vertical="center")
+                cell.font = bold
+            else:
+                cell.alignment = Alignment(horizontal="center", vertical="center")
+
+    if balance:
+        ws.column_dimensions["A"].width = max(len(str(row[0] or "")) for row in balance) + 4
+        for j in range(1, len(balance[0])):
+            ws.column_dimensions[get_column_letter(j + 1)].width = 5
+        header_length = max(len(str(value or "")) for value in balance[0])
+        ws.row_dimensions[1].height = max(15, header_length * 7)
+        ws.freeze_panes = "B2"
+
+    # DDP sheet, colored like the badges in the frontend
+    if ddp:
+        ws_ddp = wb.create_sheet("DDP")
+        headers = ["Statut", "DDP", "Bien-fonds de base"]
+        for j, header in enumerate(headers):
+            cell = ws_ddp.cell(row=1, column=j + 1, value=header)
+            cell.font = bold
+            cell.border = border
+        fills = {
+            True: PatternFill(fill_type="solid", start_color="0D6EFD", end_color="0D6EFD"),
+            False: PatternFill(fill_type="solid", start_color="DC3545", end_color="DC3545"),
+        }
+        for i, item in enumerate(ddp):
+            base, ddp_number = item["relation"].split("-")
+            immatriculation = bool(item["immatriculation"])
+            values = ["Immatriculation" if immatriculation else "Exmatriculation", ddp_number, base]
+            for j, value in enumerate(values):
+                cell = ws_ddp.cell(row=i + 2, column=j + 1, value=value)
+                cell.border = border
+                cell.fill = fills[immatriculation]
+                cell.font = Font(color="FFFFFF", bold=(j == 1))
+        for column, width in zip("ABC", (18, 15, 20)):
+            ws_ddp.column_dimensions[column].width = width
+
+    output = BytesIO()
+    wb.save(output)
+    output.seek(0)
+
+    filename = f"balance_{data.get('operation_id') or 'export'}.xlsx"
+    response = HttpResponse(
+        output.getvalue(),
+        content_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+    )
+    response["Content-Disposition"] = f'attachment; filename="{filename}"'
+    return response
+
+
+@permission_required("parcel_historisation.view_designation", raise_exception=True)
 @api_view(["POST"])
 @parser_classes([MultiPartParser, FormParser])
 def balance_file_upload(request):
     """
     Upload balance file
     """
-    cadnum = request.POST.get("cadnum")
     file = request.FILES.get("file")
+    if file is None:
+        return JsonResponse({"error": "Aucun fichier n'a été transmis."}, status=400)
 
-    wb = load_workbook(filename=BytesIO(file.read()))
-    ws = wb.active
+    # Only the following format is accepted:
+    # - sheet "Balance": old parcels in column A from row 2, new parcels in row 1 from column B,
+    #   cells with a value = relation, labels "<cadastre>_<number>", "DP" or "RP"
+    # - optional sheet "DDP": Statut | DDP | Bien-fonds de base, from row 2
+    try:
+        wb = load_workbook(filename=BytesIO(file.read()))
+    except Exception:
+        return JsonResponse({"error": "Le fichier n'est pas un fichier Excel (.xlsx) valide."}, status=400)
 
-    # get old parcels
-    new_bf = []
-    i = 1
-    while ws.cell(1, i + 2).value is not None:
-        new_bf.append(ws.cell(1, i + 2).value)
+    # sheet names are case-insensitive ("Balance", "BALANCE", "ddp", ...)
+    sheets = {name.strip().lower(): wb[name] for name in wb.sheetnames}
+
+    ws = sheets.get("balance")
+    if ws is None:
+        return JsonResponse(
+            {"error": "Le fichier ne contient pas de feuille « Balance ». Utilisez un fichier généré avec « Télécharger (Excel) »."},
+            status=400,
+        )
+
+    invalid_labels = []
+
+    def _normalize(value):
+        """Return the parcel label as displayed in the frontend ("<cadastre>_<number>", "DP", "RP")."""
+        label = str(value).strip()
+        if label.upper() in ("DP", "RP"):
+            return label.upper()
+        parts = label.split("_")
+        if len(parts) != 2 or not all(part.isdigit() for part in parts):
+            invalid_labels.append(label)
+        return label
+
+    def _sort_key(label):
+        if label in ("DP", "RP"):
+            return (1, [], label)
+        try:
+            return (0, [int(x) for x in label.split("_")], label)
+        except ValueError:
+            return (0, [], label)
+
+    # new parcels (row 1, from column B)
+    columns = {}
+    j = 2
+    while ws.cell(1, j).value is not None:
+        columns[j] = _normalize(ws.cell(1, j).value)
+        j += 1
+
+    # old parcels (column A, from row 2)
+    rows = {}
+    i = 2
+    while ws.cell(i, 1).value is not None:
+        rows[i] = _normalize(ws.cell(i, 1).value)
         i += 1
-    new_bf = list(set(new_bf))
-    if "dp" in new_bf:
-        new_bf.remove("dp")
-        new_bf.sort()
-        new_bf.append("dp")
-    else:
-        new_bf.sort()
 
-    # get old parcels
-    old_bf = []
-    i = 1
-    while ws.cell(i + 1, 2).value is not None:
-        old_bf.append(ws.cell(i + 1, 2).value)
-        i += 1
-    old_bf = list(set(old_bf))
-    if "dp" in old_bf:
-        old_bf.remove("dp")
-        old_bf.sort()
-        old_bf.append("dp")
-    else:
-        old_bf.sort()
+    # DDP
+    ddp = []
+    ws_ddp = sheets.get("ddp")
+    if ws_ddp is not None:
+        for status, ddp_number, base in ws_ddp.iter_rows(min_row=2, max_col=3, values_only=True):
+            if ddp_number is None or base is None:
+                continue
+            ddp.append(
+                {
+                    "relation": "-".join([_normalize(base), _normalize(ddp_number)]),
+                    "immatriculation": not str(status or "").strip().lower().startswith("ex"),
+                }
+            )
 
-    relations = []
-    for row_id in range(len(old_bf)):
-        for col_id in range(len(new_bf)):
-            if ws.cell(row_id + 2, col_id + 3).value is not None:
-                relations.append([ws.cell(row_id + 2, 2).value, ws.cell(1, col_id + 3).value])
+    if invalid_labels:
+        return JsonResponse(
+            {
+                "error": "Numéros de bien-fonds invalides (format attendu : <cadastre>_<numéro>, DP ou RP) : "
+                + ", ".join(sorted(set(invalid_labels)))
+            },
+            status=400,
+        )
+
+    relations = set()
+    for row_id, old in rows.items():
+        for col_id, new in columns.items():
+            value = ws.cell(row_id, col_id).value
+            if value is not None and str(value).strip() != "":
+                relations.add((old, new))
+
+    old_bf = sorted(set(rows.values()), key=_sort_key)
+    new_bf = sorted(set(columns.values()), key=_sort_key)
 
     balance = None
     if len(old_bf) > 0 and len(new_bf) > 0:
-        # initialize balance 2d list
+        # initialize balance 2d list, 1rst line and row for headers
         balance = [[" " for j in range(len(new_bf) + 1)] for i in range(len(old_bf) + 1)]
+        for i, old in enumerate(old_bf):
+            balance[i + 1][0] = old
+        for j, new in enumerate(new_bf):
+            balance[0][j + 1] = new
 
-        # 1rst line and row for headers
-        for i in range(len(old_bf)):
-            tmp = str(old_bf[i])
-            if not str(old_bf[i]) == "dp":
-                tmp = "_".join([str(cadnum), str(old_bf[i])])
-            balance[i + 1][0] = tmp
+        for old, new in relations:
+            balance[old_bf.index(old) + 1][new_bf.index(new) + 1] = "X"
 
-        for j in range(len(new_bf)):
-            tmp = str(new_bf[j])
-            if not str(new_bf[j]) == "dp":
-                tmp = "_".join([str(cadnum), str(new_bf[j])])
-            balance[0][j + 1] = tmp
-
-        for rel in relations:
-            src_idx = old_bf.index(rel[0]) + 1
-            dst_idx = new_bf.index(rel[1]) + 1
-            balance[src_idx][dst_idx] = "X"
-
-    return JsonResponse({"balance": balance})
+    return JsonResponse({"balance": balance, "ddp": ddp})
 
 
 @permission_required("parcel_historisation.view_designation", raise_exception=True)
