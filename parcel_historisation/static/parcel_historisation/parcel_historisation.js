@@ -69,7 +69,7 @@ document.getElementById("load-infolica").onclick = () => {
 
 document.getElementById("balance-add-old-bf").onclick = () => {
   let balance_old_bf = document.getElementById("balance-old-bf").value;
-  const balance_old_bf_serie = Number(document.getElementById("balance-old-bf-serie").value);
+  const balance_old_bf_serie = Number(document.getElementById("balance-old-bf-serie").value) || 1;
   const selected_cadastre = document.getElementById("cadastre-list-balance").value;
 
   if (!balance_old_bf && typeof balance_old_bf !== 'number') {
@@ -159,7 +159,7 @@ document.getElementById("balance-add-old-dp").onclick = () => {
 
 document.getElementById("balance-add-new-bf").onclick = () => {
   let balance_new_bf = document.getElementById("balance-new-bf").value;
-  const balance_new_bf_serie = Number(document.getElementById("balance-new-bf-serie").value);
+  const balance_new_bf_serie = Number(document.getElementById("balance-new-bf-serie").value) || 1;
   const selected_cadastre = document.getElementById("cadastre-list-balance").value;
 
   if (!balance_new_bf && typeof balance_new_bf !== 'number') {
@@ -1176,9 +1176,9 @@ ph.reset_step2 = () => {
   document.getElementById("operation_id_title").value = "";
   document.getElementById("no_infolica").value = "";
   document.getElementById("balance-old-bf").value = "";
-  document.getElementById("balance-old-bf-serie").value = "";
+  document.getElementById("balance-old-bf-serie").value = 1;
   document.getElementById("balance-new-bf").value = "";
-  document.getElementById("balance-new-bf-serie").value = "";
+  document.getElementById("balance-new-bf-serie").value = 1;
   document.getElementById("input-balance-from-file").value = "";
   document.getElementById("ddp-number").value = "";
   document.getElementById("ddp-base-number").value = "";
