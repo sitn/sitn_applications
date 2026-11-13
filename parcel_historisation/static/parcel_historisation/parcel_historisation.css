@@ -2,6 +2,22 @@
   display: none;
 }
 
+/* Header: pastel shade of the Neuchâtel red of the logo, with a thin red line underneath */
+.header-row {
+  --header-red: #e2001a;
+  background-color: #fdeef0;
+  border-bottom: 3px solid var(--header-red);
+  margin-left: 0;
+  margin-right: 0;
+  padding: 12px 0;
+  align-items: center;
+}
+
+.header-row h2 {
+  margin: 0;
+  color: #212529;
+}
+
 .pull-right {
   text-align: right;
 }
