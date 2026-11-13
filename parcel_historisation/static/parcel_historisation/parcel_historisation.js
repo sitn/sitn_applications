@@ -415,9 +415,12 @@ function getDDPRelations() {
     return null;
   }
 
-  // Go through children and find relations
+  // Go through children and find relations with their status (immatriculation / exmatriculation)
   for (const ddp of ddp_section.children) {
-    relations.push(ddp.id);
+    relations.push({
+      relation: ddp.id,
+      immatriculation: ddp.dataset.immatriculation === "true",
+    });
   }
 
   return relations;
@@ -1111,8 +1114,8 @@ ph.loadBalance = () => {
 
       let bf;
       for (const elem of data.ddp) {
-        bf = elem.split("-");
-        ph.createNewHTMLddp(bf[1], bf[0]);
+        bf = elem.relation.split("-");
+        ph.createNewHTMLddp(bf[1], bf[0], elem.immatriculation);
       }
     })
     .catch((err) => {

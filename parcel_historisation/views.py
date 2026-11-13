@@ -298,8 +298,13 @@ class BalanceViewSet(viewsets.ViewSet):
         relations["balance"] = []
         relations["ddp"] = []
         for rel in instances:
-            if rel.destination_ddp is True:
-                relations["ddp"].append("-".join([rel.source, rel.destination]))
+            if rel.immatriculation_ddp or rel.exmatriculation_ddp:
+                relations["ddp"].append(
+                    {
+                        "relation": "-".join([rel.source, rel.destination]),
+                        "immatriculation": rel.immatriculation_ddp,
+                    }
+                )
             else:
                 relations["balance"].append({"source": rel.source, "destination": rel.destination})
 
@@ -308,10 +313,10 @@ class BalanceViewSet(viewsets.ViewSet):
         relations["ddp"] = sorted(
             relations["ddp"],
             key=lambda item: (
-                int(item.split("-")[1].split("_")[0]),
-                int(item.split("-")[1].split("_")[1]),
-                int(item.split("_")[0]),
-                int(item.split("_")[1].split("-")[0]),
+                int(item["relation"].split("-")[1].split("_")[0]),
+                int(item["relation"].split("-")[1].split("_")[1]),
+                int(item["relation"].split("_")[0]),
+                int(item["relation"].split("_")[1].split("-")[0]),
             ),
         )
 
@@ -350,13 +355,15 @@ def submit_balance(request):
 
     # save ddp relations
     if data["ddp"] is not None:
-        for relation in data["ddp"]:
+        for item in data["ddp"]:
             balance = Balance()
-            rel = relation.split("-")
+            rel = item["relation"].split("-")
+            immatriculation = bool(item["immatriculation"])
 
             balance.source = rel[0]
             balance.destination = rel[1]
-            balance.destination_ddp = True
+            balance.immatriculation_ddp = immatriculation
+            balance.exmatriculation_ddp = not immatriculation
             balance.division_id = data["division_id"]
 
             balance.save()
@@ -543,7 +550,8 @@ def submit_control(request):
     if data["type"] in ('rp_out', 'origin'):
         for item in data["source_bfs"]:
             balance = Balance()
-            balance.destination_ddp = False
+            balance.immatriculation_ddp = False
+            balance.exmatriculation_ddp = False
             balance.destination = item
             balance.source = 'origin'
             if data["type"] == 'rp_out':
@@ -557,7 +565,8 @@ def submit_control(request):
     if data["type"] in ('rp_in', 'final'):
         for item in data["dest_bfs"]:
             balance = Balance()
-            balance.destination_ddp = False
+            balance.immatriculation_ddp = False
+            balance.exmatriculation_ddp = False
             balance.source = item
             balance.destination = 'destination'
             if data["type"] == 'rp_in':

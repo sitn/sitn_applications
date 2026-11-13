@@ -64,7 +64,8 @@ class Balance(models.Model):
     source_origin = models.BooleanField(null=True)
     current_destination = models.BooleanField(null=True)
     division = models.ForeignKey(Operation, on_delete=models.SET_NULL, verbose_name='division', null=True)
-    destination_ddp = models.BooleanField(default=False)
+    immatriculation_ddp = models.BooleanField(default=False)
+    exmatriculation_ddp = models.BooleanField(default=False)
 
     class Meta:
         db_table = 'parcel_historisation\".\"balance'
