@@ -1,8 +1,11 @@
 
 document.getElementById("nav-saisie-tab").onclick = () => {
   if (ph.activecadastre !== null) {
-    document.getElementById("step1").style.display = "block";
-    document.getElementById("step2").style.display = "none";
+    // reset the forms (operation type, balance, DDP), shows step 1 and hides step 2
+    ph.reset_step1();
+    ph.reset_step2();
+    // reload the plans/designations lists from the database
+    ph.loadDocsList(ph.activecadastre);
   } else {
     document.getElementById("cadastre_selector").style.display = "block";
     document.getElementById("nav-listing-tab").classList.add("disabled");
@@ -510,15 +513,20 @@ function removeOptions(selectElement) {
 
 // Choosing a cadastre sends user to step 1 display
 document.getElementById("choose_cadastre").onclick = () => {
-
-  document.getElementById("overlay").style.display = "block";
   const e = document.getElementById("cadastre_list");
   const selected_value = e.options[e.selectedIndex].value;
+  ph.loadDocsList(selected_value);
+};
+
+// Loads the plans/designations lists of a cadastre from the database and displays step 1
+ph.loadDocsList = (numcad) => {
+
+  document.getElementById("overlay").style.display = "block";
   const url = "get_docs_list?" + new URLSearchParams({
-    numcad: selected_value
+    numcad: numcad
   });
 
-  fetch(url)
+  return fetch(url)
     .then((response) => response.json())
     .then((data) => {
       let item; let element;
@@ -542,7 +550,7 @@ document.getElementById("choose_cadastre").onclick = () => {
         }
         desgn_list.append(element);
       }
-      ph.activecadastre = document.getElementById("cadastre_list").value;
+      ph.activecadastre = numcad;
       document.getElementById("cadastre_selector").style.display = "none";
       document.getElementById("step1").style.display = "block";
       const cadastre_text_tags = document.querySelectorAll(".cadastre_text");
