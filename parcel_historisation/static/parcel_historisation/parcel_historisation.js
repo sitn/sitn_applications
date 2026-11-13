@@ -816,10 +816,9 @@ ph.createNewHTMLddp = (ddp, base, immatriculation = true) => {
 
   const mode_title = immatriculation ? "Immatriculation" : "Exmatriculation";
   const mode_class = immatriculation ? "bg-primary": "bg-danger";
-  const mode_sign = immatriculation ? "+" : "-";
   ddp_section.innerHTML += `<span id="${ddp_span_id}" data-immatriculation="${immatriculation}" title="${mode_title}" class="badge rounded-pill ${mode_class} m-1"><span style="font-size: 1.5em">
-                              ${mode_sign} ${ddp}</span>/${base}
-                              <button id="close" onclick="this.parentElement.remove()" class="rounded-circle" style="border: 0px; margin-left: 5px;">X</button>
+                              ${ddp}</span>/${base}
+                              <button id="close" onclick="this.parentElement.remove()" class="rounded-circle" style="border: 0px; margin-left: 5px;" title="Supprimer la relation">X</button>
                             </span>`
 }
 
