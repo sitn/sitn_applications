@@ -16,6 +16,7 @@ from io import BytesIO
 import json
 import pathlib
 import datetime
+import re
 
 from parcel_historisation.models import Plan, Operation, OtherOperation, State, DivisonReunion, Balance
 from parcel_historisation.models import VBalanceSourceNoDest, VBalanceDestNoSource
@@ -243,6 +244,29 @@ def submit_saisie(request):
     )
 
 
+# Parcel label: "<cadastre>_<number>" with an optional one-letter index, e.g. "14_1235" or "14_1234A"
+PARCEL_LABEL_RE = re.compile(r"^(\d+)_(\d+)([A-Za-z]?)$")
+
+
+def _normalize_parcel(label):
+    """Strip the label, store the index letter in uppercase ("14_1234a" -> "14_1234A"), DP/RP in uppercase."""
+    label = str(label).strip()
+    if label.upper() in ("DP", "RP"):
+        return label.upper()
+    match = PARCEL_LABEL_RE.match(label)
+    if match:
+        return f"{match.group(1)}_{match.group(2)}{match.group(3).upper()}"
+    return label
+
+
+def _parcel_sort_key(label):
+    """Sort by cadastre, number, index (no index first); other labels (DP, RP, ...) at the end."""
+    match = PARCEL_LABEL_RE.match(str(label))
+    if match:
+        return (0, int(match.group(1)), int(match.group(2)), match.group(3).upper(), str(label))
+    return (1, 0, 0, "", str(label))
+
+
 def _build_balance(relations):
     source_bf = []
     destination_bf = []
@@ -262,8 +286,8 @@ def _build_balance(relations):
     destination_bf = ["RP" if x == "0_2" else x for x in destination_bf]
     relations_ = [["RP" if y == "0_2" else y for y in x] for x in relations_]
 
-    source_bf.sort()
-    destination_bf.sort()
+    source_bf.sort(key=_parcel_sort_key)
+    destination_bf.sort(key=_parcel_sort_key)
 
     balance = None
 
@@ -312,13 +336,12 @@ class BalanceViewSet(viewsets.ViewSet):
 
         # Sort results
         relations["balance"] = _build_balance(relations["balance"])
+        # sort by DDP, then by base parcel ("<base>-<ddp>"), labels may have an index letter
         relations["ddp"] = sorted(
             relations["ddp"],
             key=lambda item: (
-                int(item["relation"].split("-")[1].split("_")[0]),
-                int(item["relation"].split("-")[1].split("_")[1]),
-                int(item["relation"].split("_")[0]),
-                int(item["relation"].split("_")[1].split("-")[0]),
+                _parcel_sort_key(item["relation"].split("-")[1]),
+                _parcel_sort_key(item["relation"].split("-")[0]),
             ),
         )
 
@@ -344,10 +367,12 @@ def submit_balance(request):
             balance = Balance()
             rel = relation.split("-")
 
-            # control if dp is in old/new parcel of relation
+            # control if dp is in old/new parcel of relation, index letter in uppercase
             for i, parcel in enumerate(rel):
                 if "dp" in parcel.lower():
                     rel[i] = "DP"
+                else:
+                    rel[i] = _normalize_parcel(parcel)
 
             balance.source = rel[0]
             balance.destination = rel[1]
@@ -362,8 +387,8 @@ def submit_balance(request):
             rel = item["relation"].split("-")
             immatriculation = bool(item["immatriculation"])
 
-            balance.source = rel[0]
-            balance.destination = rel[1]
+            balance.source = _normalize_parcel(rel[0])
+            balance.destination = _normalize_parcel(rel[1])
             balance.immatriculation_ddp = immatriculation
             balance.exmatriculation_ddp = not immatriculation
             balance.division_id = data["division_id"]
@@ -493,22 +518,13 @@ def balance_file_upload(request):
     invalid_labels = []
 
     def _normalize(value):
-        """Return the parcel label as displayed in the frontend ("<cadastre>_<number>", "DP", "RP")."""
-        label = str(value).strip()
-        if label.upper() in ("DP", "RP"):
-            return label.upper()
-        parts = label.split("_")
-        if len(parts) != 2 or not all(part.isdigit() for part in parts):
+        """Return the parcel label as displayed in the frontend ("<cadastre>_<number>[A-Z]", "DP", "RP")."""
+        label = _normalize_parcel(value)
+        if label not in ("DP", "RP") and not PARCEL_LABEL_RE.match(label):
             invalid_labels.append(label)
         return label
 
-    def _sort_key(label):
-        if label in ("DP", "RP"):
-            return (1, [], label)
-        try:
-            return (0, [int(x) for x in label.split("_")], label)
-        except ValueError:
-            return (0, [], label)
+    _sort_key = _parcel_sort_key
 
     # new parcels (row 1, from column B)
     columns = {}
@@ -541,7 +557,7 @@ def balance_file_upload(request):
     if invalid_labels:
         return JsonResponse(
             {
-                "error": "Numéros de bien-fonds invalides (format attendu : <cadastre>_<numéro>, DP ou RP) : "
+                "error": "Numéros de bien-fonds invalides (format attendu : <cadastre>_<numéro> avec un index facultatif A-Z, DP ou RP) : "
                 + ", ".join(sorted(set(invalid_labels)))
             },
             status=400,
