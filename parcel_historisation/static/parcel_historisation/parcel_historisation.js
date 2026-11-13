@@ -266,6 +266,81 @@ document.getElementById("submit-balance-file").onclick = () => {
 }
 
 
+document.getElementById("download-balance-excel").onclick = () => {
+  downloadBalanceExcel();
+}
+
+// Read the balance as currently displayed (including unsaved changes) as a 2D array
+function getDisplayedBalance() {
+  const table = document.getElementById("balance");
+  if (!table) {
+    return null;
+  }
+
+  const matrix = [];
+  for (let i = 0; i < table.rows.length; i++) {
+    const row = [];
+    for (let j = 0; j < table.rows[i].cells.length; j++) {
+      const cell = table.rows[i].cells[j];
+      if (i === 0 && j === 0) {
+        row.push("");
+      } else if (i === 0) {
+        // new parcels: label is in the title of the rotated span
+        const span = cell.querySelector("span");
+        row.push(span ? span.title : "");
+      } else if (j === 0) {
+        // old parcels: label is the text before the "[-]" link
+        row.push(cell.firstChild ? cell.firstChild.textContent.trim() : "");
+      } else {
+        const checkbox = cell.querySelector("input[type=checkbox]");
+        row.push(checkbox && checkbox.checked ? "X" : "");
+      }
+    }
+    matrix.push(row);
+  }
+  return matrix;
+}
+
+function downloadBalanceExcel() {
+  const balance = getDisplayedBalance();
+  if (balance === null) {
+    alert("Aucune balance n'est affichée.");
+    return;
+  }
+
+  const params = {
+    operation_id: ph.active_operation_id,
+    balance: balance,
+    ddp: getDDPRelations(),
+  };
+
+  fetch('export_balance_excel', {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': ph.csrftoken
+    },
+    body: JSON.stringify(params)
+  }).then((response) => {
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}`);
+    }
+    return response.blob();
+  }).then((blob) => {
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `balance_${ph.active_operation_id || ph.activecadastre}.xlsx`;
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  }).catch((err) => {
+    alert('Une erreur s\'est produite lors du téléchargement de la balance. Veuillez contacter l\'administrateur\n\n \
+    Détail de l\'erreur:\n' + String(err));
+  });
+}
+
+
 document.getElementById("create-ddp").onclick = () => {
   const ddp_number = Number(document.getElementById("ddp-number").value);
   const ddp_base_number = Number(document.getElementById("ddp-base-number").value);
@@ -966,17 +1041,18 @@ ph.changeStatus = (id, type) => {
 };
 
 ph.postBalanceFile = () => {
+  const file = document.getElementById("input-balance-from-file").files[0];
+  if (!file) {
+    alert("Le format n'est pas supporté. Contacter l'administrateur.");
+    return;
+  }
+
   let formData = new FormData();
-  formData.append('file', document.getElementById("input-balance-from-file").files[0]);
-  formData.append('cadnum', document.getElementById("cadastre-list-balance").value);
+  formData.append('file', file);
 
   // submitting balance file to backend
   fetch('balance_file_upload', {
     method: 'POST',
-    headers: {
-      'Accept': 'application/json, text/plain,  */*',
-      'Content-Type': 'application/json'
-    },
     headers: {
       'X-CSRFToken': ph.csrftoken
     },
@@ -987,14 +1063,28 @@ ph.postBalanceFile = () => {
     .then(res => {
       // empty file input
       document.getElementById("input-balance-from-file").value = null;
-      document.getElementById("cadastre-list-balance").value = ph.activecadastre;
 
-      let tb_html = ph.buildHTMLTable(res.balance);
+      if (res.error) {
+        alert("ERREUR !\nLe fichier n'a pas pu être chargé.\n\n" + res.error);
+        return;
+      }
 
-      document.getElementById("tableau-balance").innerHTML = tb_html;
+      if (res.balance) {
+        let tb_html = ph.buildHTMLTable(res.balance);
+        document.getElementById("tableau-balance").innerHTML = tb_html;
+      }
 
+      // DDP from a file exported with "Télécharger (Excel)": replace the current ones
+      if (res.ddp && res.ddp.length > 0) {
+        document.getElementById("ddp-section").innerHTML = "";
+        let bf;
+        for (const elem of res.ddp) {
+          bf = elem.relation.split("-");
+          ph.createNewHTMLddp(bf[1], bf[0], elem.immatriculation);
+        }
+      }
     })
-    .catch(err => alert("ERREUR !\nLe fichier n'a pas été enregistré.\n\n", err));
+    .catch(err => alert("ERREUR !\nLe fichier n'a pas pu être chargé.\n\n" + String(err)));
 }
 
 ph.setCadastreListeBalance = () => {
