@@ -67,9 +67,38 @@ document.getElementById("load-infolica").onclick = () => {
   ph.setCadastreListeBalance();
 };
 
+// Optional index letter of a parcel (A-Z, stored in uppercase): when an index is set,
+// the series is blocked to 1 so that the index is not propagated to several parcels
+// serie_id is optional (DDP fields have no series)
+function setupBFIndex(index_id, serie_id = null) {
+  const index_input = document.getElementById(index_id);
+  const serie_input = serie_id ? document.getElementById(serie_id) : null;
+  index_input.oninput = () => {
+    index_input.value = index_input.value.replace(/[^a-zA-Z]/g, "").slice(0, 1).toUpperCase();
+    if (serie_input === null) {
+      return;
+    }
+    if (index_input.value) {
+      serie_input.value = 1;
+      serie_input.disabled = true;
+    } else {
+      serie_input.disabled = false;
+    }
+  };
+}
+function resetBFIndex(index_id, serie_id) {
+  document.getElementById(index_id).value = "";
+  document.getElementById(serie_id).disabled = false;
+  document.getElementById(serie_id).value = 1;
+}
+setupBFIndex("balance-old-bf-index", "balance-old-bf-serie");
+setupBFIndex("balance-new-bf-index", "balance-new-bf-serie");
+
 document.getElementById("balance-add-old-bf").onclick = () => {
   let balance_old_bf = document.getElementById("balance-old-bf").value;
-  const balance_old_bf_serie = Number(document.getElementById("balance-old-bf-serie").value);
+  const balance_old_bf_index = document.getElementById("balance-old-bf-index").value.trim().toUpperCase();
+  // with an index, only one parcel at a time
+  const balance_old_bf_serie = balance_old_bf_index ? 1 : (Number(document.getElementById("balance-old-bf-serie").value) || 1);
   const selected_cadastre = document.getElementById("cadastre-list-balance").value;
 
   if (!balance_old_bf && typeof balance_old_bf !== 'number') {
@@ -89,7 +118,7 @@ document.getElementById("balance-add-old-bf").onclick = () => {
   let old_bf_user_tmp;
   let old_bf_table_tmp;
   for (let j = 0; j < balance_old_bf_serie; j++) {
-    old_bf_user_tmp = selected_cadastre + "_" + (balance_old_bf + j);
+    old_bf_user_tmp = selected_cadastre + "_" + (balance_old_bf + j) + balance_old_bf_index;
     for (let i = 1; i < nb_rows; i++) {
       old_bf_table_tmp = tableau_balance.rows[i].cells[0].innerHTML.split(' ')[0];
 
@@ -102,15 +131,17 @@ document.getElementById("balance-add-old-bf").onclick = () => {
 
   // Add old parcels
   let relation;
+  let old_bf_label;
   for (let j = 0; j < balance_old_bf_serie; j++) {
     let row = tableau_balance.insertRow(-1);
     let cell = row.insertCell(0);
+    old_bf_label = `${selected_cadastre}_${balance_old_bf}${balance_old_bf_index}`;
 
-    cell.outerHTML = '<td style="text-align: right; padding: 5pt; border: solid 1pt black">' + selected_cadastre + '_' + balance_old_bf + ` <a href="javascript:balance_removeBF('${selected_cadastre}_${balance_old_bf}', 'old')" title="supprimer le bien-fonds">[-]</a></td>`;
+    cell.outerHTML = '<td style="text-align: right; padding: 5pt; border: solid 1pt black">' + old_bf_label + ` <a href="javascript:balance_removeBF('${old_bf_label}', 'old')" title="supprimer le bien-fonds">[-]</a></td>`;
 
     for (let i = 1; i < nb_cols; i++) {
       cell = row.insertCell(i);
-      relation = selected_cadastre + '_' + balance_old_bf + '-' + tableau_balance.rows[0].cells[i].innerText.split(' ')[0];
+      relation = old_bf_label + '-' + tableau_balance.rows[0].cells[i].innerText.split(' ')[0];
       cell.outerHTML = `<td style="text-align: center; padding: 5pt; border: solid 1pt black"><input type="checkbox" id="${relation}" title="${relation}"></input></td>`;
     }
 
@@ -118,7 +149,7 @@ document.getElementById("balance-add-old-bf").onclick = () => {
   }
 
   document.getElementById("balance-old-bf").value = '';
-  document.getElementById("balance-old-bf-serie").value = 1;
+  resetBFIndex("balance-old-bf-index", "balance-old-bf-serie");
 };
 
 // add old dp
@@ -159,7 +190,9 @@ document.getElementById("balance-add-old-dp").onclick = () => {
 
 document.getElementById("balance-add-new-bf").onclick = () => {
   let balance_new_bf = document.getElementById("balance-new-bf").value;
-  const balance_new_bf_serie = Number(document.getElementById("balance-new-bf-serie").value);
+  const balance_new_bf_index = document.getElementById("balance-new-bf-index").value.trim().toUpperCase();
+  // with an index, only one parcel at a time
+  const balance_new_bf_serie = balance_new_bf_index ? 1 : (Number(document.getElementById("balance-new-bf-serie").value) || 1);
   const selected_cadastre = document.getElementById("cadastre-list-balance").value;
 
   if (!balance_new_bf && typeof balance_new_bf !== 'number') {
@@ -180,7 +213,7 @@ document.getElementById("balance-add-new-bf").onclick = () => {
   let new_bf_user_tmp;
   let new_bf_table_tmp;
   for (let j = 0; j < balance_new_bf_serie; j++) {
-    new_bf_user_tmp = selected_cadastre + "_" + (balance_new_bf + j);
+    new_bf_user_tmp = selected_cadastre + "_" + (balance_new_bf + j) + balance_new_bf_index;
     for (let i = 1; i < nb_cols; i++) {
       new_bf_table_tmp = tableau_balance.rows[0].cells[i].innerHTML.split(' ')[0];
 
@@ -193,14 +226,16 @@ document.getElementById("balance-add-new-bf").onclick = () => {
 
   // Add new parcels
   let relation;
+  let new_bf_label;
   for (let j = 0; j < balance_new_bf_serie; j++) {
     let cell = tableau_balance.rows[0].insertCell(-1);
+    new_bf_label = `${selected_cadastre}_${balance_new_bf}${balance_new_bf_index}`;
 
-    cell.outerHTML = '<td style="text-align: center; padding: 5pt; border: solid 1pt black; vertical-align: bottom;"><span style="writing-mode: tb-rl; transform: rotate(-180deg);" title="' + selected_cadastre + '_' + balance_new_bf + '">' + selected_cadastre + '_' + balance_new_bf + '</span>' + ` <a href="javascript:balance_removeBF('${selected_cadastre}_${balance_new_bf}', 'new')" title="supprimer le bien-fonds">[-]</a></td>`;
+    cell.outerHTML = '<td style="text-align: center; padding: 5pt; border: solid 1pt black; vertical-align: bottom;"><span style="writing-mode: tb-rl; transform: rotate(-180deg);" title="' + new_bf_label + '">' + new_bf_label + '</span>' + ` <a href="javascript:balance_removeBF('${new_bf_label}', 'new')" title="supprimer le bien-fonds">[-]</a></td>`;
 
     for (let i = 1; i < nb_rows; i++) {
       cell = tableau_balance.rows[i].insertCell(-1);
-      relation = tableau_balance.rows[i].cells[0].innerText.split(' ')[0] + '-' + selected_cadastre + '_' + balance_new_bf;
+      relation = tableau_balance.rows[i].cells[0].innerText.split(' ')[0] + '-' + new_bf_label;
       cell.outerHTML = `<td style="text-align: center; padding: 5pt; border: solid 1pt black"><input type="checkbox" id="${relation}" title="${relation}"></input></td>`;
     }
 
@@ -208,7 +243,7 @@ document.getElementById("balance-add-new-bf").onclick = () => {
   }
 
   document.getElementById("balance-new-bf").value = '';
-  document.getElementById("balance-new-bf-serie").value = 1;
+  resetBFIndex("balance-new-bf-index", "balance-new-bf-serie");
 };
 
 // add new dp
@@ -341,9 +376,17 @@ function downloadBalanceExcel() {
 }
 
 
+setupBFIndex("ddp-index");
+setupBFIndex("ddp-base-index");
+
 document.getElementById("create-ddp").onclick = () => {
   const ddp_number = Number(document.getElementById("ddp-number").value);
   const ddp_base_number = Number(document.getElementById("ddp-base-number").value);
+  // optional index letters (A-Z, uppercase)
+  const ddp_index = document.getElementById("ddp-index").value.trim().toUpperCase();
+  const ddp_base_index = document.getElementById("ddp-base-index").value.trim().toUpperCase();
+  const ddp_label = `${ddp_number}${ddp_index}`;
+  const ddp_base_label = `${ddp_base_number}${ddp_base_index}`;
 
   // check for no-empty fields
   if (!(ddp_number && ddp_base_number)) {
@@ -353,17 +396,18 @@ document.getElementById("create-ddp").onclick = () => {
 
   // check that ddp_number > ddp_base_number
   if (ddp_number < ddp_base_number) {
-    if (!confirm(`Le DDP est-il défini sur un bien-fonds avec un numéro plus élevé ?\n\nDDP: ${ddp_number}\nBien-fonds de base: ${ddp_base_number}`)) {
+    if (!confirm(`Le DDP est-il défini sur un bien-fonds avec un numéro plus élevé ?\n\nDDP: ${ddp_label}\nBien-fonds de base: ${ddp_base_label}`)) {
       return;
     };
   }
-  if (ddp_number === ddp_base_number) {
+  // same number and same index (e.g. DDP 1234A on parcel 1234 is allowed)
+  if (ddp_label === ddp_base_label) {
     alert(`Le numéro de DDP et le numéro du bien-fonds de base sont identiques. La saisie n'est pas ajoutée à la liste.`);
     return;
   }
 
-  const ddp = [ph.activecadastre, ddp_number].join("_");
-  const base = [ph.activecadastre, ddp_base_number].join("_");
+  const ddp = [ph.activecadastre, ddp_label].join("_");
+  const base = [ph.activecadastre, ddp_base_label].join("_");
   const immatriculation = document.getElementById("ddp-immatriculation").checked;
   ph.createNewHTMLddp(ddp, base, immatriculation);
 }
@@ -887,7 +931,7 @@ ph.createNewHTMLddp = (ddp, base, immatriculation = true) => {
 
   for (const elem of ddp_section.children) {
     if (ddp_span_id === elem.id) {
-      alert(`Le DDP a déjà été saisi dans la liste.\n\n${[ph.activecadastre, ddp_number].join("_")}/${[ph.activecadastre, ddp_base_number].join("_")}`)
+      alert(`Le DDP a déjà été saisi dans la liste.\n\n${ddp}/${base}`)
       return;
     }
   }
@@ -1176,12 +1220,14 @@ ph.reset_step2 = () => {
   document.getElementById("operation_id_title").value = "";
   document.getElementById("no_infolica").value = "";
   document.getElementById("balance-old-bf").value = "";
-  document.getElementById("balance-old-bf-serie").value = "";
+  resetBFIndex("balance-old-bf-index", "balance-old-bf-serie");
   document.getElementById("balance-new-bf").value = "";
-  document.getElementById("balance-new-bf-serie").value = "";
+  resetBFIndex("balance-new-bf-index", "balance-new-bf-serie");
   document.getElementById("input-balance-from-file").value = "";
   document.getElementById("ddp-number").value = "";
+  document.getElementById("ddp-index").value = "";
   document.getElementById("ddp-base-number").value = "";
+  document.getElementById("ddp-base-index").value = "";
   document.getElementById("ddp-immatriculation").checked = true;
   document.getElementById("ddp-section").innerHTML = "";
   document.getElementById("tableau-balance").innerHTML = "";
@@ -1278,8 +1324,8 @@ ph.check_relations = () => {
     candidat = balance.rows[row_id].cells[0].innerText;
     if (candidat.includes('_')) {
       candidat = candidat.split(' ')[0].split('_');
-      if (old_bf[candidat[0]] && Number(candidat[1]) < old_bf[candidat[0]]) continue
-      old_bf[candidat[0]] = Number(candidat[1]);
+      if (old_bf[candidat[0]] && parseInt(candidat[1], 10) < old_bf[candidat[0]]) continue
+      old_bf[candidat[0]] = parseInt(candidat[1], 10);
     }
   }
 
@@ -1288,8 +1334,8 @@ ph.check_relations = () => {
     candidat = balance.rows[0].cells[col_id].innerText;
     if (candidat.includes('_')) {
       candidat = candidat.split(' ')[0].split('_');
-      if (new_bf[candidat[0]] && Number(candidat[1]) > new_bf[candidat[0]]) continue
-      new_bf[candidat[0]] = Number(candidat[1]);
+      if (new_bf[candidat[0]] && parseInt(candidat[1], 10) > new_bf[candidat[0]]) continue
+      new_bf[candidat[0]] = parseInt(candidat[1], 10);
     }
   }
 
