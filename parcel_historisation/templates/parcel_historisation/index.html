@@ -307,7 +307,15 @@
                         </div>
                       </div>
                       <div class="col pl-2">
-                        <button id="create-ddp" class="btn btn-primary">Ajouter</button>
+                        <div class="d-flex align-items-start">
+                          <!-- Exmatriculation / immatriculation switch (checked = immatriculation) -->
+                          <div class="input-group-text form-switch ps-3 pe-3 me-3">
+                            <label class="form-check-label me-2" for="ddp-immatriculation">Exmatriculation</label>
+                            <input id="ddp-immatriculation" class="form-check-input m-0" type="checkbox" role="switch" checked>
+                            <label class="form-check-label ms-2" for="ddp-immatriculation">Immatriculation</label>
+                          </div>
+                          <button id="create-ddp" class="btn btn-primary">Ajouter</button>
+                        </div>
                       </div>
                     </div>
                   </div>
