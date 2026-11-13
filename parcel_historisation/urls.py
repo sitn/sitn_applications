@@ -18,6 +18,7 @@ urlpatterns = [
     path('submit_saisie', views.submit_saisie),
     path('submit_balance', views.submit_balance),
     path('balance_file_upload', views.balance_file_upload),
+    path('export_balance_excel', views.export_balance_excel),
     path('load_operation', views.load_operation),
     path('liberate', views.liberate),
     path('run_control/<path:cad_no>', views.run_control),

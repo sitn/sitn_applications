@@ -271,7 +271,7 @@
                             <label for="input-balance-from-file">À partir d'un fichier ?</label>
                             <input type="file"
                                    id="input-balance-from-file"
-                                   accept=".xls,.xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet, application/vnd.ms-excel" />
+                                   accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" />
                           </div>
 
                           <div class="col" style="padding-left: 20px;">
@@ -331,8 +331,11 @@
           </div>
           <!-- Balance table -->
           <div id="tableau-balance-container" class="mt-4" hidden>
-            <h3>Balance</h3>
-            <div id="tableau-balance"></div>
+            <div class="d-flex align-items-center">
+              <h3 class="mb-0 me-3">Balance</h3>
+              <button id="download-balance-excel" type="button" class="btn btn-outline-secondary btn-sm">Télécharger (Excel)</button>
+            </div>
+            <div id="tableau-balance" class="mt-2"></div>
           </div>
           <button id="submit-relations" type="button" class="btn btn-primary mt-3">Enregistrer</button>
         </div>
