@@ -677,6 +677,14 @@ ph.resetSubmitForm = async (div) => {
 ph.load_table = () => {
   document.getElementById("overlay").style.display = "block";
 
+  // Grid.js does not render into a non-empty container: drop the previous grid
+  // so that the data is fetched again from the database at each opening of the tab
+  if (ph.list_grid !== undefined) {
+    ph.list_grid.destroy();
+    ph.list_grid = undefined;
+  }
+  document.getElementById("plan-list-table").innerHTML = "";
+
   const url = "api/plans?" + new URLSearchParams({
     numcad: ph.activecadastre,
     format: 'json'
