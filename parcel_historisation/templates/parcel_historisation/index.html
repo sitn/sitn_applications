@@ -285,9 +285,15 @@
                           <!-- DDP number -->
                             <span class="input-group-text" id="basic-addon1">DDP : </span>
                           <input id="ddp-number" type="number" min="0" step="1" class="form-control" placeholder="Numéro de DDP">
+                          <!-- optional index letter (A-Z) of the DDP -->
+                          <span class="input-group-text">Index : </span>
+                          <input id="ddp-index" type="text" maxlength="1" pattern="[A-Za-z]" class="form-control bf-index" style="max-width: 4em; text-transform: uppercase;" aria-label="ddp_index" title="Une seule lettre de A à Z (facultatif)" placeholder="-">
                           <!-- Base parcel -->
                             <span class="input-group-text" id="basic-addon1">Bf de base : </span>
                           <input id="ddp-base-number" type="number" min="0" step="1" class="form-control" placeholder="Bien-fonds de base">
+                          <!-- optional index letter (A-Z) of the base parcel -->
+                          <span class="input-group-text">Index : </span>
+                          <input id="ddp-base-index" type="text" maxlength="1" pattern="[A-Za-z]" class="form-control bf-index" style="max-width: 4em; text-transform: uppercase;" aria-label="ddp_base_index" title="Une seule lettre de A à Z (facultatif)" placeholder="-">
                         </div>
                       </div>
                       <div class="col pl-2">

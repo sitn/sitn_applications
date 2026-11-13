@@ -69,11 +69,15 @@ document.getElementById("load-infolica").onclick = () => {
 
 // Optional index letter of a parcel (A-Z, stored in uppercase): when an index is set,
 // the series is blocked to 1 so that the index is not propagated to several parcels
-function setupBFIndex(index_id, serie_id) {
+// serie_id is optional (DDP fields have no series)
+function setupBFIndex(index_id, serie_id = null) {
   const index_input = document.getElementById(index_id);
-  const serie_input = document.getElementById(serie_id);
+  const serie_input = serie_id ? document.getElementById(serie_id) : null;
   index_input.oninput = () => {
     index_input.value = index_input.value.replace(/[^a-zA-Z]/g, "").slice(0, 1).toUpperCase();
+    if (serie_input === null) {
+      return;
+    }
     if (index_input.value) {
       serie_input.value = 1;
       serie_input.disabled = true;
@@ -372,9 +376,17 @@ function downloadBalanceExcel() {
 }
 
 
+setupBFIndex("ddp-index");
+setupBFIndex("ddp-base-index");
+
 document.getElementById("create-ddp").onclick = () => {
   const ddp_number = Number(document.getElementById("ddp-number").value);
   const ddp_base_number = Number(document.getElementById("ddp-base-number").value);
+  // optional index letters (A-Z, uppercase)
+  const ddp_index = document.getElementById("ddp-index").value.trim().toUpperCase();
+  const ddp_base_index = document.getElementById("ddp-base-index").value.trim().toUpperCase();
+  const ddp_label = `${ddp_number}${ddp_index}`;
+  const ddp_base_label = `${ddp_base_number}${ddp_base_index}`;
 
   // check for no-empty fields
   if (!(ddp_number && ddp_base_number)) {
@@ -384,17 +396,18 @@ document.getElementById("create-ddp").onclick = () => {
 
   // check that ddp_number > ddp_base_number
   if (ddp_number < ddp_base_number) {
-    if (!confirm(`Le DDP est-il défini sur un bien-fonds avec un numéro plus élevé ?\n\nDDP: ${ddp_number}\nBien-fonds de base: ${ddp_base_number}`)) {
+    if (!confirm(`Le DDP est-il défini sur un bien-fonds avec un numéro plus élevé ?\n\nDDP: ${ddp_label}\nBien-fonds de base: ${ddp_base_label}`)) {
       return;
     };
   }
-  if (ddp_number === ddp_base_number) {
+  // same number and same index (e.g. DDP 1234A on parcel 1234 is allowed)
+  if (ddp_label === ddp_base_label) {
     alert(`Le numéro de DDP et le numéro du bien-fonds de base sont identiques. La saisie n'est pas ajoutée à la liste.`);
     return;
   }
 
-  const ddp = [ph.activecadastre, ddp_number].join("_");
-  const base = [ph.activecadastre, ddp_base_number].join("_");
+  const ddp = [ph.activecadastre, ddp_label].join("_");
+  const base = [ph.activecadastre, ddp_base_label].join("_");
   const immatriculation = document.getElementById("ddp-immatriculation").checked;
   ph.createNewHTMLddp(ddp, base, immatriculation);
 }
@@ -918,7 +931,7 @@ ph.createNewHTMLddp = (ddp, base, immatriculation = true) => {
 
   for (const elem of ddp_section.children) {
     if (ddp_span_id === elem.id) {
-      alert(`Le DDP a déjà été saisi dans la liste.\n\n${[ph.activecadastre, ddp_number].join("_")}/${[ph.activecadastre, ddp_base_number].join("_")}`)
+      alert(`Le DDP a déjà été saisi dans la liste.\n\n${ddp}/${base}`)
       return;
     }
   }
@@ -1212,7 +1225,9 @@ ph.reset_step2 = () => {
   resetBFIndex("balance-new-bf-index", "balance-new-bf-serie");
   document.getElementById("input-balance-from-file").value = "";
   document.getElementById("ddp-number").value = "";
+  document.getElementById("ddp-index").value = "";
   document.getElementById("ddp-base-number").value = "";
+  document.getElementById("ddp-base-index").value = "";
   document.getElementById("ddp-immatriculation").checked = true;
   document.getElementById("ddp-section").innerHTML = "";
   document.getElementById("tableau-balance").innerHTML = "";
