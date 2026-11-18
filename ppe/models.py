@@ -153,9 +153,9 @@ class DossierPPE(models.Model):
     notaire = models.ForeignKey(Notaire, on_delete=models.CASCADE)
     adresse_facturation = models.ForeignKey(AdresseFacturation, on_delete=models.CASCADE)
     aff_infolica = models.IntegerField(default=0,null=True)
-    date_creation = models.DateTimeField("Date de création", auto_now=True)
-    date_soumission = models.DateTimeField("Date de soumission", auto_now=True, blank=True)
-    date_validation = models.DateTimeField("Date de validation", auto_now=True, blank=True)
+    date_creation = models.DateTimeField("Date de création", auto_now_add=True)
+    date_soumission = models.DateTimeField("Date de soumission", null=True, blank=True)
+    date_validation = models.DateTimeField("Date de validation", null=True, blank=True)
     geom = models.PointField(srid=settings.DEFAULT_SRID)
     
     class Meta:
@@ -179,7 +179,7 @@ class Zipfile(models.Model):
     zipfile = models.FileField(upload_to=unique_folder_path, validators=[
         FileExtensionValidator(["zip"])
     ])
-    upload_date = models.DateTimeField("Date de chargement", auto_now=True)
+    upload_date = models.DateTimeField("Date de chargement", auto_now_add=True)
     file_statut = models.CharField(
         max_length=3,
         choices=FileStatut.choices,
