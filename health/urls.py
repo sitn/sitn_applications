@@ -5,6 +5,7 @@ from sitn import router
 router = router.SitnRouter()
 router.register(r'doctors', views.St20AvailableDoctorsViewSet)
 router.register(r'sites', views.St23HealthSiteViewSet)
+router.register(r'pharmacies', views.St21PharmaciesViewSet)
 router.register_additional_view('doctors/edit', 'doctors-by-token-detail')
 router.register_additional_view('doctors/suggest', 'doctors-suggest')
 

@@ -200,3 +200,31 @@ class St23HealthSite(models.Model):
     
     def __str__(self):
         return self.site_name
+
+
+class St21Pharmacies(models.Model, GeoJSONModelMixin):
+    """
+    Pharmacies
+    """
+    idobj = models.TextField(_("idobj"), primary_key=True)
+    gln = models.BigIntegerField(_("gln"), blank=True, null=True)
+    nom_site = models.CharField(_("nom_site"), max_length=200, blank=True, null=True)
+    adresse = models.CharField(_("adresse"), max_length=200, blank=True, null=True)
+    notel = models.CharField(_("notel"), max_length=254, blank=True, null=True)
+    geom = models.PointField(srid=settings.DEFAULT_SRID)
+
+    PUBLIC_FIELDS = [
+        'gln',
+        'nom_site',
+        'adresse',
+        'notel',
+        'geom',
+    ]
+
+    class Meta:
+        db_table = 'sante\".\"st21_pharmacies'
+        verbose_name = _("St21Pharmacies")
+        managed=False
+
+    def __str__(self):
+        return "%s (%s)" % (self.nom_site, self.gln)

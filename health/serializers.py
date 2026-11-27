@@ -4,7 +4,8 @@ from health.models import (
     St20AvailableDoctors,
     St21AvailableDoctorsWithGeom,
     St22DoctorChangeSuggestion,
-    St23HealthSite
+    St23HealthSite,
+    St21Pharmacies
 )
 
 
@@ -67,3 +68,9 @@ class St23HealthSiteSerializer(serializers.ModelSerializer):
             'site_name', 'address', 'public_link',
             'has_pediatrics', 'has_psychiatry', 'has_on_call_service'
         ]
+
+
+class St21PharmaciesSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = St21Pharmacies
+        fields = St21Pharmacies.PUBLIC_FIELDS

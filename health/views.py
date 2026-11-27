@@ -14,14 +14,16 @@ from health.models import (
     St21AvailableDoctorsWithGeom,
     St20AvailableDoctors,
     St22DoctorChangeSuggestion,
-    St23HealthSite
+    St23HealthSite,
+    St21Pharmacies
 )
 from health.serializers import (
     St20AvailableDoctorsSerializer,
     DoctorEmailSerializer,
     St21AvailableDoctorsWithGeomSerializer,
     St22DoctorChangeSuggestionSerializer,
-    St23HealthSiteSerializer
+    St23HealthSiteSerializer,
+    St21PharmaciesSerializer
 )
 
 class St20AvailableDoctorsViewSet(
@@ -144,3 +146,18 @@ class St23HealthSiteViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = St23HealthSite.objects.all()
     serializer_class = St23HealthSiteSerializer
     paginator = None
+
+
+class St21PharmaciesViewSet(viewsets.ReadOnlyModelViewSet):
+    authentication_classes = []
+    queryset = St21Pharmacies.objects.all()
+    serializer_class = St21PharmaciesSerializer
+
+    @action(detail=False, methods=["get"])
+    def as_geojson(self, request):
+        data = St21Pharmacies.as_geojson()
+        return JsonResponse(
+            data,
+            safe=False,
+            json_dumps_params={'ensure_ascii': False}
+        )
